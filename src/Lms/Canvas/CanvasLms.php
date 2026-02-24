@@ -644,11 +644,8 @@ class CanvasLms implements LmsInterface {
         $sectionOptionsBuild = [];
         $deletePaths = [];
         foreach($contentOptions as $option){
-            $output->writeln(json_encode($option, JSON_PRETTY_PRINT));
             $paths[] = $option['contentUrl'];
             $options[] = $this->createLmsPostOptionsWithHtml($option['contentType'], $option['fullPageHtml']);
-            $output->writeln(json_encode($paths, JSON_PRETTY_PRINT));
-            $output->writeln(json_encode($options, JSON_PRETTY_PRINT));
         }
 
         foreach($sectionOptions as $sectionOption){
