@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
+import ToggleSwitch from './Widgets/ToggleSwitch'
 import SortableTable from './Widgets/SortableTable'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
@@ -106,7 +107,7 @@ export default function ReviewFilesPage({
   const [showLearnMore, setShowLearnMore] = useState(false)
 
   const [unusedFiles, setUnusedFiles] = useState([])
-  const [fileDeleteQueue, setFileDeleteQueue] = useState([])
+  const [deleteFileQueue, setDeleteFileQueue] = useState([])
 
 
   const formatFileData = (fileData) => {
@@ -240,12 +241,14 @@ export default function ReviewFilesPage({
     for (const [key, value] of Object.entries(tempFiles)) {
       let tempFile = formatFileData(value)
       tempUnfilteredIssues.push(tempFile)
-      if(!tempFile?.fileData?.references || tempFile?.fileData?.references?.length == 0){
+      if((!tempFile?.fileData?.references || tempFile?.fileData?.references?.length === 0)
+        && (!tempFile?.fileData?.sectionRefs || tempFile?.fileData?.sectionRefs?.length === 0)) {
         tempUnusedFiles.push(tempFile.fileData)
       }
     }
 
-    console.log(tempUnusedFiles)
+    setUnusedFiles(tempUnusedFiles)
+    setDeleteFileQueue((oldQueue) => oldQueue.filter((fileId) => tempUnusedFiles.some((file) => file.id === fileId)))
 
     tempUnfilteredIssues.sort((a, b) => {
       return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
@@ -377,6 +380,28 @@ export default function ReviewFilesPage({
     if(dialog) {
       dialog.close()
     }
+  }
+
+  const toggleDeleteFileQueue = (fileId) => {
+    if(!fileId) {
+      return
+    }
+
+    setDeleteFileQueue((oldQueue) => {
+      if(oldQueue.includes(fileId)) {
+        return oldQueue.filter((id) => id !== fileId)
+      }
+      return [...oldQueue, fileId]
+    })
+  }
+
+  const updateSelectAllUnusedFilesToggle = (newValue) => {
+    if(newValue === false) {
+      setDeleteFileQueue([])
+      return
+    }
+
+    setDeleteFileQueue(unusedFiles.map((file) => file.id))
   }
 
   const getFileTypeDisplay = (fileType) => {
@@ -935,6 +960,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
+  const allUnusedFilesSelected = unusedFiles.length > 0 && deleteFileQueue.length === unusedFiles.length
+
   return (
     <>
       { widgetState === WIDGET_STATE.LOADING ? (
@@ -1079,7 +1106,61 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         <div className='flex-column h-100'> 
           <div className='dialog-header'>
             <h2>{t('files.button.delete_unused_files')}</h2>
-            <CloseIcon onClick={() => closeDialog(unusedFileDialogId)} onKeyDown={(e) => e.key == "Enter" ? () => closeDialog(unusedFileDialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+            <CloseIcon onClick={() => closeDialog(unusedFileDialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(unusedFileDialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+          </div>
+          <div className="dialog-content">
+            <div className="unused-files-list-container">
+              {unusedFiles.length > 0 && (
+                <div className="select-all-unused-toggle-row">
+                  <ToggleSwitch
+                    key={allUnusedFilesSelected ? 'select-all-on' : 'select-all-off'}
+                    labelId="selectAllUnusedFiles"
+                    initialValue={allUnusedFilesSelected}
+                    updateToggle={updateSelectAllUnusedFilesToggle}
+                    small={true}
+                  />
+                  <div id="selectAllUnusedFiles" className="align-self-center subtext">
+                    {t('files.label.select_all_unused_files')}
+                  </div>
+                </div>
+              )}
+              {unusedFiles.length === 0 ? (
+                <div className="flex-column gap-2 p-3">
+                  <h3 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h3>
+                  <div className="subtext">{t('files.msg.no_unused_files')}</div>
+                </div>
+              ) : (
+                unusedFiles.map((unusedFile) => {
+                  const isSelected = deleteFileQueue.includes(unusedFile.id)
+                  return (
+                    <label key={unusedFile.id} htmlFor={`unused-file-${unusedFile.id}`} className="unused-file-list-item">
+                      <input
+                        id={`unused-file-${unusedFile.id}`}
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleDeleteFileQueue(unusedFile.id)}
+                      />
+                      <div className="unused-file-list-details">
+                        <div className="unused-file-list-title">{unusedFile.fileName || t('label.unknown')}</div>
+                        <div className="subtext">{getReadableFileType(unusedFile.fileType)}</div>
+                      </div>
+                    </label>
+                  )
+                })
+              )}
+            </div>
+          </div>
+          <div className='dialog-footer'>
+            <div className="subtext align-self-center">{t('files.label.selected_count', { count: deleteFileQueue.length })}</div>
+            <div className="flex-row gap-2">
+              <button
+                className='btn btn-small btn-icon-left review-files-delete-button'
+                tabIndex='0'
+                disabled={deleteFileQueue.length === 0}>
+                <DeleteIcon className="icon-sm" />
+                <div className="flex-column justify-content-center">{t('files.button.delete_selected')}</div>
+              </button>
+            </div>
           </div>
         </div>
       </dialog>

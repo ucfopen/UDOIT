@@ -59,6 +59,10 @@
   "files.title": "Review Files",
   "files.subtitle": "Files cannot be automatically scanned by UDOIT. Review course files for common accessibility issues and update them if necessary.",
   "files.button.delete_unused_files": "Delete Unused Files",
+  "files.button.delete_selected": "Delete Selected",
+  "files.label.select_all_unused_files": "Select All Unused Files",
+  "files.label.selected_count": "{count} file(s) selected",
+  "files.msg.no_unused_files": "No unused files were found.",
   
   "report.title": "Reports",
   "report.subtitle": "View and print detailed accessibility reports for your course currently or over time.",

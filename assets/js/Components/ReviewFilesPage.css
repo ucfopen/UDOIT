@@ -13,6 +13,41 @@
   }
 }
 
+.unused-files-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+}
+
+.select-all-unused-toggle-row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem 0.5rem;
+}
+
+.unused-file-list-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  background-color: var(--white);
+  cursor: pointer;
+}
+
+.unused-file-list-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.unused-file-list-title {
+  font-weight: 500;
+}
+
 .udoit-sortable-table {
   tr {
 
