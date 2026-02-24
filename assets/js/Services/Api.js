@@ -12,6 +12,7 @@ export default class Api {
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
+            batchDelete: 'api/files/delete',
             updateContent: '/api/{file}/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
@@ -196,6 +197,8 @@ export default class Api {
                 paths: urlList
             })
         })
+
+
     }
 
     updateContent(contentOptions, sectionOptions, fileId){
