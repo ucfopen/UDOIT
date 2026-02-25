@@ -553,6 +553,17 @@ class CanvasLms implements LmsInterface {
         return $fileItem;
     }
 
+    public function batchDeleteContent($paths) {
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        return $canvasApi->apiDeleteBatch($paths);
+
+    }
+
     public function updateContentItem(ContentItem $contentItem)
     {
         $user = $this->security->getUser();

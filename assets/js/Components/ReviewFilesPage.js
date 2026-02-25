@@ -856,6 +856,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
+  const deleteSelectedFiles = () => {
+    console.log(deleteFileQueue)
+  }
+
   // Wrapper to pass to file form for unreviewing 
   const handleFileResolveWrapper = () => {
     handleFileResolve(activeIssue.fileData)
@@ -1156,7 +1160,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               <button
                 className='btn btn-small btn-icon-left review-files-delete-button'
                 tabIndex='0'
-                disabled={deleteFileQueue.length === 0}>
+                disabled={deleteFileQueue.length === 0}
+                onClick={deleteSelectedFiles}
+                >
                 <DeleteIcon className="icon-sm" />
                 <div className="flex-column justify-content-center">{t('files.button.delete_selected')}</div>
               </button>

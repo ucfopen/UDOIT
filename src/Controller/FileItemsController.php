@@ -186,4 +186,20 @@ class FileItemsController extends ApiController
 
         return new JsonResponse($apiResponse);
     }
+
+    #[Route('/api/files/delete', methods: ['DELETE'], name: 'delete_files')]
+    public function batchDeleteFiles(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+        try{
+            $content= \json_decode($request->getContent(), true);
+            $paths = $content['paths'];
+            $apiResponse = $lmsPost->batchDeleteFromLms($paths, $user);
+        }
+        catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
 }
