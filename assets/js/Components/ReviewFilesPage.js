@@ -877,6 +877,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       return
     }
 
+    setIsDisabled(true)
     const reomovedFileId = []
     const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
     console.log(tempQueue)
@@ -891,7 +892,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         }
         const respone_str = await api.batchDelete(paths)
         const response = await respone_str.json()
-        console.log(response)
         for(const r of response){
           reomovedFileId.push(r?.content?.id)
         }
@@ -901,10 +901,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       console.error(e)
     }
 
-    console.log(reomovedFileId)
     const newReport = removeFileFromReport(reomovedFileId)
     setDeleteFileQueue(tempQueue)
     processNewReport(newReport)
+    setIsDisabled(false)
 
   }
 
@@ -1213,7 +1213,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               <button
                 className='btn btn-small btn-icon-left review-files-delete-button'
                 tabIndex='0'
-                disabled={deleteFileQueue.length === 0}
+                disabled={deleteFileQueue.length === 0 || isDisabled}
                 onClick={deleteSelectedFilesWrapper}
                 >
                 <DeleteIcon className="icon-sm" />
