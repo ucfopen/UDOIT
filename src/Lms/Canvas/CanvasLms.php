@@ -361,7 +361,7 @@ class CanvasLms implements LmsInterface {
 
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
 
-        // Batch page pulling maintaince
+        // Batch page pulling maintenance
         $pageUrls = [];
         $asyncFetch = true;
 
