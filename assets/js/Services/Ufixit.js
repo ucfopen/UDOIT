@@ -1,6 +1,5 @@
-import AltText from '../Components/Forms/AltText'
-import AnchorText from '../Components/Forms/AnchorText'
-// import AriaAttributeForm from '../Components/Forms/AriaAttributeForm'
+import AltTextForm from '../Components/Forms/AltTextForm'
+import AnchorTextForm from '../Components/Forms/AnchorTextForm'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
@@ -8,22 +7,16 @@ import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleFo
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
-// import InputLabelForm from '../Components/Forms/InputLabelForm'
-// import InvalidAttributeForm from '../Components/Forms/InvalidAttributeForm'
-// import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
+import InlineCSSForm from '../Components/Forms/InlineCSSForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
-// import MultiPartForm from '../Components/Forms/MultiPartForm'
-import QuoteForm from '../Components/Forms/QuoteForm'
 import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
-
-import InlineCSSForm from '../Components/Forms/InlineCSSForm'
 
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
@@ -50,7 +43,6 @@ export const formNames = {
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
   MULTI_PART: 'multi_part',
-  QUOTE: 'quote',
   SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
   TABLE_CAPTION: 'table_caption',
@@ -70,8 +62,8 @@ export const disabilityTypes = {
 }
 
 const formTypes = {
-  [formNames.ALT_TEXT]: AltText,
-  [formNames.ANCHOR_TEXT]: AnchorText,
+  [formNames.ALT_TEXT]: AltTextForm,
+  [formNames.ANCHOR_TEXT]: AnchorTextForm,
   // [formNames.ARIA_ATTRIBUTE]: AriaAttributeForm,
   [formNames.ARIA_ROLE]: AriaRoleForm,
   [formNames.BLOCKQUOTE]: BlockquoteForm,
@@ -90,7 +82,6 @@ const formTypes = {
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   // [formNames.MULTI_PART]: MultiPartForm,
-  [formNames.QUOTE]: QuoteForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
@@ -211,7 +202,7 @@ const rulesToFormNameMap = {
   // table_aria_descendants: formNames.INVALID_ATTRIBUTE,
   // table_scope_valid: formNames.INVALID_ATTRIBUTE,
 
-  // text_spacing_valid: formNames.INVALID_CSS,
+  text_spacing_valid: formNames.INVALID_CSS,
 
   // aria_activedescendant_tabindex_valid: formNames.KEYBOARD_TABBABLE,
   // element_scrollable_tabbable: formNames.KEYBOARD_TABBABLE,
@@ -390,7 +381,6 @@ export function disabilitiesFromRule(ruleId) {
         break
       case formNames.LINK:
       case formNames.LIST:
-      case formNames.QUOTE:
       case formNames.SELECT_VALID_ID:
       case formNames.TABLE_CAPTION:
       case formNames.TABLE_HEADERS:

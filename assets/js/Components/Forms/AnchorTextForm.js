@@ -4,7 +4,7 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
-export default function AnchorText({
+export default function AnchorTextForm ({
   t,
   settings,
   activeIssue,

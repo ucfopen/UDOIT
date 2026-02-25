@@ -4,7 +4,7 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
-export default function AltText ({
+export default function AltTextForm ({
   t,
   settings,
   activeIssue,
