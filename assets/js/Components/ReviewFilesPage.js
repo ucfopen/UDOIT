@@ -356,13 +356,6 @@ export default function ReviewFilesPage({
     }
   }, [showLearnMore])
 
-
-  const isDialogOpen = () => {
-    const dialog = document.getElementById(dialogId)
-    return dialog && dialog.open
-  }
-
-
   const openDialog = (dialogId) => {
     setWidgetState(WIDGET_STATE.FIXIT)
 
@@ -387,12 +380,17 @@ export default function ReviewFilesPage({
       return
     }
 
-    setDeleteFileQueue((oldQueue) => {
-      if(oldQueue.includes(fileId)) {
-        return oldQueue.filter((id) => id !== fileId)
-      }
-      return [...oldQueue, fileId]
-    })
+    url = `file/${fileId}`
+
+    const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
+    if(tempQueue.includes(url)){
+      tempQueue.filter((q_url) => q_url !== url)
+    }
+    else{
+      tempQueue.push(url)
+    }
+
+    setDeleteFileQueue(tempQueue)
   }
 
   const updateSelectAllUnusedFilesToggle = (newValue) => {
@@ -401,7 +399,7 @@ export default function ReviewFilesPage({
       return
     }
 
-    setDeleteFileQueue(unusedFiles.map((file) => file.id))
+    setDeleteFileQueue(unusedFiles.map((file) => `files/${file.lmsFileId}`))
   }
 
   const getFileTypeDisplay = (fileType) => {
@@ -856,8 +854,61 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
-  const deleteSelectedFiles = () => {
-    console.log(deleteFileQueue)
+  const removeFileFromReport = (fileIds) => {
+    const tempReport = Object.assign({}, report)
+
+    if(!Array.isArray(tempReport.files)){
+      tempReport.files = Object.values(tempReport.files)
+    }
+
+    if(!tempReport || !tempReport.files || tempReport.files.length == 0){
+      return tempReport
+    }
+    
+    for(const id of fileIds){
+      tempReport.files = tempReport.files.filter((file) => parseInt(file.lmsFileI) != id)
+    }
+
+    return tempReport
+  }
+
+  const deleteSelectedFiles = async (payload) => {
+    if(!deleteFileQueue || deleteFileQueue?.length == 0){
+      return
+    }
+
+    const reomovedFileId = []
+    const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
+    console.log(tempQueue)
+    try{
+      const api = new Api(settings)
+      while(tempQueue.length > 0){
+        let payloadTracker = 0
+        let paths = []
+        while(tempQueue.length > 0 && payloadTracker < payload){
+          paths.push(tempQueue.pop())
+          payloadTracker++
+        }
+        const respone_str = await api.batchDelete(paths)
+        const response = await respone_str.json()
+        console.log(response)
+        for(const r of response){
+          reomovedFileId.push(r.id)
+        }
+      }
+    }
+    catch(e){
+      console.error(e)
+    }
+
+    const newReport = removeFileFromReport(reomovedFileId)
+    processNewReport(newReport)
+
+  }
+
+  const deleteSelectedFilesWrapper = () => {
+    const payload = 10
+    deleteSelectedFiles(payload)
   }
 
   // Wrapper to pass to file form for unreviewing 
@@ -1135,7 +1186,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 </div>
               ) : (
                 unusedFiles.map((unusedFile) => {
-                  const isSelected = deleteFileQueue.includes(unusedFile.id)
+                  const isSelected = deleteFileQueue.includes(`files/${unusedFile.lmsFileId}`)
                   return (
                     <label key={unusedFile.id} htmlFor={`unused-file-${unusedFile.id}`} className="unused-file-list-item">
                       <input
@@ -1161,7 +1212,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 className='btn btn-small btn-icon-left review-files-delete-button'
                 tabIndex='0'
                 disabled={deleteFileQueue.length === 0}
-                onClick={deleteSelectedFiles}
+                onClick={deleteSelectedFilesWrapper}
                 >
                 <DeleteIcon className="icon-sm" />
                 <div className="flex-column justify-content-center">{t('files.button.delete_selected')}</div>
