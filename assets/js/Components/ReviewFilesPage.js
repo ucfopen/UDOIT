@@ -866,7 +866,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
     
     for(const id of fileIds){
-      tempReport.files = tempReport.files.filter((file) => parseInt(file.lmsFileI) != id)
+      tempReport.files = tempReport.files.filter((file) => parseInt(file.lmsFileId) != id)
     }
 
     return tempReport
@@ -893,7 +893,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         const response = await respone_str.json()
         console.log(response)
         for(const r of response){
-          reomovedFileId.push(r.id)
+          reomovedFileId.push(r?.content?.id)
         }
       }
     }
@@ -901,7 +901,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       console.error(e)
     }
 
+    console.log(reomovedFileId)
     const newReport = removeFileFromReport(reomovedFileId)
+    setDeleteFileQueue(tempQueue)
     processNewReport(newReport)
 
   }
