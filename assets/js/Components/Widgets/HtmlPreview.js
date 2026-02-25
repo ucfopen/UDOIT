@@ -51,6 +51,10 @@ export default function HtmlPreview({
     }
 
     if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+      doc.querySelectorAll('.ufixit-temp-selected').forEach((el) => {
+        el.classList.remove('ufixit-temp-selected')
+      })
+      
       if(previewData && previewData.attributeId && previewData.idXpathMap) {
         const idXpathMap = previewData.idXpathMap
         const attributeId = previewData.attributeId
