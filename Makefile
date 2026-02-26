@@ -16,6 +16,10 @@ migrate:
 down:
 	docker compose -f docker-compose.nginx.yml down
 
+# rebuild the containers from the ground up
+build:
+	docker compose -f docker-compose.nginx.yml up --build
+
 # clear the Symfony cache
 clean-cache:
 	docker compose -f docker-compose.nginx.yml run php bin/console cache:clear
