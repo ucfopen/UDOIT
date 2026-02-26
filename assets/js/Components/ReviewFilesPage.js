@@ -35,6 +35,7 @@ import './ReviewFilesPage.css'
 import * as Html from '../Services/Html.js'
 import CloseIcon from './Icons/CloseIcon.js'
 import LearnMore from './Widgets/LearnMore.js'
+import ProgressIcon from './Icons/ProgressIcon.js'
 
 export default function ReviewFilesPage({
   t,
@@ -1167,7 +1168,17 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           </div>
           <div className="dialog-content">
             <div className="unused-files-list-container">
-              {unusedFiles.length > 0 && (
+              {isDisabled && (<div className="flex-column h-100 flex-grow-1 justify-content-center">
+                    <div className="flex-row justify-content-center mb-4">
+                      <div className="flex-column justify-content-center">
+                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                      </div>
+                      <div className="flex-column justify-content-center ms-3">
+                        <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+                      </div>
+                    </div>
+                  </div> )}
+              {!isDisabled && unusedFiles.length > 0 && (
                 <div className="select-all-unused-toggle-row">
                   <ToggleSwitch
                     key={allUnusedFilesSelected ? 'select-all-on' : 'select-all-off'}
@@ -1186,7 +1197,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                   <h3 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h3>
                   <div className="subtext">{t('files.msg.no_unused_files')}</div>
                 </div>
-              ) : (
+              ) : !isDisabled && (
                 unusedFiles.map((unusedFile) => {
                   const isSelected = deleteFileQueue.includes(`files/${unusedFile.lmsFileId}`)
                   return (
