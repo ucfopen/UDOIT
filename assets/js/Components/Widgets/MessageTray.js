@@ -16,7 +16,8 @@ export default function MessageTray ({
   const containerRef = useRef(null)
 
   const createMessage = (newMessage) => {
-    if(!newMessage.message) {
+
+    if(!newMessage?.message) {
       return
     }
     const id = Date.now() + Math.random().toString().slice(2)
