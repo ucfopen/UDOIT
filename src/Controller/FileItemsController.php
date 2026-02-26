@@ -7,6 +7,7 @@ use App\Entity\ContentItem;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\LmsFetchService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,7 +25,7 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/review', name: 'review_file')]
-    public function reviewFile(FileItem $file, Request $request, UtilityService $util)
+    public function reviewFile(SessionService $sessionService, Request $request, UtilityService $util, FileItem $file)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -33,7 +34,7 @@ class FileItemsController extends ApiController
         try {
             // Check if user has access to course
             $course = $file->getCourse();
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("You do not have permission to access this issue.");
             }
 
@@ -71,7 +72,7 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/post', methods: ['POST'], name: 'file_post')]
-    public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch)
+    public function postFile(SessionService $sessionService, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch, FileItem $file)
     {
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
@@ -81,7 +82,7 @@ class FileItemsController extends ApiController
         try {
             // Check if user has access to course
             $course = $file->getCourse();
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("You do not have permission to access this issue.");
             }
 
