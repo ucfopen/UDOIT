@@ -19,11 +19,21 @@ export default function ContrastForm({
   handleIssueSave,
   markAsReviewed,
 }) {
+
+  const GRADIENT_KEYWORDS = new Set([
+    'linear', 'radial', 'repeating-linear', 'repeating-radial', 'gradient',
+    'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'
+  ]);
+
   // Extract color strings from gradients
+  // Regex matches color codes and names, keywords are excluded to just leave colors
   const extractColors = (gradientString) => {
-    const colorRegex = /#(?:[0-9a-fA-F]{3,8})\b|(?:rgba?|hsla?)\([^)]*\)/g
-    return gradientString.match(colorRegex) || []
-  }
+    const colorRegex = /#(?:[0-9a-fA-F]{3,8})\b|(?:rgba?|hsla?)\([^)]*\)|\b[a-zA-Z]+\b/g;
+    const matches = gradientString.match(colorRegex) || [];
+    return matches.filter(
+      c => !GRADIENT_KEYWORDS.has(c.toLowerCase())
+    );
+  };
 
   // Get all background colors (including gradients)
   const getBackgroundColors = () => {
