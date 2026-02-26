@@ -15,6 +15,7 @@ use App\Services\LmsFetchService;
 use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
 use App\Services\ScannerService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,14 +50,14 @@ class SyncController extends ApiController
         $this->doctrine = $doctrine;
     }
   
-    private function executeScan(Course $course, LmsFetchService $lmsFetch, bool $force) {
+    private function executeScan(Course $course, SessionService $sessionService, LmsFetchService $lmsFetch, bool $force) {
         
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
 
         try {
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception('msg.no_permissions');
             }
             if ($course->isDirty()) {
@@ -110,16 +111,16 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/{course}', name: 'request_sync')]
-    public function requestSync(Course $course, LmsFetchService $lmsFetch)
+    public function requestSync(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course)
     {
         $force = ! $this->isCurrentVersion($course);
         
-        return $this->executeScan($course, $lmsFetch, $force);
+        return $this->executeScan($course, $sessionService, $lmsFetch, $force);
     }
 
     #[Route('/api/sync/rescan/{course}', name: 'full_rescan')]
-    public function fullCourseRescan(Course $course, LmsFetchService $lmsFetch) {
-        return $this->executeScan($course, $lmsFetch, true);
+    public function fullCourseRescan(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course) {
+        return $this->executeScan($course, $sessionService, $lmsFetch, true);
     }
 
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
@@ -172,11 +173,11 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/courses/{course}/reports/update', name:'update_and_get_reports', methods: ['GET'])]
-    public function updateAndGetReport(Course $course, LmsFetchService $lmsFetch){
+    public function updateAndGetReport(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course){
         $response = new ApiResponse();
         $user = $this->getUser();
         try{
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("You do not have permission to access this report.");
             }
             $reportArr = $this->updateReport($course, $user, $lmsFetch);
