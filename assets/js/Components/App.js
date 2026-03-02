@@ -41,6 +41,7 @@ export default function App(initialData) {
   const [sessionIssues, setSessionIssues] = useState({})
   const [sessionFiles, setSessionFiles] = useState({})
   const [welcomeClosed, setWelcomeClosed] = useState(false)
+  const [modalActive, setModalActive] = useState(false)
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -381,10 +382,10 @@ export default function App(initialData) {
             <Header
               t={t}
               settings={settings}
-              hasNewReport={hasNewReport}
+              modalActive={modalActive}
               navigation={navigation}
-              syncComplete={syncComplete}
               handleNavigation={handleNavigation}
+              syncComplete={syncComplete}
              />
 
             <main role="main" id="main-content">
@@ -416,6 +417,7 @@ export default function App(initialData) {
                   sessionIssues={sessionIssues}
                   updateSessionIssue={updateSessionIssue}
                   processServerError={processServerError}
+                  setModalActive={setModalActive}
                 />
               }
               {('reviewFiles' === navigation) &&
@@ -432,6 +434,7 @@ export default function App(initialData) {
                   sessionFiles={sessionFiles}
                   updateSessionFiles={updateSessionFiles}
                   processServerError={processServerError}
+                  setModalActive={setModalActive}
                 />
               }
               {('reports' === navigation) &&
