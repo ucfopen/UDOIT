@@ -99,6 +99,7 @@ export default function FixIssuesList({
                 { group.issues.map((issue, j) => {
                   return (
                     <div
+                      id={`issue-item-${issue.id}`}
                       className="ufixit-list-item flex-row justify-content-between gap-3"
                       key={j}
                       onClick={() => setActiveIssue(issue)}

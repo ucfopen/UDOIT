@@ -204,6 +204,7 @@ export default function SortableTable({
               const isRowClickable = !!row.onClick;
               return (
                 <tr
+                  id={row.id ? row.id : `row${index}`}
                   key={`row${index}`}
                   className={isRowClickable ? 'clickable' : ''}
                   onClick={isRowClickable ? row.onClick : undefined}
