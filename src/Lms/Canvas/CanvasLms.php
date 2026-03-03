@@ -398,7 +398,7 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
                     if(('page' === $contentType) && $asyncFetch){
-                        // If we are using async fetch we need the 
+                        // If we are using async fetch we need the LMS content and URL to be saved and processed later
                         $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                         $contentItem = $this->contentItemRepo->findOneBy([
                             'contentType' => $contentType,
