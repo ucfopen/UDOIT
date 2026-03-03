@@ -381,16 +381,18 @@ export default function ReviewFilesPage({
       return
     }
 
-    url = `file/${fileId}`
+    const url = `files/${fileId}`
 
-    const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
+    let tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
+    console.log(tempQueue)
     if(tempQueue.includes(url)){
-      tempQueue.filter((q_url) => q_url !== url)
+      tempQueue = tempQueue.filter((q_url) => q_url != url)
     }
     else{
       tempQueue.push(url)
     }
 
+    console.log(tempQueue)
     setDeleteFileQueue(tempQueue)
   }
 
@@ -1206,7 +1208,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                         id={`unused-file-${unusedFile.id}`}
                         type="checkbox"
                         checked={isSelected}
-                        onChange={() => toggleDeleteFileQueue(unusedFile.id)}
+                        onChange={() => toggleDeleteFileQueue(unusedFile.lmsFileId)}
                       />
                       <div className="unused-file-list-details">
                         <div className="unused-file-list-title">{unusedFile.fileName || t('label.unknown')}</div>
