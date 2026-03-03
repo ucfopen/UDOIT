@@ -363,7 +363,9 @@ class CanvasLms implements LmsInterface {
 
         // Batch page pulling maintenance
         $pageUrls = [];
-        $asyncFetch = true;
+
+        // Due to the sequential calls, this field being true currently makes the process a lot slower.
+        $asyncFetch = false;
 
         $start_time = microtime(true);
         foreach ($urls as $contentType => $url) {
