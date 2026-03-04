@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import './SensoryMisuseForm.css'
+import { numberedPattern, letteredPattern, bulletPattern } from '../../Services/Lists'
 
 export default function ListForm({
   t,
@@ -56,18 +57,22 @@ export default function ListForm({
         editor.on('init', () => {
           editor.setContent(html)
           editorRef.current = editor
+          validateContent()
         })
-        editor.on('input', () => {
-          handleEditorChange(editor.getContent())
+        editor.on('change keyup input', () => {
+          validateContent()
         })
       }
     })
   }, [activeIssue])
 
-  useEffect(() => {
-    const isValid = checkForValidList(editorHtml)
-    setHasValidList(isValid)
-  }, [editorHtml])
+  const validateContent = () => {
+    if (editorRef.current) {
+      const currentContent = editorRef.current.getContent()
+      const isValid = checkForValidList(currentContent)
+      setHasValidList(isValid)
+    }
+  }
 
   const handleEditorChange = (html) => {
     setEditorHtml(html)
@@ -77,7 +82,6 @@ export default function ListForm({
     if (!html) return false
     
     const tempElement = Html.toElement(html)
-    if (!tempElement) return false
     if (!tempElement) return false
 
     // Check if the element itself is a list
@@ -97,6 +101,76 @@ export default function ListForm({
     }
 
     return true
+  }
+
+  const detectListType = (text) => {
+    if (text.match(numberedPattern)) return 'ol'
+    if (text.match(letteredPattern)) return 'ol'
+    if (text.match(bulletPattern)) return 'ul'
+    return 'ul'
+  }
+
+  const handleAutoFix = () => {
+    if (!editorRef.current) return
+
+    const currentContent = editorRef.current.getContent()
+    
+    // Check if already a valid list - don't auto-fix again
+    if (checkForValidList(currentContent)) {
+      return
+    }
+    
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(currentContent, 'text/html')
+    const elements = Array.from(doc.body.children)
+    
+    if (elements.length === 0) return
+
+    // Detect list type from first element
+    const firstText = elements[0].textContent.trim()
+    const listType = detectListType(firstText)
+
+    // Build semantic list
+    let listHtml = `<${listType}>\n`
+    elements.forEach(element => {
+      let text = element.textContent.trim()
+      if (!text) return
+      
+      // Strip prefix from text content to know what to remove
+      const cleanText = text
+        .replace(numberedPattern, '')
+        .replace(letteredPattern, '')
+        .replace(bulletPattern, '')
+        .trim()
+      
+      if (!cleanText) return
+      
+      // Clone the element to manipulate it
+      const clone = element.cloneNode(true)
+      
+      // Get the first text node and strip the prefix from it
+      const walker = document.createTreeWalker(
+        clone,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      )
+      
+      const firstTextNode = walker.nextNode()
+      if (firstTextNode) {
+        firstTextNode.textContent = firstTextNode.textContent
+          .replace(numberedPattern, '')
+          .replace(letteredPattern, '')
+          .replace(bulletPattern, '')
+          .trim()
+      }
+      
+      listHtml += `  <li>${clone.innerHTML.trim()}</li>\n`
+    })
+    listHtml += `</${listType}>`
+
+    editorRef.current.setContent(listHtml)
+    validateContent()
   }
 
   const handleSubmit = () => {
@@ -139,25 +213,18 @@ export default function ListForm({
   return (
     <>
       <div className="instructions">
-        {metadata?.isListGroup && activeIssue?.groupCount > 0 
-          ? t('form.list.label.instructions_grouped', { count: activeIssue.groupCount })
-          : t('form.list.label.instructions')
-        }
+        {t('form.list.label.instructions')}
       </div>
-      
-      {hasValidList ? (
-        <div className="mt-3">
-          <div className="ufixit-widget-label text-success">
-            ✓ {t('form.list.label.valid')}
-          </div>
-        </div>
-      ) : (
-        <div className="mt-3">
-          <div className="ufixit-widget-label text-danger">
-            ✗ {t('form.list.label.invalid')}
-          </div>
-        </div>
-      )}
+
+      <div className="mt-3">
+        <button 
+          className="btn-primary btn-small" 
+          onClick={handleAutoFix}
+          disabled={isContentLoading}
+        >
+          {t('form.list.button.auto_fix')}
+        </button>
+      </div>
 
       <div className="mt-3">
         <textarea id="list-form-textarea"></textarea>
