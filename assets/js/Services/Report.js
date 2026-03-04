@@ -1,4 +1,5 @@
 import * as Html from './Html'
+import { groupListIssues } from './Lists' 
 
 /** With all of the data inconsistency between the old and new issues, we need to double-check some things:
  *    1. If the issue is ACTIVE (found in the scan) but should be ignored, either because of the old 
@@ -439,6 +440,8 @@ export function analyzeReport(report, ISSUE_STATE) {
       }
     }
   })
+  
+  activeIssues = groupListIssues(activeIssues, parsedDocuments)
   
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts

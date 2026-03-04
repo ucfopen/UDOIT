@@ -122,6 +122,67 @@ export default function HtmlPreview({
     const parser = new DOMParser()
     let doc = parser.parseFromString(fullPageHtml, 'text/html')
 
+    // Check if this is a grouped list issue
+    let metadata = {}
+    try {
+      metadata = typeof activeIssue?.issueData?.metadata === 'string' 
+        ? JSON.parse(activeIssue.issueData.metadata) 
+        : (activeIssue?.issueData?.metadata || {})
+    } catch (e) {
+      metadata = {}
+    }
+
+    // Handle grouped list issues
+    if (metadata.isListGroup && metadata.listGroupXpaths) {
+      const groupElements = []
+      
+      metadata.listGroupXpaths.forEach((xpath) => {
+        const element = Html.findElementWithXpath(doc, xpath)
+        if (element) {
+          groupElements.push(element)
+        }
+      })
+
+      if (groupElements.length === 0) {
+        setShowMessage(true)
+        setIsErrorFoundInContent(false)
+        return null
+      }
+
+      const firstElement = groupElements[0]
+      const lastElement = groupElements[groupElements.length - 1]
+      
+      // Wrap in highlight div
+      if (firstElement.parentElement === lastElement.parentElement) {
+        const wrapper = doc.createElement('div')
+        wrapper.classList.add('ufixit-error-highlight')
+        wrapper.setAttribute('data-list-group', 'true')
+        
+        firstElement.parentElement.insertBefore(wrapper, firstElement)
+        
+        groupElements.forEach(element => {
+          wrapper.appendChild(element)
+        })
+      } else {
+        groupElements.forEach(element => {
+          element.classList.add('ufixit-error-highlight')
+        })
+      }
+
+      setShowMessage(false)
+      setIsErrorFoundInContent(true)
+      
+      const detailsElements = Array.from(doc.body.querySelectorAll('details'))
+      detailsElements.forEach((detailsElement) => {
+        if (!detailsElement.open) {
+          detailsElement.open = true
+        }
+      })
+
+      return doc.body.innerHTML
+    }
+
+    // Original single-issue logic
     let errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
     let editedElement = Html.getIssueHtml(activeIssue?.issueData)
   
