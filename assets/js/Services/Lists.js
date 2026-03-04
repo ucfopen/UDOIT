@@ -1,5 +1,10 @@
 import * as Html from './Html'
 
+// regexes
+export const numberedPattern = /^\s*(\d+)\s*[.\)\-:]\s*/
+export const letteredPattern = /^\s*([a-zA-Z])\s*[.\)\-:]\s*/
+export const bulletPattern = /^\s*[•\-*○●■□▪▫](?:\s+|$)/
+
 export function groupListIssues(issues, parsedDocuments) {
   const listIssues = []
   const otherIssues = []
@@ -72,6 +77,7 @@ function groupByProximity(listIssues, parsedDocuments, allIssues) {
       siblings.forEach((sibling, index) => {
         const text = sibling.textContent.trim()
         const listInfo = extractListInfo(text)
+        console.log(text, extractListInfo(text))
         
         if (listInfo) {
           const issuesForElement = elementIssueMap.get(sibling) || []
@@ -122,10 +128,6 @@ function groupByProximity(listIssues, parsedDocuments, allIssues) {
 }
 
 function extractListInfo(text) {
-  const numberedPattern = /^\s*(\d+)\s*[\.\)\-\:]\s*/
-  const letteredPattern = /^\s*([a-zA-Z])\s*[\.\)\-\:]\s*/
-  const bulletPattern = /^\s*[•\-\*○●■□▪▫]\s+/
-  
   let match = text.match(numberedPattern)
   if (match) return { type: 'numbered', value: parseInt(match[1]), prefix: match[0] }
   
@@ -179,7 +181,6 @@ function createParentIssue(issueGroup, parsedDocuments) {
   return parentIssue
 }
 
-// Clean the wrapper div from newHtml before saving
 export function cleanListGroupWrapper(html) {
   if (!html) return html
   
