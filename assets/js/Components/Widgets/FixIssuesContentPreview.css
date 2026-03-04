@@ -10,16 +10,9 @@
   }
 
   a {
-    font-weight: 300;
     text-align: end;
-    text-decoration: none;
-    font-size: .9em;
     display: flex;
     flex-direction: row;
-
-    &:hover, &:focus {
-      text-decoration: underline;
-    }
   }
 
 }

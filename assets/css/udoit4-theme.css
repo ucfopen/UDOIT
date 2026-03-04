@@ -730,6 +730,19 @@
     }
   }
 
+  a.udoit-link {
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.9em;
+    color: var(--link-color);
+    fill: var(--link-color);
+
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+    }
+  }
+
 }
 
 @layer udoit-layout {

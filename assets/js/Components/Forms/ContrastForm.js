@@ -24,10 +24,82 @@ export default function ContrastForm({
     SET_COLOR: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE
   }
 
-  // Extract color strings from gradients
-  const extractColors = (gradientString) => {
-    const colorRegex = /#(?:[0-9a-fA-F]{3,8})\b|(?:rgba?|hsla?)\([^)]*\)/g
-    return gradientString.match(colorRegex) || []
+  const GRADIENT_KEYWORDS = new Set([
+    'linear', 'radial', 'repeating-linear', 'repeating-radial', 'gradient',
+    'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'
+  ])
+
+  // Extract color strings from a CSS background value, handling nested color functions
+  const extractColors = (str) => {
+    const COLOR_FUNCTIONS = new Set([
+      'rgb', 'rgba', 'hsl', 'hsla', 'lab', 'lch', 'oklab', 'oklch',
+      'hwb', 'color', 'color-mix', 'color-contrast', 'device-cmyk'
+    ])
+
+    // Some color function can have colors nested inside, like: lch(from hsl(180 100% 50%) calc(l - 10) c h)
+    // Once a color function is detected, we need to capture the entire block (including nested parentheses) as a single token.
+    // This returns the full block string (including '(' and ')') and the index after the closing ')'.
+    const extractBalancedBlock = (s, openIdx) => {
+      let depth = 0
+      for (let i = openIdx; i < s.length; i++) {
+        if (s[i] === '(') depth++
+        else if (s[i] === ')') {
+          depth--
+          if (depth === 0) return { block: s.slice(openIdx, i + 1), endIdx: i + 1 }
+        }
+      }
+      return null
+    }
+
+    const results = []
+    let i = 0
+
+    while (i < str.length) {
+      // Match hex color: #RGB, #RRGGBB, #RGBA, #RRGGBBAA
+      if (str[i] === '#') {
+        const hexMatch = str.slice(i).match(/^#[0-9a-fA-F]{3,8}\b/)
+        if (hexMatch) {
+          results.push(hexMatch[0])
+          i += hexMatch[0].length
+          continue
+        }
+      }
+
+      // Match a word (function name, named color, or gradient keyword)
+      const wordMatch = str.slice(i).match(/^[a-zA-Z][\w-]*/)
+      if (wordMatch) {
+        const word = wordMatch[0]
+        const afterWord = i + word.length
+        const wordLower = word.toLowerCase()
+
+        if (str[afterWord] === '(') {
+          if (COLOR_FUNCTIONS.has(wordLower)) {
+            // Capture the entire color function as a single token (handles nesting)
+            const balanced = extractBalancedBlock(str, afterWord)
+            if (balanced) {
+              results.push(word + balanced.block)
+              i = balanced.endIdx
+              continue
+            }
+          }
+          // Non-color function (e.g. linear-gradient): skip the name and opening '(',
+          // then continue scanning inside — the closing ')' is just skipped as unknown
+          i = afterWord + 1
+          continue
+        }
+
+        // Bare word not followed by '(' — emit if not a gradient keyword
+        if (!GRADIENT_KEYWORDS.has(wordLower)) {
+          results.push(word)
+        }
+        i = afterWord
+        continue
+      }
+
+      i++
+    }
+
+    return results
   }
 
   // Get all background colors (including gradients)
@@ -99,8 +171,10 @@ export default function ContrastForm({
   const [currentBgColors, setCurrentBgColors] = useState([])
   const [textColor, setTextColor] = useState(null)
   const [contrastRatio, setContrastRatio] = useState(null)
+  const [minRatio, setMinRatio] = useState(4.5)
+  const [minAAARatio, setMinAAARatio] = useState(7)
   const [ratioIsValid, setRatioIsValid] = useState(false)
-  const [autoAdjustError, setAutoAdjustError] = useState(false)
+  const [ratioIsAAA, setRatioIsAAA] = useState(false)
   const [showAllColors, setShowAllColors] = useState(false)
 
   // Generate updated HTML with new colors
@@ -166,9 +240,6 @@ export default function ContrastForm({
   }
 
   const checkContrastRatio = () => {
-    const html = Html.getIssueHtml(activeIssue)
-    const element = Html.toElement(html)
-    const minRatio = isLargeText(element) ? 3 : 4.5
     let ratio = 1
     if (currentBgColors.length > 0 && textColor) {
       const ratios = currentBgColors.map(bg => Contrast.contrastRatio(
@@ -178,7 +249,10 @@ export default function ContrastForm({
     }
     setContrastRatio(ratio)
     const validRatio = ratio >= minRatio
+    const aaaRatio = ratio >= minAAARatio
+    
     setRatioIsValid(validRatio)
+    setRatioIsAAA(aaaRatio)
     return validRatio
   }
 
@@ -203,11 +277,20 @@ export default function ContrastForm({
 
   // On issue change, extract from original HTML
   useEffect(() => {
+    if (!activeIssue) {
+      return
+    }
+
+    const element = Html.toElement(Html.getIssueHtml(activeIssue))
+    const isLarge = isLargeText(element)
+    setMinRatio(isLarge ? 3 : 4.5)
+    setMinAAARatio(isLarge ? 4.5 : 7)
+
     const info = getBackgroundColors()
     setOriginalBgColors(info)
     setCurrentBgColors(info.map(bg => bg.hsl))
     setTextColor(getTextColor())
-    setAutoAdjustError(false)
+    
     setShowAllColors(false)
     setActiveOption(FORM_OPTIONS.SET_COLOR)
   }, [activeIssue])
@@ -240,28 +323,34 @@ export default function ContrastForm({
   const handleAutoAdjustAll = () => {
     let newBgColors = [...currentBgColors]
     let failed = false
-    const element = Html.toElement(Html.getIssueHtml(activeIssue))
-    const minRatio = isLargeText(element) ? 3 : 4.5
+    let adjustRatio = minRatio
+
+    if(contrastRatio >= minAAARatio) {
+      return
+    }
+    if(contrastRatio >= minRatio) {
+      adjustRatio = minAAARatio
+    }
 
     for (let i = 0; i < newBgColors.length; i++) {
       let bg = newBgColors[i]
       let ratio = Contrast.contrastRatio(bg, textColor)
 
-      if(ratio >= minRatio) continue
+      if(ratio >= adjustRatio) continue
 
       let changed = false
       let lighter = Contrast.changeLuminance(bg, 'lighten');
       let darker = Contrast.changeLuminance(bg, 'darken');
 
-      const max_iterations = 21
+      const max_iterations = 41
       for(let attempts = 0; attempts < max_iterations; attempts++) {
         const lighterRatio = Contrast.contrastRatio(lighter, textColor)
         const darkerRatio = Contrast.contrastRatio(darker, textColor)
-        if (lighterRatio > minRatio) {
+        if (lighterRatio > adjustRatio) {
           changed = true
           bg = lighter
           break
-        } else if (darkerRatio > minRatio) {
+        } else if (darkerRatio > adjustRatio) {
           changed = true
           bg = darker
           break
@@ -297,8 +386,6 @@ export default function ContrastForm({
   const maxColorsToShow = 4;
   const shouldShowExpand = currentBgColors.length > maxColorsToShow;
   const visibleBgColors = showAllColors ? currentBgColors : currentBgColors.slice(0, maxColorsToShow);
-  const tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
-  const minRatio = headingTags.includes(tagName) ? 3 : 4.5;
 
   return (
     <>
@@ -318,21 +405,24 @@ export default function ContrastForm({
             />
           </div>
           <div className="flex-row align-items-center gap-1">
-            <DarkIcon className="icon-md" alt="" />
+            <DarkIcon className="icon-md" alt="" aria-hidden="true"/>
             <input
               type="range"
               id="textLumSlider"
               name="textLumSlider"
-              aria-labelledby="text-label"
+              aria-label={t('form.contrast.replace_text') + ' ' + t('form.contrast.label.brightness')}
               min="0"
               max="1"
               step="0.025"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={((textColor?.l || 0) * 100).toFixed(0) + '%' }
               value={textColor?.l || 0}
               onChange={(e) => {
                 setTextColor(Contrast.setLuminance(textColor, e.target.value))
               }}
               />
-            <LightIcon className="icon-md" alt="" />
+            <LightIcon className="icon-md" alt="" aria-hidden="true"/>
           </div>
         </div>
       </div>
@@ -340,10 +430,9 @@ export default function ContrastForm({
       <div className="flex-column">
         <label>{t('form.contrast.replace_background')}</label>
         {visibleBgColors.map((color, idx) => {
-          let showStatus = currentBgColors.length > 1;
           let ratio = Contrast.contrastRatio(
             Contrast.hslToHex(color), Contrast.hslToHex(textColor)
-          );
+          )
           let isValid = ratio >= minRatio;
 
           return (
@@ -359,12 +448,12 @@ export default function ContrastForm({
                     ' ' +
                     (isValid
                       ? t('form.contrast.feedback.valid')
-                      : t('form.contrast.feedback.invalid'))
+                      : t('form.contrast.feedback.invalid', { current: ratio ? ratio.toFixed(2) : 'N/A' }))
                   }
                   title={t('form.contrast.label.background.show_color_picker')}
                   disabled={isDisabled}
                 />
-                {showStatus && (
+                { currentBgColors.length > 1 && (
                   isValid ? (
                     <CheckIcon className="icon-md color-success ms-2" />
                   ) : (
@@ -373,7 +462,7 @@ export default function ContrastForm({
                 )}
               </div>
               <div className="flex-row align-items-center gap-1">
-                <DarkIcon className="icon-md" alt="" />
+                <DarkIcon className="icon-md" alt="" aria-hidden="true"/>
                 <input
                   type="range"
                   id={`backgroundLumSlider${idx}`}
@@ -381,12 +470,16 @@ export default function ContrastForm({
                   min="0"
                   max="1"
                   step="0.025"
+                  aria-label={t('form.contrast.replace_background') + ' ' + t('form.contrast.label.brightness')}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={((currentBgColors[idx]?.l || 0) * 100).toFixed(0) + '%'}
                   value={currentBgColors[idx]?.l || 0}
                   onChange={(e) => {
                     handleBackgroundChange(idx, e.target.value)
                   }}
                   />
-                <LightIcon className="icon-md" alt="" />
+                <LightIcon className="icon-md" alt="" aria-hidden="true"/>
               </div>
             </div>
           );
@@ -412,7 +505,7 @@ export default function ContrastForm({
           disabled={isDisabled}
           onClick={handleAutoAdjustAll}
         >
-          <ContrastIcon className="icon-md" alt="" />
+          <ContrastIcon className="icon-md" alt="" aria-hidden="true"/>
           {t('form.contrast.label.auto_adjust_all')}
         </button>
       </div>
@@ -432,7 +525,7 @@ export default function ContrastForm({
         
         <div className={`ratio-status ${ratioIsValid ? 'valid' : 'invalid'}`}>
           {ratioIsValid
-            ? t('form.contrast.feedback.valid')
+            ? ( ratioIsAAA ? t('form.contrast.feedback.excellent') : t('form.contrast.feedback.valid') )
             : (
                 <span>
                   {t('form.contrast.feedback.minimum', {
