@@ -73,8 +73,8 @@ export default function SensoryMisuseForm({
       license_key: "gpl",
       height: 250,
       menubar: false,
-      // plugins: "code",
-      toolbar: "undo redo | bold italic underline ", // | code
+      plugins: "code",
+      toolbar: "undo redo | bold italic underline | code",
       // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
       branding: false,
       skin: "oxide",
