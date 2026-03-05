@@ -47,7 +47,7 @@ class LmsUserService {
         catch (\Exception $e) {
             while($retries < $max_retries){
                 $retries += 1;
-                $retryStatus = refreshApiKey($user);
+                $retryStatus = $this->refreshApiKey($user);
                 if($retryStatus){
                     break;
                 }
