@@ -16,6 +16,8 @@ use App\Services\UtilityService;
 use App\Repository\CourseUserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Asset\Packages;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,6 +37,12 @@ class AdminController extends ApiController
     private $lms;
     private $lmsUser;
 
+    private Packages $packages;
+
+    public function __construct(Packages $packages)
+    {
+        $this->packages = $packages;
+    }
 
     #[Route('/admin', name: 'admin')]
     public function index(
@@ -42,7 +50,7 @@ class AdminController extends ApiController
         SessionService $sessionService,
         LmsApiService $lmsApi,
         LmsUserService $lmsUser,
-        CourseRepository $courseRepo)
+        CourseRepository $courseRepo): Response
     {
         $this->util = $util;
         $this->session = $sessionService->getSession();
@@ -56,14 +64,45 @@ class AdminController extends ApiController
         }
         if (!$lmsUser->validateApiKey($user)) {
             $this->session->set('destination', 'admin');
-            return $this->redirectToRoute('authorize', ['auth_token' => $this->session->getUuid()]);
+            return $this->redirectToRoute('authorize');
         }
 
-        return $this->render('admin/index.html.twig', [
-            'data' => [
-                'settings' => $this->getSettings(),
-                'messages' => $this->util->getUnreadMessages(true),
-            ],
+        $cssUrl = $this->packages->getUrl('build/admin.css');
+        $jsUrl  = $this->packages->getUrl('build/admin.js');
+
+        return new Response(
+            '<!DOCTYPE html><html dir="ltr"><head>'
+            . '<meta charset="UTF-8"><title>UDOIT Admin</title>'
+            . '<link rel="stylesheet" href="' . htmlspecialchars($cssUrl, ENT_QUOTES, 'UTF-8') . '">'
+            . '</head><body style="margin:0">'
+            . '<div id="root"></div>'
+            . '<script src="' . htmlspecialchars($jsUrl, ENT_QUOTES, 'UTF-8') . '"></script>'
+            . '</body></html>',
+            200,
+            ['Content-Type' => 'text/html; charset=UTF-8']
+        );
+    }
+
+    #[Route('/api/admin/settings', name: 'api_admin_settings', methods: ['GET'])]
+    public function settingsApi(
+        UtilityService $util,
+        SessionService $sessionService,
+        LmsApiService $lmsApi,
+        CourseRepository $courseRepo): JsonResponse
+    {
+        $this->util = $util;
+        $this->session = $sessionService->getSession();
+        $this->lmsApi = $lmsApi;
+        $this->courseRepo = $courseRepo;
+
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Unauthenticated'], 401);
+        }
+
+        return new JsonResponse([
+            'settings' => $this->getSettings(),
+            'messages' => $this->util->getUnreadMessages(true),
         ]);
     }
 
@@ -625,8 +664,6 @@ class AdminController extends ApiController
         $user = $this->getUser();
         /** @var \App\Entity\Institution $institution */
         $institution = $user->getInstitution();
-        $clientToken = $this->session->getUuid();
-
         $metadata = $institution->getMetadata();
         /** $lang should be two letters, and match an available JSON file in the /translations folder. */
         $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
@@ -651,7 +688,6 @@ class AdminController extends ApiController
 
         return [
             'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
-            'clientToken' => $clientToken,
             'user' => $user,
             'institution' => $institution,
             'roles' => $this->session->get('roles'),

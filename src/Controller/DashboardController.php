@@ -12,6 +12,8 @@ use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Asset\Packages;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
@@ -27,9 +29,12 @@ class DashboardController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine)
+    private Packages $packages;
+
+    public function __construct(ManagerRegistry $doctrine, Packages $packages)
     {
         $this->doctrine = $doctrine;
+        $this->packages = $packages;
     }
 
     #[Route('/dashboard', name: 'dashboard')]
@@ -37,7 +42,7 @@ class DashboardController extends AbstractController
         UtilityService $util,
         SessionService $sessionService,
         LmsUserService $lmsUser,
-        LmsApiService $lmsApi)
+        LmsApiService $lmsApi): Response
     {
         $this->util = $util;
         $this->session = $sessionService->getSession();
@@ -45,7 +50,7 @@ class DashboardController extends AbstractController
 
         /** @var \App\Entity\User */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user || true) {
             $this->util->exitWithMessage('User authentication failed.');
         }
         if (!$lmsUser->validateApiKey($user)) {
@@ -56,7 +61,20 @@ class DashboardController extends AbstractController
             return $this->redirectToRoute('authorize');
         }
 
-        return $this->render('default/index.html.twig');
+        $cssUrl = $this->packages->getUrl('build/app.css');
+        $jsUrl  = $this->packages->getUrl('build/app.js');
+
+        return new Response(
+            '<!DOCTYPE html><html dir="ltr"><head>'
+            . '<meta charset="UTF-8"><title>UDOIT</title>'
+            . '<link rel="stylesheet" href="' . htmlspecialchars($cssUrl, ENT_QUOTES, 'UTF-8') . '">'
+            . '</head><body style="margin:0">'
+            . '<div id="root"></div>'
+            . '<script src="' . htmlspecialchars($jsUrl, ENT_QUOTES, 'UTF-8') . '"></script>'
+            . '</body></html>',
+            200,
+            ['Content-Type' => 'text/html; charset=UTF-8']
+        );
     }
 
     #[Route('/api/settings', name: 'api_settings', methods: ['GET'])]

@@ -13,7 +13,6 @@ export default class Api {
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
             updateContent: '/api/content',
-            reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}?report={getReport}',
             scanCourse: '/api/sync/{course}',
@@ -173,12 +172,6 @@ export default class Api {
                 section: sectionOptions
             })
         })
-    }
-
-    getPdfUrl() {
-        const courseId = this.getCourseId()
-        let url = `${this.apiUrl}${this.endpoints.reportPdf}`
-        return url.replace('{course}', courseId)
     }
 
     getAdminCourses(filters) {

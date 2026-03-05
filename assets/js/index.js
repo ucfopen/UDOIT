@@ -5,6 +5,6 @@ import getInitialData from './getInitialData'
 
 const root = createRoot(document.getElementById('root'))
 
-getInitialData().then((data) => {
+getInitialData('api/settings').then((data) => {
   root.render(<App {...data} />)
 })

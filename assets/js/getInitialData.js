@@ -1,6 +1,6 @@
-export default async function getInitialData() {
+export default async function getInitialData(settingsPath = 'api/settings') {
   try {
-    const settingsUrl = new URL('api/settings', window.location.href).toString()
+    const settingsUrl = new URL(settingsPath, window.location.href).toString()
     const response = await fetch(settingsUrl, {
       method: 'GET',
       credentials: 'include',
