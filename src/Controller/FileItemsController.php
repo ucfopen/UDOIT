@@ -41,7 +41,6 @@ class FileItemsController extends ApiController
             $updates = \json_decode($request->getContent(), true);
             $file->setReviewed($updates['reviewed']);
             if ($updates['replacement']){
-                $output->writeln("Triggers");
                 $file->removeReplacementFile();
             }
             $file->setReviewedBy($user);
@@ -166,12 +165,17 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/delete', methods: ['DELETE'], name: 'delete_file')]
-    public function deleteFile(FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    public function deleteFile(SessionService $sessionService, FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
         try{
+            $course = $file->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
             $fileDeletionResponse = $lmsPost->deleteFileFromLms($file, $user);
             if(!$fileDeletionResponse || isset($fileDeletionResponse->error)){
                 throw new \Exception("Failed to delete file!");
