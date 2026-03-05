@@ -51,15 +51,12 @@ class LmsUserService {
                     }
                 }
             }
-            if(!$api_status['success']){
-                $this->util->exitWithMessage($api_status['message']);
-            }
         }
         catch (\Exception $e) {
             $this->util->exitWithMessage($e->getMessage());
         }
 
-        return true;
+        return $api_status;
     }
 
     public function refreshApiKey(User $user)
