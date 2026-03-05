@@ -38,28 +38,35 @@ class LmsUserService {
     {
         $lms = $this->lmsApi->getLms();
         $max_retries = 1;
+        $retries = 0;
 
         try {
             $api_status = $lms->testApiConnection($user);
-            if(!$api_status['success']){
-                for($i = 0; $i < $max_retries; $i++){
-                    if($this->refreshApiKey($user)){
-                        $api_status = $lms->testApiConnection($user);
-                        if ($api_status['success']){
-                            break;
-                        }
-                    }
+            return $api_status;
+        }
+        catch (\Exception $e) {
+            while($retries < $max_retries){
+                $retries += 1;
+                $retryStatus = $this->refreshApiKey($user);
+                if($retryStatus){
+                    break;
                 }
             }
-            if(!$api_status['success']){
-                $this->util->exitWithMessage($api_status['message']);
+            if(!$retryStatus){
+                $api_status['success'] = false;
+                $api_status['message'] = 'Failed to authenticate';
+                return $api_status;
             }
+        }
+
+        try{
+            $api_status = $lms->testApiConnection($user);
         }
         catch (\Exception $e) {
             $this->util->exitWithMessage($e->getMessage());
         }
-
-        return true;
+     
+        return $api_status;
     }
 
     public function refreshApiKey(User $user)

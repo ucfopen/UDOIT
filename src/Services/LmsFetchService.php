@@ -75,7 +75,10 @@ class LmsFetchService {
             $output = new ConsoleOutput();
             $lms = $this->lmsApi->getLms($user);
 
-            $this->lmsUser->validateApiKey($user);
+            $apiStatus = $this->lmsUser->validateApiKey($user);
+            if(!$apiStatus['success']){
+                $this->util->exitWithMessage($apiStatus['message']);
+            }
 
             /** @var \App\Repository\ContentItemRepository $contentItemRepo */
             $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
