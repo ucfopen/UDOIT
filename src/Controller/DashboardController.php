@@ -50,7 +50,7 @@ class DashboardController extends AbstractController
 
         /** @var \App\Entity\User */
         $user = $this->getUser();
-        if (!$user || true) {
+        if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
         }
         if (!$lmsUser->validateApiKey($user)) {
