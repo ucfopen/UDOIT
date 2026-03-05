@@ -199,7 +199,7 @@ class CanvasApi {
         ];
         $options['query'] = $endpointOptions;
 
-        $endpointResponse = $this->apiPost($options['postUrl'], $options, true);
+        $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);        
         $endpointContent = $endpointResponse->getContent();
 
         // Attach the file and send it to the upload URL
