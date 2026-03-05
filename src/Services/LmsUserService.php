@@ -41,17 +41,17 @@ class LmsUserService {
 
         try {
             $api_status = $lms->testApiConnection($user);
-            if(!$api_status['sucess']){
+            if(!$api_status['success']){
                 for($i = 0; $i < $max_retries; $i++){
                     if($this->refreshApiKey($user)){
                         $api_status = $lms->testApiConnection($user);
-                        if ($api_status['sucess']){
+                        if ($api_status['success']){
                             break;
                         }
                     }
                 }
             }
-            if(!$api_status['sucess']){
+            if(!$api_status['success']){
                 $this->util->exitWithMessage($api_status['message']);
             }
         }
