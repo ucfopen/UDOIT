@@ -12,8 +12,7 @@ export default class Api {
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
-            batchDelete: '/api/files/delete',
-            updateContent: '/api/content',
+            updateContent: '/api/{file}/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}?report={getReport}',
@@ -200,9 +199,10 @@ export default class Api {
         })
     }
 
-    updateContent(contentOptions, sectionOptions){
+    updateContent(contentOptions, sectionOptions, fileId){
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateContent}`
+        url = url.replace('{file}', fileId)
 
         return fetch(url, {
             method: 'POST',
