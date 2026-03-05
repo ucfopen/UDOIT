@@ -49,7 +49,7 @@ class DashboardController extends AbstractController
             $this->util->exitWithMessage('User authentication failed.');
         }
         $apiStatus = $lmsUser->validateApiKey($user);
-        if (!$this->isUiDevelopment() && !$apiStatus['success']) {
+        if (!$apiStatus['success']) {
             if ($this->session->get('oauthAttempted', false)) {
                 $this->util->exitWithMessage('API authentication failed. Contact your administrator.');
             }
@@ -58,9 +58,6 @@ class DashboardController extends AbstractController
         }
 
         $lmsCourseId = $this->session->get('lms_course_id');
-        if($this->isUiDevelopment() && !isset($lmsCourseId)) {
-          $lmsCourseId = 616;
-        }
         if (!$lmsCourseId) {
             $this->util->exitWithMessage('Missing LMS course ID.');
         }
@@ -146,10 +143,4 @@ class DashboardController extends AbstractController
 
         return $course;
     }
-
-    private function isUiDevelopment()
-    {
-      return $this->getParameter('app.use_development_auth') == 'YES';
-    }
-
 }
