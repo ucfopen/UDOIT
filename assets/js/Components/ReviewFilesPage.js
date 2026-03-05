@@ -617,7 +617,7 @@ export default function ReviewFilesPage({
         contentUrl: contentUrl,
         contentId: contentId,
         contentType: contentType,
-        sectionIds: sectionIds?.length > 0 ? sectionIds : []
+        sectionIds: sectionIds?.length > 0 ? sectionIds : [],
       }
 
       return contentItemOption
@@ -660,11 +660,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     return postSectionOptions
   }
 
-  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption) => {
+  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption, fileId) => {
     const responseStatus = []
     try{
       let api = new Api(settings)
-      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption)
+      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption, fileId)
       const response = await responseStr.json()
       if (response.errors && response.errors.length > 0) {
       response.errors.forEach((error) => {
@@ -748,7 +748,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       const postSectionOptions = getSectionPostOptions(updatedFileData, sectionReferences)
 
       if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, updatedFileData.id)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
@@ -835,7 +835,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
 
     if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, activeFile.id)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
