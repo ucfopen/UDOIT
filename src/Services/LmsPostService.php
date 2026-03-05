@@ -45,8 +45,10 @@ class LmsPostService {
         $contentItem = $issue->getContentItem();
         $lms = $this->lmsApi->getLms();
 
-        $this->lmsUser->validateApiKey($user);
-
+        $apiStatus = $this->lmsUser->validateApiKey($user);
+        if(!$apiStatus['success']){
+            $this->util->exitWithMessage($apiStatus['message']);
+        }
         $lms->updateContentItem($contentItem);
 
         $replaceSuccess = $this->replaceContent($issue, $contentItem, $fullPageHtml);
@@ -59,8 +61,11 @@ class LmsPostService {
 
     public function uploadContentToLms($contentOptions, $sectionOptions, User $user){
         $lms = $this->lmsApi->getLms();
-        $this->lmsUser->validateApiKey($user);
-
+        
+        $apiStatus = $this->lmsUser->validateApiKey($user);
+        if(!$apiStatus['success']){
+            $this->util->exitWithMessage($apiStatus['message']);
+        }
         $lmsResponse = $lms->postContentItemNoIssue($contentOptions, $sectionOptions);
         if(!$lmsResponse){
             return;
@@ -76,7 +81,12 @@ class LmsPostService {
 
     public function deleteFileFromLms(FileItem $file, User $user){
         $lms = $this->lmsApi->getLms();
-        $this->lmsUser->validateApiKey($user);
+
+        $apiStatus = $this->lmsUser->validateApiKey($user);
+        if(!$apiStatus['success']){
+            $this->util->exitWithMessage($apiStatus['message']);
+        }       
+        
         try{
             return $lms->deleteFileItem($file);
         }
@@ -95,7 +105,10 @@ class LmsPostService {
         $lms = $this->lmsApi->getLms();
         $path = $this->util->getTempPath();
 
-        $this->lmsUser->validateApiKey($user);
+        $apiStatus = $this->lmsUser->validateApiKey($user);
+        if(!$apiStatus['success']){
+            $this->util->exitWithMessage($apiStatus['message']);
+        }
         
         try {
             $uploadedFile->move($path, "file.{$file->getId()}");
