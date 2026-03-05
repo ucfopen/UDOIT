@@ -128,7 +128,7 @@ class CanvasLms implements LmsInterface {
         $output = new ConsoleOutput();
         // Check if the API key exists
         if(empty($apiKey)){
-            $api_status['sucess'] = false;
+            $api_status['success'] = false;
             $api_status['message'] = "User does not have an API Key. Please refresh the page to try again or contact your adminstrator";
             return $api_status;
         }
@@ -142,19 +142,19 @@ class CanvasLms implements LmsInterface {
 
             $statusCode = $response->getStatusCode();
             if($statusCode == 500){
-                $api_status['sucess'] = false;
+                $api_status['success'] = false;
                 $api_status['message'] = "Something went wrong. Please refresh the page to try again or contact your adminstrator";
             }
             else if($statusCode == 404) {
-                $api_status['sucess'] = false;
+                $api_status['success'] = false;
                 $api_status['message'] = "User does not have an API Key. Please refresh the page to try again or contact your adminstrator";
             }
             else if($statusCode == 401){
-                $api_status['sucess'] = false;
+                $api_status['success'] = false;
                 $api_status['message'] = "Failed to authenticate user";
             }
             else{
-                $api_status['sucess'] = true;
+                $api_status['success'] = true;
                 $api_status['message'] = "Successfully verified user.";
             }
             
