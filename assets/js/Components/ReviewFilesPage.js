@@ -77,7 +77,7 @@ export default function ReviewFilesPage({
     { id: "action", text: '', alignText: 'center' },
     { id: "name", text: t('fix.label.file_name') },
     { id: "type", text: t('fix.label.file_type') },
-    { id: "size", text: t('fix.label.file_size'), alignText: 'end' },
+    { id: "size", text: t('fix.label.file_size'), alignText: 'start' },
     { id: "date", text: t('fix.label.file_updated') },
   ]
 
