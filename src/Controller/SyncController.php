@@ -124,36 +124,45 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
-    public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner, Request $request)
+    public function requestContentSync(SessionService $sessionService, ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner, Request $request)
     {
         $response = new ApiResponse();
         $course = $contentItem->getCourse();
         $user = $this->getUser();
         $output = new ConsoleOutput();
 
-        $useReport = $request->query->getBoolean('report');
-
-        // Delete old issues
-        $lmsFetch->deleteContentItemIssues(array($contentItem));
-
-        // Rescan the contentItem
-        $report = $scanner->scanContentItem($contentItem, null, $this->util);
-
-        // Add rescanned Issues to database
-        foreach ($report->getIssues() as $issue) {
-            if(isset($issue->isGeneric)) {
-              $lmsFetch->createGenericIssue($issue, $contentItem);
+        try {
+            // Check if user has access to course
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception('msg.no_permissions');
             }
-            else {
-              $lmsFetch->createIssue($issue, $contentItem);
+
+            $useReport = $request->query->getBoolean('report');
+
+            // Delete old issues
+            $lmsFetch->deleteContentItemIssues(array($contentItem));
+
+            // Rescan the contentItem
+            $report = $scanner->scanContentItem($contentItem, null, $this->util);
+
+            // Add rescanned Issues to database
+            foreach ($report->getIssues() as $issue) {
+                if (isset($issue->isGeneric)) {
+                    $lmsFetch->createGenericIssue($issue, $contentItem);
+                } else {
+                    $lmsFetch->createIssue($issue, $contentItem);
+                }
+            }
+
+            $response->addMessage('Successfully scanned content', 'success', 5000);
+            // Update report
+            if ($useReport) {
+                $reportArr = $this->updateReport($course, $user, $lmsFetch);
+                $response->setData($reportArr);
             }
         }
-
-        $response->addMessage('Successfully scanned content', 'success', 5000);
-        // Update report
-        if($useReport){
-            $reportArr = $this->updateReport($course, $user, $lmsFetch);
-            $response->setData($reportArr);
+        catch (\Exception $e) {
+            $response->addMessage($e->getMessage(), 'error');
         }
         
         return new JsonResponse($response);
@@ -178,7 +187,7 @@ class SyncController extends ApiController
         $user = $this->getUser();
         try{
             if (!$this->userHasCourseAccess($course, $sessionService)) {
-                throw new \Exception("You do not have permission to access this report.");
+                throw new \Exception("msg.no_permissions");
             }
             $reportArr = $this->updateReport($course, $user, $lmsFetch);
             if(!$reportArr){

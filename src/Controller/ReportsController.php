@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 
 class ReportsController extends ApiController
@@ -38,8 +39,8 @@ class ReportsController extends ApiController
         $apiResponse = new ApiResponse();
         try {
             // Check if user has course access
-            if(!$this->userHasCourseAccess($course, $sessionService)) {
-                throw new \Exception("You do not have permission to access the specified course.");
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("msg.no_permissions");
             }
 
             /** @var ReportRepository $repository */
@@ -107,11 +108,19 @@ class ReportsController extends ApiController
     }
 
     #[Route('/api/reports/{report}/setdata', methods: ['POST'], name: 'set_report_data')]
-    public function setReportData(Request $request, Report $report): JsonResponse
+    public function setReportData(
+        SessionService $sessionService, 
+        Request $request, 
+        Report $report): JsonResponse
     {
         $apiResponse = new ApiResponse();
 
         try {
+            $course = $report->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("msg.no_permissions");
+            }
+
             $data = json_decode($request->getContent(), true);
             $newData = json_decode($report->getData(), true);
             foreach ($data as $key => $value) {
@@ -149,7 +158,7 @@ class ReportsController extends ApiController
 
             // Check if user has course access
             if (!$this->userHasCourseAccess($course, $sessionService)) {
-                throw new \Exception("You do not have permission to access the specified course.");
+                throw new \Exception("msg.no_permissions");
             }
           
             $metadata = $institution->getMetadata();
