@@ -12,8 +12,6 @@ abstract class ApiController extends AbstractController
     protected function userHasCourseAccess(Course $course, SessionService $sessionService) : bool {
         $output = new ConsoleOutput();
 
-        // TODO: should we throw exceptions here or just return false?
-
         // Check if user actually exists
         /** @var \App\Entity\User */
         $user = $this->getUser();

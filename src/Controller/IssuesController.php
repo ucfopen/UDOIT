@@ -136,59 +136,6 @@ class IssuesController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    // Rescan an issue in PhpAlly
-    // TODO: implement equal access into this
-    #[Route('/api/issues/{issue}/scan', name: 'scan_issue')]
-    public function scanIssue(SessionService $sessionService, PhpAllyService $phpAlly, UtilityService $util, EqualAccessService $equalAccess, Issue $issue)
-    {
-        $apiResponse = new ApiResponse();
-
-        try {
-            // Check if user has access to course
-            $course = $issue->getContentItem()->getCourse();
-            if(!$this->userHasCourseAccess($course, $sessionService)) {
-                throw new \Exception("You do not have permission to access this issue.");
-            }
-        } catch(\Exception $e) {
-            $apiResponse->addError($e->getMessage());
-            return new JsonResponse($apiResponse);
-        }
-
-        $issueRule = 'CidiLabs\\PhpAlly\\Rule\\'.$issue->getScanRuleId();
-        $report = $phpAlly->scanHtml($issue->getHtml(), [$issueRule], $issue->getContentItem()->getCourse()->getInstitution());
-        // $equalAccess->logToServer("scanIssue in issuescontroller");
-
-        $reportIssues = $report->getIssues();
-        $reportErrors = $report->getErrors();
-
-        if (empty($reportIssues) && empty($reportErrors)) {
-            $issue->setStatus(Issue::$issueStatusFixed);
-            $issue->setFixedBy($this->getUser());
-            $issue->setFixedOn($util->getCurrentTime());
-
-            // Update report stats
-            $report = $issue->getContentItem()->getCourse()->getUpdatedReport();
-            $apiResponse->setData([
-                'issue' => ['status' => $issue->getStatus(), 'pending' => false],
-                'report' => $report
-            ]);
-
-            $this->doctrine->getManager()->flush();
-            $apiResponse->addMessage('form.msg.manually_fixed', 'success');
-        }
-        else {
-            $apiResponse->addMessage('form.msg.not_fixed');
-        }
-
-        // Add messages to response
-        $unreadMessages = $util->getUnreadMessages();
-        if (!empty($unreadMessages)) {
-            $apiResponse->addLogMessages($unreadMessages);
-        }
-
-        return new JsonResponse($apiResponse);
-    }
-
     // Get an issue's corresponding content item
     #[Route('/api/issues/{issue}/content', methods: ['GET'], name: 'get_issue_content')]
     public function getIssueContent(SessionService $sessionService, Issue $issue)

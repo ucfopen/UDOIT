@@ -19,7 +19,6 @@ export default class Api {
             scanCourse: '/api/sync/{course}',
             scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
             fullRescan: '/api/sync/rescan/{course}',
-            scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminCourseReport: '/api/admin/courses/{course}/reports/full',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
@@ -357,21 +356,6 @@ export default class Api {
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
         url = url.replace('{getReport}', getReport)
-
-        return fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
-            },
-        })
-    }
-
-    scanIssue(issueId)
-    {
-        const authToken = this.getAuthToken()
-        let url = `${this.apiUrl}${this.endpoints.scanIssue}`
-        url = url.replace('{issue}', issueId)
 
         return fetch(url, {
             method: 'GET',
