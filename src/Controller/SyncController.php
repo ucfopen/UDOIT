@@ -168,19 +168,6 @@ class SyncController extends ApiController
         return new JsonResponse($response);
     }
 
-    #[Route('/cron/sync', name: 'cron_sync')]
-    public function cronSync(LmsApiService $lmsApi)
-    {
-        /** @var CourseRepository $courseRepository */
-        $courseRepository = $this->doctrine->getRepository(Course::class);
-        $courses = $courseRepository->findCoursesNeedingUpdate($this->maxAge);
-        $user = $this->getUser();
-
-        $count = $lmsApi->addCoursesToBeScanned($courses, $user);
-
-        return new JsonResponse($count);
-    }
-
     #[Route('/api/courses/{course}/reports/update', name:'update_and_get_reports', methods: ['GET'])]
     public function updateAndGetReport(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course){
         $response = new ApiResponse();
