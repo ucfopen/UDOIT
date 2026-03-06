@@ -28,7 +28,8 @@ export default function UfixitWidget({
   clickedInfo,
   setClickedInfo,
   handleContentIssueSave,
-  setElementFocus
+  setElementFocus,
+  setPreviewData
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -111,7 +112,7 @@ export default function UfixitWidget({
               handleLearnMoreClick={handleLearnMoreClick}
             />
 
-            <div className="flex-row justify-content-between mt-3 mb-2">
+            <div className="flex-row justify-content-between mt-3 mb-3">
               <h3 className="ufixit-widget-label m-0 align-self-center">{t('fix.label.barrier_repair')}</h3>
               <div className="align-self-start flex-shrink-0">
                 <StatusPill
@@ -142,7 +143,8 @@ export default function UfixitWidget({
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
                 handleContentIssueSave={handleContentIssueSave}
-                setElementFocus={setElementFocus} />
+                setElementFocus={setElementFocus}
+                setPreviewData={setPreviewData} />
             </div>
           </div>
         </>

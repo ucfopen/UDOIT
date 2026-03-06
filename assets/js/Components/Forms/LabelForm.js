@@ -26,19 +26,22 @@ export default function LabelForm({
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
     const initialText = Html.getAccessibleName(element)
+    setTextInputValue(initialText)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
 
     if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
     }
-    else if (initialText !== ''){
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
+    if (fixed) {
+      if (initialText !== ''){
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
     }
-    else {
-      setActiveOption('')
-    }
-
-    setTextInputValue(initialText)
+    setActiveOption(startingOption)
+    
   }, [activeIssue])
 
   useEffect(() => {

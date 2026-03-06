@@ -39,3 +39,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.remove-id-button {
+  padding-inline-start: .5rem;
+  fill: var(--pill-error-text);
+
+  &:hover,
+  &:focus {
+    fill: var(--error-color);
+  }
+}

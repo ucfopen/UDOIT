@@ -138,47 +138,76 @@
 
     &.dark-mode {
 
-      --white: #000000;
-      --gray-lightest: #2A2A2A;
-      --gray-lighter: #555555;
+      --white: #242B48;
+      --gray-lightest: #2E3856;
+      --gray-lighter: #2E3856;
       --gray-light: #767676;
       --gray: #CCCCCC;
       --gray-dark: #E2E2E2;
       --gray-darker: #F7F7F7;
       --black: #FFFFFF;
 
-      --primary-color: #00AD5A;
+      --primary-color: #1DA54F;
+      --primary-color-dark: var(--primary-color);
+      --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%);
+      --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);
+      --primary-color-inverse: var(--gray-lightest);
+      --text-color: var(--black);
+
+      /* Main Color Palette */
+      --primary-color: #1DA54F;
+      --success-color: #1DA54F;
+      --selection-color: #1DA54F;
+      --error-color: #940007;
+      --potential-color: #BB4D00;
+      --file-color: #5BA1FF;
+      --info-color: #5BAEDF;
+      --link-color: #79BAFF;
+      --focus-color: #009AD0;
+      --text-color: var(--black);
+
+      /* Variants of Main Colors */
       --primary-color-dark: var(--primary-color);
       --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
-      --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);  /* #E8F3ED; */
+      --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
       --primary-color-inverse: var(--gray-lightest);
-      --text-color: var(--gray-darker);
-      --text-secondary-color: #d3d8df;
+      --primary-color-disabled: #B2D2C3;
 
-      --hover-brightness: 1.15;
+      --selection-color-light: #F7FEF9;
 
-      --link-color: #70C8FF;
+      --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
+
       --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-      --link-color-light: color-mix(in srgb, var(--link-color) 50%, var(--white) 100%);  /* #E9F3FF; */
+      --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
       --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
+      
+      --text-secondary-color: #B6B9C7; /* #4A5565; #2F3741; */
+      --text-disabled-color: #8B95A7; /* #D1D5DC; */
 
-      --focus-color: #00BBFF;
+      /* PILLS have three colors: border color, light background color, and text color */
+      --pill-success-border: #62FF9C;
+      --pill-success-background: #2B4C5A;
+      --pill-success-text: var(--success-color);
 
-      --pill-error-border: #F64649;
-      --pill-error-background: color-mix(in srgb, var(--pill-error-border) 50%, var(--white) 100%);
-      --pill-warning-border: #F8961E;
-      --pill-warning-background: color-mix(in srgb, var(--pill-warning-border) 50%, var(--white) 100%);
-      --info-color: #2DA1D2;
-      --info-color-light: color-mix(in srgb, var(--info-color) 50%, var(--white) 100%);
-      --pill-success-border: #00AD5A;
-      --pill-success-background: color-mix(in srgb, var(--pill-success-border) 50%, var(--white) 100%);
+      --pill-warning-border: #584245;
+      --pill-warning-background: #44191A;
+      --pill-warning-text: #FF8904;
 
-      --help-color-light: #58450e;
+      --pill-error-border: #EF141E;
+      --pill-error-background: #44191A;
+      --pill-error-text: #EF141E;
 
-      --selection-color-light: #07461e;
+      --pill-info-border: #5BA1FF;
+      --pill-info-background: #323F72;
+      --pill-info-text: var(--file-color);
 
-      --background-color: var(--gray-lightest);
-      --border-color: var(--gray-light);
+      --help-color: #3C4766;
+      --help-color-light: #324e6c;
+      --help-color-text: var(--text-color);
+
+      --background-color: #0A092D;
+      --container-color: #0A092D;
+      --border-color: #505975;
       --progress-bar-background-color: var(--gray-light);
       --progress-bar-color: var(--primary-color);
       --shadow-color: #FFFFFF44;
@@ -391,10 +420,12 @@
   }
 
   input[type="color"] {
-    min-width: 7em;
+    min-width: 10em;
+    min-height: 2.5em;
     height: 100%;
-    border-radius: 8px;
+    border-radius: var(--element-radius);
     border: 2px solid var(--primary-color);
+    background-color: transparent;
 
     &:focus {
       outline: 2px solid var(--focus-color);
@@ -695,6 +726,19 @@
 
     strong {
       font-weight: 400;
+      text-decoration: underline;
+    }
+  }
+
+  a.udoit-link {
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.9em;
+    color: var(--link-color);
+    fill: var(--link-color);
+
+    &:hover,
+    &:focus {
       text-decoration: underline;
     }
   }
@@ -1056,14 +1100,6 @@
   .pr-0, .pe-0 {
     padding-right: 0 !important;
   }
-
-  input[type="color"] {
-    min-width: 7em;
-    height: 100%;
-    border-radius: 8px;
-    border: 2px solid var(--primary-color);
-    background-color: var(--background-color);
-  }
   
   .pr-1, .pe-1 {
     padding-right: calc(0.25 * var(--spacer)) !important;
@@ -1079,15 +1115,6 @@
 
   .pr-4, .pe-4 {
     padding-right: calc(1.5 * var(--spacer)) !important;
-  }
-  
-  .gradient-row {
-    margin-bottom: 0.75em;
-  }
-
-  .gradient-note {
-    font-style: italic;
-    color: #666;
   }
 
   .w-25 {
@@ -1194,6 +1221,11 @@
   .disabled {
     color: var(--text-disabled-color);
     fill: var(--text-disabled-color);
+  }
+
+  .off-screen {
+    position: absolute;
+    left: 150vw;
   }
 
   .icon-sm {
@@ -1305,43 +1337,4 @@
     overflow-wrap: anywhere;
     cursor: pointer;
   }
-}
-
-/* The separator class is for a horizontal line with text in the middle on various forms */
-
-.separator {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.separator::before,
-.separator::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.separator:not(:empty)::before {
-  margin-right: .5em;
-  margin-left: 1.5rem;
-  border-width: 2px;
-  border-color: var(--gray);
-}
-
-.separator:not(:empty)::after {
-  margin-left: .5em;
-  margin-right: 1.5rem;
-  border-width: 2px;
-  border-color: var(--gray);
-}
-
-.separator-pipe {
-  height: 1.5em;
-  width: 0px;
-  box-sizing: content-box;
-  align-self: center;
-  border-inline-start: 1px solid var(--border-color);
 }

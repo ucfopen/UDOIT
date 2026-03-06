@@ -49,23 +49,27 @@ export default function BlockquoteForm({
         tempCitationText = tempCitationText.trim()
       }
     }
-    const removeBlockquote = (activeIssue.status === 1 || activeIssue.status === 3) && !isBlockquote
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (removeBlockquote) {
-      setActiveOption(FORM_OPTIONS.REMOVE_BLOCKQUOTE)
-    }
-    else if (tempCitationText && tempCitationText.length > 0) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    } else {
-      setActiveOption('')
-    }
 
     setTextInputValue(tempCitationText || "")
     setHideCitation(inlineCite && !elementCite)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (!isBlockquote) {
+        startingOption = FORM_OPTIONS.REMOVE_BLOCKQUOTE
+      }
+      else if (tempCitationText && tempCitationText.length > 0) {
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
+    }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {
