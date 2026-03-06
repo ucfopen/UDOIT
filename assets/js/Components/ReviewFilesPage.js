@@ -73,17 +73,36 @@ export default function ReviewFilesPage({
     { id: "status", text: t('fix.label.status')},
   ]
 
+  const unusedFilesHeaders = [
+    { id: "action", text: '', alignText: 'center' },
+    { id: "name", text: t('fix.label.file_name') },
+    { id: "type", text: t('fix.label.file_type') },
+    { id: "size", text: t('fix.label.file_size'), alignText: 'end' },
+    { id: "date", text: t('fix.label.file_updated') },
+  ]
+
   const [tableSettings, setTableSettings] = useState({
       sortBy: 'name',
       ascending: false,
       pageNum: 0,
   })
 
+  const [unusedTableSettings, setUnusedTableSettings] = useState({
+    sortBy: 'date',
+    ascending: false,
+    pageNum: 0,
+  })
+
   const handleTableSettings = (setting) => {
     setTableSettings(Object.assign({}, tableSettings, setting))
   }
 
+  const handleUnusedTableSettings = (setting) => {
+    setUnusedTableSettings(Object.assign({}, unusedTableSettings, setting))
+  }
+
   const [rows, setRows] = useState([])
+  const [unusedRows, setUnusedRows] = useState([])
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -227,9 +246,76 @@ export default function ReviewFilesPage({
     return tempRows
   }
 
+  const getUnusedFilesTableContent = () => {
+    if(unusedFiles.length === 0) {
+      return []
+    }
+
+    let tempRows = []
+    unusedFiles.forEach((unusedFile) => {
+      const fileName = unusedFile.fileName || unusedFile.display_name || t('label.unknown')
+      const fileType = unusedFile.fileType || 'unknown'
+      const fileSize = parseInt(unusedFile.fileSize, 10)
+      const isSelected = deleteFileQueue.includes(`files/${unusedFile.lmsFileId}`)
+
+      tempRows.push({
+        id: unusedFile.id,
+        name: { value: fileName.toLowerCase(), display: fileName },
+        type: { value: fileType.toLowerCase(), display: getReadableFileType(fileType) },
+        size: !isNaN(fileSize)
+          ? { value: fileSize, display: Text.getReadableFileSize(fileSize) }
+          : { value: -1, display: t('label.unknown') },
+        date: unusedFile.updated
+          ? { value: unusedFile.updated, display: Text.getReadableDateTime(unusedFile.updated) }
+          : { value: '', display: t('label.unknown') },
+        action: (
+          <input
+            id={`unused-file-${unusedFile.id}`}
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => toggleDeleteFileQueue(unusedFile.lmsFileId)}
+            aria-label={t('files.button.delete_selected') + ': ' + fileName}
+          />
+        ),
+      })
+    })
+
+    const { sortBy, ascending } = unusedTableSettings
+
+    tempRows.sort((a, b) => {
+      let aSort = a[sortBy]
+      if(typeof aSort === 'object' && aSort?.value !== undefined) {
+        aSort = aSort.value
+      }
+
+      let bSort = b[sortBy]
+      if(typeof bSort === 'object' && bSort?.value !== undefined) {
+        bSort = bSort.value
+      }
+
+      if(typeof aSort === 'string' || typeof bSort === 'string') {
+        const aText = String(aSort || '').toLowerCase()
+        const bText = String(bSort || '').toLowerCase()
+        return (aText > bText) ? -1 : 1
+      }
+
+      return (Number(aSort) < Number(bSort)) ? -1 : 1
+    })
+
+    if(!ascending) {
+      tempRows.reverse()
+    }
+
+    return tempRows
+  }
+
   useEffect(() => {
     setRows(getContent())
   }, [tableSettings, filteredFiles])
+
+  useEffect(() => {
+    setUnusedRows(getUnusedFilesTableContent())
+  }, [unusedTableSettings, unusedFiles, deleteFileQueue])
 
   // The report object is updated whenever a scan or rescan is completed. At this point, the list of issues
   // needs to be rebuilt and the activeIssue may need to be updated. For instance, if an issue is marked as
@@ -1200,23 +1286,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                   <div className="subtext">{t('files.msg.no_unused_files')}</div>
                 </div>
               ) : !isDisabled && (
-                unusedFiles.map((unusedFile) => {
-                  const isSelected = deleteFileQueue.includes(`files/${unusedFile.lmsFileId}`)
-                  return (
-                    <label key={unusedFile.id} htmlFor={`unused-file-${unusedFile.id}`} className="unused-file-list-item">
-                      <input
-                        id={`unused-file-${unusedFile.id}`}
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleDeleteFileQueue(unusedFile.lmsFileId)}
-                      />
-                      <div className="unused-file-list-details">
-                        <div className="unused-file-list-title">{unusedFile.fileName || t('label.unknown')}</div>
-                        <div className="subtext">{getReadableFileType(unusedFile.fileType)}</div>
-                      </div>
-                    </label>
-                  )
-                })
+                <SortableTable
+                  t={t}
+                  caption=""
+                  headers={unusedFilesHeaders}
+                  rows={unusedRows}
+                  tableSettings={unusedTableSettings}
+                  handleTableSettings={handleUnusedTableSettings}
+                />
               )}
             </div>
           </div>

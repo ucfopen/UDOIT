@@ -18,6 +18,14 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
+
+  .rounded-table-wrapper {
+    max-height: 60vh;
+  }
+
+  td.text-center input[type='checkbox'] {
+    margin: 0;
+  }
 }
 
 .select-all-unused-toggle-row {
