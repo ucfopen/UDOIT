@@ -41,7 +41,6 @@ class FileItemsController extends ApiController
             $updates = \json_decode($request->getContent(), true);
             $file->setReviewed($updates['reviewed']);
             if ($updates['replacement']){
-                $output->writeln("Triggers");
                 $file->removeReplacementFile();
             }
             $file->setReviewedBy($user);
@@ -77,7 +76,6 @@ class FileItemsController extends ApiController
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
-        $output->writeln("Getting here on the backend");
 
         try {
             // Check if user has access to course
@@ -135,8 +133,8 @@ class FileItemsController extends ApiController
     }
 
     // This route is created here as files are the primary items using this route
-    #[Route('/api/content', methods: ['POST'], name: 'upload_content')]
-    public function uploadContent(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    #[Route('/api/{file}/content', methods: ['POST'], name: 'upload_content')]
+    public function uploadContent(SessionService $sessionService, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch, FileItem $file){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -146,6 +144,15 @@ class FileItemsController extends ApiController
             $contentOptions = $content['content'];
             $sectionOptions = $content['section'];
 
+            if(empty($contentOptions) && empty($sectionOptions)){
+                throw new \Exception("Tried to update content without any content avaliable");
+            }
+
+            $course = $file->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+            
             $lmsContent = $lmsPost->uploadContentToLms($contentOptions, $sectionOptions, $user);
             if(!$lmsContent){
                 throw new \Exception("Failed to change references in canvas");
@@ -166,12 +173,17 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/delete', methods: ['DELETE'], name: 'delete_file')]
-    public function deleteFile(FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    public function deleteFile(SessionService $sessionService, FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
         try{
+            $course = $file->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
             $fileDeletionResponse = $lmsPost->deleteFileFromLms($file, $user);
             if(!$fileDeletionResponse || isset($fileDeletionResponse->error)){
                 throw new \Exception("Failed to delete file!");
