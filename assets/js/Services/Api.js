@@ -197,8 +197,6 @@ export default class Api {
                 paths: urlList
             })
         })
-
-
     }
 
     updateContent(contentOptions, sectionOptions, fileId){
