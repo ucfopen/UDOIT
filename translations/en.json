@@ -250,6 +250,7 @@
   "fix.label.found_in": "Found in:",
   "fix.label.no_references": "Not found in any module",
   "fix.label.loading_content": "Loading Content",
+  "fix.label.deleting_files": "Deleting Unused Files",
   "fix.label.file_name": "Name",
   "fix.label.file_type": "Type",
   "fix.label.file_size": "Size",

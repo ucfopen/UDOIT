@@ -1259,10 +1259,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               {isDisabled && (<div className="flex-column h-100 flex-grow-1 justify-content-center">
                     <div className="flex-row justify-content-center mb-4">
                       <div className="flex-column justify-content-center">
-                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                        <ProgressIcon className="icon-lg udoit-progress spinner" />
                       </div>
                       <div className="flex-column justify-content-center ms-3">
-                        <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+                        <h2 className="mt-0 mb-0">{t('fix.label.deleting_files')}</h2>
                       </div>
                     </div>
                   </div> )}
@@ -1281,7 +1281,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 </div>
               )}
               {unusedFiles.length === 0 ? (
-                <div className="flex-column gap-2 p-3">
+                <div className="flex-column gap-2 p-3 text-center">
                   <h3 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h3>
                   <div className="subtext">{t('files.msg.no_unused_files')}</div>
                 </div>
