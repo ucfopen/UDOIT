@@ -1296,6 +1296,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           <div className='dialog-footer'>
             <div className="subtext align-self-center">{t('files.label.selected_count', { count: deleteFileQueue.length })}</div>
             <div className="flex-row gap-2">
+              <button className='btn btn-small btn-primary' onClick={() => closeDialog(unusedFileDialogId)}>{t(`fix.label.cancel`)}</button>
               <button
                 className='btn btn-small btn-icon-left review-files-delete-button'
                 tabIndex='0'
