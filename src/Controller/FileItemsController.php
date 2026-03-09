@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\FileItem;
 use App\Entity\ContentItem;
+use App\Entity\Course;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\LmsFetchService;
@@ -200,11 +201,15 @@ class FileItemsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    #[Route('/api/files/delete', methods: ['DELETE'], name: 'delete_files')]
-    public function batchDeleteFiles(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    #[Route('/api/{course}/files/delete', methods: ['DELETE'], name: 'delete_files')]
+    public function batchDeleteFiles(SessionService $sessionService, Course $course, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
         try{
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
             $content= \json_decode($request->getContent(), true);
             $paths = $content['paths'];
             $apiResponse = $lmsPost->batchDeleteFromLms($paths, $user);
