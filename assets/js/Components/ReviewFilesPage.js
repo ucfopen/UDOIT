@@ -1116,7 +1116,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             <h1 className="pageTitle">{t('files.title')}</h1>
             <button
               type="button"
-              className="btn-small btn-icon-left review-files-delete-button"
+              className="btn-small btn-icon-left btn-secondary"
               tabIndex="0"
               onClick={() => openDialog(unusedFileDialogId)}
               aria-label={t('files.button.delete_unused_files')}>

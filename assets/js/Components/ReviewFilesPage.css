@@ -1,18 +1,3 @@
-.review-files-delete-button {
-  --review-files-delete-color: var(--issue-color, var(--error-color));
-  background-color: var(--review-files-delete-color);
-  border-color: var(--review-files-delete-color);
-  color: var(--white);
-  fill: var(--white);
-
-  &:hover,
-  &:focus {
-    filter: brightness(var(--hover-brightness));
-    color: var(--white);
-    fill: var(--white);
-  }
-}
-
 .unused-files-list-container {
   display: flex;
   flex-direction: column;
