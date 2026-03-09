@@ -261,7 +261,7 @@ export default function ReviewFilesPage({
       tempRows.push({
         id: unusedFile.id,
         name: { value: fileName.toLowerCase(), display: fileName },
-        type: { value: fileType.toLowerCase(), display: getFileTypeDisplay(fileType) },
+        type: { value: fileType.toLowerCase(), display: getReadableFileType(fileType) },
         size: !isNaN(fileSize)
           ? { value: fileSize, display: Text.getReadableFileSize(fileSize) }
           : { value: -1, display: t('label.unknown') },
@@ -1106,8 +1106,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
-  const allUnusedFilesSelected = unusedFiles.length > 0 && deleteFileQueue.length === unusedFiles.length
-
   return (
     <>
       { widgetState === WIDGET_STATE.LOADING ? (
@@ -1269,11 +1267,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               {!isDisabled && unusedFiles.length > 0 && (
                 <div className="select-all-unused-toggle-row">
                   <ToggleSwitch
-                    key={allUnusedFilesSelected ? 'select-all-on' : 'select-all-off'}
                     labelId="selectAllUnusedFiles"
-                    initialValue={allUnusedFilesSelected}
+                    initialValue={unusedFiles.length > 0 && deleteFileQueue.length === unusedFiles.length}
                     updateToggle={updateSelectAllUnusedFilesToggle}
-                    small={true}
                   />
                   <div id="selectAllUnusedFiles" className="align-self-center subtext">
                     {t('files.label.select_all_unused_files')}
