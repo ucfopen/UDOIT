@@ -1,3 +1,61 @@
+.unused-files-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+
+  .rounded-table-wrapper {
+    max-height: 60vh;
+  }
+
+  td.text-center input[type='checkbox'] {
+    margin: 0;
+  }
+}
+
+.select-all-unused-toggle-row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem 0.5rem;
+}
+
+.unused-file-list-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  background-color: var(--white);
+  cursor: pointer;
+}
+
+.unused-file-list-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.unused-file-list-title {
+  font-weight: 500;
+}
+
+.review-files-delete-button {
+  --review-files-delete-color: var(--issue-color, var(--error-color));
+  background-color: var(--review-files-delete-color);
+  border-color: var(--review-files-delete-color);
+  color: var(--white);
+  fill: var(--white);
+
+  &:hover,
+  &:focus {
+    filter: brightness(var(--hover-brightness));
+    color: var(--white);
+    fill: var(--white);
+  }
+}
+
 .udoit-sortable-table {
   tr {
 

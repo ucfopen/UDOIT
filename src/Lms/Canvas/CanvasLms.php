@@ -122,16 +122,46 @@ class CanvasLms implements LmsInterface {
 
     public function testApiConnection(User $user)
     {
-        $url = 'users/self';
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
+        $api_status = [];
+        $apiKey = $user->getApiKey();
 
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $response = $canvasApi->apiGet($url);
+        $output = new ConsoleOutput();
+        // Check if the API key exists
+        if(empty($apiKey)){
+            $api_status['success'] = false;
+            $api_status['message'] = "User does not have an API Key. Please refresh the page to try again or contact your adminstrator";
+            return $api_status;
+        }
+        else{
+            $url = 'users/self';
+            $apiDomain = $this->getApiDomain($user);
+            $apiToken = $this->getApiToken($user);
 
-        return ($response->getStatusCode() < 400);
+            $canvasApi = new CanvasApi($apiDomain, $apiToken);
+            $response = $canvasApi->apiGet($url);
+
+            $statusCode = $response->getStatusCode();
+            if($statusCode == 500){
+                $api_status['success'] = false;
+                $api_status['message'] = "Something went wrong. Please refresh the page to try again or contact your adminstrator";
+            }
+            else if($statusCode == 404) {
+                $api_status['success'] = false;
+                $api_status['message'] = "User does not have an API Key. Please refresh the page to try again or contact your adminstrator";
+            }
+            else if($statusCode == 401){
+                $api_status['success'] = false;
+                $api_status['message'] = "Failed to authenticate user";
+            }
+            else{
+                $api_status['success'] = true;
+                $api_status['message'] = "Successfully verified user.";
+            }
+            
+        }
+
+        return $api_status;
     }
-
     /**
      * ****************
      * Course Functions
@@ -551,6 +581,17 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
 
         return $fileItem;
+    }
+
+    public function batchDeleteContent($paths) {
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        return $canvasApi->apiDeleteBatch($paths);
+
     }
 
     public function updateContentItem(ContentItem $contentItem)

@@ -54,7 +54,8 @@ class AdminController extends ApiController
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
         }
-        if (!$lmsUser->validateApiKey($user)) {
+        $apiStatus = $lmsUser->validateApiKey($user);
+        if (!$apiStatus['success']) {
             $this->session->set('destination', 'admin');
             return $this->redirectToRoute('authorize', ['auth_token' => $this->session->getUuid()]);
         }

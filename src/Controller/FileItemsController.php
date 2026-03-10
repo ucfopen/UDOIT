@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\FileItem;
 use App\Entity\ContentItem;
+use App\Entity\Course;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\LmsFetchService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,7 +26,7 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/review', name: 'review_file')]
-    public function reviewFile(FileItem $file, Request $request, UtilityService $util)
+    public function reviewFile(SessionService $sessionService, Request $request, UtilityService $util, FileItem $file)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -33,14 +35,13 @@ class FileItemsController extends ApiController
         try {
             // Check if user has access to course
             $course = $file->getCourse();
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("You do not have permission to access this issue.");
             }
 
             $updates = \json_decode($request->getContent(), true);
             $file->setReviewed($updates['reviewed']);
             if ($updates['replacement']){
-                $output->writeln("Triggers");
                 $file->removeReplacementFile();
             }
             $file->setReviewedBy($user);
@@ -71,17 +72,16 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/post', methods: ['POST'], name: 'file_post')]
-    public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch)
+    public function postFile(SessionService $sessionService, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch, FileItem $file)
     {
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
-        $output->writeln("Getting here on the backend");
 
         try {
             // Check if user has access to course
             $course = $file->getCourse();
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("You do not have permission to access this issue.");
             }
 
@@ -134,8 +134,8 @@ class FileItemsController extends ApiController
     }
 
     // This route is created here as files are the primary items using this route
-    #[Route('/api/content', methods: ['POST'], name: 'upload_content')]
-    public function uploadContent(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    #[Route('/api/{file}/content', methods: ['POST'], name: 'upload_content')]
+    public function uploadContent(SessionService $sessionService, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch, FileItem $file){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -145,6 +145,15 @@ class FileItemsController extends ApiController
             $contentOptions = $content['content'];
             $sectionOptions = $content['section'];
 
+            if(empty($contentOptions) && empty($sectionOptions)){
+                throw new \Exception("Tried to update content without any content avaliable");
+            }
+
+            $course = $file->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+            
             $lmsContent = $lmsPost->uploadContentToLms($contentOptions, $sectionOptions, $user);
             if(!$lmsContent){
                 throw new \Exception("Failed to change references in canvas");
@@ -165,12 +174,17 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/delete', methods: ['DELETE'], name: 'delete_file')]
-    public function deleteFile(FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    public function deleteFile(SessionService $sessionService, FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
         try{
+            $course = $file->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
             $fileDeletionResponse = $lmsPost->deleteFileFromLms($file, $user);
             if(!$fileDeletionResponse || isset($fileDeletionResponse->error)){
                 throw new \Exception("Failed to delete file!");
@@ -179,6 +193,26 @@ class FileItemsController extends ApiController
             $file->setActive(false); // File was deleted so it can be "deactived now"
             $apiResponse->addMessage('Succesfully deleted file from course', 'success', 5000);
             $apiResponse->addLogMessages($util->getUnreadMessages()); 
+        }
+        catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
+
+    #[Route('/api/{course}/files/delete', methods: ['DELETE'], name: 'delete_files')]
+    public function batchDeleteFiles(SessionService $sessionService, Course $course, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+        try{
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
+            $content= \json_decode($request->getContent(), true);
+            $paths = $content['paths'];
+            $apiResponse = $lmsPost->batchDeleteFromLms($paths, $user);
         }
         catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());

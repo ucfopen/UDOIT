@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
+import ToggleSwitch from './Widgets/ToggleSwitch'
 import SortableTable from './Widgets/SortableTable'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
 import FileTypeIcon from './Icons/FileTypeIcon'
+import DeleteIcon from './Icons/DeleteIcon'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import StatusPill from './Widgets/StatusPill'
@@ -33,6 +35,7 @@ import './ReviewFilesPage.css'
 import * as Html from '../Services/Html.js'
 import CloseIcon from './Icons/CloseIcon.js'
 import LearnMore from './Widgets/LearnMore.js'
+import ProgressIcon from './Icons/ProgressIcon.js'
 
 export default function ReviewFilesPage({
   t,
@@ -60,6 +63,7 @@ export default function ReviewFilesPage({
   const WIDGET_STATE = settings.WIDGET_STATE
 
   const dialogId = "file-dialog"
+  const unusedFileDialogId = "unused-files-dialog"
 
   const headers = [
     { id: "name", text: t('fix.label.file_name') },
@@ -69,17 +73,36 @@ export default function ReviewFilesPage({
     { id: "status", text: t('fix.label.status')},
   ]
 
+  const unusedFilesHeaders = [
+    { id: "action", text: '', alignText: 'center' },
+    { id: "name", text: t('fix.label.file_name') },
+    { id: "type", text: t('fix.label.file_type') },
+    { id: "size", text: t('fix.label.file_size'), alignText: 'start' },
+    { id: "date", text: t('fix.label.file_updated') },
+  ]
+
   const [tableSettings, setTableSettings] = useState({
       sortBy: 'name',
       ascending: false,
       pageNum: 0,
   })
 
+  const [unusedTableSettings, setUnusedTableSettings] = useState({
+    sortBy: 'date',
+    ascending: false,
+    pageNum: 0,
+  })
+
   const handleTableSettings = (setting) => {
     setTableSettings(Object.assign({}, tableSettings, setting))
   }
 
+  const handleUnusedTableSettings = (setting) => {
+    setUnusedTableSettings(Object.assign({}, unusedTableSettings, setting))
+  }
+
   const [rows, setRows] = useState([])
+  const [unusedRows, setUnusedRows] = useState([])
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -102,6 +125,9 @@ export default function ReviewFilesPage({
 
   const [isDisabled, setIsDisabled] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
+
+  const [unusedFiles, setUnusedFiles] = useState([])
+  const [deleteFileQueue, setDeleteFileQueue] = useState([])
 
 
   const formatFileData = (fileData) => {
@@ -220,9 +246,76 @@ export default function ReviewFilesPage({
     return tempRows
   }
 
+  const getUnusedFilesTableContent = () => {
+    if(unusedFiles.length === 0) {
+      return []
+    }
+
+    let tempRows = []
+    unusedFiles.forEach((unusedFile) => {
+      const fileName = unusedFile.fileName || unusedFile.display_name || t('label.unknown')
+      const fileType = unusedFile.fileType || 'unknown'
+      const fileSize = parseInt(unusedFile.fileSize, 10)
+      const isSelected = deleteFileQueue.includes(`files/${unusedFile.lmsFileId}`)
+
+      tempRows.push({
+        id: unusedFile.id,
+        name: { value: fileName.toLowerCase(), display: fileName },
+        type: { value: fileType.toLowerCase(), display: getFileTypeDisplay(fileType) },
+        size: !isNaN(fileSize)
+          ? { value: fileSize, display: Text.getReadableFileSize(fileSize) }
+          : { value: -1, display: t('label.unknown') },
+        date: unusedFile.updated
+          ? { value: unusedFile.updated, display: Text.getReadableDateTime(unusedFile.updated) }
+          : { value: '', display: t('label.unknown') },
+        action: (
+          <input
+            id={`unused-file-${unusedFile.id}`}
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => toggleDeleteFileQueue(unusedFile.lmsFileId)}
+            aria-label={t('files.button.delete_selected') + ': ' + fileName}
+          />
+        ),
+      })
+    })
+
+    const { sortBy, ascending } = unusedTableSettings
+
+    tempRows.sort((a, b) => {
+      let aSort = a[sortBy]
+      if(typeof aSort === 'object' && aSort?.value !== undefined) {
+        aSort = aSort.value
+      }
+
+      let bSort = b[sortBy]
+      if(typeof bSort === 'object' && bSort?.value !== undefined) {
+        bSort = bSort.value
+      }
+
+      if(typeof aSort === 'string' || typeof bSort === 'string') {
+        const aText = String(aSort || '').toLowerCase()
+        const bText = String(bSort || '').toLowerCase()
+        return (aText > bText) ? -1 : 1
+      }
+
+      return (Number(aSort) < Number(bSort)) ? -1 : 1
+    })
+
+    if(!ascending) {
+      tempRows.reverse()
+    }
+
+    return tempRows
+  }
+
   useEffect(() => {
     setRows(getContent())
   }, [tableSettings, filteredFiles])
+
+  useEffect(() => {
+    setUnusedRows(getUnusedFilesTableContent())
+  }, [unusedTableSettings, unusedFiles, deleteFileQueue])
 
   // The report object is updated whenever a scan or rescan is completed. At this point, the list of issues
   // needs to be rebuilt and the activeIssue may need to be updated. For instance, if an issue is marked as
@@ -231,10 +324,18 @@ export default function ReviewFilesPage({
     let tempUnfilteredIssues = []
 
     let tempFiles = Object.assign({}, report.files)
+    let tempUnusedFiles = []
     for (const [key, value] of Object.entries(tempFiles)) {
       let tempFile = formatFileData(value)
       tempUnfilteredIssues.push(tempFile)
+      if((!tempFile?.fileData?.references || tempFile?.fileData?.references?.length === 0)
+        && (!tempFile?.fileData?.sectionRefs || tempFile?.fileData?.sectionRefs?.length === 0)) {
+        tempUnusedFiles.push(tempFile.fileData)
+      }
     }
+
+    setUnusedFiles(tempUnusedFiles)
+    setDeleteFileQueue((oldQueue) => oldQueue.filter((fileId) => tempUnusedFiles.some((file) => file.id === fileId)))
 
     tempUnfilteredIssues.sort((a, b) => {
       return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
@@ -342,14 +443,7 @@ export default function ReviewFilesPage({
     }
   }, [showLearnMore])
 
-
-  const isDialogOpen = () => {
-    const dialog = document.getElementById(dialogId)
-    return dialog && dialog.open
-  }
-
-
-  const openDialog = () => {
+  const openDialog = (dialogId) => {
     setWidgetState(WIDGET_STATE.FIXIT)
 
     const dialog = document.getElementById(dialogId)
@@ -358,7 +452,7 @@ export default function ReviewFilesPage({
     }
   }
 
-  const closeDialog = () => {
+  const closeDialog = (dialogId) => {
     setWidgetState(WIDGET_STATE.LIST)
     setActiveIssue(null)
 
@@ -366,6 +460,35 @@ export default function ReviewFilesPage({
     if(dialog) {
       dialog.close()
     }
+  }
+
+  const toggleDeleteFileQueue = (fileId) => {
+    if(!fileId) {
+      return
+    }
+
+    const url = `files/${fileId}`
+
+    let tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
+    console.log(tempQueue)
+    if(tempQueue.includes(url)){
+      tempQueue = tempQueue.filter((q_url) => q_url != url)
+    }
+    else{
+      tempQueue.push(url)
+    }
+
+    console.log(tempQueue)
+    setDeleteFileQueue(tempQueue)
+  }
+
+  const updateSelectAllUnusedFilesToggle = (newValue) => {
+    if(newValue === false) {
+      setDeleteFileQueue([])
+      return
+    }
+
+    setDeleteFileQueue(unusedFiles.map((file) => `files/${file.lmsFileId}`))
   }
 
   const getFileTypeDisplay = (fileType) => {
@@ -596,7 +719,7 @@ export default function ReviewFilesPage({
         setActiveIssue(tempFileIssue)
       }
       else{
-        closeDialog()
+        closeDialog(dialogId)
       }
 
       // Add success messages 
@@ -617,7 +740,7 @@ export default function ReviewFilesPage({
         contentUrl: contentUrl,
         contentId: contentId,
         contentType: contentType,
-        sectionIds: sectionIds?.length > 0 ? sectionIds : []
+        sectionIds: sectionIds?.length > 0 ? sectionIds : [],
       }
 
       return contentItemOption
@@ -660,11 +783,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     return postSectionOptions
   }
 
-  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption) => {
+  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption, fileId) => {
     const responseStatus = []
     try{
       let api = new Api(settings)
-      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption)
+      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption, fileId)
       const response = await responseStr.json()
       if (response.errors && response.errors.length > 0) {
       response.errors.forEach((error) => {
@@ -748,7 +871,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       const postSectionOptions = getSectionPostOptions(updatedFileData, sectionReferences)
 
       if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, updatedFileData.id)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
@@ -820,6 +943,65 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
+  const removeFileFromReport = (fileIds) => {
+    const tempReport = Object.assign({}, report)
+
+    if(!Array.isArray(tempReport.files)){
+      tempReport.files = Object.values(tempReport.files)
+    }
+
+    if(!tempReport || !tempReport.files || tempReport.files.length == 0){
+      return tempReport
+    }
+    
+    for(const id of fileIds){
+      tempReport.files = tempReport.files.filter((file) => parseInt(file.lmsFileId) != id)
+    }
+
+    return tempReport
+  }
+
+  const deleteSelectedFiles = async (payload) => {
+    if(!deleteFileQueue || deleteFileQueue?.length == 0){
+      return
+    }
+
+    setIsDisabled(true)
+    const reomovedFileId = []
+    const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
+    console.log(tempQueue)
+    try{
+      const api = new Api(settings)
+      while(tempQueue.length > 0){
+        let payloadTracker = 0
+        let paths = []
+        while(tempQueue.length > 0 && payloadTracker < payload){
+          paths.push(tempQueue.pop())
+          payloadTracker++
+        }
+        const respone_str = await api.batchDelete(paths)
+        const response = await respone_str.json()
+        for(const r of response){
+          reomovedFileId.push(r?.content?.id)
+        }
+      }
+    }
+    catch(e){
+      console.error(e)
+    }
+
+    const newReport = removeFileFromReport(reomovedFileId)
+    setDeleteFileQueue(tempQueue)
+    processNewReport(newReport)
+    setIsDisabled(false)
+
+  }
+
+  const deleteSelectedFilesWrapper = () => {
+    const payload = 10
+    deleteSelectedFiles(payload)
+  }
+
   // Wrapper to pass to file form for unreviewing 
   const handleFileResolveWrapper = () => {
     handleFileResolve(activeIssue.fileData)
@@ -835,7 +1017,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
 
     if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, activeFile.id)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
@@ -885,7 +1067,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
 
     setActiveIssue(filteredFiles[filteredFileIndex])
-    openDialog()
+    openDialog(dialogId)
   }
 
   const nextFile = (previous = false) => {
@@ -930,7 +1112,20 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         <></>
       ) : (
         <>
-          <h1 className="pageTitle">{t('files.title')}</h1>
+          <div className="pageTitleRow">
+            <h1 className="pageTitle">{t('files.title')}</h1>
+            <button
+              type="button"
+              className="btn-small btn-icon-left btn-secondary"
+              tabIndex="0"
+              onClick={() => openDialog(unusedFileDialogId)}
+              aria-label={t('files.button.delete_unused_files')}>
+              <DeleteIcon className="icon-md" />
+              <div className="flex-column justify-content-center">
+                {t('files.button.delete_unused_files')}
+              </div>
+            </button>
+          </div>
           <p className="pageSubtitle">{t('files.subtitle')}</p>
 
           <ReviewFilesFilters
@@ -964,11 +1159,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           </div>
         </>
       )}
-      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
+      <dialog id={dialogId} className="dialog-full-screen" onClose={() => closeDialog(dialogId)}>
         <div className='flex-column h-100'>
           <div className='dialog-header'>
             <h2>{t(`form.file.title`)}</h2>
-            <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+            <CloseIcon onClick={() => closeDialog(dialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(dialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
            <div className="dialog-content">
             <div className="flex-row gap-2 w-100 h-100">
@@ -1047,6 +1242,71 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               > 
               {markDelete ? t('form.delete') : t(`form.submit`)}
               </button>
+          </div>
+        </div>
+      </dialog>
+     
+     <dialog id={unusedFileDialogId} className="dialog-full-screen" onClose={() => closeDialog(unusedFileDialogId)}>
+        <div className='flex-column h-100'> 
+          <div className='dialog-header'>
+            <h2>{t('files.button.delete_unused_files')}</h2>
+            <CloseIcon onClick={() => closeDialog(unusedFileDialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(unusedFileDialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+          </div>
+          <div className="dialog-content">
+            <div className="unused-files-list-container">
+              {isDisabled && (<div className="flex-column h-100 flex-grow-1 justify-content-center">
+                    <div className="flex-row justify-content-center mb-4">
+                      <div className="flex-column justify-content-center">
+                        <ProgressIcon className="icon-lg udoit-progress spinner" />
+                      </div>
+                      <div className="flex-column justify-content-center ms-3">
+                        <h2 className="mt-0 mb-0">{t('fix.label.deleting_files')}</h2>
+                      </div>
+                    </div>
+                  </div> )}
+              {!isDisabled && unusedFiles.length > 0 && (
+                <div className="select-all-unused-toggle-row">
+                  <ToggleSwitch
+                    labelId="selectAllUnusedFiles"
+                    initialValue={unusedFiles.length > 0 && deleteFileQueue.length === unusedFiles.length}
+                    updateToggle={updateSelectAllUnusedFilesToggle}
+                  />
+                  <div id="selectAllUnusedFiles" className="align-self-center subtext">
+                    {t('files.label.select_all_unused_files')}
+                  </div>
+                </div>
+              )}
+              {unusedFiles.length === 0 ? (
+                <div className="flex-column gap-2 p-3 text-center">
+                  <h3 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h3>
+                  <div className="subtext">{t('files.msg.no_unused_files')}</div>
+                </div>
+              ) : !isDisabled && (
+                <SortableTable
+                  t={t}
+                  caption=""
+                  headers={unusedFilesHeaders}
+                  rows={unusedRows}
+                  tableSettings={unusedTableSettings}
+                  handleTableSettings={handleUnusedTableSettings}
+                />
+              )}
+            </div>
+          </div>
+          <div className='dialog-footer'>
+            <div className="subtext align-self-center">{t('files.label.selected_count', { count: deleteFileQueue.length })}</div>
+            <div className="flex-row gap-2">
+              <button className='btn btn-small btn-primary' onClick={() => closeDialog(unusedFileDialogId)}>{t(`fix.label.cancel`)}</button>
+              <button
+                className='btn btn-small btn-icon-left review-files-delete-button'
+                tabIndex='0'
+                disabled={deleteFileQueue.length === 0 || isDisabled}
+                onClick={deleteSelectedFilesWrapper}
+                >
+                <DeleteIcon className="icon-sm" />
+                <div className="flex-column justify-content-center">{t('files.button.delete_selected')}</div>
+              </button>
+            </div>
           </div>
         </div>
       </dialog>

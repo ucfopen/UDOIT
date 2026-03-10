@@ -12,14 +12,14 @@ export default class Api {
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
-            updateContent: '/api/content',
+            batchDelete: '/api/{course}/files/delete',
+            updateContent: '/api/{file}/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}?report={getReport}',
             scanCourse: '/api/sync/{course}',
             scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
             fullRescan: '/api/sync/rescan/{course}',
-            scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminCourseReport: '/api/admin/courses/{course}/reports/full',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
@@ -184,9 +184,26 @@ export default class Api {
 
     }
 
-    updateContent(contentOptions, sectionOptions){
+    batchDelete(urlList) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.batchDelete}`
+        url = url.replace('{course}', this.getCourseId())
+
+        return fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: JSON.stringify({
+                paths: urlList
+            })
+        })
+    }
+
+    updateContent(contentOptions, sectionOptions, fileId){
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateContent}`
+        url = url.replace('{file}', fileId)
 
         return fetch(url, {
             method: 'POST',
@@ -341,21 +358,6 @@ export default class Api {
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
         url = url.replace('{getReport}', getReport)
-
-        return fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
-            },
-        })
-    }
-
-    scanIssue(issueId)
-    {
-        const authToken = this.getAuthToken()
-        let url = `${this.apiUrl}${this.endpoints.scanIssue}`
-        url = url.replace('{issue}', issueId)
 
         return fetch(url, {
             method: 'GET',
