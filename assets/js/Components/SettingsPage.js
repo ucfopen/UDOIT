@@ -134,6 +134,7 @@ export default function SettingsPage({
               onMouseUp={handleTextSpacingSlider}
               onTouchEnd={handleTextSpacingSlider}
               onBlur={handleTextSpacingSlider}
+              onKeyUp={handleTextSpacingSlider}
             />
           </div>
 
