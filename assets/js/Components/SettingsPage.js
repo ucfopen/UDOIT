@@ -126,10 +126,13 @@ export default function SettingsPage({
               id='text_spacing'
               type='range'
               min='0'
-              max='4'
+              max='100'
               step='1'
               value={textSpacing}
-              onChange={handleTextSpacingSlider}
+              onChange={(e) => setTextSpacing(e.target.value)}
+              onMouseUp={handleTextSpacingSlider}
+              onTouchEnd={handleTextSpacingSlider}
+              onBlur={handleTextSpacingSlider}
             />
           </div>
 
