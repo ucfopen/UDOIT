@@ -55,6 +55,7 @@ export default function SettingsPage({
   // For new users, the 'dark_mode' attribute may not be set, so we need to check if it exists before using it
   // Because the values might be false, we need to differentiate between undefined and false
   const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
+  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: settings.DEFAULT_USER_SETTINGS.TEXT_SPACING)
 
   const handleDarkModeChange = (newValue) => {
     setDarkMode(newValue)
@@ -73,6 +74,19 @@ export default function SettingsPage({
     if(settings?.user?.roles[id] === value) {
       return
     }
+    updateUserSettings({ [id]: value })
+  }
+
+  const handleTextSpacingSlider = (e) => {
+    const id = e.target.id
+    const value = e.target.value
+    if(!id || !value) {
+      return
+    }
+    if(settings?.user?.roles[id] === value) {
+      return
+    }
+    setTextSpacing(value)
     updateUserSettings({ [id]: value })
   }
 
@@ -104,6 +118,19 @@ export default function SettingsPage({
               label=''
               options={fontFamilyOptions}
               settings={settings} />
+          </div>
+
+          <div className='settings-row'>
+            <label id='slider-label-text_spacing'>Text Spacing</label>
+            <input
+              id='text_spacing'
+              type='range'
+              min='0'
+              max='4'
+              step='1'
+              value={textSpacing}
+              onChange={handleTextSpacingSlider}
+            />
           </div>
 
           <div className="settings-row">
