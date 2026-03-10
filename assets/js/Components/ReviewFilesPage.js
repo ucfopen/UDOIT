@@ -261,7 +261,7 @@ export default function ReviewFilesPage({
       tempRows.push({
         id: unusedFile.id,
         name: { value: fileName.toLowerCase(), display: fileName },
-        type: { value: fileType.toLowerCase(), display: getReadableFileType(fileType) },
+        type: { value: fileType.toLowerCase(), display: getFileTypeDisplay(fileType) },
         size: !isNaN(fileSize)
           ? { value: fileSize, display: Text.getReadableFileSize(fileSize) }
           : { value: -1, display: t('label.unknown') },
