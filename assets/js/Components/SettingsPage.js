@@ -8,7 +8,9 @@ import './SettingsPage.css'
 export default function SettingsPage({
   t,
   settings,
-  updateUserSettings
+  updateUserSettings,
+  textSpacing,
+  setTextSpacing
 }) {
 
   const [alertOptions, setAlertOptions] = useState([])
@@ -55,7 +57,6 @@ export default function SettingsPage({
   // For new users, the 'dark_mode' attribute may not be set, so we need to check if it exists before using it
   // Because the values might be false, we need to differentiate between undefined and false
   const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
-  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: settings.DEFAULT_USER_SETTINGS.TEXT_SPACING)
 
   const handleDarkModeChange = (newValue) => {
     setDarkMode(newValue)
