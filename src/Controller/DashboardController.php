@@ -104,7 +104,7 @@ class DashboardController extends AbstractController
         $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
         $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
-        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'];
+        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : '';
 
         $lms = $this->lmsApi->getLms();
 
@@ -121,12 +121,6 @@ class DashboardController extends AbstractController
             'contentTypes' => $lms->getContentTypes(),
             'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
-            'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
-            'easyRuleIds' => !empty($_ENV['EASY_FIX_RULES']) ? $_ENV['EASY_FIX_RULES'] : '',
-            'visualRuleIds' => !empty($_ENV['VISUAL_RULES']) ? $_ENV['VISUAL_RULES'] : '',
-            'auditoryRuleIds' => !empty($_ENV['AUDITORY_RULES']) ? $_ENV['AUDITORY_RULES'] : '',
-            'cognitiveRuleIds' => !empty($_ENV['COGNITIVE_RULES']) ? $_ENV['COGNITIVE_RULES'] : '',
-            'motorRuleIds' => !empty($_ENV['MOTOR_RULES']) ? $_ENV['MOTOR_RULES'] : '',
             'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
         ];
     }
