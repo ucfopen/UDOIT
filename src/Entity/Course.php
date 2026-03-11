@@ -22,13 +22,11 @@ class Course implements \JsonSerializable
     #[ORM\JoinColumn(nullable: false)]
     private $institution;
 
-
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $lmsAccountId;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: "string", length: 255, nullable: true, unique: true)]
     private $lmsCourseId;
-
 
     #[ORM\Column(type: "datetime", nullable: true)]
     private $lastUpdated;
@@ -51,6 +49,9 @@ class Course implements \JsonSerializable
 
     #[ORM\Column(type: "integer", nullable: true)]
     private $lmsTermId;
+
+    #[ORM\Column(type: "json", nullable: true)]
+    private $courseProfessors;
 
     // Constructor
     public function __construct()
