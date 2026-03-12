@@ -171,7 +171,11 @@ export default function ListForm({
     })
     listHtml += `</${listType}>`
 
-    editorRef.current.setContent(listHtml)
+    // Make the content change undoable
+    editorRef.current.undoManager.transact(() => {
+      editorRef.current.setContent(listHtml)
+    })
+    
     validateContent()
   }
 
