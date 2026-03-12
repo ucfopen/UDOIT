@@ -1,9 +1,11 @@
 import * as Html from './Html'
 
 // regexes
-export const numberedPattern = /^\s*(\d+)\s*[.\)\-:]\s*/
-export const letteredPattern = /^\s*([a-zA-Z])\s*[.\)\-:]\s*/
-export const bulletPattern = /^\s*[•\-*○●■□▪▫](?:\s+|$)/
+// Match IBM Equal Access scanner pattern:
+// /^[ \t\r\n]*[( ]*[1-9]*[\*\-).][ \t][A-Z,a-z]+/
+export const numberedPattern = /^\s*[(\s]*([1-9]\d*)\s*[.\)\-]\s+/
+export const letteredPattern = /^\s*[(\s]*([a-zA-Z])\s*[.\)\-]\s+/
+export const bulletPattern = /^\s*([\*\-])\s+/  // Only * and -, requires space after
 
 export function groupListIssues(issues, parsedDocuments) {
   const listIssues = []
@@ -25,7 +27,7 @@ export function groupListIssues(issues, parsedDocuments) {
   return [...otherIssues, ...parentIssues]
 }
 
-function groupByProximity(listIssues, parsedDocuments, allIssues) {
+function groupByProximity(listIssues, parsedDocuments) {
   const issuesByContent = {}
   listIssues.forEach(issue => {
     if (!issuesByContent[issue.contentItemId]) issuesByContent[issue.contentItemId] = []
@@ -77,49 +79,54 @@ function groupByProximity(listIssues, parsedDocuments, allIssues) {
       siblings.forEach((sibling, index) => {
         const text = sibling.textContent.trim()
         const listInfo = extractListInfo(text)
-        console.log(text, extractListInfo(text))
         
         if (listInfo) {
           const issuesForElement = elementIssueMap.get(sibling) || []
           
-          if (issuesForElement.length > 0) {
-            listItems.push({
-              issue: issuesForElement[0],
-              element: sibling,
-              listInfo,
-              domIndex: index
-            })
-          }
+          listItems.push({
+            issue: issuesForElement.length > 0 ? issuesForElement[0] : null,
+            element: sibling,
+            listInfo,
+            domIndex: index
+          })
         }
       })
       
       if (listItems.length === 0) return
       
       let currentGroup = []
+      let currentGroupElements = []
       let lastListInfo = null
+      let lastDomIndex = -1
       
-      listItems.forEach(({ issue, listInfo }) => {
+      listItems.forEach(({ issue, element, listInfo, domIndex }) => {
         const shouldStartNewGroup = 
           !lastListInfo ||
           listInfo.type !== lastListInfo.type ||
+          domIndex !== lastDomIndex + 1 ||
           (listInfo.type === 'numbered' && listInfo.value === 1 && lastListInfo.value > 1) ||
           (listInfo.type === 'lettered' && listInfo.value === 1 && lastListInfo.value > 1) ||
           (listInfo.type === 'lettered' && listInfo.isUpperCase !== lastListInfo.isUpperCase)
         
         if (shouldStartNewGroup) {
           if (currentGroup.length > 0) {
-            groups.push(currentGroup)
+            groups.push({ issues: currentGroup, elements: [...currentGroupElements] })
           }
-          currentGroup = [issue]
+          currentGroup = issue ? [issue] : []
+          currentGroupElements = [element]
         } else {
-          currentGroup.push(issue)
+          if (issue) {
+            currentGroup.push(issue)
+          }
+          currentGroupElements.push(element)
         }
         
         lastListInfo = listInfo
+        lastDomIndex = domIndex
       })
-      
+
       if (currentGroup.length > 0) {
-        groups.push(currentGroup)
+        groups.push({ issues: currentGroup, elements: [...currentGroupElements] })
       }
     })
   })
@@ -144,12 +151,15 @@ function extractListInfo(text) {
   return null
 }
 
-function createParentIssue(issueGroup, parsedDocuments) {
+function createParentIssue(group) {
+  const issueGroup = group.issues
+  const elements = group.elements
+  
   if (issueGroup.length === 1) return issueGroup[0]
   
   const firstIssue = issueGroup[0]
   const contentItemId = firstIssue.contentItemId
-  let allItemsHtml = issueGroup.map(issue => issue.sourceHtml).join('\n')
+  let allItemsHtml = elements.map(el => el.outerHTML).join('\n')
   
   const parentIssue = {
     ...firstIssue,
@@ -173,7 +183,7 @@ function createParentIssue(issueGroup, parsedDocuments) {
   
   metadata.listGroupCount = issueGroup.length
   metadata.listGroupIds = issueGroup.map(i => i.id)
-  metadata.listGroupXpaths = issueGroup.map(i => i.xpath)
+  metadata.listGroupXpaths = elements.map(el => Html.findXpathFromElement(el))
   metadata.isListGroup = true
   
   parentIssue.metadata = JSON.stringify(metadata)
