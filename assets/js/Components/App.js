@@ -11,7 +11,7 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS } from '../Services/Settings'
+import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS} from '../Services/Settings'
 
 
 export default function App(initialData) {
@@ -28,8 +28,9 @@ export default function App(initialData) {
     { FILE_TYPES },
     { FILE_TYPE_MAP },
     { DEFAULT_USER_SETTINGS },
-    { UFIXIT_OPTIONS }
+    { UFIXIT_OPTIONS },
   ))
+  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: settings.DEFAULT_USER_SETTINGS.TEXT_SPACING) 
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -366,6 +367,7 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
+         style={{ '--text-spacing-percent': Number(textSpacing) }}
          className={`flex-column flex-grow-1 `
           + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
           + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
@@ -448,7 +450,9 @@ export default function App(initialData) {
                   settings={settings}
                   updateUserSettings={updateUserSettings}
                   syncComplete={syncComplete}
-                  handleFullCourseRescan={handleFullCourseRescan} />
+                  handleFullCourseRescan={handleFullCourseRescan}
+                  textSpacing={textSpacing}
+                  setTextSpacing={setTextSpacing} />
               }
               {('modal' === navigation) &&
                 <div className="modal">

@@ -187,6 +187,12 @@
       border: 1px solid var(--gray-lighter);
       box-shadow: 2px 2px 2px var(--gray-lighter);
     }
+
+    --text-spacing-percent: 0;
+    --app-letter-spacing: calc(var(--text-spacing-percent) * 0.0018em);
+    --app-word-spacing: calc(var(--text-spacing-percent) * 0.0042em);
+    letter-spacing: var(--app-letter-spacing);
+    word-spacing: var(--app-word-spacing);
   }
 
   h1, h2, h3, h4, h5, h6 {

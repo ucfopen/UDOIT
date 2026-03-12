@@ -8,7 +8,9 @@ import './SettingsPage.css'
 export default function SettingsPage({
   t,
   settings,
-  updateUserSettings
+  updateUserSettings,
+  textSpacing,
+  setTextSpacing
 }) {
 
   const [alertOptions, setAlertOptions] = useState([])
@@ -76,6 +78,19 @@ export default function SettingsPage({
     updateUserSettings({ [id]: value })
   }
 
+  const handleTextSpacingSlider = (e) => {
+    const id = e.target.id
+    const value = e.target.value
+    if(!id || !value) {
+      return
+    }
+    if(settings?.user?.roles[id] === value) {
+      return
+    }
+    setTextSpacing(value)
+    updateUserSettings({ [id]: value })
+  }
+
   return (
   <div className="flex-column settings-page-container h-100">
     <h1 className="pageTitle pb-2">{t('menu.settings')}</h1>
@@ -104,6 +119,23 @@ export default function SettingsPage({
               label=''
               options={fontFamilyOptions}
               settings={settings} />
+          </div>
+
+          <div className='settings-row'>
+            <label id='slider-label-text_spacing'>Text Spacing</label>
+            <input
+              id='text_spacing'
+              type='range'
+              min='0'
+              max='100'
+              step='1'
+              value={textSpacing}
+              onChange={(e) => setTextSpacing(e.target.value)}
+              onMouseUp={handleTextSpacingSlider}
+              onTouchEnd={handleTextSpacingSlider}
+              onBlur={handleTextSpacingSlider}
+              onKeyUp={handleTextSpacingSlider}
+            />
           </div>
 
           <div className="settings-row">
