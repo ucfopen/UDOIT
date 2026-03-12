@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Entity\Course;
 use App\Entity\Report;
 use App\Response\ApiResponse;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Mpdf\Mpdf;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 
 class ReportsController extends ApiController
@@ -28,6 +30,7 @@ class ReportsController extends ApiController
 
     #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
     public function getAllReports(
+        SessionService $sessionService,
         UtilityService $util,
         Course $course
     ): JsonResponse {
@@ -36,8 +39,8 @@ class ReportsController extends ApiController
         $apiResponse = new ApiResponse();
         try {
             // Check if user has course access
-            if(!$this->userHasCourseAccess($course)) {
-                throw new \Exception("You do not have permission to access the specified course.");
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("msg.no_permissions");
             }
 
             /** @var ReportRepository $repository */
@@ -55,14 +58,14 @@ class ReportsController extends ApiController
     }
 
     #[Route('/api/courses/{course}/reports/latest', methods: ['GET'], name: 'get_latest_report')]
-    public function getLatestReport(Course $course): JsonResponse
+    public function getLatestReport(SessionService $sessionService, Course $course): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $reportArr = false;
 
         try {
             // Check if user has course access
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
 
@@ -105,11 +108,19 @@ class ReportsController extends ApiController
     }
 
     #[Route('/api/reports/{report}/setdata', methods: ['POST'], name: 'set_report_data')]
-    public function setReportData(Request $request, Report $report): JsonResponse
+    public function setReportData(
+        SessionService $sessionService, 
+        Request $request, 
+        Report $report): JsonResponse
     {
         $apiResponse = new ApiResponse();
 
         try {
+            $course = $report->getCourse();
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("msg.no_permissions");
+            }
+
             $data = json_decode($request->getContent(), true);
             $newData = json_decode($report->getData(), true);
             foreach ($data as $key => $value) {
@@ -131,6 +142,7 @@ class ReportsController extends ApiController
 
     #[Route('/download/courses/{course}/reports/pdf', methods: ['GET'], name: 'get_report_pdf')]
     public function getPdfReport(
+        SessionService $sessionService,
         Request $request,
         UtilityService $util,
         Course $course
@@ -143,6 +155,11 @@ class ReportsController extends ApiController
             $user = $this->getUser();
             /** @var \App\Entity\Institution $institution */
             $institution = $user->getInstitution();
+
+            // Check if user has course access
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
+                throw new \Exception("msg.no_permissions");
+            }
           
             $metadata = $institution->getMetadata();
             $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];

@@ -7,6 +7,8 @@ use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 
 class LmsUserService {
 
@@ -32,30 +34,39 @@ class LmsUserService {
     }
 
     // Returns true if API key has been validated.
-    public function validateApiKey(User $user): bool
+    public function validateApiKey(User $user)
     {
-        $apiKey = $user->getApiKey();
         $lms = $this->lmsApi->getLms();
-
-        if (empty($apiKey)) {
-            return false;
-        }
+        $max_retries = 1;
+        $retries = 0;
 
         try {
-            return $lms->testApiConnection($user);
+            $api_status = $lms->testApiConnection($user);
+            return $api_status;
         }
         catch (\Exception $e) {
-            if(!$this->refreshApiKey($user)) {
-                return false;
+            while($retries < $max_retries){
+                $retries += 1;
+                $retryStatus = $this->refreshApiKey($user);
+                if($retryStatus){
+                    break;
+                }
+            }
+            if(!$retryStatus){
+                $api_status['success'] = false;
+                $api_status['message'] = 'Failed to authenticate';
+                return $api_status;
             }
         }
 
-        try {
-            return $lms->testApiConnection($user);
+        try{
+            $api_status = $lms->testApiConnection($user);
         }
         catch (\Exception $e) {
             $this->util->exitWithMessage($e->getMessage());
         }
+     
+        return $api_status;
     }
 
     public function refreshApiKey(User $user)
