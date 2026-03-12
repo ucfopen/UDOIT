@@ -158,14 +158,16 @@ export default function ListForm({
       
       const firstTextNode = walker.nextNode()
       if (firstTextNode) {
-        firstTextNode.textContent = firstTextNode.textContent
+        const originalText = firstTextNode.textContent
+        const strippedText = originalText
           .replace(numberedPattern, '')
           .replace(letteredPattern, '')
           .replace(bulletPattern, '')
-          .trim()
-      }
       
-      listHtml += `  <li>${clone.innerHTML.trim()}</li>\n`
+        firstTextNode.textContent = strippedText
+      }
+    
+      listHtml += `  <li>${clone.innerHTML}</li>\n`
     })
     listHtml += `</${listType}>`
 
