@@ -8,6 +8,11 @@ endif
 start:
 	docker compose -f docker-compose.nginx.yml up
 
+
+create-migrations:
+	make clean-cache
+	docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:diff
+
 # set up the database
 migrate:
 	docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate

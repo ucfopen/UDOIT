@@ -12,13 +12,12 @@ export default class Api {
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
-            updateContent: '/api/content',
+            updateContent: '/api/{file}/content',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}?report={getReport}',
             scanCourse: '/api/sync/{course}',
             scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
             fullRescan: '/api/sync/rescan/{course}',
-            scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminCourseReport: '/api/admin/courses/{course}/reports/full',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
@@ -160,8 +159,9 @@ export default class Api {
         })
     }
 
-    updateContent(contentOptions, sectionOptions){
+    updateContent(contentOptions, sectionOptions, fileId){
         let url = `${this.apiUrl}${this.endpoints.updateContent}`
+        url = url.replace('{file}', fileId)
 
         return fetch(url, {
             method: 'POST',
@@ -295,20 +295,6 @@ export default class Api {
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
         url = url.replace('{getReport}', getReport)
-
-        return fetch(url, {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-    }
-
-    scanIssue(issueId)
-    {
-        let url = `${this.apiUrl}${this.endpoints.scanIssue}`
-        url = url.replace('{issue}', issueId)
 
         return fetch(url, {
             method: 'GET',

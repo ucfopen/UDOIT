@@ -53,7 +53,8 @@ class DashboardController extends AbstractController
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
         }
-        if (!$lmsUser->validateApiKey($user)) {
+        $apiStatus = $lmsUser->validateApiKey($user);
+        if (!$apiStatus['success']) {
             if ($this->session->get('oauthAttempted', false)) {
                 $this->util->exitWithMessage('API authentication failed. Contact your administrator.');
             }
