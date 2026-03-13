@@ -13,7 +13,6 @@ export default class Api {
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
             updateContent: '/api/{file}/content',
-            reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}?report={getReport}',
             scanCourse: '/api/sync/{course}',
@@ -21,9 +20,9 @@ export default class Api {
             fullRescan: '/api/sync/rescan/{course}',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminCourseReport: '/api/admin/courses/{course}/reports/full',
-            adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
-            adminUser: '/api/admin/users',          
-            updateUser: '/api/users/{user}' 
+            adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
+            adminUser: '/api/admin/users',
+            updateUser: '/api/users/{user}'
         }
         this.settings = settings;
 
@@ -40,13 +39,8 @@ export default class Api {
         return this.settings.user.id;
     }
 
-    getAuthToken() {
-        return this.settings.clientToken;
-    }
-
     getReport(reportId) {
         const courseId = this.getCourseId();
-        const authToken = this.getAuthToken();
 
         if (!reportId) {
             reportId = 'latest';
@@ -57,72 +51,64 @@ export default class Api {
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         });
     }
 
     getReportHistory() {
         const courseId = this.getCourseId();
-        const authToken = this.getAuthToken();
 
         let url = `${this.apiUrl}${this.endpoints.getReportHistory}`;
         url = url.replace('{course}', courseId);
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         });
     }
 
     setReportData(reportId, data) {
-        const authToken = this.getAuthToken()
-
         let url = `${this.apiUrl}${this.endpoints.setReportData}`
         url = url.replace('{report}', reportId)
 
         return fetch(url, {
             method: 'POST',
             cache: 'no-cache',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
             body: JSON.stringify(data),
         })
     }
 
     updateAndGetReport(courseId){
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateAndGetReport}`
         url = url.replace('{course}', courseId)
-    
+
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         })
     }
-    
-    saveIssue(issue, fullPageHtml, markAsReviewed = false) {
-        const authToken = this.getAuthToken()
 
+    saveIssue(issue, fullPageHtml, markAsReviewed = false) {
         let url = `${this.apiUrl}${this.endpoints.saveIssue}`
         url = url.replace('{issue}', issue.id)
 
         return fetch(url, {
             method: 'POST',
             cache: 'no-cache',
-            headers: {
-                'X-AUTH-TOKEN': authToken,
-            },
+            credentials: 'include',
             body: JSON.stringify({
               sourceHtml: issue.sourceHtml,
               newHtml: issue.newHtml,
@@ -134,25 +120,21 @@ export default class Api {
     }
 
     reviewFile(file, removeReplacement) {
-        const authToken = this.getAuthToken()
-
         let url = `${this.apiUrl}${this.endpoints.reviewFile}`
         url = url.replace('{file}', file.id)
 
         return fetch(url, {
             method: 'POST',
             cache: 'no-cache',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
             body: JSON.stringify({ reviewed: file.reviewed, replacement: removeReplacement }),
         })
     }
 
     postFile(activeFile, fileObj) {
-        const authToken = this.getAuthToken()
-
         let url = `${this.apiUrl}${this.endpoints.postFile}`
         url = url.replace('{file}', activeFile.id)
 
@@ -162,38 +144,29 @@ export default class Api {
         return fetch(url, {
             method: 'POST',
             cache: 'no-cache',
-            headers: {
-                'X-AUTH-TOKEN': authToken,
-            },
+            credentials: 'include',
             body: formData,
         })
     }
 
     deleteFile(activeFile) {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.deleteFile}`
         url = url.replace('{file}', activeFile.id)
-        
+
         return fetch(url, {
             method: 'DELETE',
-            headers: {
-                'X-AUTH-TOKEN': authToken,
-            },
+            credentials: 'include',
         })
-
     }
 
     updateContent(contentOptions, sectionOptions, fileId){
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateContent}`
         url = url.replace('{file}', fileId)
 
         return fetch(url, {
             method: 'POST',
             cache: 'no-cache',
-            headers: {
-                'X-AUTH-TOKEN': authToken
-            },
+            credentials: 'include',
             body: JSON.stringify({
                 content: contentOptions,
                 section: sectionOptions
@@ -201,182 +174,160 @@ export default class Api {
         })
     }
 
-    getPdfUrl() {
-        const courseId = this.getCourseId()
-        const authToken = this.getAuthToken()
-        let url = `${this.apiUrl}${this.endpoints.reportPdf}?auth_token=${authToken}`
-
-        return url.replace('{course}', courseId)
-    }
-
     getAdminCourses(filters) {
-        const authToken = this.getAuthToken();
-
         let url = `${this.apiUrl}${this.endpoints.adminCourses}`
         url = url.replace('{account}', filters.accountId)
             .replace('{term}', filters.termId)
-        
+
         if (filters.includeSubaccounts) {
             url += '?subaccounts=true'
         }
-        
+
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         });
     }
 
     getAdminReportHistory(filters) {
-        const authToken = this.getAuthToken();
-
         let url = `${this.apiUrl}${this.endpoints.adminReportHistory}`
         url = url.replace('{account}', filters.accountId)
             .replace('{term}', filters.termId)
-        
+
         if (filters.includeSubaccounts) {
             url += '?subaccounts=true'
         }
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         });
     }
 
     getAdminReport(courseId) {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.adminReport}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         });
     }
 
     getCourseReport(courseId) {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.adminCourseReport}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         });
     }
 
     getAdminUser() {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.adminUser}`
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         })
     }
 
     scanCourse(courseId)
     {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanCourse}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         })
     }
 
     scanLmsCourse(lmsCourseId)
     {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanLmsCourse}`
         url = url.replace('{lmsCourseId}', lmsCourseId)
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         })
     }
 
     fullRescan(courseId)
     {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.fullRescan}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         })
-    } 
+    }
 
     scanContent(contentId, getReport = true)
     {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
         url = url.replace('{getReport}', getReport)
 
         return fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
         })
     }
 
     getIssueContent(issueId) {
-      const authToken = this.getAuthToken()
       let url = `${this.apiUrl}${this.endpoints.getIssueContent}`
       url = url.replace('{issue}', issueId)
 
       return fetch(url, {
           method: 'GET',
+          credentials: 'include',
           headers: {
               'Content-Type': 'application/json',
-              'X-AUTH-TOKEN': authToken,
           },
       })
     }
 
     updateUser(user) {
-        const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateUser}`
-
         url = url.replace('{user}', user.id)
 
         return fetch(url, {
             method: 'PUT',
             cache: 'no-cache',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
             },
             body: JSON.stringify(user),
         })
