@@ -391,9 +391,8 @@ class CanvasLms implements LmsInterface {
 
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
 
-        // Batch page pulling maintaince
+        // Batch page pulling maintenance
         $pageUrls = [];
-        $asyncFetch = true;
 
         $start_time = microtime(true);
         foreach ($urls as $contentType => $url) {
@@ -427,8 +426,8 @@ class CanvasLms implements LmsInterface {
                     if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
                         continue;
                     }
-                    if(('page' === $contentType) && ($asyncFetch)){
-                        // If we are using async fetch we need the 
+                    if('page' === $contentType){
+                        // If we are using async fetch we need the LMS content and URL to be saved and processed later
                         $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                         $contentItem = $this->contentItemRepo->findOneBy([
                             'contentType' => $contentType,
@@ -436,18 +435,29 @@ class CanvasLms implements LmsInterface {
                             'course' => $course,
                         ]);
 
+                        if (!$force && $contentItem) {
+                            $contentItemUpdated = $contentItem->getUpdated();
+                            $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+                            if ($contentItemUpdated == $lmsUpdated) {
+                                $contentItem->setActive(true);
+                                continue;
+                            }
+                        }
+                        
                         if (!$contentItem) {
-                        $contentItem = new ContentItem();
-                        $contentItem->setCourse($course)
-                            ->setLmsContentId($lmsContent['id'])
-                            ->setActive(true)
-                            ->setContentType($contentType);
-                        $this->entityManager->persist($contentItem);
-                    }
-                    $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";  
-                    $tempContentItems[] = $contentItem;
-                    $pageUrls[] = $url;
-                    continue;
+                            $contentItem = new ContentItem();
+                            $contentItem->setCourse($course)
+                                ->setLmsContentId($lmsContent['id'])
+                                ->setActive(true)
+                                ->setContentType($contentType);
+                            $this->entityManager->persist($contentItem);
+                        }
+    
+                        $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";  
+                        $tempContentItems[] = $contentItem;
+                        $pageUrls[] = $url;
+                        
+                        continue;
                     }
 
                     $this->saveOrUpdateContentItem($canvasApi, $course, $contentType, $content, $force);
@@ -482,7 +492,6 @@ class CanvasLms implements LmsInterface {
                 }
             }
         }
-        
         // push any updates made to content items to DB
         $this->entityManager->flush();
         return $this->contentItemList;
