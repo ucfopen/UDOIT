@@ -8,18 +8,20 @@ use Doctrine\ORM\Mapping as ORM;
 class Term implements \JsonSerializable
 {
     #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Institution::class)]
+    #[ORM\JoinColumn(name: "institution_id", referencedColumnName: "id", nullable: false)]
+    private Institution $institution;
+
+    #[ORM\Id]
     #[ORM\Column(name: "lms_term_id", type: "string", length: 255)]
     private string $lmsTermId;
 
     #[ORM\Column(type: "string", length: 255)]
     private string $termName;
 
-    #[ORM\ManyToOne(targetEntity: "App\Entity\Institution", inversedBy: "terms")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $institution;
-
-    public function __construct(string $lmsTermId, string $termName)
+    public function __construct(Institution $institution, string $lmsTermId, string $termName)
     {
+        $this->institution = $institution;
         $this->lmsTermId = $lmsTermId;
         $this->termName = $termName;
     }
@@ -54,12 +56,12 @@ class Term implements \JsonSerializable
         return $this;
     }
 
-    public function getInstitution(): ?Institution
+    public function getInstitution(): Institution
     {
         return $this->institution;
     }
 
-    public function setInstitution(?Institution $institution): self
+    public function setInstitution(Institution $institution): self
     {
         $this->institution = $institution;
 

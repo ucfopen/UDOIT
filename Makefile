@@ -4,35 +4,89 @@ ifneq (,$(wildcard ./.ins.env))
     export
 endif
 
-# spin up the containers
+# ──────────────────────────────────────────────
+# Variables
+# ──────────────────────────────────────────────
+
+COMPOSE := docker compose -f docker-compose.nginx.yml
+
+# ──────────────────────────────────────────────
+# Container Management
+# ──────────────────────────────────────────────
+
+## Spin up the containers
 start:
-	docker compose -f docker-compose.nginx.yml up
+	$(COMPOSE) up
 
-
-create-migrations:
-	make clean-cache
-	docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:diff
-
-# set up the database
-migrate:
-	docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
-
-# Down the containers
+## Bring down the containers
 down:
-	docker compose -f docker-compose.nginx.yml down
+	$(COMPOSE) down
 
-# rebuild the containers from the ground up
+## Rebuild the containers from the ground up
 build:
-	docker compose -f docker-compose.nginx.yml up --build
+	$(COMPOSE) up --build
 
-# clear the Symfony cache
+# ──────────────────────────────────────────────
+# Database / Migrations
+# ──────────────────────────────────────────────
+
+## Generate a migration by diffing the current schema
+create-migrations: clean-cache
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:diff
+
+## Validate the mapping files against the schema
+validate: clean-cache
+	$(COMPOSE) run --rm php php bin/console doctrine:schema:validate
+
+## Dump the SQL needed to update the schema
+dump-sql: clean-cache
+	$(COMPOSE) run --rm php php bin/console doctrine:schema:update --dump-sql
+
+## Run migrations
+## usage: `make migrate` to run all pending, or `make migrate VERSION=20260311150018` for a single migration
+migrate:
+ifdef VERSION
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:execute --up 'DoctrineMigrations\Version$(VERSION)'
+else
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:migrate
+endif
+
+## Run all pending migrations up to and including a specific version
+## usage: `make migrate-to VERSION=20260311150018`
+migrate-to:
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version$(VERSION)'
+
+## Revert all migrations after the given version
+## usage: `make migrate-down VERSION=20260311150018`
+migrate-down:
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version$(VERSION)' --no-interaction
+
+# ──────────────────────────────────────────────
+# Utilities
+# ──────────────────────────────────────────────
+
+## Clear the Symfony cache
 clean-cache:
-	docker compose -f docker-compose.nginx.yml run php bin/console cache:clear
+	$(COMPOSE) run --rm php bin/console cache:clear
 
-# fill your institutions table data with the variables in your ins.env file. Use this command if you are using mysql.
+# ──────────────────────────────────────────────
+# Institution Seeding
+# ──────────────────────────────────────────────
+
+## Insert institution row (MySQL)
+## Reads variables from .ins.env
 ins-mysql:
-	docker exec -it udoit3-db mysql -u root -proot udoit3 -e "INSERT INTO institution (title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) VALUES ('$(TITLE)', '$(LMS_DOMAIN)', '$(LMS_ID)', '$(LMS_ACCOUNT_ID)', '$(CREATED)', '$(STATUS)', '$(VANITY_URL)', '$(METADATA)', '$(API_CLIENT_ID)', '$(API_CLIENT_SECRET)');"
+	docker exec -it udoit3-db mysql -u root -proot udoit3 \
+		-e "INSERT INTO institution \
+			(title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) \
+			VALUES \
+			('$(TITLE)', '$(LMS_DOMAIN)', '$(LMS_ID)', '$(LMS_ACCOUNT_ID)', '$(CREATED)', '$(STATUS)', '$(VANITY_URL)', '$(METADATA)', '$(API_CLIENT_ID)', '$(API_CLIENT_SECRET)');"
 
-# fill your institutions table data with the variables in your institutions.env file. Use this command if you are using postgresql.
+## Insert institution row (PostgreSQL)
+## Reads variables from .ins.env
 ins-psql:
-	docker exec -it -e PGPASSWORD=root udoit3-db psql -U root -d udoit3 -w -c "INSERT INTO institution (title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) VALUES ('$(TITLE)', '$(LMS_DOMAIN)', '$(LMS_ID)', '$(LMS_ACCOUNT_ID)', '$(CREATED)', '$(STATUS)', '$(VANITY_URL)', '$(API_CLIENT_ID)', '$(API_CLIENT_SECRET)');"
+	docker exec -it -e PGPASSWORD=root udoit3-db psql -U root -d udoit3 -w \
+		-c "INSERT INTO institution \
+			(title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) \
+			VALUES \
+			('$(TITLE)', '$(LMS_DOMAIN)', '$(LMS_ID)', '$(LMS_ACCOUNT_ID)', '$(CREATED)', '$(STATUS)', '$(VANITY_URL)', '$(API_CLIENT_ID)', '$(API_CLIENT_SECRET)');"
