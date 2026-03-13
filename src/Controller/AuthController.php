@@ -9,6 +9,7 @@ use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,6 +24,8 @@ class AuthController extends AbstractController
     private $lmsApi;
 
     private ManagerRegistry $doctrine;
+
+    private $session;
 
     public function __construct(ManagerRegistry $doctrine)
     {
@@ -94,9 +97,17 @@ class AuthController extends AbstractController
 
         $destination = $this->session->get('destination', 'dashboard');
 
-        return $this->redirectToRoute(
-            $destination,
-            ['auth_token' => $this->session->getUuid()]);
+        $response = $this->redirectToRoute($destination);
+        $response->headers->setCookie(
+            Cookie::create('AUTH_TOKEN')
+                ->withValue($this->session->getUuid())
+                ->withExpires(0)
+                ->withPath('/')
+                ->withSecure(true)
+                ->withHttpOnly(true)
+                ->withSameSite('none')
+        );
+        return $response;
     }
 
     // Pass in the institution ID and this will encrypt the developer key.

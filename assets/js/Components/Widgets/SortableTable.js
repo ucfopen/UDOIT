@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import SortIconFilled from '../Icons/SortIconFilled'
 import DownloadIcon from '../Icons/DownloadIcon'
+import LeftArrowIcon from '../Icons/LeftArrowIcon'
+import RightArrowIcon from '../Icons/RightArrowIcon'
+import SortIconFilled from '../Icons/SortIconFilled'
 
 import './SortableTable.css'
 
@@ -20,6 +22,7 @@ export default function SortableTable({
   const [direction, setDirection] = useState((tableSettings.ascending) ? 'ascending': 'descending')
   const [showPagination, setShowPagination] = useState(rows.length >= rowsPerPage)
   const [pagedRows, setPagedRows] = useState([])
+  const captionId = Math.random().toString(36).substring(2, 15);
 
   useEffect(() => {
     const tempRowsPerPage = (tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10
@@ -44,7 +47,7 @@ export default function SortableTable({
 
     rows.forEach(row => {
       const rowData = headers.map(header => {
-        const value = row[header.id];
+        const value = (typeof row[header.id] === 'object' && row[header.id + '_display']) ? row[header.id + '_display'] : row[header.id];
         return `"${value}"`;
       });
       csvData.push(rowData.join(','));
@@ -60,7 +63,7 @@ export default function SortableTable({
   }
 
   const handleSort = (id) => {
-    if (['status', 'action'].includes(id)) {
+    if (['action'].includes(id)) {
       return
     }
 
@@ -105,17 +108,18 @@ export default function SortableTable({
 
     //  
     return (
-      <div className="mt-3 flex-row justify-content-center">
+      <div className="mt-3 flex-row justify-content-between align-items-center gap-2 flex-wrap">
+        <div className="subtext align-content-center" dangerouslySetInnerHTML={{__html: t('report.label.table_visible', {first: start + 1, last: Math.min(start + rowsPerPage, rows.length), total: rows.length})}} />
         <nav
           className="pagination flex-row justify-content-center gap-1"
         >
           { tableSettings.pageNum > 0 && (
             <button
-              className="paginationButton"
+              className="paginationButton paginationBordered"
               title={t('report.button.previous')}
               aria-label={t('report.button.previous')}
               onClick={() => setPage(tableSettings.pageNum - 1)}>
-              &lt;
+              <LeftArrowIcon className='icon-sm' />
             </button>
           )}
           <button
@@ -133,11 +137,11 @@ export default function SortableTable({
           </button>
           { tableSettings.pageNum < (pageCount - 1) && (
             <button
-              className="paginationButton"
+              className="paginationButton paginationBordered"
               title={t('report.button.next')}
               aria-label={t('report.button.next')}
               onClick={() => setPage(tableSettings.pageNum + 1)}>
-              &gt;
+              <RightArrowIcon className='icon-sm' />
             </button>
           )}
         </nav>
@@ -146,87 +150,94 @@ export default function SortableTable({
   }
 
   return (
-    <div>
-      <table className="udoit-sortable-table">
-        {( caption && caption.length > 0 ) &&
-          <caption className="mb-2">
-            <div className="flex-row">
-              <div className="flex-grow-1 flex-row justify-content-center">
-                <h2 className="flex-column align-self-center primary-dark mt-0 mb-0">{caption}</h2>
-              </div>
-              <div className="flex-grow-0">
-                <button className="btn-secondary btn-small btn-icon-left" onClick={()=>exportToCSV()}>
-                  <DownloadIcon className="icon-md" />
-                  {t('report.button.download')}
-                </button>
-              </div>
-            </div>
-          </caption>
-        }
-        <thead aria-label={t('report.label.sort_by')}>
-          <tr>
-            {(headers || []).map(({ id, text }) => (
-              (text) ? 
-                <th
-                  key={`header${id}`}
-                  id={id}
-                  tabIndex="0"
-                  onClick={() => handleSort(id)}
+    <>
+      {( caption && caption.length > 0 ) &&
+        <div className="flex-row flex-wrap mb-2 gap-2">
+          <div className="flex-grow-1 flex-row">
+            <h2 className="flex-column align-self-center m-0" id={`caption-${captionId}`}>{caption}</h2>
+          </div>
+          <div className="flex-grow-0">
+            <button className="btn-secondary btn-small btn-icon-left" onClick={()=>exportToCSV()}>
+              <DownloadIcon className="icon-md" />
+              {t('report.button.download')}
+            </button>
+          </div>
+        </div>
+      }
+      <div className="rounded-table-wrapper">
+        <table className="udoit-sortable-table" aria-labelledby={`caption-${captionId}`}>
+          <thead aria-label={t('report.label.sort_by')}>
+            <tr>
+              {(headers || []).map(({ id, text, divider }) => (
+                (text) ? 
+                  <th
+                    key={`header${id}`}
+                    id={id}
+                    tabIndex="0"
+                    onClick={() => handleSort(id)}
+                    onKeyDown={(e) => {
+                      if(e.key === 'Enter' || e.key === ' ') {
+                        handleSort(id)
+                      }
+                    }}
+                    className={(divider) ? 'divider' : '' }
+                  >
+                    <div className="flex-row">
+                      <div className="flex-grow-1 clickable-text">{text}</div>
+                      { (id === sortBy) ? (
+                        <div className="flex-column justify-content-center flex-shrink-0 ps-2">
+                          <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
+                        </div>
+                        ) : (
+                          <div className="header-spacer" />
+                        )
+                      }
+                    </div>
+                    </th>
+                    :
+                  <th key={`header${id}`} id={id} />
+                ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pagedRows.map((row, index) => {
+              const isRowClickable = !!row.onClick;
+              return (
+                <tr
+                  id={row.id ? row.id : `row${index}`}
+                  key={`row${index}`}
+                  className={isRowClickable ? 'clickable' : ''}
+                  onClick={isRowClickable ? row.onClick : undefined}
+                  tabIndex={isRowClickable ? 0 : undefined}
                   onKeyDown={(e) => {
-                    if(e.key === 'Enter' || e.key === ' ') {
-                      handleSort(id)
+                    if(isRowClickable && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault()
+                      row.onClick()
                     }
                   }}
+                  aria-label={row.label ? row.label : ''}
                 >
-                  <div className="flex-row">
-                    <div className="header-spacer" />
-                    <div className="flex-grow-1 clickable-text">{text}</div>
-                    { (id === sortBy) ? (
-                      <div className="flex-column justify-content-center flex-shrink-0 ps-2">
-                        <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
-                      </div>
-                      ) : (
-                        <div className="header-spacer" />
-                      )
-                    }
-                  </div>
-                  </th>
-                  :
-                <th key={`header${id}`} id={id} />
-              ))}
-          </tr>
-        </thead>
-        <tbody>
-          {pagedRows.map((row) => {
-            const isRowClickable = !!row.onClick;
-            return (
-              <tr
-                key={`row${row.id}`}
-                className={isRowClickable ? 'clickable' : ''}
-                onClick={isRowClickable ? row.onClick : undefined}
-                tabIndex={isRowClickable ? 0 : undefined}
-                style={isRowClickable ? { cursor: "pointer" } : undefined}
-              >
-                {headers.map(({ id, renderCell, alignText, format }) => (
-                  <td
-                    key={`row${row.id}cell${id}`}
-                    className={
-                      alignText === 'center'
-                        ? 'text-center'
-                        : alignText === 'end'
-                        ? 'text-end'
-                        : 'text-start'
-                    }
-                  >
-                    {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div>{row[id]}</div>}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  {headers.map(({ id, alignText }) => (
+                    <td
+                      key={`row${row.id}cell${id}`}
+                      className={
+                        alignText === 'center'
+                          ? 'text-center'
+                          : alignText === 'end'
+                          ? 'text-end'
+                          : 'text-start'
+                      }
+                    >
+                      {(typeof row[id] === 'object' && row[id]?.display) ? row[id].display : row[id]}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       {renderPagination()}
-    </div>
+    </>
   )
 }

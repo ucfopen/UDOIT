@@ -3,10 +3,7 @@ import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
 import UCFOpenLogo from '../../mediaAssets/ucfopen-logo.svg'
 import UCFOpenLogoDark from '../../mediaAssets/ucfopen-logo-inverse.svg'
-import SummaryIcon from './Icons/SummaryIcon'
-import UFIXITIcon from './Icons/UFIXITIcon'
-import ReportIcon from './Icons/ReportIcon'
-import ProgressIcon from './Icons/ProgressIcon'
+import CheckIcon from './Icons/CheckIcon'
 import './WelcomePage.css'
 
 export default function WelcomePage({
@@ -20,56 +17,43 @@ export default function WelcomePage({
     <main className="flex-column flex-grow-1">
       <div className="flex-column justify-content-between flex-grow-1">
         <div className="invisible-spacer"></div>
-        <div className="flex-column">
-          <div className="welcome-content-wrapper flex-column gap-3">
-            <div className="welcome-content flex-column">
-              <h1 className="primary-text text-center">{t('welcome.title')}</h1>
-              <img src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo} alt={t('alt.UDOIT')} className="logo-large pt-3"/>
-              <div className="text-center welcome-description">{t('welcome.description')}</div>
+
+        <div className="callout-container welcome-container">
+          <h1 className="m-0 pt-3 pb-4 flex-row justify-content-center">
+            <img
+              src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}
+              alt={t('udoit')}
+              aria-label={t('udoit')}
+              title={t('alt.UDOIT')}
+              className="logo-large" />
+          </h1>
+          
+          <h2 className="m-0">{t('welcome.subtitle')}</h2>
+
+          <p>{t('welcome.description')}</p>
+ 
+          {!syncComplete && (
+            <div className="scanner-container w-100 flex-column justify-content-center gap-2">
+              <div className="status-text">{t('welcome.label.scanning')}</div>
+              <div className={`loader ${syncComplete ? 'complete' : ''}`} />
             </div>
-            <div className="welcome-content-list-container">
-              <div className="welcome-content-list-item">
-                <div className="welcome-content-list-item-icon">
-                  <SummaryIcon className="icon-lg primary-text"/>
-                </div>
-                <div className="summary-text flex-grow-1">
-                  {t('welcome.scan')}
-                </div>
-              </div>
-              <div className="welcome-content-list-item">
-                <div className="welcome-content-list-item-icon">
-                  <UFIXITIcon className="icon-lg primary-text"/>
-                </div>
-                <div className="summary-text flex-grow-1">
-                  {t('welcome.fix')}
-                </div>
-              </div>
-              <div className="welcome-content-list-item">
-                <div className="welcome-content-list-item-icon">
-                  <ReportIcon className="icon-lg primary-text"/>
-                </div>
-                <div className="summary-text flex-grow-1">
-                  {t('welcome.report')}
-                </div>
-              </div>
+          )}
+          {syncComplete && (
+            <div className="scanner-container w-100 flex-row justify-content-center align-items-center gap-2">
+              <CheckIcon className="icon-lg udoit-success" />
+              <div className="status-text">{t('welcome.label.scan_complete')}</div>
             </div>
-          </div>
-          <div className="flex-row justify-content-center mt-3">
-            { !syncComplete ? (
-                <button className="btn-large btn-disabled flex-row" tabIndex="0">
-                  <div className="flex-column justify-content-center align-self-center">
-                    <ProgressIcon className="icon-md spinner" />
-                  </div>
-                  <div className="flex-column justify-content-center ms-3">
-                    {t('welcome.button.scanning')}
-                  </div>
-                </button>
-              ) : (
-                <button className="btn-large btn-primary" tabIndex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
-              )
-            }    
-          </div>
+          )}
+
+          <button
+            className="btn-large btn-primary"
+            tabIndex="0"
+            disabled={!syncComplete}
+            onClick={() => setWelcomeClosed(syncComplete)}>
+            {t('welcome.button.ready')}
+          </button>
         </div>
+        
         <div className="welcome-footer flex-row justify-content-between ps-3 pe-3 gap-3">
           <div className="flex-column justify-content-center tagline">
             {t('welcome.version')} {settings.versionNumber}

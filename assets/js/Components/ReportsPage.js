@@ -4,8 +4,13 @@ import Api from '../Services/Api'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
+import { formNameFromRule } from '../Services/Ufixit'
+import InfoPopover from './Widgets/InfoPopover'
+import StatusPill from './Widgets/StatusPill'
 import ProgressIcon from './Icons/ProgressIcon'
 import PrintIcon from './Icons/PrintIcon'
+import RightArrowIcon from './Icons/RightArrowIcon'
+import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
 
 export default function ReportsPage({t, report, settings, quickSearchTerm}) {
@@ -13,7 +18,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
   const [issues, setIssues] = useState([])
-  const [showChart, setShowChart] = useState(true)
   const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
@@ -38,26 +42,95 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
         rules[rule] = {
           id: rule,
           type: issue.type,
+          severity: (issue.type == 'error' ? t("filter.label.severity.issue") : t("filter.label.severity.potential")),
           active: 0,
-          fixed: 0,
           resolved: 0,
           total: 0
         }
       }
 
-      if (2 === status) {
-        rules[rule]['resolved']++
-      }
-      else if (1 === status) {
-        rules[rule]['fixed']++
-      }
-      else {
+      rules[rule]['total']++
+      if (0 === status) {
         rules[rule]['active']++
       }
-      rules[rule]['total']++
+      else {
+        rules[rule]['resolved']++
+      }
     }
 
-    return rules
+    let tempIssues = Object.values(rules)
+    tempIssues.map((issue => {
+      let label = ''
+      let searchTerm = ''
+      let content = ''
+      let formName = formNameFromRule(issue.id)
+      if(formName === 'review_only') {
+        label = t('report.label.unhandled') + issue.id
+        let tempContent = t('rule.summary.'+ issue.id)
+        if(tempContent === `rule.summary.${issue.id}`) {
+          tempContent = t('form.review_only.summary')
+        }
+        content = tempContent
+        searchTerm = issue.id
+      }
+      else {
+        label = t(`form.${formName}.title`)
+        searchTerm = t(`form.${formName}.title`)
+        content = t(`form.${formName}.summary`)
+      }
+      issue.display = label
+      issue.label = ( 
+        <span className="issue-label clickable-text">
+          {label}
+          <InfoPopover
+            t={t}
+            title={t('fix.label.barrier_information')}
+            content={content}
+            action={(
+              <button
+                className="btn-text btn-link btn-icon-right"
+                onClick={() => quickSearchTerm(searchTerm)}
+              >
+                {t('report.label.view_barriers')}
+                <RightArrowIcon className='icon-sm' />
+              </button>
+            )}
+          />
+        </span>
+      )
+      issue.label_display = label
+      issue.summary = t(`form.${formName}.summary`)
+      if(quickSearchTerm !== null) {
+        issue.onClick = () => quickSearchTerm(searchTerm)
+      }
+      return issue
+    }))
+
+    let mergedIssues = []
+    let labels = []
+    tempIssues.forEach((issue) => {
+      if (!labels.includes(issue.label_display)) {
+        labels.push(issue.label_display)
+        if(issue.type === 'error' || issue.type === 'issue') {
+          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.ISSUE}} />)
+          issue.type_display = t('filter.label.severity.issue')
+        }
+        else if(issue.type === 'potential' || issue.type === 'suggestion') {
+          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.POTENTIAL}} />)
+          issue.type_display = t('filter.label.severity.potential')
+        }
+        issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
+        mergedIssues.push(issue)
+      }
+      else {
+        let index = mergedIssues.findIndex((i) => i.label_display === issue.label_display)
+        mergedIssues[index].total += issue.total
+        mergedIssues[index].active += issue.active
+        mergedIssues[index].handled += (issue.fixed + issue.resolved > 0 ? 1 : 0)
+      }
+    })
+
+    return mergedIssues
   }
 
   useEffect(() => {
@@ -70,19 +143,13 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     setIssues(processIssues(report))
   }, [report])
 
-  // const toggleChartVisibility = (chart) => {
-  //   const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
-  //   setChartVisibility(tempVisibility)
-  // }
-
   const getPrintableReportsTable = (reports, t) => {
     const headers = [
       { id: "created", text: t('report.header.date') },
-      { id: "errors", text: t('report.header.issues'), alignText: 'center' },
-      { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
-      { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
-      { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
-      { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+      { id: "knownBarriers", text: t('report.header.issues'), alignText: 'center' },
+      { id: "potentialBarriers", text: t('report.header.potential'), alignText: 'center' },
+      { id: "filesUnreviewed", text: t('report.header.suggestions'), alignText: 'center' },
+      { id: "contentHandled", text: t('report.header.items_handled'), alignText: 'center' },
       { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
     ]
 
@@ -108,9 +175,8 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const getPrintableIssuesTable = (issues, t) => {
     const headers = [
       { id: "label", text: t('report.header.issue_type') },
-      { id: "type", text: t('report.header.severity')},
+      { id: "severity", text: t('report.header.severity')},
       { id: "active", text: t('report.header.active'), alignText: 'center' },
-      { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
       { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
       { id: "total", text: t('report.header.total'), alignText: 'center' }
     ]
@@ -121,7 +187,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
     const tableHeaders = headers.map(h => `<th>${h.text}</th>`).join('')
     const tableRows = rows.map(row => {
-      const cells = headers.map(h => `<td>${row[h.id] != null ? row[h.id] : ''}</td>`).join('')
+      const cells = headers.map(h => `<td>${(typeof row[h.id] === 'object' && row[h.id + '_display']) ? row[h.id + '_display'] : row[h.id]}</td>`).join('')
       return `<tr>${cells}</tr>`
     }).join('')
 
@@ -156,11 +222,20 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
             h2 {
               text-align: center;
             }
+            .subHeading {
+              width: 100%;
+              margin-top: -.5rem;
+              text-align: center;
+              font-size: 14px;
+              color: #777;
+              font-weight: 200;
+            }
             table {
               width: 100%; border-collapse: collapse;
             }
             table, th, td {
               border: 1px solid #000;
+              font-size: 12px;
             }
             th, td {
               padding: 8px;
@@ -174,14 +249,16 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           </style>
         </head>
         <body>
-          <h2>${t('report.label.printed_report')}</h2>
-          <div id="printResolutionsReport">
+          <h2>${t('report.label.printed_report')}</h2>` +
+          `<div class="subHeading">${t('report.label.generated_on', {date: new Date().toLocaleString()})}</p>` +
+          `<div id="printResolutionsReport">
             <img src="${dataUrl}" alt="${t('report.label.resolutions_chart')}" style="max-width: 100%; height: auto; margin-bottom: 20px;" />
-          </div>
+          </div>` +
+          (showTable ?  `
           <div id="reportsTable">
             ${reportsTableRaw}
-          </div>
-          <div id="issuesTable">
+          </div>` : '') + 
+          `<div id="issuesTable">
             ${issuesTableRaw}
           </div>
           <script>
@@ -207,21 +284,19 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   return (
     <div className="report-page-container scrollable">
-      <div className="flex-row justify-content-between gap-4">
-        <h1 className="primary-dark">{t('menu.reports')}</h1>
+      <div className="pageTitleRow">
+        <h1 className="pageTitle">{t('report.title')}</h1>
         { (fetchedReports && reports.length > 0) && (
-          <div className="flex-column justify-content-center">
-            <button className="btn-small btn-primary btn-icon-left" onClick={()=> printReport()}>
-              <PrintIcon className="icon-md" />
-              {t('report.button.print')}
-            </button>
-          </div>
+          <button className="btn-small btn-icon-left btn-secondary" onClick={()=> printReport()}>
+            <PrintIcon className="icon-md" />
+            {t('report.button.print')}
+          </button>
         )}
       </div>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
-            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+            <ProgressIcon className="icon-lg udoit-progress spinner" />
           </div>
           <div className="flex-column justify-content-center">
             <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
@@ -235,49 +310,41 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
       )}
 
       { (fetchedReports && reports.length > 0) && (
-        <div className="flex-column">
-          <div className="flex-row justify-content-start gap-2 flex-wrap options-container">
-            <div className="options-label">{t('report.label.progress_over_time')}</div>
-            <div className="flex-row gap-1">
-              <input type="checkbox" id="showChart" name="showChart"
-                checked={showChart}
-                onChange={() => setShowChart(!showChart)} />
-              <label className="fw-bolder" htmlFor="showChart">{t('report.option.show_chart')}</label>
-            </div>
-            <div className="flex-row gap-1">
-              <input type="checkbox" id="showTable" name="showTable"
-                checked={showTable}
-                onChange={() => setShowTable(!showTable)} />
-              <label className="fw-bolder" htmlFor="showTable">{t('report.option.show_table')}</label>
-            </div>
-          </div>
-          <div className="flex-column w-100 flex-shrink-1 flex-grow-1">
-            { showChart && (
-              <div className="mt-4">
-                <div id="resolutionsReport" className="graph-container">
-                  <ResolutionsReport t={t} reports={reports}/>
+        <>
+          <p className="pageSubtitle">{t('report.subtitle')}</p>
+          <div className="flex-column">
+            <div className="callout-container p-4 flex-column w-100 flex-shrink-1 flex-grow-1">
+              <div id="resolutionsReport" className="graph-container">
+                <ResolutionsReport t={t} reports={reports}/>
+              </div>
+              <div className="flex-row justify-content-end">
+                <button 
+                  className="btn-small btn-icon-right btn-secondary"
+                  onClick={() => setShowTable(!showTable)}>
+                    {showTable ? t('report.option.hide_data') : t('report.option.show_data')}
+                    <SortIcon className={`icon-md ${showTable ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              { showTable && (
+                <div className="data-table-container">
+                  <ReportsTable
+                    t={t}
+                    reports={reports}/>
                 </div>
-              </div>
-            )}
+              )}
+              
+            </div>
 
-            { showTable && (
-              <div className="mt-4">
-                <ReportsTable
-                  t={t}
-                  reports={reports}/>
-              </div>
-            )}
-            
+            <div className="mt-4">
+              <IssuesTable
+                t={t}
+                settings={settings}
+                quickSearchTerm={quickSearchTerm}
+                issues={issues}/>
+            </div>
           </div>
-
-          <div className="mt-4">
-            <IssuesTable
-              t={t}
-              settings={settings}
-              quickSearchTerm={quickSearchTerm}
-              issues={issues}/>
-          </div>
-        </div>
+        </>
       )}
     </div>
   )
