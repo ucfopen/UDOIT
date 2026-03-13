@@ -6,7 +6,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: "App\Repository\CourseRepository")]
+#[ORM\Entity]
+#[ORM\UniqueConstraint(
+    name: "unique_course_id_institution_id_combination",
+    columns: ["lms_course_id", "institution_id"]
+)]
 class Course implements \JsonSerializable
 {
     // Private Members
@@ -22,10 +26,14 @@ class Course implements \JsonSerializable
     #[ORM\JoinColumn(nullable: false)]
     private $institution;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $lmsAccountId;
+    #[ORM\ManyToOne(targetEntity: Account::class)]
+    #[ORM\JoinColumns([
+        new ORM\JoinColumn(name: "institution_id", referencedColumnName: "institution_id", insertable: false, updatable: false),
+        new ORM\JoinColumn(name: "lms_account_id", referencedColumnName: "lms_account_id", nullable: true),
+    ])]
+    private ?Account $account = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true, unique: true)]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $lmsCourseId;
 
     #[ORM\Column(type: "datetime", nullable: true)]
@@ -47,8 +55,9 @@ class Course implements \JsonSerializable
     #[ORM\OneToMany(targetEntity: FileItem::class, mappedBy: "course")]
     private $fileItems;
 
-    #[ORM\Column(type: "integer", nullable: true)]
-    private $lmsTermId;
+    #[ORM\ManyToOne(targetEntity: Term::class)]
+    #[ORM\JoinColumn(name: "lms_term_id", referencedColumnName: "lms_term_id")]
+    private ?Term $term = null;
 
     #[ORM\Column(type: "json", nullable: true)]
     private $courseProfessors;
@@ -208,7 +217,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getReports(): Collection | array
+    public function getReports(): Collection|array
     {
         return $this->reports;
     }
@@ -247,7 +256,7 @@ class Course implements \JsonSerializable
         $reports = $this->reports->toArray();
         $count = count($reports);
 
-        return ($count > 1) ? $reports[$count-2] : null;
+        return ($count > 1) ? $reports[$count - 2] : null;
     }
 
     public function getLatestReport(): ?Report
@@ -267,7 +276,7 @@ class Course implements \JsonSerializable
         foreach ($issues as $issue) {
             if ($issue->getStatus() === Issue::$issueStatusFixed) {
                 $fixed++;
-            } else if ($issue->getStatus() === Issue::$issueStatusResolved) {
+            } elseif ($issue->getStatus() === Issue::$issueStatusResolved) {
                 $resolved++;
             } else {
                 if ('error' === $issue->getType()
