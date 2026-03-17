@@ -130,6 +130,7 @@ export default function ReviewFilesPage({
 
   const [unusedFiles, setUnusedFiles] = useState([])
   const [deleteFileQueue, setDeleteFileQueue] = useState([])
+  const [unusedDialogModal, setUnusedDialogModal] = useState(false) // Keeps track of if we need to use unused files modal or the default file modal
 
 
   const formatFileData = (fileData) => {
@@ -455,7 +456,10 @@ export default function ReviewFilesPage({
 // Pull focus into the dialog when it opens, and return focus to the most recently clicked issue when it closes
   useEffect(() => {
     if(widgetState === WIDGET_STATE.FIXIT) {
-      const dialog = document.getElementById(dialogId)
+      let dialog = document.getElementById(dialogId)
+      if(unusedDialogModal){
+        dialog = document.getElementById(unusedFileDialogId)
+      }
       if (dialog) {
         dialog.addEventListener('keydown', handleEscapeKey)
         const title = dialog.querySelector('#ufixit-dialog-title')
@@ -478,22 +482,22 @@ export default function ReviewFilesPage({
     }
   }, [widgetState])
 
-
-  const isDialogOpen = () => {
-    const dialog = document.getElementById(dialogId)
-    return dialog && dialog.open
-  }
-
-
-  const openDialog = () => {
+  const openDialog = (currDialogId) => {
     setWidgetState(WIDGET_STATE.FIXIT)
     setModalActive(true)
+    if(currDialogId == dialogId){
+      setUnusedDialogModal(false)
+    }
+    else{
+      setUnusedDialogModal(true)
+    }
   }
 
-  const closeDialog = (dialogId) => {
+  const closeDialog = () => {
     setWidgetState(WIDGET_STATE.LIST)
     setModalActive(false)
     setActiveIssue(null)
+    setUnusedDialogModal(false)
   }
 
   const toggleDeleteFileQueue = (fileId) => {
@@ -753,7 +757,7 @@ export default function ReviewFilesPage({
         setActiveIssue(tempFileIssue)
       }
       else{
-        closeDialog(dialogId)
+        closeDialog()
       }
 
       // Add success messages 
@@ -1152,8 +1156,22 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
           aria-hidden={widgetState === WIDGET_STATE.FIXIT}
           >
-          <h1 className="pageTitle">{t('files.title')}</h1>
+          <div className="pageTitleRow">
+            <h1 className="pageTitle">{t('files.title')}</h1>
+            <button
+              type="button"
+              className="btn-small btn-icon-left btn-secondary"
+              tabIndex="0"
+              onClick={() => openDialog(unusedFileDialogId)}
+              aria-label={t('files.button.delete_unused_files')}>
+              <DeleteIcon className="icon-md" />
+              <div className="flex-column justify-content-center">
+                {t('files.button.delete_unused_files')}
+              </div>
+            </button>
+          </div>
           <p className="pageSubtitle">{t('files.subtitle')}</p>
+
 
           <ReviewFilesFilters
             t={t}
@@ -1190,14 +1208,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         id={dialogId}
         role="dialog"
         aria-modal="true"
-        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`}
+        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && !unusedDialogModal ? 'open' : 'hidden'}`}
         onClose={closeDialog}
         aria-labelledby="ufixit-dialog-title"
         >
         <div className='flex-column h-100'>
           <div className='dialog-header'>
             <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
-            <CloseIcon onClick={() => closeDialog(dialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(dialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+            <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
            <div className="dialog-content">
             <div className="flex-row gap-2 w-100 h-100">
@@ -1278,13 +1296,20 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </button>
           </div>
         </div>
-      </dialog>
+      </div>
      
-     <dialog id={unusedFileDialogId} className="dialog-full-screen" onClose={() => closeDialog(unusedFileDialogId)}>
+     <div
+        id={unusedFileDialogId}
+        role="dialog"
+        aria-modal="true"
+        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && unusedDialogModal ? 'open' : 'hidden'}`}
+        onClose={closeDialog}
+        aria-labelledby="ufixit-dialog-title"
+        >        
         <div className='flex-column h-100'> 
           <div className='dialog-header'>
             <h2>{t('files.button.delete_unused_files')}</h2>
-            <CloseIcon onClick={() => closeDialog(unusedFileDialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(unusedFileDialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+            <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
           <div className="dialog-content">
             <div className="unused-files-list-container">
@@ -1330,7 +1355,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           <div className='dialog-footer'>
             <div className="subtext align-self-center">{t('files.label.selected_count', { count: deleteFileQueue.length })}</div>
             <div className="flex-row gap-2">
-              <button className='btn btn-small btn-primary' onClick={() => closeDialog(unusedFileDialogId)}>{t(`fix.label.cancel`)}</button>
+              <button className='btn btn-small btn-primary' onClick={() => closeDialog()}>{t(`fix.label.cancel`)}</button>
               <button
                 className='btn btn-small btn-icon-left review-files-delete-button'
                 tabIndex='0'
@@ -1343,7 +1368,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             </div>
           </div>
         </div>
-      </dialog>
+      </div>
     </>
   )
 }
