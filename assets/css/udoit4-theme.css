@@ -536,8 +536,8 @@
     outline: 2px solid var(--focus-color);
   }
 
-
-  dialog {
+  dialog,
+  div[role="dialog"] {
     width: 90vw;
     max-width: 50em;
     overflow: hidden;
@@ -545,7 +545,6 @@
     border: none;
     border-radius: var(--window-radius);
     padding: 0;
-    background-color: var(--white);
     z-index: 100;
     box-shadow: 0 0 10px var(--shadow-color);
 
@@ -554,6 +553,23 @@
       max-width: 95vw;
       height: 95vh;
       max-height: 95vh;
+      position: fixed;
+      top: 2vh;
+    }
+
+    &::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--backdrop-color);
+      z-index: -1;
+    }
+
+    > * {
+      background-color: var(--white);
     }
 
     .dialog-header,
@@ -1304,6 +1320,10 @@
     font-size: 0.9em;
     overflow-wrap: anywhere;
     cursor: pointer;
+  }
+
+  .hidden {
+    display: none !important;
   }
 }
 

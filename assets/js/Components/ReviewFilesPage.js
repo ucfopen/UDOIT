@@ -46,7 +46,8 @@ export default function ReviewFilesPage({
   processNewReport,
   addMessage,
   sessionFiles,
-  updateSessionFiles
+  updateSessionFiles,
+  setModalActive
 })
 {
 
@@ -62,7 +63,7 @@ export default function ReviewFilesPage({
 
   const WIDGET_STATE = settings.WIDGET_STATE
 
-  const dialogId = "file-dialog"
+  const dialogId = "udoit-file-dialog"
   const unusedFileDialogId = "unused-files-dialog"
 
   const headers = [
@@ -110,6 +111,7 @@ export default function ReviewFilesPage({
   const [unfilteredFiles, setUnfilteredFiles] = useState([])
   const [filteredFiles, setFilteredFiles] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
+  const [mostRecentFileId, setMostRecentFileId] = useState(null)
 
   // Form States
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
@@ -201,7 +203,7 @@ export default function ReviewFilesPage({
     let tempRows = []
     filteredFiles.forEach((tempFile) => {
       tempRows.push({
-        id: tempFile.id,
+        id: `udoit-file-${tempFile.id}`,
         name: tempFile.contentTitle ? { value: tempFile.contentTitle, display: getFileNameDisplay(tempFile)} : t('label.unknown'),
         type: tempFile.fileData.fileType ? { value: tempFile.fileData.fileType, display: getFileTypeDisplay(tempFile.fileData.fileType)}: t('label.mime.unknown'),
         date: tempFile.fileData.updated ? { value: tempFile.fileData.updated, display: Text.getReadableDateTime(tempFile.fileData.updated)} : t('label.unknown'),
@@ -434,6 +436,13 @@ export default function ReviewFilesPage({
     setIsDisabled(tempIsDisabled)
   }, [sessionFiles])
 
+  const handleEscapeKey = (e) => {
+    if(e.key === 'Escape' && widgetState === WIDGET_STATE.FIXIT) {
+      e.preventDefault()
+      closeDialog()
+    }
+  }
+
   useEffect(() => {
     if(showLearnMore) {
       document.getElementById('btn-learn-more-close')?.focus()
@@ -443,23 +452,48 @@ export default function ReviewFilesPage({
     }
   }, [showLearnMore])
 
-  const openDialog = (dialogId) => {
-    setWidgetState(WIDGET_STATE.FIXIT)
-
-    const dialog = document.getElementById(dialogId)
-    if(dialog) {
-      dialog.showModal()
+// Pull focus into the dialog when it opens, and return focus to the most recently clicked issue when it closes
+  useEffect(() => {
+    if(widgetState === WIDGET_STATE.FIXIT) {
+      const dialog = document.getElementById(dialogId)
+      if (dialog) {
+        dialog.addEventListener('keydown', handleEscapeKey)
+        const title = dialog.querySelector('#ufixit-dialog-title')
+        if(title) {
+          title.focus()
+        }
+      }
     }
+    else if(widgetState === WIDGET_STATE.LIST) {
+      if(mostRecentFileId) {
+        const fileElement = document.getElementById(`udoit-file-${mostRecentFileId}`)
+        if(fileElement) {
+          fileElement.focus() 
+        }
+        const dialog = document.getElementById(dialogId)
+        if (dialog) {
+          dialog.removeEventListener('keydown', handleEscapeKey)
+        }
+      }
+    }
+  }, [widgetState])
+
+
+  const isDialogOpen = () => {
+    const dialog = document.getElementById(dialogId)
+    return dialog && dialog.open
+  }
+
+
+  const openDialog = () => {
+    setWidgetState(WIDGET_STATE.FIXIT)
+    setModalActive(true)
   }
 
   const closeDialog = (dialogId) => {
     setWidgetState(WIDGET_STATE.LIST)
+    setModalActive(false)
     setActiveIssue(null)
-
-    const dialog = document.getElementById(dialogId)
-    if(dialog) {
-      dialog.close()
-    }
   }
 
   const toggleDeleteFileQueue = (fileId) => {
@@ -1067,6 +1101,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
 
     setActiveIssue(filteredFiles[filteredFileIndex])
+    setMostRecentFileId(fileId)
     openDialog(dialogId)
   }
 
@@ -1084,6 +1119,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     else if (newIndex >= filteredFiles.length) {
       newIndex = 0
     }
+    setMostRecentFileId(filteredFiles[newIndex].id)
     setActiveIssue(filteredFiles[newIndex])
   }
 
@@ -1111,21 +1147,12 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       { widgetState === WIDGET_STATE.LOADING ? (
         <></>
       ) : (
-        <>
-          <div className="pageTitleRow">
-            <h1 className="pageTitle">{t('files.title')}</h1>
-            <button
-              type="button"
-              className="btn-small btn-icon-left btn-secondary"
-              tabIndex="0"
-              onClick={() => openDialog(unusedFileDialogId)}
-              aria-label={t('files.button.delete_unused_files')}>
-              <DeleteIcon className="icon-md" />
-              <div className="flex-column justify-content-center">
-                {t('files.button.delete_unused_files')}
-              </div>
-            </button>
-          </div>
+
+        <div
+          inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
+          aria-hidden={widgetState === WIDGET_STATE.FIXIT}
+          >
+          <h1 className="pageTitle">{t('files.title')}</h1>
           <p className="pageSubtitle">{t('files.subtitle')}</p>
 
           <ReviewFilesFilters
@@ -1157,12 +1184,19 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
-      <dialog id={dialogId} className="dialog-full-screen" onClose={() => closeDialog(dialogId)}>
+      <div
+        id={dialogId}
+        role="dialog"
+        aria-modal="true"
+        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`}
+        onClose={closeDialog}
+        aria-labelledby="ufixit-dialog-title"
+        >
         <div className='flex-column h-100'>
           <div className='dialog-header'>
-            <h2>{t(`form.file.title`)}</h2>
+            <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
             <CloseIcon onClick={() => closeDialog(dialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(dialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
            <div className="dialog-content">

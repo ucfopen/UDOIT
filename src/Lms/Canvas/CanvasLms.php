@@ -995,6 +995,13 @@ class CanvasLms implements LmsInterface {
                     'message' => $fullPageHtml,
                 ];
                 break;
+            case('quiz_question'):
+                $options = [
+                    'question' => [
+                        'question_text' => $fullPageHtml,
+                    ],
+                ];
+                break;
             default:
                 break;
         }
