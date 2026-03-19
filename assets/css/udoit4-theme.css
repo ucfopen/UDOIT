@@ -567,8 +567,8 @@
     outline: 2px solid var(--focus-color);
   }
 
-
-  dialog {
+  dialog,
+  div[role="dialog"] {
     width: 90vw;
     max-width: 50em;
     overflow: hidden;
@@ -576,7 +576,6 @@
     border: none;
     border-radius: var(--window-radius);
     padding: 0;
-    background-color: var(--white);
     z-index: 100;
     box-shadow: 0 0 10px var(--shadow-color);
 
@@ -585,6 +584,23 @@
       max-width: 95vw;
       height: 95vh;
       max-height: 95vh;
+      position: fixed;
+      top: 2vh;
+    }
+
+    &::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--backdrop-color);
+      z-index: -1;
+    }
+
+    > * {
+      background-color: var(--white);
     }
 
     .dialog-header,
@@ -1337,4 +1353,50 @@
     overflow-wrap: anywhere;
     cursor: pointer;
   }
+<<<<<<< finalize-primary-forms
+=======
+
+  .hidden {
+    display: none !important;
+  }
+}
+
+/* The separator class is for a horizontal line with text in the middle on various forms */
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.separator:not(:empty)::before {
+  margin-right: .5em;
+  margin-left: 1.5rem;
+  border-width: 2px;
+  border-color: var(--gray);
+}
+
+.separator:not(:empty)::after {
+  margin-left: .5em;
+  margin-right: 1.5rem;
+  border-width: 2px;
+  border-color: var(--gray);
+}
+
+.separator-pipe {
+  height: 1.5em;
+  width: 0px;
+  box-sizing: content-box;
+  align-self: center;
+  border-inline-start: 1px solid var(--border-color);
+>>>>>>> dev
 }

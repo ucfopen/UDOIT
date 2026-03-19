@@ -199,7 +199,7 @@ class CanvasApi {
         ];
         $options['query'] = $endpointOptions;
 
-        $endpointResponse = $this->apiPost($options['postUrl'], $options, true);
+        $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);        
         $endpointContent = $endpointResponse->getContent();
 
         // Attach the file and send it to the upload URL
@@ -290,6 +290,9 @@ class CanvasApi {
                 $type = preg_replace('/s$/', '', $type);
                 if(str_contains($type, "quiz")){
                     $type = "quiz";
+                }
+                if (str_contains($url, 'question')) {
+                    $type = "quiz_question";
                 }
                 $lmsId = $matches[2];   
             }
