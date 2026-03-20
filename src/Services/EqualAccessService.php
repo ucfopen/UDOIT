@@ -64,40 +64,43 @@ class EqualAccessService {
         $issueCounts = array();
         $skipRules = $this->getSkipRules();
         
-        foreach ($json["results"] as $results) {
+        if (array_key_exists("results", $json)) {
+            
+          foreach ($json["results"] as $results) {
             $equalAccessRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
             $metadata = null;
 
             // First check if the HTML has phpally-ignore and also check if the rule isn't one we skip.
             if (!in_array($equalAccessRule, $skipRules)) {
-                // Populate the issue counts field with how many total issues
-                // with the specific rule are found
-                if (array_key_exists($equalAccessRule, $issueCounts)) {
-                    $issueCounts[$equalAccessRule]++;
-                }
-                else {
-                    $issueCounts[$equalAccessRule] = 1;
-                }
+              // Populate the issue counts field with how many total issues
+              // with the specific rule are found
+              if (array_key_exists($equalAccessRule, $issueCounts)) {
+                  $issueCounts[$equalAccessRule]++;
+              }
+              else {
+                  $issueCounts[$equalAccessRule] = 1;
+              }
 
-                $reasonId = $results["reasonId"];
-                $message = $results["message"];
-                $messageArgs = $results["messageArgs"];
-                $value = $results["value"];
+              $reasonId = $results["reasonId"];
+              $message = $results["message"];
+              $messageArgs = $results["messageArgs"];
+              $value = $results["value"];
 
-                $metadata = $this->createMetadata($reasonId, $message, $messageArgs, $value);
-                
-                // $issue = new PhpAllyIssue($equalAccessRule, $issueHtml, $parentIssueHtml, $metadata);
-                $issue = (object) [
-                  'isGeneric' => true,
-                  'scanRuleId' => $equalAccessRule,
-                  'xpath' => $xpathQuery,
-                  'metadata' => $metadata,
-                ];
-                $report->setIssueCounts($equalAccessRule, $issueCounts[$equalAccessRule], -1);
-                array_push($issues, $issue);
-                $report->setErrors([]);
+              $metadata = $this->createMetadata($reasonId, $message, $messageArgs, $value);
+              
+              // $issue = new PhpAllyIssue($equalAccessRule, $issueHtml, $parentIssueHtml, $metadata);
+              $issue = (object) [
+                'isGeneric' => true,
+                'scanRuleId' => $equalAccessRule,
+                'xpath' => $xpathQuery,
+                'metadata' => $metadata,
+              ];
+              $report->setIssueCounts($equalAccessRule, $issueCounts[$equalAccessRule], -1);
+              array_push($issues, $issue);
+              $report->setErrors([]);
             }
+          }
         }
 
         $report->setIssues($issues);

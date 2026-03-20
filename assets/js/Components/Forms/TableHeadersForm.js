@@ -37,22 +37,24 @@ export default function TableHeadersForm({
     const table = Html.toElement(html)
     const decorationOnly = (table.getAttribute('role') === 'presentation')
     const headerDirection = getTableHeaderDirection(table)
+    setSelectedValue(headerDirection)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
 
     if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
     }
-    else if (decorationOnly) {
-      setActiveOption(FORM_OPTIONS.MARK_DECORATIVE)
+    if (fixed) {
+      if (decorationOnly) {
+        startingOption = FORM_OPTIONS.MARK_DECORATIVE
+      }
+      else if(headerDirection !== '') {
+        startingOption = FORM_OPTIONS.SELECT_DIRECTION
+      }
     }
-    else if(headerDirection !== '') {
-      setActiveOption(FORM_OPTIONS.SELECT_DIRECTION)
-    }
-    else {
-      setActiveOption('')
-    }
-
-    setSelectedValue(headerDirection)
+    setActiveOption(startingOption)
     
   }, [activeIssue])
 

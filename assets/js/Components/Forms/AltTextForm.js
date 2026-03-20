@@ -4,7 +4,7 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
-export default function AltText ({
+export default function AltTextForm ({
   t,
   settings,
   activeIssue,
@@ -34,22 +34,27 @@ export default function AltText ({
     let altText = Html.getAttribute(html, 'alt')
     altText = (typeof altText === 'string') ? altText : ''
 
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
     setTextInputValue(altText)
     setCharacterCount(altText.length)
     setFormErrors([])
 
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
     if (reviewed){
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
     }
-    else if (altText && altText.length > 0) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    } else if (elementIsDecorative(html)) {
-      setActiveOption(FORM_OPTIONS.MARK_DECORATIVE)
-    } else {
-      setActiveOption('')
+    if (fixed) {
+      if (altText && altText.length > 0) {
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
+      else if (elementIsDecorative(html)) {
+        startingOption = FORM_OPTIONS.MARK_DECORATIVE
+      }
     }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {
