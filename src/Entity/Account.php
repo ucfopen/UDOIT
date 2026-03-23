@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: "App\Repository\AccountRepository")]
 class Account implements \JsonSerializable
 {
-    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Institution::class)]
     #[ORM\JoinColumn(name: "institution_id", referencedColumnName: "id", nullable: false)]
     private Institution $institution;

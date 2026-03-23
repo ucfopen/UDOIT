@@ -50,8 +50,8 @@ class AdminController extends ApiController
         SessionService $sessionService,
         LmsApiService $lmsApi,
         LmsUserService $lmsUser,
-        CourseRepository $courseRepo): Response
-    {
+        CourseRepository $courseRepo
+    ) {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
@@ -89,8 +89,8 @@ class AdminController extends ApiController
         UtilityService $util,
         SessionService $sessionService,
         LmsApiService $lmsApi,
-        CourseRepository $courseRepo): JsonResponse
-    {
+        CourseRepository $courseRepo
+    ): JsonResponse {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
@@ -109,99 +109,38 @@ class AdminController extends ApiController
 
     #[Route('/api/admin/courses/account/{accountId}/term/{termId}', methods: ['GET'], name: 'admin_courses')]
     public function getCoursesData(
-        $accountId, 
+        $accountId,
         $termId,
         CourseRepository $courseRepo,
         UtilityService $util,
         LmsApiService $lmsApi,
-        Request $request,
         UserRepository $userRepo,
         CourseUserRepository $courseUserRepo,
         EntityManagerInterface $em
-        )
-    {
+    ) {
         $apiResponse = new ApiResponse();
-        $results = [];
         $user = $this->getUser();
-        
+
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
 
-        $includeSubaccounts = $request->query->get('subaccounts');
-        $accounts = $this->lms->getAccountData($user, $accountId);
-        if (!$includeSubaccounts) {
-            $accounts = [$accountId => $accounts[$accountId]];
-        }
 
-        // Handle 'all' or 'null' termId - convert to null for API calls
-        $termIdForApi = ($termId === 'all' || $termId === 'null') ? null : (int)$termId;
+        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId);
 
-        // UDOIT (DB) courses - fetch all for this institution/term
-        // Don't filter by account here because Canvas API handles that filtering
-        // and we want to match any previously scanned courses regardless of their account
-        $allAccounts = $this->lms->getAccountData($user, $accountId);
-        $udoitCourses = $courseRepo->findCoursesByAccount($user, $allAccounts, $termId);
-        $udoitByLmsId = [];
-        foreach ($udoitCourses as $c) {
-            $udoitByLmsId[(string)$c->getLmsCourseId()] = $c;
-        }
+        $output = new ConsoleOutput();
 
-        // Canvas courses (root + subs)
-        $subAccountIds = array_diff(array_keys($accounts), [(int)$accountId]);
-        // Reset array keys to 0-indexed for proper URL encoding
-        $subAccountIds = array_values($subAccountIds);
-        
-        $canvas = $this->lms->listAccountCourses($user, $accountId, $subAccountIds, $termIdForApi);
+        $output->writeln(count($courses));
 
-        // Merge
         $results = [];
-        foreach ($canvas as $cc) {
-            $lmsCourseId = (string)($cc['id'] ?? '');
-            if (isset($udoitByLmsId[$lmsCourseId])) {
-                $course = $udoitByLmsId[$lmsCourseId];
-                $row = $this->getCourseData($course, $user);   // reuse helper (no API call)
-                $row['lmsCourseId'] = $lmsCourseId;
-                $row['instructors'] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo, $em, $lmsApi);
-                $row['hasReport'] = (bool)$course->getLatestReport();
-                $row['canScan']   = true;
-                $results[] = $row;
-            } else {
-                // Extract instructor names from Canvas data
-                $instructorNames = [];
-                if (!empty($cc['teachers']) && is_array($cc['teachers'])) {
-                    foreach ($cc['teachers'] as $teacher) {
-                        $name = null;
-                        if (!empty($teacher['name'])) {
-                            $name = $teacher['name'];
-                        } elseif (!empty($teacher['display_name'])) {
-                            $name = $teacher['display_name'];
-                        } elseif (!empty($teacher['short_name'])) {
-                            $name = $teacher['short_name'];
-                        } elseif (!empty($teacher['sortable_name'])) {
-                            $name = $teacher['sortable_name'];
-                        }
-                        if (!empty($name)) {
-                            $instructorNames[] = $name;
-                        }
-                    }
-                }
-                
-                // placeholder for unscanned course - use LMS course ID as the identifier
-                $results[] = [
-                    'id'          => $lmsCourseId,  // This is the LMS course ID (string)
-                    'lmsCourseId' => $lmsCourseId,
-                    'title'       => $cc['name'] ?? '(untitled)',
-                    'accountId'   => $cc['account_id'] ?? null,
-                    'accountName' => $cc['account_name'] ?? '---',
-                    'report'      => null,
-                    'lastUpdated' => '---',
-                    'publicUrl'   => '---',
-                    'termId'      => $cc['enrollment_term_id'] ?? null,
-                    'instructors' => $instructorNames,
-                    'hasReport'   => false,
-                    'canScan'     => true,
-                ];
-            }
+        foreach ($courses as $course) {
+            $row = $this->getCourseData($course, $user);
+            $row['lmsCourseId'] = $course->getLmsCourseId();
+            $row['accountId']   = $course->getAccount()?->getLmsAccountId();
+            $row['accountName'] = $course->getAccount()?->getAccountName() ?? '---';
+            $row['termId']      = $course->getTerm()?->getLmsTermId();
+            $row['instructors'] = $course->getCourseProfessors();
+
+            $results[] = $row;
         }
 
         $apiResponse->addLogMessages($util->getUnreadMessages());
@@ -219,10 +158,9 @@ class AdminController extends ApiController
         LmsApiService $lmsApi,
         Request $request,
         UserRepository $userRepo,
-        CourseUserRepository $courseUserRepo,  
-        EntityManagerInterface $em 
-    )
-    {
+        CourseUserRepository $courseUserRepo,
+        EntityManagerInterface $em
+    ) {
 
         $apiResponse = new ApiResponse();
         $results = [];
@@ -246,7 +184,7 @@ class AdminController extends ApiController
 
         foreach ($courses as $course) {
             $courseTitle = $course->getTitle();
-            $results[$courseTitle] = $results[$courseTitle] ?? [];
+            $results[$courseTitle] ??= [];
 
             foreach ($course->getReports() as $report) {
                 $reportDate = $report->getCreated();
@@ -280,12 +218,18 @@ class AdminController extends ApiController
                 $results[$courseTitle][$reportKey]['contentSections'] = $this->lms->getCourseSections($course, $user);
 
                 // Update start and end dates
-                if ($reportDate < $startDate) $startDate = $reportDate;
-                if (!$endDate) $endDate = $reportDate;
-                if ($reportDate > $endDate) $endDate = $reportDate;
+                if ($reportDate < $startDate) {
+                    $startDate = $reportDate;
+                }
+                if (!$endDate) {
+                    $endDate = $reportDate;
+                }
+                if ($reportDate > $endDate) {
+                    $endDate = $reportDate;
+                }
             }
-   
-            $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo,$em, $lmsApi);
+
+            $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo, $em, $lmsApi);
 
             // Collect issues for each course
             foreach ($course->getAllIssues() as $issue) {
@@ -345,24 +289,23 @@ class AdminController extends ApiController
         $apiResponse->addData('issues', $issues);   // Add issues data
         $apiResponse->addLogMessages($util->getUnreadMessages());
         $apiResponse->addData('courseInstructors', $courseInstructors);
-        
+
         return new JsonResponse($apiResponse);
     }
 
     #[Route('/api/admin/courses/{course}/reports/full', methods: ['GET'], name: 'admin_course_report')]
     public function getAdminCourseReport(
-        Course $course, 
-        UtilityService $util, 
-        LmsApiService $lmsApi, 
-        UserRepository $userRepo, 
+        Course $course,
+        UtilityService $util,
+        LmsApiService $lmsApi,
+        UserRepository $userRepo,
         CourseUserRepository $courseUserRepo,
-        EntityManagerInterface $em 
-        ): JsonResponse
-    {
+        EntityManagerInterface $em
+    ): JsonResponse {
 
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
-        
+
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
 
@@ -374,13 +317,13 @@ class AdminController extends ApiController
             $em,
             $lmsApi
         );
-        
+
         try {
             // Check if user has course access
             if (!$this->userHasCourseAccess($course)) {
                 throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
-            
+
             if ($course->isDirty()) {
                 throw new \Exception('msg.course_scanning');
             }
@@ -392,11 +335,11 @@ class AdminController extends ApiController
             foreach ($course->getReports() as $report) {
                 $reportDate = $report->getCreated();
                 $reportKey = $reportDate->format($util->getDateFormat());
-                
+
                 if (empty($rows[$course->getId()])) {
                     $rows[$course->getId()] = [];
                 }
-                
+
                 $rows[$course->getId()][$reportKey] = $report;
 
                 if ($reportDate < $startDate) {
@@ -427,11 +370,9 @@ class AdminController extends ApiController
 
                 if (Issue::$issueStatusResolved === $status) {
                     $issues[$rule]['resolved']++;
-                }
-                else if (Issue::$issueStatusFixed === $status) {
+                } elseif (Issue::$issueStatusFixed === $status) {
                     $issues[$rule]['fixed']++;
-                }
-                else {
+                } else {
                     $issues[$rule]['active']++;
                 }
                 $issues[$rule]['total']++;
@@ -440,34 +381,34 @@ class AdminController extends ApiController
             foreach ($issues as $rule => $row) {
                 $issues[$rule]['courses'] = count($row['courses']);
             }
-    
+
             if ($endDate) {
-                $endDate->setTime(23, 59,0);            
+                $endDate->setTime(23, 59, 0);
             }
-    
+
             // Populate all dates with a report
             foreach ($rows as $courseId => $reports) {
                 $currentDate = clone $startDate;
                 $currentReport = null;
-                
+
                 while ($currentDate <= $endDate) {
                     $currentKey = $currentDate->format($util->getDateFormat());
                     $currentDate->add($oneDay);
-                    
+
                     if (!empty($reports[$currentKey])) {
                         $currentReport = $reports[$currentKey];
                         continue;
                     }
-                    
+
                     if (empty($currentReport)) {
                         continue;
                     }
-    
+
                     $rows[$courseId][$currentKey] = $currentReport;
                 }
                 ksort($rows[$courseId]);
             }
-    
+
             foreach ($rows as $courseId => $reports) {
                 foreach ($reports as $dateKey => $reportObj) {
                     $reportArr = $reportObj->toArray();
@@ -481,10 +422,10 @@ class AdminController extends ApiController
                             'filesReviewed' => 0,
                         ];
                     }
-    
+
                     $results[$dateKey]['count']++;
                     $results[$dateKey]['created'] = $dateKey;
-    
+
                     foreach (array_keys($results[$dateKey]) as $key) {
                         if (!empty($reportArr[$key]) && is_numeric($reportArr[$key])) {
                             $results[$dateKey][$key] += (int) $reportArr[$key];
@@ -492,14 +433,14 @@ class AdminController extends ApiController
                     }
                 }
             }
-    
+
             ksort($results);
-    
+
             $apiResponse->addData('reports', $results);
             $apiResponse->addData('issues', $issues);
             $apiResponse->addData('instructors', $instructors);
             $apiResponse->addLogMessages($util->getUnreadMessages());
-            
+
         } catch (\Exception $e) {
             $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
         }
@@ -509,25 +450,26 @@ class AdminController extends ApiController
     }
 
     #[Route('/api/admin/courses/{course}/reports/latest', methods: ['GET'], name: 'admin_latest_report')]
-    public function getAdminLatestReport(Course $course, 
-    UtilityService $util, 
-    LmsApiService $lmsApi,
-    UserRepository $userRepo,
-    CourseUserRepository $courseUserRepo,
-    EntityManagerInterface $em): JsonResponse
-    {
+    public function getAdminLatestReport(
+        Course $course,
+        UtilityService $util,
+        LmsApiService $lmsApi,
+        UserRepository $userRepo,
+        CourseUserRepository $courseUserRepo,
+        EntityManagerInterface $em
+    ): JsonResponse {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
-        
+
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
-        
+
         try {
             // Check if user has course access
             if (!$this->userHasCourseAccess($course)) {
                 throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
-            
+
             if ($course->isDirty()) {
                 throw new \Exception('msg.course_scanning');
             }
@@ -541,9 +483,14 @@ class AdminController extends ApiController
             $courseData = $this->getCourseData($course, $user);
 
             $courseData['instructors'] = $this->getInstructorNamesForCourse(
-            $course, $user, $courseUserRepo, $userRepo, $em, $lmsApi
+                $course,
+                $user,
+                $courseUserRepo,
+                $userRepo,
+                $em,
+                $lmsApi
             );
-            
+
             $apiResponse->setData($courseData);
             $apiResponse->addMessage('msg.sync.completed', 'success', 5000);
         } catch (\Exception $e) {
@@ -563,18 +510,17 @@ class AdminController extends ApiController
         EntityManagerInterface $em,
         UserRepository $userRepo,
         CourseUserRepository $courseUserRepo
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
-        
+
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
 
         try {
             // Find or create the course
             $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
-            
+
             if (!$course) {
                 // Create new course
                 $institution = $user->getInstitution();
@@ -604,7 +550,7 @@ class AdminController extends ApiController
             $apiResponse->setData([
                 'courseId' => $course->getId(),
                 'lmsCourseId' => $lmsCourseId,
-                'instructors' => $instructors
+                'instructors' => $instructors,
             ]);
 
         } catch (\Exception $e) {
@@ -630,15 +576,15 @@ class AdminController extends ApiController
         }
 
         // Construct Response
-        return new JsonResponse($apiResponse);        
+        return new JsonResponse($apiResponse);
     }
 
     #[Route('/api/admin/accounts', methods: ['GET'], name: 'admin_update_accounts')]
     public function getUpdatedAccounts(
-        LmsApiService $lmsApi, 
+        LmsApiService $lmsApi,
         SessionService $sessionService,
-        UtilityService $util): JsonResponse
-    {
+        UtilityService $util
+    ): JsonResponse {
         $apiResponse = new ApiResponse();
         $session = $sessionService->getSession();
         $lms = $lmsApi->getLms();
@@ -706,11 +652,11 @@ class AdminController extends ApiController
     {
         $updatedDate = $course->getLastUpdated();
         $accounts = $this->lms->getAccountData($user);
-        $accountId = $course->getLmsAccountId();
+        $accountId = $course->getAccount()->getLmsAccountId();
 
         $accountName = $accountId;
         if (!empty($accounts[$accountId])) {
-            $accountName = "{$accounts[$accountId]['name']} ({$accounts[$accountId]['id']})"; 
+            $accountName = "{$accounts[$accountId]['name']} ({$accounts[$accountId]['id']})";
         }
 
         return [
@@ -721,21 +667,21 @@ class AdminController extends ApiController
             'report' => $course->getLatestReport(),
             'lastUpdated' => !empty($updatedDate) ? $updatedDate->format($this->util->getDateFormat()) : '---',
             'publicUrl' => $this->lms->getCourseUrl($course, $user),
-            'termId' => $course->getLmsTermId(),
-            'hasReport' => (bool)$course->getLatestReport(),
+            'termId' => $course->getTerm()->getLmsTermId(),
+            'hasReport' => (bool) $course->getLatestReport(),
             'canScan' => true,
         ];
     }
 
-    protected function filterTermsByAccount($terms, $accounts) 
+    protected function filterTermsByAccount($terms, $accounts)
     {
         $user = $this->getUser();
         $courseTerms = [];
 
         $courses = $this->courseRepo->findCoursesByAccount($user, $accounts);
         foreach ($courses as $course) {
-            $courseTermId = $course->getLmsTermId();
-            
+            $courseTermId = $course->getTerm()->getLmsTermId();
+
             if (!empty($terms[$courseTermId])) {
                 $courseTerms[$courseTermId] = $terms[$courseTermId];
             }
@@ -750,13 +696,13 @@ class AdminController extends ApiController
 
 
         foreach ($terms as $term) {
-            if(empty($term["start_at"]) || empty($term["end_at"])) {
+            if (empty($term["start_at"]) || empty($term["end_at"])) {
                 continue;
             }
-            $startTime= strtotime($term["start_at"]);
+            $startTime = strtotime($term["start_at"]);
             $endTime = strtotime($term["end_at"]);
 
-            if(($startTime <= $currentTime) && ($currentTime <= $endTime)){
+            if (($startTime <= $currentTime) && ($currentTime <= $endTime)) {
                 return $term['id'];
             }
 
@@ -770,19 +716,19 @@ class AdminController extends ApiController
 
 
 
-        /**
+    /**
      * Return a de-duplicated, sorted list of instructor display names for a course.
      * Will refresh the local mapping from Canvas if empty or older than $ttlMinutes.
      */
-protected function getInstructorNamesForCourse(
-    Course $course,
-    User $actingUser,
-    CourseUserRepository $courseUserRepo,
-    UserRepository $userRepo,
-    EntityManagerInterface $em,
-    LmsApiService $lmsApi,
-    int $ttlMinutes = 1440
-) {
+    protected function getInstructorNamesForCourse(
+        Course $course,
+        User $actingUser,
+        CourseUserRepository $courseUserRepo,
+        UserRepository $userRepo,
+        EntityManagerInterface $em,
+        LmsApiService $lmsApi,
+        int $ttlMinutes = 1440
+    ) {
 
         $rows = $courseUserRepo->findByCourse($course);
         $lastFetched = $courseUserRepo->maxFetchedAt($course);
@@ -793,7 +739,7 @@ protected function getInstructorNamesForCourse(
 
         if ($stale) {
             try {
-                $lmsClient = $lmsApi->getLms(); 
+                $lmsClient = $lmsApi->getLms();
                 $this->syncInstructors($course, $actingUser, $lmsClient, $courseUserRepo, $userRepo, $em);
                 $rows = $courseUserRepo->findByCourse($course);
             } catch (\Throwable $e) {
@@ -803,7 +749,7 @@ protected function getInstructorNamesForCourse(
 
         $namesSet = [];
         foreach ($rows as $cu) {
-            $name = trim((string)($cu->getUser()?->getName() ?? $cu->getDisplayName()));
+            $name = trim((string) ($cu->getUser()?->getName() ?? $cu->getDisplayName()));
             if ($name !== '') {
                 $namesSet[$name] = true;
             }
@@ -825,8 +771,10 @@ protected function getInstructorNamesForCourse(
         $teachers = $lms->getCourseTeachers($actingUser, $course->getLmsCourseId()) ?? [];
 
         foreach ($teachers as $t) {
-            $lmsUserId   = (string)($t['id'] ?? '');
-            if ($lmsUserId === '') { continue; }
+            $lmsUserId   = (string) ($t['id'] ?? '');
+            if ($lmsUserId === '') {
+                continue;
+            }
             $displayName = $t['name'] ?? null;
 
             $maybeUser = $userRepo->findOneBy([

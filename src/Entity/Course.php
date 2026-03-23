@@ -27,10 +27,7 @@ class Course implements \JsonSerializable
     private $institution;
 
     #[ORM\ManyToOne(targetEntity: Account::class)]
-    #[ORM\JoinColumns([
-        new ORM\JoinColumn(name: "institution_id", referencedColumnName: "institution_id", insertable: false, updatable: false),
-        new ORM\JoinColumn(name: "lms_account_id", referencedColumnName: "lms_account_id", nullable: true),
-    ])]
+    #[ORM\JoinColumn(name: "lms_account_id", referencedColumnName: "lms_account_id", nullable: true)]
     private ?Account $account = null;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
@@ -79,7 +76,7 @@ class Course implements \JsonSerializable
         return [
             "id" => $this->id,
             "title" => $this->title,
-            "lmsAccountId" => $this->lmsAccountId,
+            "lmsAccountId" => $this->account?->getLmsAccountId(),
             "lmsCourseId" => $this->lmsCourseId,
             "lastUpdated" => (!empty($this->lastUpdated)) ? $this->lastUpdated->format('c') : false,
             "active" => $this->active,
@@ -142,14 +139,14 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getLmsAccountId(): ?string
+    public function getAccount(): ?Account
     {
-        return $this->lmsAccountId;
+        return $this->account;
     }
 
-    public function setLmsAccountId(?string $lms_account_id): self
+    public function setAccount(?Account $account): self
     {
-        $this->lmsAccountId = $lms_account_id;
+        $this->account = $account;
 
         return $this;
     }
@@ -376,15 +373,26 @@ class Course implements \JsonSerializable
         return (strtolower($a->getTitle()) > strtolower($b->getTitle())) ? 1 : -1;
     }
 
-    public function getLmsTermId(): ?int
+    public function getTerm(): ?Term
     {
-        return $this->lmsTermId;
+        return $this->term;
     }
 
-    public function setLmsTermId(?int $lmsTermId): self
+    public function setTerm(?Term $term): self
     {
-        $this->lmsTermId = $lmsTermId;
+        $this->term = $term;
 
+        return $this;
+    }
+
+    public function getCourseProfessors(): array
+    {
+        return $this->courseProfessors;
+    }
+
+    public function setCourseProfessors(array $courseProfessors): self
+    {
+        $this->courseProfessors = $courseProfessors;
         return $this;
     }
 }
