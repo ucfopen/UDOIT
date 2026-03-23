@@ -12,6 +12,7 @@ use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -107,13 +108,24 @@ class LtiController extends AbstractController
         // Remove old sessions
         $sessionService->removeExpiredSessions();
 
+        $authCookie = Cookie::create('AUTH_TOKEN')
+            ->withValue($this->session->getUuid())
+            ->withExpires(0)
+            ->withPath('/')
+            ->withSecure(true)
+            ->withHttpOnly(true)
+            ->withSameSite('none');
+
         if (isset($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'})) {
-            $redirectUrl = $token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'} . '?auth_token=' . $this->session->getUuid();
-            return $this->redirect($redirectUrl);
+            $redirectUrl = $token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'};
+            $response = $this->redirect($redirectUrl);
+            $response->headers->setCookie($authCookie);
+            return $response;
         }
 
-        return $this->redirectToRoute('dashboard',
-            ['auth_token' => $this->session->getUuid()]);
+        $response = $this->redirectToRoute('dashboard');
+        $response->headers->setCookie($authCookie);
+        return $response;
     }
 
     #[Route('/lti/authorize/dev_lti_authorize', name: 'dev_lti_authorize')]
@@ -140,9 +152,17 @@ class LtiController extends AbstractController
       $this->session->set('userId', $userId);
       $this->session->set('lms_course_id', $lmsCourseId);
       $this->saveRequestToSession();
-      return $this->redirectToRoute('dashboard', [
-        'auth_token' => base64_encode('cidilabs.instructure.com||314')
-      ]);
+      $response = $this->redirectToRoute('dashboard');
+      $response->headers->setCookie(
+          Cookie::create('AUTH_TOKEN')
+              ->withValue($this->session->getUuid())
+              ->withExpires(0)
+              ->withPath('/')
+              ->withSecure(true)
+              ->withHttpOnly(true)
+              ->withSameSite('none')
+      );
+      return $response;
     }
 
     #[Route('/lti/config/{lms}', name: 'lti_config')]
