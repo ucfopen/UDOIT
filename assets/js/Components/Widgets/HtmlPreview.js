@@ -30,6 +30,20 @@ export default function HtmlPreview({
   }
 
   const convertErrorHtmlElement = (htmlElement) => {
+
+    // Sometimes, instead of a valid element, a GROUP of elements are returned inside of a DocumentFragment.
+    // For instance, when a BlockQuote is removed, however many elements were inside (like a set of paragraphs) are now the
+    // replacement "html" for the issue. In order to display this on screen and add the 'ufixit-error-highlight' class, we
+    // need to convert the DocumentFragment into a single container (div) element that we can add the class to.
+    if(htmlElement.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+      const container = document.createElement('div')
+      htmlElement.childNodes.forEach((child) => {
+        container.appendChild(child)
+      })
+      container.classList.add('ufixit-error-highlight')
+      return container
+    }
+
     htmlElement.classList.add('ufixit-error-highlight')
 
     return htmlElement
