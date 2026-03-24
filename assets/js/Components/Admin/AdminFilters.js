@@ -89,7 +89,7 @@ export default function AdminFilters({
             <select
               id="inputTerm"
               disabled={loadingContent}
-              value={filters.accountId.toString()}
+              value={filters.termId.toString()}
               onChange={(e) => handleTermSelect(e.target.value)}
             >
               {termOptions.map((term, i) => {
