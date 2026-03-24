@@ -581,12 +581,10 @@ export default function FixIssuesPage({
   }
 
   const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
-    console.log("Coming into main function")
     if(!contentItem || !contentItem?.body || !issue) {
       return
     }
 
-    console.log("Test")
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
 
@@ -811,19 +809,28 @@ export default function FixIssuesPage({
 
   const nextIssue = (previous = false) => {
     if (!activeIssue || filteredIssues.length < 2) { return }
-    let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id)
 
-    if(activeIndex === -1) { return }
+    let orderedIssueIds = []
+    groupedList.forEach((group) => {
+      group.issues.forEach((issue) => {
+        orderedIssueIds.push(issue.id)
+      })
+    })
+
+    let activeIssueIndex = orderedIssueIds.findIndex((id) => id === activeIssue.id)
+
+    if(activeIssueIndex === -1) { return }
 
     // If we've reached the first or last issue, loop around
-    let newIndex = activeIndex + (previous ? -1 : 1)
+    let newIndex = activeIssueIndex + (previous ? -1 : 1)
     if (newIndex < 0) {
-      newIndex = filteredIssues.length - 1
+      newIndex = orderedIssueIds.length - 1
     }
-    else if (newIndex >= filteredIssues.length) {
+    else if (newIndex >= orderedIssueIds.length) {
       newIndex = 0
     }
-    setActiveIssue(filteredIssues[newIndex])
+    const newIssueId = orderedIssueIds[newIndex]
+    setActiveIssue(filteredIssues.find((issue) => issue.id === newIssueId))
   }
 
   const getContentById = (contentId) => {
