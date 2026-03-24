@@ -549,12 +549,13 @@
     box-shadow: 0 0 10px var(--shadow-color);
 
     &.dialog-full-screen {
-      width: 95vw;
-      max-width: 95vw;
-      height: 95vh;
-      max-height: 95vh;
-      position: fixed;
-      top: 2vh;
+      width: 95%;
+      max-width: 95%;
+      height: 95%;
+      max-height: 95%;
+      position: absolute;
+      top: 2.5%;
+      left: 2.5%;
     }
 
     &::before {
