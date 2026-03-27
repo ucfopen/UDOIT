@@ -724,7 +724,7 @@
   "form.sensory_misuse.title": "Instructions Should Not Rely on Shape, Size, or Location",
   "form.sensory_misuse.summary": "Instructions should not rely on visual characteristics such as shape, size, or location. This can create barriers for users with visual impairments or cognitive disabilities.",
   "form.sensory_misuse.learn_more": "<h3>Clear Instructions</h3><p>When writing instructions, avoid using visual characteristics such as shape, size, or location. For instance, &quot;Use the description on the RIGHT,&quot; &quot;Select the BLUE option,&quot; or &quot;Click the SQUARE button&quot; can be problematic for users who cannot see an object or its location on the screen.</p><p>However, if the text is NOT instructions, this rule can be ignored, such as &quot;RIGHT BELOW the surface...&quot; or &quot;LEFT to their own devices...&quot;.</p><h3>Best Practices</h3><ul><li>Use instructions that don't depend on shape, size, or location</li><li>Use a visible text label for the object or area described, like &quot;Left Delete Button&quot;</li></ul>",
-  "form.sensory_misuse.label.instructions": "Make Sure There Aren't Any Instructions that Depend on These Sensory Words:",
+  "form.sensory_misuse.label.instructions": "Make sure there aren't any instructions that depend on these sensory words:",
   "form.sensory_misuse.label.highlight": "Click to Highlight:",
   "form.sensory_misuse.label.none": "No Sensory Words Found",
   "rule.desc.text_sensory_misuse": "",
