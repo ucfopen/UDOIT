@@ -3,7 +3,6 @@ import AdminHeader from "./AdminHeader";
 import AdminDashboard from "./AdminDashboard";
 import CoursesPage from "./CoursesPage";
 import ReportsPage from "./ReportsPage";
-import UsersPage from "./UsersPage";
 import Api from "../../Services/Api";
 import MessageTray from "../Widgets/MessageTray";
 import AdminFilters from "../Admin/AdminFilters";
@@ -39,8 +38,17 @@ export default function AdminApp(initialData) {
   const [trayOpen, setTrayOpen] = useState(false);
 
   const t = useCallback(
-    (key) => {
-      return settings.labels[key] ? settings.labels[key] : key;
+    (key, values = {}) => {
+      let translatedText = settings.labels[key] ? settings.labels[key] : key;
+      if (values && Object.keys(values).length > 0) {
+        Object.keys(values).forEach((valKey) => {
+          translatedText = translatedText.replace(
+            `{${valKey}}`,
+            values[valKey],
+          );
+        });
+      }
+      return translatedText;
     },
     [settings.labels],
   );
@@ -190,15 +198,6 @@ export default function AdminApp(initialData) {
                 settings={settings}
                 filters={filters}
                 selectedCourse={selectedCourse}
-              />
-            )}
-            {"users" === navigation && (
-              <UsersPage
-                t={t}
-                settings={settings}
-                searchTerm={searchTerm}
-                accountId={accountId}
-                termId={filters.termId}
               />
             )}
           </div>
