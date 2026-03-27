@@ -34,9 +34,6 @@ UDOIT is built using PHP, the Symfony framework, the React framework, and other 
 
 2. Once UDOIT is running on your web server you need to configure your LMS. Instructions for the different LMS's are in `INSTALL_<LMS_NAME>.md`.
 
-## Installing UDOIT on Heroku
-UDOIT can be installed on your own existing servers, but we've also configured an easy install to a Heroku server. Check out the [HEROKU.md Readme](HEROKU.md) for more information.
-
 ## Contributing
 
 Like any other open source project, UDOIT relies on contributions from the community to improve the tool.  If you are interested in contributing to UDOIT, follow the instructions in [CONTRIBUTING.md](CONTRIBUTING.md).
