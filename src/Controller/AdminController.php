@@ -6,6 +6,7 @@ use App\Entity\Course;
 use App\Entity\Institution;
 use App\Entity\Issue;
 use App\Entity\User;
+use App\Entity\Report;
 use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
 use App\Response\ApiResponse;
@@ -14,6 +15,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use App\Repository\CourseUserRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,10 +40,12 @@ class AdminController extends ApiController
     private $lmsUser;
 
     private Packages $packages;
+    private ManagerRegistry $doctrine;
 
-    public function __construct(Packages $packages)
+    public function __construct(Packages $packages, ManagerRegistry $doctrine)
     {
         $this->packages = $packages;
+        $this->doctrine = $doctrine;
     }
 
     #[Route('/admin', name: 'admin')]
@@ -124,12 +128,7 @@ class AdminController extends ApiController
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
 
-
         $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId);
-
-        $output = new ConsoleOutput();
-
-        $output->writeln(count($courses));
 
         $results = [];
         foreach ($courses as $course) {
@@ -149,306 +148,6 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    #[Route('/api/admin/reports/account/{accountId}/term/{termId}', methods: ['GET'], name: 'admin_reports')]
-    public function getReportsData(
-        $accountId,
-        $termId,
-        CourseRepository $courseRepo,
-        UtilityService $util,
-        LmsApiService $lmsApi,
-        Request $request,
-        UserRepository $userRepo,
-        CourseUserRepository $courseUserRepo,
-        EntityManagerInterface $em
-    ) {
-
-        $apiResponse = new ApiResponse();
-        $results = [];
-        $issues = [];
-        $user = $this->getUser();
-
-        $this->lms = $lmsApi->getLms();
-
-        $includeSubaccounts = $request->query->get('subaccounts');
-        $accounts = $this->lms->getAccountData($user, $accountId);
-        if (!$includeSubaccounts) {
-            $accounts = [$accountId => $accounts[$accountId]];
-        }
-        $courses = $courseRepo->findCoursesByAccount($user, $accounts, $termId);
-
-        $startDate = new \DateTime('today');
-        $endDate = null;
-        $oneDay = new \DateInterval('P1D');
-
-        $courseInstructors = [];
-
-        foreach ($courses as $course) {
-            $courseTitle = $course->getTitle();
-            $results[$courseTitle] ??= [];
-
-            foreach ($course->getReports() as $report) {
-                $reportDate = $report->getCreated();
-                $reportKey = $reportDate->format($util->getDateFormat());
-
-                if (!isset($results[$courseTitle][$reportKey])) {
-                    $results[$courseTitle][$reportKey] = [
-                        'count' => 0,
-                        'errors' => 0,
-                        'suggestions' => 0,
-                        'contentFixed' => 0,
-                        'contentResolved' => 0,
-                        'filesReviewed' => 0,
-                        'contentItems' => [],
-                        'files' => [],
-                        'issues' => [],
-                        'contentSections' => [],
-                    ];
-                }
-
-                // Populate report data
-                $results[$courseTitle][$reportKey]['count']++;
-                foreach (['errors', 'suggestions', 'contentFixed', 'contentResolved', 'filesReviewed'] as $key) {
-                    $results[$courseTitle][$reportKey][$key] += $report->toArray()[$key] ?? 0;
-                }
-
-                $results[$courseTitle][$reportKey]['id'] = $course->getId();
-                $results[$courseTitle][$reportKey]['contentItems'] = $course->getContentItems();
-                $results[$courseTitle][$reportKey]['files'] = $course->getFileItems();
-                $results[$courseTitle][$reportKey]['issues'] = $course->getAllIssues();
-                $results[$courseTitle][$reportKey]['contentSections'] = $this->lms->getCourseSections($course, $user);
-
-                // Update start and end dates
-                if ($reportDate < $startDate) {
-                    $startDate = $reportDate;
-                }
-                if (!$endDate) {
-                    $endDate = $reportDate;
-                }
-                if ($reportDate > $endDate) {
-                    $endDate = $reportDate;
-                }
-            }
-
-            $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo, $em, $lmsApi);
-
-            // Collect issues for each course
-            foreach ($course->getAllIssues() as $issue) {
-                $rule = $issue->getScanRuleId();
-                $status = $issue->getStatus();
-                if (!isset($issues[$rule])) {
-                    $issues[$rule] = [
-                        'id' => $rule,
-                        'type' => $issue->getType(),
-                        'active' => 0,
-                        'fixed' => 0,
-                        'resolved' => 0,
-                        'total' => 0,
-                        'courses' => [],
-                    ];
-                }
-
-                if (Issue::$issueStatusResolved === $status) {
-                    $issues[$rule]['resolved']++;
-                } elseif (Issue::$issueStatusFixed === $status) {
-                    $issues[$rule]['fixed']++;
-                } else {
-                    $issues[$rule]['active']++;
-                }
-                $issues[$rule]['total']++;
-                $issues[$rule]['courses'][$course->getId()] = $course->getId();
-            }
-        }
-
-        // Count courses per issue rule
-        foreach ($issues as $rule => $row) {
-            $issues[$rule]['courses'] = count($row['courses']);
-        }
-
-        /*
-        // Fill missing dates with previous report data
-        foreach ($results as $courseTitle => $reports) {
-            $currentDate = clone $startDate;
-            $currentReport = null;
-
-            while ($currentDate <= $endDate) {
-                $currentKey = $currentDate->format($util->getDateFormat());
-                $currentDate->add($oneDay);
-
-                if (!empty($reports[$currentKey])) {
-                    $currentReport = $reports[$currentKey];
-                    continue;
-                }
-                if (empty($currentReport)) continue;
-
-                $results[$courseTitle][$currentKey] = $currentReport;
-            }
-            ksort($results[$courseTitle]);
-        }
-        */
-        $apiResponse->addData('reports', $results); // Grouped by course and date
-        $apiResponse->addData('issues', $issues);   // Add issues data
-        $apiResponse->addLogMessages($util->getUnreadMessages());
-        $apiResponse->addData('courseInstructors', $courseInstructors);
-
-        return new JsonResponse($apiResponse);
-    }
-
-    #[Route('/api/admin/courses/{course}/reports/full', methods: ['GET'], name: 'admin_course_report')]
-    public function getAdminCourseReport(
-        Course $course,
-        UtilityService $util,
-        LmsApiService $lmsApi,
-        UserRepository $userRepo,
-        CourseUserRepository $courseUserRepo,
-        EntityManagerInterface $em
-    ): JsonResponse {
-
-        $apiResponse = new ApiResponse();
-        $user = $this->getUser();
-
-        $this->lms = $lmsApi->getLms();
-        $this->util = $util;
-
-        $instructors = $this->getInstructorNamesForCourse(
-            $course,
-            $user,
-            $courseUserRepo,
-            $userRepo,
-            $em,
-            $lmsApi
-        );
-
-        try {
-            // Check if user has course access
-            if (!$this->userHasCourseAccess($course)) {
-                throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
-            }
-
-            if ($course->isDirty()) {
-                throw new \Exception('msg.course_scanning');
-            }
-
-            $startDate = new \DateTime('today');
-            $endDate = null;
-            $oneDay = new \DateInterval('P1D');
-
-            foreach ($course->getReports() as $report) {
-                $reportDate = $report->getCreated();
-                $reportKey = $reportDate->format($util->getDateFormat());
-
-                if (empty($rows[$course->getId()])) {
-                    $rows[$course->getId()] = [];
-                }
-
-                $rows[$course->getId()][$reportKey] = $report;
-
-                if ($reportDate < $startDate) {
-                    $startDate = $reportDate;
-                }
-                if (!$endDate) {
-                    $endDate = $reportDate;
-                }
-                if ($reportDate > $endDate) {
-                    $endDate = $reportDate;
-                }
-            }
-
-            foreach ($course->getAllIssues() as $issue) {
-                $rule = $issue->getScanRuleId();
-                $status = $issue->getStatus();
-                if (!isset($issues[$rule])) {
-                    $issues[$rule] = [
-                        'id' => $rule,
-                        'type' => $issue->getType(),
-                        'active' => 0,
-                        'fixed' => 0,
-                        'resolved' => 0,
-                        'total' => 0,
-                        'courses' => [],
-                    ];
-                }
-
-                if (Issue::$issueStatusResolved === $status) {
-                    $issues[$rule]['resolved']++;
-                } elseif (Issue::$issueStatusFixed === $status) {
-                    $issues[$rule]['fixed']++;
-                } else {
-                    $issues[$rule]['active']++;
-                }
-                $issues[$rule]['total']++;
-                $issues[$rule]['courses'][$course->getId()] = $course->getId();
-            }
-            foreach ($issues as $rule => $row) {
-                $issues[$rule]['courses'] = count($row['courses']);
-            }
-
-            if ($endDate) {
-                $endDate->setTime(23, 59, 0);
-            }
-
-            // Populate all dates with a report
-            foreach ($rows as $courseId => $reports) {
-                $currentDate = clone $startDate;
-                $currentReport = null;
-
-                while ($currentDate <= $endDate) {
-                    $currentKey = $currentDate->format($util->getDateFormat());
-                    $currentDate->add($oneDay);
-
-                    if (!empty($reports[$currentKey])) {
-                        $currentReport = $reports[$currentKey];
-                        continue;
-                    }
-
-                    if (empty($currentReport)) {
-                        continue;
-                    }
-
-                    $rows[$courseId][$currentKey] = $currentReport;
-                }
-                ksort($rows[$courseId]);
-            }
-
-            foreach ($rows as $courseId => $reports) {
-                foreach ($reports as $dateKey => $reportObj) {
-                    $reportArr = $reportObj->toArray();
-                    if (empty($results[$dateKey])) {
-                        $results[$dateKey] = [
-                            'count' => 0,
-                            'errors' => 0,
-                            'suggestions' => 0,
-                            'contentFixed' => 0,
-                            'contentResolved' => 0,
-                            'filesReviewed' => 0,
-                        ];
-                    }
-
-                    $results[$dateKey]['count']++;
-                    $results[$dateKey]['created'] = $dateKey;
-
-                    foreach (array_keys($results[$dateKey]) as $key) {
-                        if (!empty($reportArr[$key]) && is_numeric($reportArr[$key])) {
-                            $results[$dateKey][$key] += (int) $reportArr[$key];
-                        }
-                    }
-                }
-            }
-
-            ksort($results);
-
-            $apiResponse->addData('reports', $results);
-            $apiResponse->addData('issues', $issues);
-            $apiResponse->addData('instructors', $instructors);
-            $apiResponse->addLogMessages($util->getUnreadMessages());
-
-        } catch (\Exception $e) {
-            $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
-        }
-
-        // Construct Response
-        return new JsonResponse($apiResponse);
-    }
-
     #[Route('/api/admin/courses/{course}/reports/latest', methods: ['GET'], name: 'admin_latest_report')]
     public function getAdminLatestReport(
         Course $course,
@@ -456,7 +155,8 @@ class AdminController extends ApiController
         LmsApiService $lmsApi,
         UserRepository $userRepo,
         CourseUserRepository $courseUserRepo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        SessionService $sessionService
     ): JsonResponse {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -466,7 +166,7 @@ class AdminController extends ApiController
 
         try {
             // Check if user has course access
-            if (!$this->userHasCourseAccess($course)) {
+            if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
 
@@ -560,25 +260,6 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    #[Route('/api/admin/users', methods: ['GET'], name: 'admin_users')]
-    public function getUsers(UserRepository $userRepo): JsonResponse
-    {
-        $apiResponse = new ApiResponse();
-        /** @var \App\Entity\User */
-        $user = $this->getUser();
-        $institution = $user->getInstitution();
-
-        try {
-            $users = $userRepo->findBy(['institution' => $institution]);
-            $apiResponse->setData($users);
-        } catch (\Exception $e) {
-            $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
-        }
-
-        // Construct Response
-        return new JsonResponse($apiResponse);
-    }
-
     #[Route('/api/admin/accounts', methods: ['GET'], name: 'admin_update_accounts')]
     public function getUpdatedAccounts(
         LmsApiService $lmsApi,
@@ -650,6 +331,7 @@ class AdminController extends ApiController
 
     protected function getCourseData(Course $course, User $user)
     {
+        $reportRepository = $this->doctrine->getRepository(Report::class);
         $updatedDate = $course->getLastUpdated();
         $accounts = $this->lms->getAccountData($user);
         $accountId = $course->getAccount()->getLmsAccountId();
@@ -664,7 +346,9 @@ class AdminController extends ApiController
             'title' => $course->getTitle(),
             'accountId' => $accountId,
             'accountName' => $accountName,
-            'report' => $course->getLatestReport(),
+            'allReports' => $reportRepository->findBy(['course' => $course->getId()]),
+            'latestReport' => $course->getLatestReport(),
+            'issues' => $course->getActiveIssues(),
             'lastUpdated' => !empty($updatedDate) ? $updatedDate->format($this->util->getDateFormat()) : '---',
             'publicUrl' => $this->lms->getCourseUrl($course, $user),
             'termId' => $course->getTerm()->getLmsTermId(),
