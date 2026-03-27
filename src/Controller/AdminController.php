@@ -348,7 +348,7 @@ class AdminController extends ApiController
             'accountName' => $accountName,
             'allReports' => $reportRepository->findBy(['course' => $course->getId()]),
             'latestReport' => $course->getLatestReport(),
-            'issues' => $course->getActiveIssues(),
+            'issues' => $course->getAllIssues(),
             'lastUpdated' => !empty($updatedDate) ? $updatedDate->format($this->util->getDateFormat()) : '---',
             'publicUrl' => $this->lms->getCourseUrl($course, $user),
             'termId' => $course->getTerm()->getLmsTermId(),
