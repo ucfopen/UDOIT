@@ -28,9 +28,9 @@ UDOIT is built using PHP, the Symfony framework, the React framework, and other 
 *Note: If you are using version 3.5 or earlier, UDOIT will also require the Instructure UI component library.*
 
 ## Where to Start
-**Tip:** Join the [UCF Open Slack community](https://dl.ucf.edu/join-ucfopen).  They can help solve any issues you may encounter.
+1. Join the [UCF Open Slack community](https://dl.ucf.edu/join-ucfopen). You are likely to find one of the developers assisting other users with similar issues you may encounter in your development process.
 
-1. Start the installation process by setting up UDOIT. Instructions are in [INSTALL.md](INSTALL.md).
+2. Start the installation process by setting up UDOIT. Instructions are in [INSTALL.md](INSTALL.md).
 
 2. Once UDOIT is running on your web server you need to configure your LMS. Instructions for the different LMS's are in `INSTALL_<LMS_NAME>.md`.
 
