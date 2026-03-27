@@ -5,6 +5,7 @@ namespace App\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,15 +21,40 @@ use App\Lms\Canvas\CanvasApi;
 )]
 class AdminPanelRetrievalCommand extends Command
 {
+    private const VALID_TABLES = ['accounts', 'terms', 'courses'];
+
     public function __construct(private EntityManagerInterface $em)
     {
         parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this->addOption(
+            'tables',
+            't',
+            InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+            'Which tables to sync: accounts, terms, courses (default: all)',
+            self::VALID_TABLES
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $batchSize = 500;
         $output = new ConsoleOutput();
+
+        $tables = $input->getOption('tables');
+        $invalidTables = array_diff($tables, self::VALID_TABLES);
+        if (!empty($invalidTables)) {
+            $output->writeln('<error>Invalid table(s): ' . implode(', ', $invalidTables) . '. Valid options are: ' . implode(', ', self::VALID_TABLES) . '</error>');
+            return Command::FAILURE;
+        }
+
+        $syncAccounts = in_array('accounts', $tables);
+        $syncTerms    = in_array('terms', $tables);
+        $syncCourses  = in_array('courses', $tables);
+
         $requiredEnvVars = [
             'ADMIN_RETRIEVAL_LMS_URL',
             'ADMIN_RETRIEVAL_API_TOKEN',
@@ -60,83 +86,90 @@ class AdminPanelRetrievalCommand extends Command
         $subAccounts = $canvas->apiGet("accounts/{$rootAccount['id']}/sub_accounts?recursive=true")->getContent();
         $subAccounts[] = $rootAccount;
 
-        $accounts = $subAccounts;
+        if ($syncAccounts) {
+            $output->writeln('<info>Syncing accounts...</info>');
+            foreach ($subAccounts as $account) {
+                $existing = $this->em->getRepository(Account::class)->find($account['id']);
+                if (!$existing) {
+                    $accountModel = new Account($institution, $account['id'], $account['name']);
+                    $this->em->persist($accountModel);
+                }
+            }
+            $this->em->flush();
+            $output->writeln('<info>Accounts synced.</info>');
+        }
 
-        $courses = $canvas
+        if ($syncTerms || $syncCourses) {
+            $courses = $canvas
                 ->apiGet("accounts/{$rootAccount['id']}/courses?include[]=term&include[]=teachers")
                 ->getContent();
-        $allCourses = [];
-        $allTerms = [];
+            $allCourses = [];
+            $allTerms = [];
 
-        foreach ($courses as &$course) {
-            if ($course['term'] !== null && !isset($allTerms[$course['term']['id']])) {
-                $allTerms[$course['term']['id']] = $course['term']['name'];
-            }
-            $allCourses[$course['id']] = $course;
-        }
-
-        foreach ($accounts as $account) {
-            $existing = $this->em->getRepository(Account::class)->find($account['id']);
-            if (!$existing) {
-                $accountModel = new Account($institution, $account['id'], $account['name']);
-                $this->em->persist($accountModel);
-            }
-        }
-        $this->em->flush();
-
-        foreach ($allTerms as $key => $value) {
-            $existing = $this->em->getRepository(Term::class)->find($key);
-            if (!$existing) {
-                $term = new Term($institution, $key, $value);
-                $this->em->persist($term);
-            }
-        }
-        $this->em->flush();
-
-        $i = 0;
-        foreach ($allCourses as $courseData) {
-            $existing = $this->em->getRepository(Course::class)->findOneBy([
-                'lmsCourseId' => $courseData['id'],
-                'institution' => $institution,
-            ]);
-
-            $professors = $courseData['teachers'];
-            $professorNames = [];
-
-            foreach ($professors as $professor) {
-                $professorNames[] = $professor['display_name'];
+            foreach ($courses as &$course) {
+                if ($course['term'] !== null && !isset($allTerms[$course['term']['id']])) {
+                    $allTerms[$course['term']['id']] = $course['term']['name'];
+                }
+                $allCourses[$course['id']] = $course;
             }
 
-            if ($existing) {
-                $course = $existing;
-            } else {
-                $course = new Course();
-                $course->setLmsCourseId($courseData['id']);
-                $course->setInstitution($institution);
-                $course->setDirty(false);
-            }
-
-            $course->setTitle($courseData['name']);
-            $course->setActive(true);
-            $course->setCourseProfessors($professorNames);
-
-            if ($courseData['account_id']) {
-                $account = $this->em->getRepository(Account::class)->find($courseData['account_id']);
-                $course->setAccount($account);
-            }
-
-            if ($courseData['term'] !== null) {
-                $term = $this->em->getRepository(Term::class)->find($courseData['term']['id']);
-                $course->setTerm($term);
-            }
-
-            $this->em->persist($course);
-
-            if (++$i % $batchSize === 0) {
+            if ($syncTerms) {
+                $output->writeln('<info>Syncing terms...</info>');
+                foreach ($allTerms as $key => $value) {
+                    $existing = $this->em->getRepository(Term::class)->find($key);
+                    if (!$existing) {
+                        $term = new Term($institution, $key, $value);
+                        $this->em->persist($term);
+                    }
+                }
                 $this->em->flush();
+                $output->writeln('<info>Terms synced.</info>');
+            }
+
+            if ($syncCourses) {
+                $output->writeln('<info>Syncing courses...</info>');
+                $i = 0;
+                foreach ($allCourses as $courseData) {
+                    $existing = $this->em->getRepository(Course::class)->findOneBy([
+                        'lmsCourseId' => $courseData['id'],
+                        'institution' => $institution,
+                    ]);
+
+                    $professorNames = array_map(fn($p) => $p['display_name'], $courseData['teachers']);
+
+                    if ($existing) {
+                        $course = $existing;
+                    } else {
+                        $course = new Course();
+                        $course->setLmsCourseId($courseData['id']);
+                        $course->setInstitution($institution);
+                        $course->setDirty(false);
+                    }
+
+                    $course->setTitle($courseData['name']);
+                    $course->setActive(true);
+                    $course->setCourseProfessors($professorNames);
+
+                    if ($courseData['account_id']) {
+                        $account = $this->em->getRepository(Account::class)->find($courseData['account_id']);
+                        $course->setAccount($account);
+                    }
+
+                    if ($courseData['term'] !== null) {
+                        $term = $this->em->getRepository(Term::class)->find($courseData['term']['id']);
+                        $course->setTerm($term);
+                    }
+
+                    $this->em->persist($course);
+
+                    if (++$i % $batchSize === 0) {
+                        $this->em->flush();
+                    }
+                }
+                $this->em->flush();
+                $output->writeln('<info>Courses synced.</info>');
             }
         }
-        $this->em->flush();
 
         return Command::SUCCESS;
     }

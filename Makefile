@@ -70,6 +70,18 @@ clean-cache:
 	$(COMPOSE) run --rm php bin/console cache:clear
 	rm -rf ./var/cache/prod/
 
+.PHONY: admin-panel-retrieve-data
+
+VALID_TABLES := accounts terms courses
+
+admin-panel-retrieve-data: clean-cache
+	@if [ -n "$(TABLES)" ] && [ -z "$(filter $(TABLES),$(VALID_TABLES))" ]; then \
+		echo "Error: Invalid table(s): '$(TABLES)'"; \
+		echo "Usage: make admin-panel-retrieve-data TABLES=\"accounts terms courses\""; \
+		echo "Valid tables: $(VALID_TABLES)"; \
+		exit 1; \
+	fi
+	$(COMPOSE) run --rm php php bin/console app:admin-panel-retrieval $(foreach table,$(TABLES),--tables=$(table))
 # ──────────────────────────────────────────────
 # Institution Seeding
 # ──────────────────────────────────────────────
