@@ -6,6 +6,8 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 UDOIT was originally developed by the University of Central Florida (UCF) in 2014. In 2020, UDOIT was in need of a code refresh and UCF partnered with Cidi Labs to rewrite UDOIT from the ground up.
 
+Since then, it has strayed quite a bit from the licensed version Cidi Labs provides, while still providing comprehensive results and intuitive design changes. We continue to make this tool better and offer easier ways to make all course content accessible.
+
 ## Prerequisites
  - PHP 8.1, 8.2
  - Symfony
@@ -21,7 +23,9 @@ To complete this installation you will need the following skills:
 * MySQL familiarity
 * LMS admin permissions
 
-UDOIT is built using PHP, the Symfony framework, the React framework, the Instructure UI component library, and other open source libraries. However, knowledge of PHP or Javascript is _**NOT REQUIRED**_ for installation.
+UDOIT is built using PHP, the Symfony framework, the React framework, and other open source libraries. However, knowledge of PHP or Javascript is _**NOT REQUIRED**_ for installation.
+
+*Note: If you are using version 3.5 or earlier, UDOIT will also require the Instructure UI component library.*
 
 ## Where to Start
 **Tip:** Join the [UCF Open Slack community](https://dl.ucf.edu/join-ucfopen).  They can help solve any issues you may encounter.
