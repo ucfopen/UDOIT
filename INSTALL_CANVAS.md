@@ -15,7 +15,7 @@ UDOIT requires an API developer key since all course data is gathered through th
 ### Steps to Create an API Key
 1. Navigate to `Developer Keys` in the root account menu.
 <img src="./assets/mediaAssets/installation-images/dev-keys-location.png" alt="Screenshot showing the Developer Keys option in the Canvas root account menu" width="500" height="auto">
-2. Choose to add a `Developer Key` -> `API Key`
+2. Choose to add a `Developer Key` => `API Key`
 <img src="./assets/mediaAssets/installation-images/api-key-install.png" alt="Screenshot showing the Developer Keys option in the Canvas root account menu" width="600" height="auto">
 3. Provide values for the following fields:
    * Key Name: i.e. UDOIT 3 API
@@ -24,7 +24,7 @@ UDOIT requires an API developer key since all course data is gathered through th
    * Redirect URL (Legacy) : *SKIP*
    * Vendor Code : *SKIP*
    * Icon URL: <YOUR_UDOIT_BASE_URL>/build/static/udoit_logo.svg
-   * Notes (Optional): 
+   * Notes (Optional):
      * These are only seen by other LMS admins
    * Client Credentials Audience: Canvas
    * Enforce Scopes
@@ -36,57 +36,53 @@ UDOIT requires an API developer key since all course data is gathered through th
 ### Scopes
 We strongly recommend you enforce scopes with your API key. The following scopes must be enabled for UDOIT to work.
 
-* accounts
+* Accounts
   * url:GET|/api/v1/accounts
   * url:GET|/api/v1/accounts/:id
   * url:GET|/api/v1/accounts/:account_id/sub_accounts
-* announcements_api
+* Announcements
   * url:GET|/api/v1/announcements
-* assignments_api
+* Assignments
   * url:GET|/api/v1/courses/:course_id/assignments
   * url:GET|/api/v1/courses/:course_id/assignments/:id
   * url:PUT|/api/v1/courses/:course_id/assignments/:id
-* context_module_items_api
-  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
-  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
-  * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
-* context_modules_api
+* Courses
+  * url:PUT|/api/v1/courses/:id
+  * url:GET|/api/v1/courses/:id
+  * url:GET|/api/v1/courses/:course_id/users
+  * url:POST|/api/v1/courses/:course_id/files
+* Discussion Topics
+  * url:GET|/api/v1/courses/:course_id/discussion_topics
+  * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+  * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* Enrollment Terms
+  * url:GET|/api/v1/accounts/:account_id/terms
+* Enrollments
+  * url:GET|/api/v1/courses/:course_id/enrollments
+* Files
+  * url:GET|/api/v1/courses/:course_id/files
+  * url:GET|/api/v1/courses/:course_id/files/:id
+* Modules
   * url:GET|/api/v1/courses/:course_id/modules
   * url:GET|/api/v1/courses/:course_id/modules/:id
   * url:PUT|/api/v1/courses/:course_id/modules/:id
-* courses
-  * url:PUT|/api/v1/courses/:id
-  * url:GET|/api/v1/courses/:id
-  * url:POST|/api/v1/courses/:course_id/files
-  * url:GET|/api/v1/courses/:course_id/users
-* discussion_topics
-  * url:GET|/api/v1/courses/:course_id/discussion_topics
-  * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
-* discussion_topics_api
-  * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
-* files
-  * url:GET|/api/v1/courses/:course_id/files
-  * url:GET|/api/v1/courses/:course_id/files/:id
-* quizzes/quiz_questions
-  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
-  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-  * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-* quizzes/quizzes_api
-  * url:GET|/api/v1/courses/:course_id/quizzes
-  * url:GET|/api/v1/courses/:course_id/quizzes/:id
-  * url:PUT|/api/v1/courses/:course_id/quizzes/:id
-* terms_api
-  * url:GET|/api/v1/accounts/:account_id/terms
-* users
-  * url:GET|/api/v1/users/:id
-* wiki_pages_api
+  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
+  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
+  * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
+* Pages
   * url:GET|/api/v1/courses/:course_id/pages
   * url:GET|/api/v1/courses/:course_id/pages/:url_or_id
   * url:PUT|/api/v1/courses/:course_id/pages/:url_or_id
- 
-* enrollments_api
-  * url:GET|/api/v1/courses/:course_id/enrollments
-  *   
+* Quiz Questions
+  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
+  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+  * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+* Quizzes
+  * url:GET|/api/v1/courses/:course_id/quizzes
+  * url:GET|/api/v1/courses/:course_id/quizzes/:id
+  * url:PUT|/api/v1/courses/:course_id/quizzes/:id
+* Users
+  * url:GET|/api/v1/users/:id
 
 ## Create an LTI Developer Key
 UDOIT uses LTI 1.3 to integrate with the LMS.
@@ -134,7 +130,7 @@ UDOIT is built to support more than one LMS instance. For this purpose, we have 
 - `API_CLIENT_ID` = The ID of the developer API key you created earlier
 - `API_CLIENT_SECRET` = The secret for the API key you created earlier
 
-With all the values now set up, you're ready to run the command that will automate the creation of your `institutions` table! 
+With all the values now set up, you're ready to run the command that will automate the creation of your `institutions` table!
 
 - Run `make ins-mysql` if you have a MySQL database setup.
 - Run `make ins-psql` if you have a PostgreSQL database setup.
@@ -146,7 +142,6 @@ Your database should now show a new row in the `institution` table, containing a
 ## .ENV Setup
 For cloud-hosted canvas instances, the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
 
----
 ## Install the App
 UDOIT now needs to be added to an account in Canvas. Follow these steps to add the LTI tool to an account:
 1. Copy the `Client ID` from the developer LTI key created earlier.
