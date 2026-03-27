@@ -18,7 +18,7 @@ UDOIT requires an API developer key since all course data is gathered through th
 2. Choose to add a `Developer Key` => `API Key`
 <img src="./assets/mediaAssets/installation-images/api-key-install.png" alt="Screenshot showing the Developer Keys option in the Canvas root account menu" width="600" height="auto">
 3. Provide values for the following fields:
-   * Key Name: i.e. UDOIT 3 API
+   * Key Name: i.e. UDOIT API
    * Owner Email
    * Redirect URIs: <YOUR_UDOIT_BASE_URL>/authorize/check
    * Redirect URL (Legacy) : *SKIP*
@@ -93,7 +93,7 @@ Follow the steps below, replacing `<YOUR_UDOIT_BASE_URL>` with the `BASE_URL` va
 1. Navigate to `Developer Keys` in the root account menu.
 2. Choose to add a `Developer Key` => `LTI Key`
 3. Provide values for the following fields:
-   * Key Name: i.e. UDOIT 3 LTI
+   * Key Name: i.e. UDOIT LTI
    * Owner Email
    * Redirect URIs: <YOUR_UDOIT_BASE_URL>/lti/authorize/check
    * Configure methods
