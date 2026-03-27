@@ -4,7 +4,7 @@
   padding: .5rem 1rem;
 
   .search-group {
-    display: block;
+    display: flex;
     position: relative;
 
     input {

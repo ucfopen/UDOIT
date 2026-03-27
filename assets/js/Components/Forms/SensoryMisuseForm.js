@@ -223,7 +223,7 @@ export default function SensoryMisuseForm({
     <>
       <div className="instructions">{t('form.sensory_misuse.label.instructions')}</div>
       { sensoryErrors.length > 0 ? (
-        <div className="flex-row flex-wrap gap-1 mt-2">
+        <div className="flex-row flex-wrap gap-1 mt-2 mb-2">
           <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
           {sensoryErrors.map((word) => (
             <button

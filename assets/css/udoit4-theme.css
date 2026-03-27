@@ -90,15 +90,7 @@
     --transition-time: 0.25s;
   }
 
-  #app-container {
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    box-shadow: 3px 3px 3px var(--gray-light);
-    background-color: var(--background-color);
-    font-family: var(--text-font-family);
-    font-weight: 300;
-    color: var(--text-color);
-
+  body {
     &.serif {
       --text-font-family: 'Merriweather', Times, serif;
       --heading-font-family: 'Merriweather', Times, serif;
@@ -212,9 +204,6 @@
       --progress-bar-color: var(--primary-color);
       --shadow-color: #FFFFFF44;
       --backdrop-color: rgba(256, 256, 256, 0.25);
-
-      border: 1px solid var(--gray-lighter);
-      box-shadow: 2px 2px 2px var(--gray-lighter);
     }
 
     --text-spacing-percent: 0;
@@ -223,6 +212,16 @@
     letter-spacing: var(--app-letter-spacing);
     word-spacing: var(--app-word-spacing);
   }
+
+  #app-container {
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 3px 3px 3px var(--shadow-color);
+    background-color: var(--background-color);
+    font-family: var(--text-font-family);
+    font-weight: 300;
+    color: var(--text-color);
+  } 
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--heading-font-family);
@@ -287,7 +286,7 @@
   button {
     font-family: var(--heading-font-family);
     padding: .5rem 1rem;
-    border-radius: 8px;
+    border-radius: var(--element-radius);
     cursor: pointer;
     box-sizing: border-box;
     border: 1px solid transparent;
@@ -339,7 +338,6 @@
     background-color: var(--white);
     color: var(--text-color);
     fill: var(--text-color);
-    border-width: 1px;
     
     &:hover,
     &:focus {
@@ -591,7 +589,8 @@
       height: 95vh;
       max-height: 95vh;
       position: fixed;
-      top: 2vh;
+      top: 2.5vh;
+      left: 2.5vw;
     }
 
     &::before {
@@ -638,13 +637,12 @@
         padding: .2rem;
         margin-inline-end: -.5rem;
         border: 1px solid transparent;
-        fill: var(--text-disabled-color);
+        fill: var(--text-color);
         box-shadow: none;
         border-radius: 50%;
 
         &:hover,
         &:focus {
-          fill: var(--text-color);
           background-color: var(--gray-lighter);
         }
 
