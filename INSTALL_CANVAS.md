@@ -14,7 +14,9 @@ UDOIT requires an API developer key since all course data is gathered through th
 
 ### Steps to Create an API Key
 1. Navigate to `Developer Keys` in the root account menu.
-2. Choose to add a `Developer Key` => `API Key`
+<img src="./assets/mediaAssets/installation-images/dev-keys-location.png" alt="Screenshot showing the Developer Keys option in the Canvas root account menu" width="500" height="auto">
+2. Choose to add a `Developer Key` -> `API Key`
+<img src="./assets/mediaAssets/installation-images/api-key-install.png" alt="Screenshot showing the Developer Keys option in the Canvas root account menu" width="600" height="auto">
 3. Provide values for the following fields:
    * Key Name: i.e. UDOIT 3 API
    * Owner Email
@@ -22,7 +24,7 @@ UDOIT requires an API developer key since all course data is gathered through th
    * Redirect URL (Legacy) : *SKIP*
    * Vendor Code : *SKIP*
    * Icon URL: <YOUR_UDOIT_BASE_URL>/build/static/udoit_logo.svg
-   * Notes : *Optional*
+   * Notes (Optional): 
      * These are only seen by other LMS admins
    * Client Credentials Audience: Canvas
    * Enforce Scopes
@@ -119,27 +121,25 @@ Follow the steps below, replacing `<YOUR_UDOIT_BASE_URL>` with the `BASE_URL` va
 UDOIT is built to support more than one LMS instance. For this purpose, we have an `institution` table that must be populated with the LMS information.
 
 1. Inside the UDOIT directory, run `cp .ins.env.example .ins.env`
-2. open `.ins.env` with a text editor (i.e. Notepad, VS Code, etc.)
+2. Open `.ins.env` with a text editor (i.e. Notepad, VS Code, etc.)
 3. Fill in the fields with the appropriate values
 - `TITLE` = Your institution's name
 - `LMS_DOMAIN` = The Canvas domain name of your institution (i.e. `myschool.instructure.com`)
 - `LMS_ID` = `canvas`
-- `LMS_ACCOUNT_ID` = The Canvas account ID (as a string) where UDOIT will be installed
-- `CREATED` = Date in this format: `2021-06-08`
-- `STATUS` = `1` if you are using MySQL or MariaDB (or Docker), `true` if you are using PostgreSQL
+- `LMS_ACCOUNT_ID` = The Canvas account ID (as a string, i.e `"1"` instead of `1`) where UDOIT will be installed.
+- `CREATED` = Date in the format `YYYY-MM-DD`(i.e. `2026-03-27`)
+- `STATUS` = `1` if you are using MySQL or MariaDB (or Docker), `true` if you are using PostgreSQL.
 - `VANITY_URL` = Your LMS vanity URL (i.e. `canvas.myschool.edu`)
-- `METADATA` = Optional. Institution-specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"en"}`)
+- `METADATA`(Optional) =  Institution-specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"en"}`)
 - `API_CLIENT_ID` = The ID of the developer API key you created earlier
 - `API_CLIENT_SECRET` = The secret for the API key you created earlier
 
-With all the values now set up, you're ready to run the command that will automate the creation of your `institutions` table! Run the following command if you have a MySQL database setup:
-```
-make ins-mysql
-```
-Or this one if you have a PostgreSQL setup:
-```
-make ins-psql
-```
+With all the values now set up, you're ready to run the command that will automate the creation of your `institutions` table! 
+
+- Run `make ins-mysql` if you have a MySQL database setup.
+- Run `make ins-psql` if you have a PostgreSQL database setup.
+
+
 Your database should now show a new row in the `institution` table, containing all the values you input above.
 
 
