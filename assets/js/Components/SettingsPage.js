@@ -148,9 +148,10 @@ export default function SettingsPage({
             </h2>
             <div className="subtext version-number">{t('welcome.version')} {settings.versionNumber}</div>
           </div>
-          {/* <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.release_notes')}</a>
-          <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.documentation')}</a> */}
-          <a href='https://ucfopen.github.io/udoit.info/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_udoit')}</a>
+          {/* Replace the link below with the official UDOIT documentation site once it is available
+          <a href='https://ucfopen.github.io/udoit.info/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_udoit')}</a>*/}
+
+          <a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=408fe7021bb162102fc664a2604bcb3e&table=kb_knowledge&searchTerm=Udoit' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_udoit')}</a>
           <a href='https://ucfopen.github.io/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_ucfopen')}</a>
         </div>
 
