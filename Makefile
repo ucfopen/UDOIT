@@ -68,6 +68,7 @@ migrate-down:
 ## Clear the Symfony cache
 clean-cache:
 	$(COMPOSE) run --rm php bin/console cache:clear
+	rm -rf ./var/cache/prod/
 
 # ──────────────────────────────────────────────
 # Institution Seeding
