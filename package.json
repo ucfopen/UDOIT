@@ -22,6 +22,7 @@
         "globals": "^17.4.0",
         "jest": "^30.0.4",
         "msw": "^2.10.4",
+        "prettier": "^3.8.1",
         "regenerator-runtime": "^0.14.1",
         "webpack-cli": "^5.1.4",
         "webpack-notifier": "^1.15.0"
