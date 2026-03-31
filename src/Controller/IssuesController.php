@@ -6,6 +6,7 @@ use App\Entity\Issue;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\EqualAccessService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,6 +26,7 @@ class IssuesController extends ApiController
     // Save change to issue HTML to LMS
     #[Route('/api/issues/{issue}/save', name: 'save_issue')]
     public function saveIssue(
+        SessionService $sessionService,
         Request $request,
         LmsPostService $lmsPost,
         UtilityService $util,
@@ -37,7 +39,7 @@ class IssuesController extends ApiController
         try {
             // Check if user has access to course
             $course = $issue->getContentItem()->getCourse();
-            if(!$this->userHasCourseAccess($course)) {
+            if(!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("You do not have permission to access this issue.");
             }
 
@@ -135,13 +137,19 @@ class IssuesController extends ApiController
 
     // Get an issue's corresponding content item
     #[Route('/api/issues/{issue}/content', methods: ['GET'], name: 'get_issue_content')]
-    public function getIssueContent(Issue $issue)
+    public function getIssueContent(SessionService $sessionService, Issue $issue)
     {
 
       $apiResponse = new ApiResponse();
       $contentItem = $issue->getContentItem();
 
       try {
+        // Check if user has access to course
+        $course = $contentItem->getCourse();
+         if(!$this->userHasCourseAccess($course, $sessionService)) {
+             throw new \Exception("You do not have permission to access this issue.");
+         }
+
         $apiResponse->setData([
             'contentItem' => [
                 'id' => $contentItem->getId(),

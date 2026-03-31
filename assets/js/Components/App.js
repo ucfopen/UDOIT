@@ -41,6 +41,7 @@ export default function App(initialData) {
   const [sessionIssues, setSessionIssues] = useState({})
   const [sessionFiles, setSessionFiles] = useState({})
   const [welcomeClosed, setWelcomeClosed] = useState(false)
+  const [modalActive, setModalActive] = useState(false)
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -369,7 +370,8 @@ export default function App(initialData) {
          className={`flex-column flex-grow-1 `
           + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
           + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
+          lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
@@ -381,10 +383,10 @@ export default function App(initialData) {
             <Header
               t={t}
               settings={settings}
-              hasNewReport={hasNewReport}
+              modalActive={modalActive}
               navigation={navigation}
-              syncComplete={syncComplete}
               handleNavigation={handleNavigation}
+              syncComplete={syncComplete}
              />
 
             <main role="main" id="main-content">
@@ -416,6 +418,7 @@ export default function App(initialData) {
                   sessionIssues={sessionIssues}
                   updateSessionIssue={updateSessionIssue}
                   processServerError={processServerError}
+                  setModalActive={setModalActive}
                 />
               }
               {('reviewFiles' === navigation) &&
@@ -432,6 +435,7 @@ export default function App(initialData) {
                   sessionFiles={sessionFiles}
                   updateSessionFiles={updateSessionFiles}
                   processServerError={processServerError}
+                  setModalActive={setModalActive}
                 />
               }
               {('reports' === navigation) &&

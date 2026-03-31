@@ -43,7 +43,8 @@ export default function ReviewFilesPage({
   processNewReport,
   addMessage,
   sessionFiles,
-  updateSessionFiles
+  updateSessionFiles,
+  setModalActive
 })
 {
 
@@ -59,7 +60,7 @@ export default function ReviewFilesPage({
 
   const WIDGET_STATE = settings.WIDGET_STATE
 
-  const dialogId = "file-dialog"
+  const dialogId = "udoit-file-dialog"
 
   const headers = [
     { id: "name", text: t('fix.label.file_name') },
@@ -87,6 +88,7 @@ export default function ReviewFilesPage({
   const [unfilteredFiles, setUnfilteredFiles] = useState([])
   const [filteredFiles, setFilteredFiles] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
+  const [mostRecentFileId, setMostRecentFileId] = useState(null)
 
   // Form States
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
@@ -175,7 +177,7 @@ export default function ReviewFilesPage({
     let tempRows = []
     filteredFiles.forEach((tempFile) => {
       tempRows.push({
-        id: tempFile.id,
+        id: `udoit-file-${tempFile.id}`,
         name: tempFile.contentTitle ? { value: tempFile.contentTitle, display: getFileNameDisplay(tempFile)} : t('label.unknown'),
         type: tempFile.fileData.fileType ? { value: tempFile.fileData.fileType, display: getFileTypeDisplay(tempFile.fileData.fileType)}: t('label.mime.unknown'),
         date: tempFile.fileData.updated ? { value: tempFile.fileData.updated, display: Text.getReadableDateTime(tempFile.fileData.updated)} : t('label.unknown'),
@@ -333,6 +335,13 @@ export default function ReviewFilesPage({
     setIsDisabled(tempIsDisabled)
   }, [sessionFiles])
 
+  const handleEscapeKey = (e) => {
+    if(e.key === 'Escape' && widgetState === WIDGET_STATE.FIXIT) {
+      e.preventDefault()
+      closeDialog()
+    }
+  }
+
   useEffect(() => {
     if(showLearnMore) {
       document.getElementById('btn-learn-more-close')?.focus()
@@ -341,6 +350,32 @@ export default function ReviewFilesPage({
       document.getElementById('btn-learn-more-open')?.focus()
     }
   }, [showLearnMore])
+
+// Pull focus into the dialog when it opens, and return focus to the most recently clicked issue when it closes
+  useEffect(() => {
+    if(widgetState === WIDGET_STATE.FIXIT) {
+      const dialog = document.getElementById(dialogId)
+      if (dialog) {
+        dialog.addEventListener('keydown', handleEscapeKey)
+        const title = dialog.querySelector('#ufixit-dialog-title')
+        if(title) {
+          title.focus()
+        }
+      }
+    }
+    else if(widgetState === WIDGET_STATE.LIST) {
+      if(mostRecentFileId) {
+        const fileElement = document.getElementById(`udoit-file-${mostRecentFileId}`)
+        if(fileElement) {
+          fileElement.focus() 
+        }
+        const dialog = document.getElementById(dialogId)
+        if (dialog) {
+          dialog.removeEventListener('keydown', handleEscapeKey)
+        }
+      }
+    }
+  }, [widgetState])
 
 
   const isDialogOpen = () => {
@@ -351,21 +386,13 @@ export default function ReviewFilesPage({
 
   const openDialog = () => {
     setWidgetState(WIDGET_STATE.FIXIT)
-
-    const dialog = document.getElementById(dialogId)
-    if(dialog) {
-      dialog.showModal()
-    }
+    setModalActive(true)
   }
 
   const closeDialog = () => {
     setWidgetState(WIDGET_STATE.LIST)
+    setModalActive(false)
     setActiveIssue(null)
-
-    const dialog = document.getElementById(dialogId)
-    if(dialog) {
-      dialog.close()
-    }
   }
 
   const getFileTypeDisplay = (fileType) => {
@@ -610,7 +637,7 @@ export default function ReviewFilesPage({
         contentUrl: contentUrl,
         contentId: contentId,
         contentType: contentType,
-        sectionIds: sectionIds?.length > 0 ? sectionIds : []
+        sectionIds: sectionIds?.length > 0 ? sectionIds : [],
       }
 
       return contentItemOption
@@ -653,11 +680,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     return postSectionOptions
   }
 
-  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption) => {
+  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption, fileId) => {
     const responseStatus = []
     try{
       let api = new Api(settings)
-      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption)
+      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption, fileId)
       const response = await responseStr.json()
       if (response.errors && response.errors.length > 0) {
       response.errors.forEach((error) => {
@@ -741,7 +768,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       const postSectionOptions = getSectionPostOptions(updatedFileData, sectionReferences)
 
       if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, updatedFileData.id)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
@@ -828,7 +855,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
 
     if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, activeFile.id)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
@@ -878,6 +905,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
 
     setActiveIssue(filteredFiles[filteredFileIndex])
+    setMostRecentFileId(fileId)
     openDialog()
   }
 
@@ -895,6 +923,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     else if (newIndex >= filteredFiles.length) {
       newIndex = 0
     }
+    setMostRecentFileId(filteredFiles[newIndex].id)
     setActiveIssue(filteredFiles[newIndex])
   }
 
@@ -922,7 +951,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       { widgetState === WIDGET_STATE.LOADING ? (
         <></>
       ) : (
-        <>
+        <div
+          inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
+          aria-hidden={widgetState === WIDGET_STATE.FIXIT}
+          >
           <h1 className="pageTitle">{t('files.title')}</h1>
           <p className="pageSubtitle">{t('files.subtitle')}</p>
 
@@ -955,12 +987,19 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
-      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
+      <div
+        id={dialogId}
+        role="dialog"
+        aria-modal="true"
+        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`}
+        onClose={closeDialog}
+        aria-labelledby="ufixit-dialog-title"
+        >
         <div className='flex-column h-100'>
           <div className='dialog-header'>
-            <h2>{t(`form.file.title`)}</h2>
+            <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
             <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
            <div className="dialog-content">
@@ -1042,7 +1081,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </button>
           </div>
         </div>
-      </dialog>
+      </div>
     </>
   )
 }
