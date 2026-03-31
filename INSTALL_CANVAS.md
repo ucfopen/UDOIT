@@ -123,10 +123,10 @@ UDOIT is built to support more than one LMS instance. For this purpose, we have 
 - `LMS_DOMAIN` = The Canvas domain name of your institution (i.e. `myschool.instructure.com`)
 - `LMS_ID` = `canvas`
 - `LMS_ACCOUNT_ID` = The Canvas account ID (as a string, i.e `"1"` instead of `1`) where UDOIT will be installed.
-- `CREATED` = Date in the format `YYYY-MM-DD`(i.e. `2026-03-27`)
+- `CREATED` = Date in the format `YYYY-MM-DD` (i.e. `2026-03-27`)
 - `STATUS` = `1` if you are using MySQL or MariaDB (or Docker), `true` if you are using PostgreSQL.
 - `VANITY_URL` = Your LMS vanity URL (i.e. `canvas.myschool.edu`)
-- `METADATA`(Optional) =  Institution-specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"en"}`)
+- `METADATA` (Optional) =  Institution-specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"en"}`)
 - `API_CLIENT_ID` = The ID of the developer API key you created earlier
 - `API_CLIENT_SECRET` = The secret for the API key you created earlier
 

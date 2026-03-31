@@ -27,7 +27,7 @@ To quickly access your terminal:
 - On Windows: Press `Windows key + X` and select `PowerShell`. This will open a window for you to navigate to the folder you want UDOIT installed in.
 - On MacOS: Press `Cmd + Space`, type in `Terminal` and hit `Enter`.
 - On Linux: Press `Ctrl + Alt + T` and search for `Terminal` or `Console`.   
->Note: Continuing with the following process in the `main` branch may mean working with changes in the latest development cycle. If you want to work on a stable release, go to the [release tags](https://github.com/dmols/UDOIT/tags) to find the version you want to work with, and follow the installation instructions from there!*
+>Note: Continuing with the following process in the `main` branch may mean working with changes in the latest development cycle. If you want to work on a stable release, go to the [release tags](https://github.com/dmols/UDOIT/tags) to find the version you want to work with, and follow the installation instructions from there!
 
 Follow these steps:
 
@@ -94,7 +94,7 @@ UDOIT should be installed and running as Docker containers. You won't see any da
 #### Stopping the UDOIT containers
 To stop the UDOIT containers, run `make down` on your terminal.
 
-*Please be sure to review the `makefile` for more information on what this command and others do.*
+*Please be sure to review the `Makefile` for more information on what this command and others do.*
 
 If UDOIT is running without errors, you can move on to [installing it for your LMS](#connecting-udoit-to-an-lms)! If you're encountering errors, please check out the [wiki](https://github.com/ucfopen/UDOIT/wiki).
 
