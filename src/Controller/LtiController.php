@@ -9,12 +9,12 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
-use \Firebase\JWT\JWT;
+use Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LtiController extends AbstractController
 {
@@ -80,7 +80,7 @@ class LtiController extends AbstractController
         $jwks = $this->getPublicJwks();
         $publicKey = JWK::parseKeySet($jwks);
         JWT::$leeway = 60;
-        $token = JWT::decode($jwt, $publicKey, ['RS256']);
+        $token = JWT::decode($jwt, $publicKey);
 
         // Issuer should match previously defined issuer
         $this->claimMatchOrExit('iss', $this->session->get('iss'), $token->iss);

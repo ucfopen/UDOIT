@@ -8,11 +8,10 @@ use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
-use Mpdf\Mpdf;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 
 class ReportsController extends ApiController
@@ -127,70 +126,5 @@ class ReportsController extends ApiController
 
         // Construct Response
         return new JsonResponse($apiResponse);
-    }
-
-    #[Route('/download/courses/{course}/reports/pdf', methods: ['GET'], name: 'get_report_pdf')]
-    public function getPdfReport(
-        Request $request,
-        UtilityService $util,
-        Course $course
-    ): Response {
-        $this->request = $request;
-        $this->util = $util;
-
-        try {
-            /** @var User $user */
-            $user = $this->getUser();
-            /** @var \App\Entity\Institution $institution */
-            $institution = $user->getInstitution();
-          
-            $metadata = $institution->getMetadata();
-            $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
-            
-            $content = [];
-            foreach ($course->getContentItems() as $item) {
-                $issues = $item->getIssues();
-
-                if (count($issues)) {
-                    $issueCount = ['error' => [], 'suggestion' => []];
-                    foreach ($issues as $issue) {
-                        if (!isset($issueCount[$issue->getType()][$issue->getScanRuleId()])) {
-                            $issueCount[$issue->getType()][$issue->getScanRuleId()] = 0;
-                        }
-                        $issueCount[$issue->getType()][$issue->getScanRuleId()]++;
-                    }
-
-                    $content[] = [
-                        'title' => $item->getTitle(),
-                        'type' => $item->getContentType(),
-                        'issues' => $issueCount,
-                    ];
-                }
-            }
-
-
-            // Generate Twig Template
-            $html = $this->renderView(
-                'report.html.twig',
-                [
-                    'course' => $course,
-                    'report' => $course->getLatestReport(),
-                    'content' => $content,
-                    'labels' => (array) $this->util->getTranslation($lang),
-                ]
-            );
-
-            // Generate PDF
-            $mPdf = new Mpdf(['tempDir' => '/tmp']);
-            $mPdf->WriteHTML($html);
-
-            return $mPdf->Output('udoit_report.pdf', \Mpdf\Output\Destination::DOWNLOAD);
-        }
-        catch(\Exception $e) {
-            $apiResponse = new ApiResponse();
-            $apiResponse->addMessage($e->getMessage());
-            
-            return new JsonResponse($apiResponse);
-        }
     }
 }

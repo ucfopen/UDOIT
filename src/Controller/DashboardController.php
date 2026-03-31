@@ -11,7 +11,7 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends AbstractController
 {

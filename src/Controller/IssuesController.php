@@ -10,7 +10,7 @@ use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IssuesController extends ApiController
