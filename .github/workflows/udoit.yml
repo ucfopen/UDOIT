@@ -57,16 +57,16 @@ jobs:
       # - name: Yarn test
       #   run: yarn test
 
-      - name: Start and initialize Postgres
-        env:
-          DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
-        run: |
-          sudo systemctl start postgresql.service
-          sudo -u postgres psql -c "CREATE DATABASE udoit;"
-          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';"
-          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;"
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;"
-          php bin/console doctrine:migrations:migrate
+      # - name: Start and initialize Postgres
+      #   env:
+      #     DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
+      #   run: |
+      #     sudo systemctl start postgresql.service
+      #     sudo -u postgres psql -c "CREATE DATABASE udoit;"
+      #     sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';"
+      #     sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;"
+      #     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;"
+      #     php bin/console doctrine:migrations:migrate
 
       - name: Create and populate MySQL database
         env:
