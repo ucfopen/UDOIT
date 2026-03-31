@@ -157,6 +157,26 @@ export default function CoursePage({
     setFilteredCourses(tempFilteredCourses)
 
   }, [courses, searchTerm, tableSettings])
+
+  const getCombinedCourse = () => {
+    let combinedCourse = {}
+    combinedCourse.allReports = []
+    combinedCourse.issues = []
+    combinedCourse.instructors = []
+    Object.values(courses).forEach(course => {
+       course?.allReports?.forEach((report) => {
+         combinedCourse.allReports.push(report)
+       })
+       course?.instructors?.forEach((instructor) => {
+        combinedCourse.instructors.push(instructor)
+       })
+       course?.issues?.forEach((issue) => {
+        combinedCourse.issues.push(issue)
+       })
+    })
+    combinedCourse.title = "All Courses"
+    return combinedCourse
+  }
   
   const handleTableSettings = (newSettings) => {
     setTableSettings(Object.assign({}, tableSettings, newSettings))
@@ -349,7 +369,7 @@ export default function CoursePage({
           <div className="flex-row justify-content-end mt-3 mb-2">
             <button
               className="btn btn-primary flex-row justify-content-center"
-              onClick={() => handleReportClick(null)}
+              onClick={() => handleReportClick(getCombinedCourse())}
             >
               <ReportIcon className="icon-md me-2" />
               <div className="flex-column justify-content-center">{t('report.button.view_all_report')}</div>
