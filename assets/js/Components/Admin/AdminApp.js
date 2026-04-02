@@ -8,6 +8,8 @@ import MessageTray from "../Widgets/MessageTray";
 import AdminFilters from "../Admin/AdminFilters";
 import ProgressIcon from "../Icons/ProgressIcon";
 
+import { ISSUE_FILTER } from "../../Services/Settings";
+
 import "../../../css/udoit4-theme.css";
 
 export default function AdminApp(initialData) {
@@ -26,7 +28,9 @@ export default function AdminApp(initialData) {
   };
 
   const [messages, setMessages] = useState(initialData.messages || []);
-  const [settings, setSettings] = useState(initialData.settings || null);
+  const [settings, setSettings] = useState(
+    Object.assign({}, initialData?.settings || {}, { ISSUE_FILTER }),
+  );
   const [courses, setCourses] = useState({});
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [filters, setFilters] = useState({ ...initialFilters });

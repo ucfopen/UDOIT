@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import ResolutionsReport from "../Reports/ResolutionsReport";
 import ReportsTable from "../Reports/ReportsTable";
 import IssuesTable from "../Reports/IssuesTable";
+import { formNameFromRule } from "../../Services/Ufixit";
+import StatusPill from "../Widgets/StatusPill";
 import ProgressIcon from "../Icons/ProgressIcon";
 import "../ReportsPage.css";
 
@@ -11,15 +13,6 @@ export default function ReportsPage({ t, settings, filters, selectedCourse }) {
   const [selectedCourseReports, setSelectedCourseReports] = useState(null);
   const [issues, setIssues] = useState(null);
   const [instructors, setInstructors] = useState([]);
-
-  const ISSUE_STATE = {
-    UNCHANGED: 0,
-    SAVING: 1,
-    RESOLVING: 2,
-    SAVED: 3,
-    RESOLVED: 4,
-    ERROR: 5,
-  };
 
   const getReportHistory = () => {
     setGroupedReports(normalizeResolutionReports());
@@ -44,32 +37,92 @@ export default function ReportsPage({ t, settings, filters, selectedCourse }) {
   };
 
   const normalizeIssues = () => {
-    let issues = selectedCourse.issues;
-    const grouped = issues.reduce((acc, issue) => {
-      const { scanRuleId, type, status } = issue;
+    let rules = [];
 
-      if (!acc[scanRuleId]) {
-        acc[scanRuleId] = {
-          label: scanRuleId,
-          type: type,
+    for (let issue of selectedCourse.issues) {
+      const rule = issue.scanRuleId;
+      const status = issue.status;
+
+      if (!rules[rule]) {
+        rules[rule] = {
+          id: rule,
+          type: issue.type,
+          severity:
+            issue.type === "error"
+              ? t("filter.label.severity.issue")
+              : t("filter.label.severity.potential"),
           active: 0,
-          handled: 0,
+          resolved: 0,
           total: 0,
         };
       }
 
-      acc[scanRuleId].total += 1;
-
-      if (status === 0) {
-        acc[scanRuleId].active += 1;
-      } else if (status === 1 || status === 2) {
-        acc[scanRuleId].handled += 1;
+      rules[rule]["total"]++;
+      if (0 === status) {
+        rules[rule]["active"]++;
+      } else {
+        rules[rule]["resolved"]++;
       }
+    }
 
-      return acc;
-    }, {});
+    let tempIssues = Object.values(rules);
+    tempIssues.map((issue) => {
+      let label = "";
+      let formName = formNameFromRule(issue.id);
+      if (formName === "review_only") {
+        label = t("report.label.unhandled") + issue.id;
+      } else {
+        label = t(`form.${formName}.title`);
+      }
+      issue.display = label;
+      issue.label = <span className="issue-label">{label}</span>;
+      issue.label_display = label;
+      issue.summary = t(`form.${formName}.summary`);
+      return issue;
+    });
 
-    return Object.values(grouped);
+    let mergedIssues = [];
+    let labels = [];
+    tempIssues.forEach((issue) => {
+      if (!labels.includes(issue.label_display)) {
+        labels.push(issue.label_display);
+        if (issue.type === "error" || issue.type === "issue") {
+          issue.type = (
+            <StatusPill
+              t={t}
+              settings={settings}
+              issue={{
+                status: settings.ISSUE_FILTER.ACTIVE,
+                severity: settings.ISSUE_FILTER.ISSUE,
+              }}
+            />
+          );
+          issue.type_display = t("filter.label.severity.issue");
+        } else if (issue.type === "potential" || issue.type === "suggestion") {
+          issue.type = (
+            <StatusPill
+              t={t}
+              settings={settings}
+              issue={{
+                status: settings.ISSUE_FILTER.ACTIVE,
+                severity: settings.ISSUE_FILTER.POTENTIAL,
+              }}
+            />
+          );
+          issue.type_display = t("filter.label.severity.potential");
+        }
+        mergedIssues.push(issue);
+      } else {
+        let index = mergedIssues.findIndex(
+          (i) => i.label_display === issue.label_display,
+        );
+        mergedIssues[index].total += issue.total;
+        mergedIssues[index].active += issue.active;
+        mergedIssues[index].resolved += issue.resolved;
+      }
+    });
+
+    return mergedIssues;
   };
 
   useEffect(() => {
