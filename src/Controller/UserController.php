@@ -36,14 +36,11 @@ class UserController extends AbstractController
             // Check if user is updating their own info
             $userIdFromSession = $sessionService->getSession()->get('userId');
 
-            $output->writeln(json_encode($userIdFromSession));
-            $output->writeln(json_encode($user->getId()));
             if ($user->getId() !== $userIdFromSession) {
                 throw new \Exception("msg.no_permissions");
             }
 
             $userVals = \json_decode($request->getContent(), true);
-
             
             $oldRoles = $user->getRoles();
             $oldLang = $oldRoles['lang'] ?? 'en';
@@ -55,8 +52,8 @@ class UserController extends AbstractController
 
             $user->setRoles($newRoles);
             if (empty($userVals['hasApiKey'])) {
-            $user->setApiKey('');
-            $user->setRefreshToken('');
+                $user->setApiKey('');
+                $user->setRefreshToken('');
             }
 
             $responseObject = [

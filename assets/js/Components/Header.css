@@ -91,7 +91,6 @@
         margin: 0 0 0 0;
         padding: 0px 3px;
         gap: .25em;
-        z-index: 100;
 
         li {
           color: var(--text-secondary-color);

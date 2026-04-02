@@ -37,9 +37,9 @@
     --primary-color-inverse: var(--gray-lightest);
     --primary-color-disabled: #B2D2C3;
 
-    --selection-color-light: #F7FEF9;
+    --selection-color-background: #F7FEF9;
 
-    --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
+    --info-color-background: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
 
     --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
     --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
@@ -65,8 +65,8 @@
     --pill-info-background: #EFF6FF;
     --pill-info-text: var(--file-color);
 
-    --help-color: #F5E9C3;
-    --help-color-light: #FFFBEB;
+    --help-color-border: #F5E9C3;
+    --help-color-background: #FFFBEB;
     --help-color-text: #BB4D00;
 
     --background-color: var(--gray-lightest);
@@ -130,11 +130,11 @@
 
     &.dark-mode {
 
-      --white: #242B48;
+      --white: #090A11; /* #242B48; */
       --gray-lightest: #2E3856;
       --gray-lighter: #2E3856;
-      --gray-light: #767676;
-      --gray: #CCCCCC;
+      --gray-light: #A2A2A2;
+      --gray: #D9D9D9;
       --gray-dark: #E2E2E2;
       --gray-darker: #F7F7F7;
       --black: #FFFFFF;
@@ -150,8 +150,7 @@
       --primary-color: #1DA54F;
       --success-color: #1DA54F;
       --selection-color: #1DA54F;
-      --error-color: #940007;
-      --potential-color: #BB4D00;
+      --potential-color: #FF8904;
       --file-color: #5BA1FF;
       --info-color: #5BAEDF;
       --link-color: #79BAFF;
@@ -165,39 +164,39 @@
       --primary-color-inverse: var(--gray-lightest);
       --primary-color-disabled: #B2D2C3;
 
-      --selection-color-light: #F7FEF9;
+      --selection-color-background: #072211;
 
-      --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
+      --info-color-background: #103B56;
 
       --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
       --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
       --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
       
-      --text-secondary-color: #B6B9C7; /* #4A5565; #2F3741; */
+      --text-secondary-color: #D9D9D9; /* #B6B9C7; #4A5565; #2F3741; */
       --text-disabled-color: #8B95A7; /* #D1D5DC; */
 
       /* PILLS have three colors: border color, light background color, and text color */
-      --pill-success-border: #62FF9C;
-      --pill-success-background: #2B4C5A;
+      --pill-success-border: var(--success-color);
+      --pill-success-background: #213A45; /* #2B4C5A; */
       --pill-success-text: var(--success-color);
 
-      --pill-warning-border: #584245;
-      --pill-warning-background: #44191A;
+      --pill-warning-border: #B86200; /* #584245; */
+      --pill-warning-background: #331B00; /* #44191A; */
       --pill-warning-text: #FF8904;
 
-      --pill-error-border: #EF141E;
-      --pill-error-background: #44191A;
+      --pill-error-border: #AB0B13; /* #EF141E; */
+      --pill-error-background: #300306; /* #44191A; */
       --pill-error-text: #EF141E;
 
       --pill-info-border: #5BA1FF;
       --pill-info-background: #323F72;
       --pill-info-text: var(--file-color);
 
-      --help-color: #3C4766;
-      --help-color-light: #324e6c;
+      --help-color-border: #3C4766;
+      --help-color-background: #182634; /* #324e6c; */
       --help-color-text: var(--text-color);
 
-      --background-color: #0A092D;
+      --background-color: #15151E; /* #1F202E; #0A092D; */
       --container-color: #0A092D;
       --border-color: #505975;
       --progress-bar-background-color: var(--gray-light);
@@ -430,6 +429,7 @@
     border-radius: var(--element-radius);
     border: 2px solid var(--primary-color);
     background-color: transparent;
+    cursor: pointer;
 
     &:focus {
       outline: 2px solid var(--focus-color);
@@ -551,6 +551,11 @@
     &:disabled:focus {
       outline: none;
     }
+
+    &::placeholder {
+      color: var(--text-secondary-color);
+      opacity: 1;
+    }
   }
 
   input[type="checkbox"] {
@@ -571,6 +576,21 @@
     outline: 2px solid var(--focus-color);
   }
 
+  .dialog-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--backdrop-color);
+    z-index: 50;
+    display: none;
+
+    &.open {
+      display: block;
+    }
+  }
+
   dialog,
   div[role="dialog"] {
     width: 90vw;
@@ -584,24 +604,13 @@
     box-shadow: 0 0 10px var(--shadow-color);
 
     &.dialog-full-screen {
-      width: 95vw;
-      max-width: 95vw;
-      height: 95vh;
-      max-height: 95vh;
-      position: fixed;
-      top: 2.5vh;
-      left: 2.5vw;
-    }
-
-    &::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: var(--backdrop-color);
-      z-index: -1;
+      width: 95%;
+      max-width: 95%;
+      height: 95%;
+      max-height: 95%;
+      position: absolute;
+      top: 2.5%;
+      left: 2.5%;
     }
 
     > * {
@@ -675,8 +684,8 @@
     box-sizing: border-box;
 
     &.help-container {
-      background-color: var(--help-color-light);
-      border-color: var(--help-color);
+      background-color: var(--help-color-background);
+      border-color: var(--help-color-border);
       color: var(--text-secondary-color);
     }
 
@@ -771,7 +780,7 @@
     padding: 0px !important;
     margin: 0px !important;
     border-left: none !important;
-    max-width: 1400px;
+    max-width: 90em;
     overflow: hidden;
   }
 
@@ -782,6 +791,7 @@
     border-radius: var(--window-radius);
     height: calc(100vh - 6px);
     max-height: 1024px;
+    width: calc(100% - 6px);
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -791,6 +801,7 @@
   main {
     height: calc(100vh - 3.5em);
     min-height: 20em;
+    width: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
