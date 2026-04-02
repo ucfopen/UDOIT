@@ -37,7 +37,9 @@
         "test": "IGNORE_CONSOLE_ERRORS=1 IGNORE_CONSOLE_WARNINGS=1 jest",
         "test:noErrors": "IGNORE_CONSOLE_ERRORS=1 jest",
         "test:noWarns": "IGNORE_CONSOLE_WARNINGS=1 jest",
-        "test:noIgnore": "jest"
+        "test:noIgnore": "jest",
+        "lint": "eslint",
+        "pretty": "prettier --write"
     },
     "dependencies": {
         "axios": "1.10.0",
