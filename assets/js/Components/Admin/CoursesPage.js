@@ -63,9 +63,9 @@ export default function CoursePage({
         // The Course data from the database is stored in the `course` object.
         // The data for the table is converted to the `row` object.
         const names = Array.isArray(course.instructors) ? course.instructors : []
-        const hasReport = course.hasReport || (course.report && course.report.id)
+        const hasReport = course.hasReport || (course.latestReport && course.latestReport.id)
         const publicUrl = course.publicUrl !== '---' && course.publicUrl !== '-' ? course.publicUrl : null
-        const scanCounts = course.report?.scanCounts || {};
+        const scanCounts = course.latestReport?.scanCounts || {};
         const barriers = scanCounts.errors || 0;
         const suggestions = scanCounts.suggestions || 0;
         let row = {
@@ -76,11 +76,11 @@ export default function CoursePage({
           courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
           accountName: course.accountName || '---',
           lastUpdated: course.lastUpdated || '---',
-          barriers: hasReport && course.report ? barriers : '---',
-          suggestions: hasReport && course.report ? suggestions : '---',
-          contentFixed: hasReport && course.report ? course.report.contentFixed : '---',
-          contentResolved: hasReport && course.report ? course.report.contentResolved : '---',
-          filesReviewed: hasReport && course.report ? course.report.filesReviewed : '---',
+          barriers: hasReport && course.latestReport ? barriers : '---',
+          suggestions: hasReport && course.latestReport ? suggestions : '---',
+          contentFixed: hasReport && course.latestReport ? course.latestReport.contentFixed : '---',
+          contentResolved: hasReport && course.latestReport ? course.latestReport.contentResolved : '---',
+          filesReviewed: hasReport && course.latestReport ? course.latestReport.filesReviewed : '---',
           action: <div className="flex-row gap-1">
             <button key={`reportButton${course.id}`}
               onClick={() => { !course.loading && !isAnyScanning && hasReport && handleReportClick(course) }}
@@ -105,7 +105,7 @@ export default function CoursePage({
           </div>
             
         }
-        tempFilteredCourses.push({...course.report, ...row,})
+        tempFilteredCourses.push({...course.latestReport, ...row,})
       }
     })
 
@@ -188,7 +188,7 @@ export default function CoursePage({
           
           if (response.data && response.data.courseId) {
             // Update the course object with the new UDOIT ID and instructors
-            course.udoitId = response.data.courseId
+            course.udoitId = response.data.courseId``
             const newCourseId = response.data.courseId
             
             // Update instructors if they were fetched
@@ -313,7 +313,7 @@ export default function CoursePage({
               updatedCourse.oldId = originalId
             }
             
-            handleCourseUpdate(updatedCourse)
+           handleCourseUpdate(updatedCourse)
             setIsAnyScanning(false)
           }
         })
