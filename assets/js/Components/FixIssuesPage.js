@@ -913,6 +913,7 @@ export default function FixIssuesPage({
           />
         </div>
       ) }
+      <div className={`dialog-backdrop ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`} />
       <div
         id={dialogId}
         role="dialog"

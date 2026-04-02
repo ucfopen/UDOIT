@@ -31,7 +31,7 @@
 
   &.selected {
     border-color: var(--selection-color);
-    background-color: var(--selection-color-light);
+    background-color: var(--selection-color-background);
   }
 
   .option-label {
@@ -121,8 +121,8 @@
 }
 
 .dialog-indicator-background {
-  background-color: var(--help-color-light);
-  border: 1px solid var(--help-color);
+  background-color: var(--help-color-background);
+  border: 1px solid var(--help-color-border);
   border-radius: var(--element-radius);
   padding: .75rem 1rem;
 }
@@ -143,8 +143,8 @@
 }
 
 .indicator-container {
-  border: 1px solid var(--help-color);
-  background-color: var(--white);
+  border: 1px solid var(--help-color-border);
+  background-color: var(--help-color-background);
   border-radius: 2rem;
   display: flex;
   align-self: center;
@@ -166,7 +166,7 @@
 
 .clarification-container {
   padding-top: .5rem;
-  border-top: 1px solid var(--help-color);
+  border-top: 1px solid var(--help-color-border);
   margin-top: .5rem;
 
   .clarification-text {

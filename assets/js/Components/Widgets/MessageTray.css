@@ -40,7 +40,7 @@
 
     &.info {
       border: 1px solid var(--info-color);
-      background-color: var(--info-color-light);
+      background-color: var(--info-color-background);
     }
 
     &:hover {
