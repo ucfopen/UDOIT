@@ -55,13 +55,13 @@
 
     --pill-warning-border: #FEE685;
     --pill-warning-background: #FFFBEB;
-    --pill-warning-text: #BB4D00;
+    --pill-warning-text: #992E00; /* #BB4D00; */
 
     --pill-error-border: #FFC9C9; /* #D34F4F; */
     --pill-error-background: #FFEBEB;
-    --pill-error-text: #8D0D0D;
+    --pill-error-text: #750B0B; /* #8D0D0D; */
 
-    --pill-info-border: #DBEAFE;
+    --pill-info-border: #9CC6FC; /* #DBEAFE; */
     --pill-info-background: #EFF6FF;
     --pill-info-text: var(--file-color);
 
@@ -147,9 +147,9 @@
       --text-color: var(--black);
 
       /* Main Color Palette */
-      --primary-color: #1DA54F;
-      --success-color: #1DA54F;
-      --selection-color: #1DA54F;
+      --primary-color: #1DAF55; /* #1DA54F; */
+      --success-color: #1DAF55; /* #1DA54F; */
+      --selection-color: #1DAF55; /* #1DA54F; */
       --potential-color: #FF8904;
       --file-color: #5BA1FF;
       --info-color: #5BAEDF;
@@ -161,10 +161,10 @@
       --primary-color-dark: var(--primary-color);
       --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
       --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
-      --primary-color-inverse: var(--gray-lightest);
+      --primary-color-inverse: var(--white);
       --primary-color-disabled: #B2D2C3;
 
-      --selection-color-background: #072211;
+      --selection-color-background: #092A15;
 
       --info-color-background: #103B56;
 
@@ -177,29 +177,29 @@
 
       /* PILLS have three colors: border color, light background color, and text color */
       --pill-success-border: var(--success-color);
-      --pill-success-background: #213A45; /* #2B4C5A; */
+      --pill-success-background: #072C15; /* #2B4C5A; */
       --pill-success-text: var(--success-color);
 
       --pill-warning-border: #B86200; /* #584245; */
       --pill-warning-background: #331B00; /* #44191A; */
-      --pill-warning-text: #FF8904;
+      --pill-warning-text: #FFE7CC; /* #FF8904; */
 
       --pill-error-border: #AB0B13; /* #EF141E; */
       --pill-error-background: #300306; /* #44191A; */
-      --pill-error-text: #EF141E;
+      --pill-error-text: #FFDBDD; /* #EF141E; */
 
       --pill-info-border: #5BA1FF;
-      --pill-info-background: #323F72;
+      --pill-info-background: #00214d; /* #323F72; */
       --pill-info-text: var(--file-color);
 
       --help-color-border: #3C4766;
       --help-color-background: #182634; /* #324e6c; */
       --help-color-text: var(--text-color);
 
-      --background-color: #15151E; /* #1F202E; #0A092D; */
-      --container-color: #0A092D;
+      --background-color: #21212c; /* #1F202E; #0A092D; */
+      --container-color: #21212c;
       --border-color: #505975;
-      --progress-bar-background-color: var(--gray-light);
+      --progress-bar-background-color: #4D4D4D; /* var(--gray-light); */
       --progress-bar-color: var(--primary-color);
       --shadow-color: #FFFFFF44;
       --backdrop-color: rgba(256, 256, 256, 0.25);
@@ -253,6 +253,10 @@
     color: var(--text-secondary-color);
     font-weight: 300;
     max-width: 80%;
+  }
+
+  .secondary {
+    color: var(--text-secondary-color);
   }
 
   .subtext {
@@ -421,7 +425,7 @@
     min-height: 2.5em;
     height: 100%;
     border-radius: var(--element-radius);
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--border-color);
     background-color: transparent;
     cursor: pointer;
 
@@ -570,6 +574,26 @@
     outline: 2px solid var(--focus-color);
   }
 
+  svg.close-icon {
+    cursor: pointer;
+    padding: .2rem;
+    margin-inline-end: -.5rem;
+    border: 1px solid transparent;
+    fill: var(--text-color);
+    box-shadow: none;
+    border-radius: 50%;
+
+    &:hover,
+    &:focus {
+      background-color: var(--gray-lighter);
+    }
+
+    &:focus {
+      outline-offset: -2px;
+      outline: 2px solid var(--focus-color);
+    }
+  }
+
   .dialog-backdrop {
     position: absolute;
     top: 0;
@@ -579,6 +603,7 @@
     background-color: var(--backdrop-color);
     z-index: 50;
     display: none;
+    backdrop-filter: blur(3px);
 
     &.open {
       display: block;
@@ -634,26 +659,6 @@
         align-self: center;
         margin: 0;
       }
-
-      .close-icon {
-        cursor: pointer;
-        padding: .2rem;
-        margin-inline-end: -.5rem;
-        border: 1px solid transparent;
-        fill: var(--text-color);
-        box-shadow: none;
-        border-radius: 50%;
-
-        &:hover,
-        &:focus {
-          background-color: var(--gray-lighter);
-        }
-
-        &:focus {
-          outline-offset: -2px;
-          outline: 2px solid var(--focus-color);
-        }
-      }
     }
 
     .dialog-content {
@@ -705,6 +710,7 @@
     fill: var(--text-color);
     padding: 0.15rem .6rem;
     font-size: calc(.8 * var(--font-size));
+    font-weight: 400;
     align-self: center;
     align-items: center;
     width: fit-content;
@@ -713,8 +719,8 @@
       border-color: var(--pill-error-border);
       background-color: var(--pill-error-background);
       color: var(--pill-error-text);
-      fill: var(--pill-error-text);
-      stroke: var(--pill-error-text);
+      fill: var(--error-color);
+      stroke: var(--error-color);
     }
 
     &.potential,
@@ -722,8 +728,8 @@
       border-color: var(--pill-warning-border);
       background-color: var(--pill-warning-background);
       color: var(--pill-warning-text);
-      fill: var(--pill-warning-text);
-      stroke: var(--pill-warning-text);
+      fill: var(--potential-color);
+      stroke: var(--potential-color);
     }
 
     &.fixed,
@@ -774,17 +780,15 @@
     padding: 0px !important;
     margin: 0px !important;
     border-left: none !important;
-    max-width: 90em;
     overflow: hidden;
   }
 
   #app-container {
     position: relative;
     margin: 0px 6px 6px 0px;
-    padding: 0 1rem;
+    padding: 0;
     border-radius: var(--window-radius);
     height: calc(100vh - 6px);
-    max-height: 1024px;
     width: calc(100% - 6px);
     display: flex;
     flex-direction: column;
@@ -795,12 +799,13 @@
   main {
     height: calc(100vh - 3.5em);
     min-height: 20em;
-    width: 100%;
+    width: stretch;
+    max-width: 85em;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    margin: 0 -1rem;
+    margin: 0 auto;
     padding: 0 1rem 1rem 1rem;
   }
 }
@@ -1290,33 +1295,21 @@
   }
 
   .udoit-issue,
-  .color-issue {
-    color: var(--pill-error-text);
-    fill: var(--pill-error-text);
-  }
-
+  .color-issue,
   .udoit-issue-highlight {
-    color: var(--error-color);
+    color: var(--pill-error-text);
     fill: var(--error-color);
   }
 
   .udoit-potential,
-  .color-potential {
-    color: var(--pill-warning-text);
-    fill: var(--pill-warning-text);
-  }
-
+  .color-potential,
   .udoit-potential-highlight {
-    color: var(--potential-color);
+    color: var(--pill-warning-text);
     fill: var(--potential-color);
   }
 
   .udoit-file,
-  .color-file {
-    color: var(--pill-info-text);
-    fill: var(--pill-info-text);
-  }
-
+  .color-file,
   .udoit-file-highlight {
     color: var(--file-color);
     fill: var(--file-color);

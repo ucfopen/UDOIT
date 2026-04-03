@@ -107,7 +107,7 @@
     }
 
     .progress-bar-container {
-      background-color: var(--pill-error-border);
+      background-color: var(--progress-bar-background-color);
 
       .progress-bar-fill {
         background-color: var(--error-color);
@@ -117,17 +117,17 @@
 
   &.type-potential {
     &.emphasis {
-      border-color: var(--potential-border);
-      background: linear-gradient(90deg, var(--potential-background), var(--white));
+      border-color: var(--pill-warning-border);
+      background: linear-gradient(90deg, var(--pill-warning-background), var(--white));
     }
 
     &:not(.emphasis) .summary-icon-container {
-      border-color: var(--potential-border);
-      background-color: var(--potential-background);
+      border-color: var(--pill-warning-border);
+      background-color: var(--pill-warning-background);
     }
 
     .progress-bar-container {
-      background-color: var(--potential-border);
+      background-color: var(--progress-bar-background-color);
 
       .progress-bar-fill {
         background-color: var(--potential-color);
@@ -147,7 +147,7 @@
     }
 
     .progress-bar-container {
-      background-color: var(--pill-info-border);
+      background-color: var(--progress-bar-background-color);
 
       .progress-bar-fill {
         background-color: var(--file-color);

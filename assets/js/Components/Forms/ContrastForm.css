@@ -88,7 +88,7 @@
       border-color: var(--error-color);
 
       .ratio-value {
-        color: var(--pill-error-text);
+        color: var(--error-color);
       }
     }
 
