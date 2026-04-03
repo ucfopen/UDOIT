@@ -38,7 +38,9 @@
         "test:noErrors": "IGNORE_CONSOLE_ERRORS=1 jest",
         "test:noWarns": "IGNORE_CONSOLE_WARNINGS=1 jest",
         "test:noIgnore": "jest",
-        "lint": "eslint",
+        "lint": "eslint --cache --cache-location \"node_modules/.cache/.eslintcache\"",
+        "lint-all": "eslint . --cache --cache-location \"node_modules/.cache/.eslintcache\"",
+        "lint:fix-all": "eslint . --cache --cache-location \"node_modules/.cache/.eslintcache\" --fix",
         "pretty": "prettier --write"
     },
     "dependencies": {
