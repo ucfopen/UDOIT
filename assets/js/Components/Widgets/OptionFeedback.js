@@ -18,7 +18,7 @@ export default function OptionFeedback ({
               {feedback.type === 'warning' && (
                 <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2"/>
               )}
-              <div className={feedback.type === 'error' ? 'color-issue' : 'color-potential'}>{feedback.text}</div>
+              <div className='secondary'>{feedback.text}</div>
             </div>
           )}
         </div>

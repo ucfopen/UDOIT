@@ -54,7 +54,7 @@ export default function WelcomePage({
           </button>
         </div>
         
-        <div className="welcome-footer flex-row justify-content-between ps-3 pe-3 gap-3">
+        <div className="welcome-footer flex-row justify-content-between gap-3">
           <div className="flex-column justify-content-center tagline">
             {t('welcome.version')} {settings.versionNumber}
           </div>

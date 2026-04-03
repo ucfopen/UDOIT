@@ -152,5 +152,6 @@
 }
 
 .paginationButton.selected {
-  background-color: var(--pill-info-border);
+  border-color: var(--pill-info-border);
+  background-color: var(--pill-info-background);
 }

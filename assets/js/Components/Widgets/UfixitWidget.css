@@ -412,25 +412,6 @@
   }
 }
 
-.ufixit-widget-dialog-header {
-  padding: 1rem 1rem .75rem 1rem;
-  background-color: var(--primary-color-light);
-  position: sticky;
-  top: 0;
-  box-shadow: 0 2px 2px var(--shadow-color);
-
-  .close-icon { 
-    padding: .25rem;
-    border-radius: 2rem;
-    cursor:pointer;
-    background-color: transparent;
-
-    &:hover, &:focus {
-      background-color: var(--white);
-    }
-  }
-}
-
 .ufixit-widget-dialog-content {
   padding: 0 1rem;
   color: var(--text-color);
