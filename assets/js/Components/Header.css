@@ -1,6 +1,6 @@
 @layer udoit-component {
   
-  header {
+  header#udoit-header {
     background-color: var(--white);
     border-radius: var(--window-radius) var(--window-radius) 0 0;
     margin: 0;

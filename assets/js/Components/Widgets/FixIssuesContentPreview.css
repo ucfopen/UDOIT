@@ -18,6 +18,17 @@
 }
 
 .ufixit-content-preview {
+  /* Inside the actual content preview container, we want to ensure that:
+      1. There is no dark mode styling applied.
+      2. The content looks as close as possible to how it would in the actual LMS.
+  */
+  
+  --lms-text-color: #2D3B45;
+  --lms-link-color: #1d6adb;
+  --lms-border-color: #C7CDD1;
+  --lms-text-font-family: LatoWeb, "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --lms-heading-font-family: "Lato Extended", "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  
   flex-grow: 1;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -28,6 +39,7 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-sizing: border-box;
+  background-color: #FFFFFF;
 
   .ufixit-content-preview-rescan-container {
     position: absolute;
@@ -67,10 +79,155 @@
     width: 100%;
     box-sizing: border-box;
     overflow: auto;
-    background-color: var(--white);
+    background-color: var(--lms-white);
+    color: var(--lms-text-color);
+    font-family: var(--lms-text-font-family);
+    font-weight: 300;
+
     
+    /* Canvas-mirroring Syles */
+
     h1, h2, h3, h4, h5, h6 {
-      color: var(--text-color);
+      color: var(--lms-text-color);
+      font-family: var(--lms-heading-font-family);
+      font-weight: normal;
+      margin: 6px 0;
+      line-height: 1.5;
+      text-rendering: optimizeLegibility;
+    }
+
+    h1, h2 {
+      font-size: 1.8em;
+    }
+
+    h3 {
+      font-size: 1.5em;
+    }
+
+    h4 {
+      font-size: 1.2em;
+    }
+
+    h5 {
+      font-size: 1em;
+    }
+
+    h6 {
+      font-size: .8em;
+    }
+
+    a {
+      color: var(--lms-link-color);
+      text-decoration: none;
+
+      &:not(.btn):not(.Button):not(.ui-button):not([role=button]) {
+        text-decoration: underline;
+      }
+    }
+
+    blockquote {
+      padding: 0 0 0 1em;
+      margin: 0 0 1.25em;
+      border-left: 5px solid var(--lms-border-color);
+
+      p {
+        margin-bottom: 0;
+        font-size: 1em;
+        font-weight: 300;
+        line-height: 1.5em;
+      }
+    }
+
+    code {
+      padding: 0.125rem 0.25rem;
+      color: #E0061F;
+    }
+
+    code, pre {
+      font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+      font-size: 0.75em;
+      border-radius: 6px;
+      background-color: #F5F5F5;
+      border: 1px solid var(--lms-border-color);
+    }
+
+    hr {
+      margin: 1.25em 0;
+      border: 0;
+      border-top: 1px solid var(--lms-border-color);
+    }
+
+    ol, ul {
+      padding: 0;
+      margin: 0 0 .375em 1.5em;
+    }
+    
+    p {
+      margin: .75em 0;
+    }
+
+    table {
+      max-width: 100%;
+      background-color: transparent;
+
+      &:not([cellspacing]){
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+    }
+
+    #ufixit-alt-text-preview {
+      font-family: var(--text-font-family);
+      background-color: #555555;
+      color: #FFFFFF;
+      border-radius: 8px;
+      width: fit-content;
+
+      display: flex;
+      flex-direction: row;
+      border: 2px solid #555555;
+      margin: 5px 0px;
+      
+      #ufixit-alt-text-preview-icon {
+        padding: 8px;
+        line-height: 0px;
+        fill: #FFFFFF;
+      }
+
+      #ufixit-alt-text-preview-text-container {
+        display: flex;
+        flex-direction: column;
+        padding: .5rem 1rem .5rem .25rem;
+        max-width: 20em;
+        overflow: auto;
+
+        #ufixit-alt-text-preview-label {
+          font-weight: 600;
+          font-size: 1em;
+          padding-bottom: .25em;
+          color: #FFFFFF;
+
+          a {
+            font-weight: 600 !important;
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            cursor: default !important;
+          }
+        }
+
+        #ufixit-alt-text-preview-text {
+          font-weight: 400;
+          font-size: .9em;
+          line-height: 1.4em;
+
+          a {
+            font-weight: 400 !important;
+            color: #FFFFFF !important;
+            text-decoration: none !important;
+            cursor: default !important;
+          }
+        }
+      }
     }
   }
 }
@@ -108,77 +265,25 @@
   width: 100%;
   pointer-events: none;
   z-index: 10;
-}
 
-.scroll-to-error {
-  opacity: 0.78;
-  transition: opacity var(--transition-time);
-  align-self: start;
-  pointer-events: all;
+  .scroll-to-error {
+    opacity: 0.78;
+    transition: opacity var(--transition-time);
+    align-self: start;
+    pointer-events: all;
 
-  &:hover,
-  &:focus,
-  &:active {
-    opacity: 1;
-  }
-
-  &#scroll-to-error-down {
-    align-self: end;
-  }
-}
-
-#ufixit-alt-text-preview {
-  background-color: var(--gray-dark);
-  color: var(--white);
-  border-radius: 8px;
-  width: fit-content;
-
-  display: flex;
-  flex-direction: row;
-  border: 2px solid var(--gray-dark);
-  margin: 5px 0px;
-  
-  #ufixit-alt-text-preview-icon {
-    padding: 8px;
-    line-height: 0px;
-    fill: var(--white);
-  }
-
-  #ufixit-alt-text-preview-text-container {
-    display: flex;
-    flex-direction: column;
-    padding: .5rem 1rem .5rem .25rem;
-    max-width: 20em;
-    overflow: auto;
-
-    .ufixit-alt-text-preview-label {
-      font-weight: 600;
-      font-size: 1em;
-      padding-bottom: .25em;
-      color: var(--white);
-
-      a {
-        font-weight: 600;
-        color: var(--white);
-        text-decoration: none;
-        cursor: default;
-      }
+    &:hover,
+    &:focus,
+    &:active {
+      opacity: 1;
     }
 
-    #ufixit-alt-text-preview-text {
-      font-weight: 400;
-      font-size: .9em;
-      line-height: 1.4em;
-
-      a {
-        font-weight: 400;
-        color: var(--white);
-        text-decoration: none;
-        cursor: default;
-      }
+    &#scroll-to-error-down {
+      align-self: end;
     }
   }
 }
+
 
 .ufixit-file-details {
   margin: 2rem 2rem 3rem 2rem;
@@ -245,8 +350,8 @@
         }
 
         .header-spacer {
-          width: 32px;
-          min-width: 32px;
+          width: 1.5em;
+          min-width: 1.5em;
           height: auto;
         }
       }
@@ -344,21 +449,21 @@
   font-size: 0.75em;
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *){
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *){
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):hover{
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):hover{
   background-color: rgb(207, 207, 207) !important;
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview .ufixit-alt-text-preview *):focus{
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):focus{
   background-color: rgb(207, 207, 207) !important;
 }
 
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):has(:hover){
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):has(:hover){
   background-color: transparent !important;
 }
 

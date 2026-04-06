@@ -59,6 +59,7 @@ export default function SliderSelect({
           role="button"
           >
           <label aria-hidden="true">
+            {option.name}
             <input
               type="radio"
               id={option.value}
@@ -69,7 +70,6 @@ export default function SliderSelect({
               onChange={() => {
                 setActiveOption(option.value)
               }} />
-            {option.name}
           </label>
         </div>
       ))}
