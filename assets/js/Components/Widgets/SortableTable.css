@@ -41,7 +41,7 @@
         }
 
         &.divider {
-          border-right: 2px solid var(--primary-color-inverse);
+          border-right: 2px solid var(--border-color);
         }
 
         svg {
@@ -49,8 +49,8 @@
         }
 
         .header-spacer {
-          width: 32px;
-          min-width: 32px;
+          width: 1.5em;
+          min-width: 1.5em;
           height: auto;
         }
       }
@@ -92,7 +92,7 @@
         }
 
         &.divider {
-          border-right: 2px solid var(--primary-color);
+          border-right: 2px solid var(--border-color);
         }
       }
 

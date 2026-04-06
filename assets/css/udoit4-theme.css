@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 @layer udoit-base-theme, udoit-layout, udoit-component, udoit-modifier;
 
@@ -77,6 +78,7 @@
     --shadow-color: #00000044;
     --backdrop-color: rgba(0, 0, 0, 0.25);
 
+    --content-max-width: 80em;
     --spacer: 1rem;
     --window-radius: 16px;
     --element-radius: 8px;
@@ -147,7 +149,7 @@
       --text-color: var(--black);
 
       /* Main Color Palette */
-      --primary-color: #1DAF55; /* #1DA54F; */
+      --primary-color: #5AD88A; /* #1DAF55;#1DA54F; */
       --success-color: #1DAF55; /* #1DA54F; */
       --selection-color: #1DAF55; /* #1DA54F; */
       --potential-color: #FF8904;
@@ -194,7 +196,7 @@
 
       --help-color-border: #3C4766;
       --help-color-background: #182634; /* #324e6c; */
-      --help-color-text: var(--text-color);
+      --help-color-text: var(--text-secondary-color);
 
       --background-color: #21212c; /* #1F202E; #0A092D; */
       --container-color: #21212c;
@@ -209,7 +211,6 @@
   #app-container {
     overflow: hidden;
     border: 1px solid var(--border-color);
-    box-shadow: 3px 3px 3px var(--shadow-color);
     background-color: var(--background-color);
     font-family: var(--text-font-family);
     font-weight: 300;
@@ -442,6 +443,41 @@
     }
   }
 
+  input[type="radio"] {
+    /* Remove default appearance */
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    margin: 0;
+
+    /* Draw a circle for the border */
+    font: inherit;
+    color: var(--text-color);
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid var(--text-color);
+    border-radius: 50%;
+    margin-right: .75rem;
+    transition: 120ms border-width ease-in-out;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    &:checked {
+      border-color: var(--selection-color);
+      border-width: .4em;
+    }
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 2px;
+    }
+  }
+
+  .disabled > input[type="radio"] {
+    border-color: var(--text-disabled-color) !important;
+    cursor: not-allowed;
+  }
+
   /*  Customized select and options elements based on example from: 
       https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select */
 
@@ -624,12 +660,12 @@
 
     &.dialog-full-screen {
       width: 95%;
-      max-width: 95%;
+      max-width: calc(var(--content-max-width) * 0.95);
       height: 95%;
       max-height: 95%;
       position: absolute;
       top: 2.5%;
-      left: 2.5%;
+      left: calc(max((((100% - var(--content-max-width)) * .5) + (var(--content-max-width) * 0.025)), 2.5%));
     }
 
     > * {
@@ -785,11 +821,11 @@
 
   #app-container {
     position: relative;
-    margin: 0px 6px 6px 0px;
+    margin: 0;
     padding: 0;
     border-radius: var(--window-radius);
-    height: calc(100vh - 6px);
-    width: calc(100% - 6px);
+    height: 100vh;
+    width: 100%;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -800,8 +836,8 @@
     height: calc(100vh - 3.5em);
     min-height: 20em;
     width: stretch;
-    max-width: 85em;
-    box-sizing: border-box;
+    max-width: var(--content-max-width);
+    box-sizing: content-box;
     display: flex;
     flex-direction: column;
     overflow-y: auto;

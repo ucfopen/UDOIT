@@ -939,7 +939,7 @@ export default function FixIssuesPage({
               title={t('fix.button.close')} />
           </div>
           <div className="dialog-content">
-            <div className="flex-row w-100 h-100">
+            <div className="dialog-content-row-wrap">
               <section className='ufixit-widget-container'>
                 { tempActiveIssue && (
                   <>

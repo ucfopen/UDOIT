@@ -61,6 +61,10 @@ export default function HtmlPreview({
           return
         }
         el.tabIndex = 0
+        // If it is a link, we need to remove the destination so it can be clickable without navigating away.
+        if(el.tagName.toLowerCase() === 'a') {
+          el.removeAttribute('href')
+        }
       })
     }
 
