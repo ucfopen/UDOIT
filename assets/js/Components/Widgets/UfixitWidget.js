@@ -13,6 +13,8 @@ export default function UfixitWidget({
 
   activeContentItem,
   handleActiveContentItem,
+  activeOption,
+  setActiveOption,
   addMessage,
   handleIssueSave,
   isContentLoading,
@@ -33,7 +35,6 @@ export default function UfixitWidget({
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
-  const [activeOption, setActiveOption] = useState('')
   const [formErrors, setFormErrors] = useState({})
 
   useEffect(() => {

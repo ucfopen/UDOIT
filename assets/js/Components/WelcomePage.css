@@ -89,7 +89,7 @@
   padding: 2em;
   
   .logo-large {
-    width: 200px;
+    width: 7em;
     min-width: 30%;
 
     @media screen and (max-width: 768px) {
@@ -142,7 +142,7 @@
 }
 
 .logo-small {
-  width: 80px;
+  width: 6em;
   height: auto;
   opacity: 0.8;
   margin-top: 1px;
@@ -154,8 +154,8 @@
 
 /* Adapted from https://css-loaders.com/progress/ (#16) */
 .loader {
-  height: 8px;
-  border-radius: 4px;
+  height: 0.5em;
+  border-radius: 0.25em;
   width: 100%;
   --c: no-repeat linear-gradient(var(--progress-bar-color) 0 0);
   background: var(--c),var(--c), var(--progress-bar-background-color);

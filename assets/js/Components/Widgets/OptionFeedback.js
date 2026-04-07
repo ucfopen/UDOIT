@@ -11,14 +11,14 @@ export default function OptionFeedback ({
       { feedbackArray && feedbackArray.length > 0 && (
         <div className="pt-2">
           { feedbackArray.map((feedback, index) => 
-            <div key={index} className="option-feedback">
+            <div key={index} className={`option-feedback ${feedback.type === 'error' ? 'feedback-error' : 'feedback-warning'}`}>
               {feedback.type === 'error' && (
-                <SeverityIssueIcon className="icon-md udoit-issue-highlight align-self-top pe-2"/>
+                <SeverityIssueIcon className="icon-md udoit-issue-highlight align-self-top pe-3"/>
               )}
               {feedback.type === 'warning' && (
-                <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2"/>
+                <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-3"/>
               )}
-              <div className='secondary'>{feedback.text}</div>
+              <div>{feedback.text}</div>
             </div>
           )}
         </div>

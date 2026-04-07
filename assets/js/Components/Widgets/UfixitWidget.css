@@ -62,15 +62,27 @@
 
   .option-feedback {
     margin-top: .5em;
+    padding: .5em .75em;
     font-size: .85em;
     font-weight: 300;
-    text-align: end;
     line-height: normal;
-    font-style: italic;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
+    border-radius: var(--element-radius);
+
+    &.feedback-error {
+      background-color: var(--pill-error-background);
+      border: 1px solid var(--pill-error-border);
+      color: var(--pill-error-text);
+    }
+
+    &.feedback-warning {
+      background-color: var(--pill-warning-background);
+      border: 1px solid var(--pill-warning-border);
+      color: var(--pill-warning-text);
+    }
   }
 
   .indented {

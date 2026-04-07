@@ -91,7 +91,8 @@
       color: var(--lms-text-color);
       font-family: var(--lms-heading-font-family);
       font-weight: normal;
-      margin: 6px 0;
+      margin-top: 6px;
+      margin-bottom: 6px;
       line-height: 1.5;
       text-rendering: optimizeLegibility;
     }
@@ -454,14 +455,15 @@
   transition: background-color 0.2s;
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):hover{
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):hover,
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):focus {
   background-color: rgb(207, 207, 207) !important;
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):focus{
-  background-color: rgb(207, 207, 207) !important;
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):not(.ufixit-temp-selected):focus{
+  outline: 2px solid var(--focus-color);
+  outline-offset: 1px;
 }
-
 
 .ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(#ufixit-alt-text-preview):not(#ufixit-alt-text-preview *):has(:hover){
   background-color: transparent !important;
