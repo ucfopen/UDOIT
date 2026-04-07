@@ -6,9 +6,11 @@ import './FixIssuesContentPreview.css'
 
 export default function HtmlPreview({
   t,
+  settings,
 
   activeContentItem,
   activeIssue,
+  activeOption,
   liveUpdateToggle,
   setIsErrorFoundInContent,
   clickedInfo,
@@ -54,7 +56,7 @@ export default function HtmlPreview({
       return doc
     }
 
-    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))){
+    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT){
       const allElements = doc.querySelectorAll('*')
       allElements.forEach((el) => {
         if (el.id?.includes('ufixit-alt-text-preview')) {
@@ -68,7 +70,7 @@ export default function HtmlPreview({
       })
     }
 
-    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT) {
       doc.querySelectorAll('.ufixit-temp-selected').forEach((el) => {
         el.classList.remove('ufixit-temp-selected')
       })
@@ -249,7 +251,7 @@ export default function HtmlPreview({
 
   useEffect(() => {
     checkTaggedContentUpdate()
-  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData])
+  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData, activeOption])
 
   useEffect(() => {
     checkTaggedContentUpdate()
@@ -288,7 +290,7 @@ export default function HtmlPreview({
       ) : (
         <div
           key={"html-content-preview-div"}
-          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) ? ' ufixit-clickable-container' : ''}`}
+          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT ? ' ufixit-clickable-container' : ''}`}
           id='ufixit-content-preview-main'
           onScroll={() => handleScroll()}
           onClick={handleClickedElement}

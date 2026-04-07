@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react'
 import * as Html from '../../Services/Html'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
+import CheckIcon from '../Icons/CheckIcon'
+import CloseIcon from '../Icons/CloseIcon'
 import DeleteIcon from '../Icons/DeleteIcon'
+import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
+import UndoIcon from '../Icons/UndoIcon'
 import './SelectValidIdForm.css'
 
 export default function SelectValidIdForm ({
@@ -24,7 +28,7 @@ export default function SelectValidIdForm ({
 }) {
 
   const FORM_OPTIONS = {
-    EDIT_ATTRIBUTE: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE,
+    EDIT_ATTRIBUTE: settings.UFIXIT_OPTIONS.SELECT_ELEMENT,
     MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
@@ -40,7 +44,6 @@ export default function SelectValidIdForm ({
   const [attributeId, setAttributeId] = useState([]) // add typescript pleaseeeeeeeeee
   const [idXpathMap, setIdXpathMap] = useState({}) // This will map each id to its each xpath AND the inner text {xpath, innerText}
   const [originalContentItem, setOriginalContentItem] = useState(null)
-  const [liveMessage, setLiveMessage] = useState('')
 
   useEffect(() => {
     if(!activeIssue){
@@ -116,10 +119,6 @@ export default function SelectValidIdForm ({
 
     setIdXpathMap(tempIdXpathMap)
     setAttributeId(tempAttributeIdItem)
-    setPreviewData({
-      attributeId: tempAttributeIdItem,
-      idXpathMap: tempIdXpathMap
-    })
     setElementFocus(true)
   }, [clickedInfo])
 
@@ -127,6 +126,13 @@ export default function SelectValidIdForm ({
     handleActiveContentItem(addIdsToContent())
     checkFormErrors()
   }, [activeOption, attributeId])
+
+  useEffect(() => {
+    setPreviewData({
+      attributeId: attributeId,
+      idXpathMap: idXpathMap
+    })
+  }, [attributeId, idXpathMap])
 
   const getValidIdFromHtml = (stringifedID) => {
     if(!activeContentItem?.body || !stringifedID){
@@ -165,14 +171,13 @@ export default function SelectValidIdForm ({
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
-      handleActiveContentItem(originalContentItem)
-      return
+      return originalContentItem
     }
 
     let tempActiveContentItem = JSON.parse(JSON.stringify(activeContentItem))
     let fullPageHtml = tempActiveContentItem?.body
     if(!fullPageHtml){
-      return
+      return originalContentItem
     }
 
     const parser = new DOMParser()
@@ -202,31 +207,6 @@ export default function SelectValidIdForm ({
     issue.newHtml = Html.toString(errorElement)
     return tempActiveContentItem
   }
-  
-  // const addPreviewClassesToContent = () => {
-  //     let tempActiveContentItem = addIdsToContent()
-  //     let fullPageHtml = tempActiveContentItem?.body
-  //     if(!fullPageHtml){
-  //         return
-  //     }
-  //     const parser = new DOMParser()
-  //     const doc = parser.parseFromString(fullPageHtml, 'text/html')
-
-  //     attributeId.forEach((attribute) => {
-  //         if(attribute?.selected && !attribute.deactivated){
-  //             const idsPointedToByAttribute = attribute.idStorage?.length > 0 ? attribute.idStorage : []
-  //             idsPointedToByAttribute?.forEach((id) => {
-  //                 if(id){
-  //                     const element = Html.findElementWithXpath(doc, idXpathMap[id].xpath)
-  //                     element.classList.add("ufixit-temp-selected")
-  //                 }
-  //             })
-  //         }
-  //     })
-
-  //     tempActiveContentItem.body = Html.toString(doc.body)
-  //     handleActiveContentItem(tempActiveContentItem)
-  // }
 
   const handleAttributeSelect = (selectedVal) => {
     const tempAttributes = JSON.parse(JSON.stringify(attributeId))
@@ -235,7 +215,6 @@ export default function SelectValidIdForm ({
     })
     setAttributeId(tempAttributes)
     setElementFocus(false)
-    setLiveMessage(t('form.select_valid_id.live_msg', {selectedAttribute: selectedVal}))
   }
 
   const checkFormErrors = () => {
@@ -280,7 +259,6 @@ export default function SelectValidIdForm ({
         }
         else{
           attribute.deactivated = true
-          attribute.selected = false
         }
       }
     }
@@ -302,43 +280,79 @@ export default function SelectValidIdForm ({
 
         { activeOption === FORM_OPTIONS.EDIT_ATTRIBUTE && (
           <>
-            <div className='mb-2'>{t("form.select_valid_id.instructions")}</div> 
-            <label htmlFor='attributeSelectInput' className='instructions'>{t("form.select_valid_id.select_attribute_instruction")}</label>
-            <div className='all-attribute-container'>
-              {attributeId.map((attribute, index) => (
+            <div className='instructions'>{t("form.select_valid_id.instructions")}</div> 
+            {/* <label htmlFor='attributeSelectInput' className='instructions'>{t("form.select_valid_id.select_attribute_instruction")}</label> */}
+            <div className='mt-3'>
+              { attributeId.map((attribute, index) => (
                 <div key={index} className='attribute-container'>
-                <div className='attribute-header'>
-                  <label>
-                    <input
-                    type="radio"
-                    disabled={attribute.deactivated}
-                    name="main-attribute"
-                    checked={attribute.selected}
-                    tabIndex='0'
-                    onChange={() => handleAttributeSelect(attribute.attribute)}
-                    />
-                    <span className={`attribute-label  ${attribute.deactivated ? `deactivated`: ``}`}>{attribute.attribute}</span>
-                  </label>
-                  { activeIssue.scanRuleId == "aria_complementary_label_visible" ? (
-                    <div className="instructions">{t("form.select_valid_id.label.required")}</div>
-                  ) : (
-                    <button onClick={() => handleRemoveAttribute(attribute)}>{attribute.deactivated ? t("form.select_valid_id.use_attribute") : t("form.select_valid_id.remove_attribute")}</button>
-                  )}
-                </div>
-                  {attribute.selected && (
+                  <div className='attribute-header'>
+                    <label>
+                      <input
+                        aria-label={
+                          attribute.deactivated ? t("form.select_valid_id.removed_attribute", { attributeName: attribute.attribute })
+                          : (attribute.idStorage.length > 0 ? t("form.select_valid_id.resolved_attribute", { attributeName: attribute.attribute })
+                            : t("form.select_valid_id.unresolved_attribute", { attributeName: attribute.attribute }))
+                        }
+                        type="radio"
+                        name="main-attribute"
+                        checked={attribute.selected}
+                        tabIndex='0'
+                        onChange={() => handleAttributeSelect(attribute.attribute)}
+                      />
+                      <span aria-hidden="true" className={`attribute-label  ${attribute.deactivated ? `deactivated`: ``}`}>{attribute.attribute}</span>
+                    </label>
+                    { attribute.deactivated || attribute.idStorage.length > 0 ? (
+                      <CheckIcon className="icon-md udoit-success" aria-hidden="true"/>
+                    ) : (
+                      <SeverityPotentialIcon className="icon-md udoit-potential" aria-hidden="true"/>
+                    )}
+                  </div>
+                  { attribute.selected && !attribute.deactivated && (
                     <div className='attribute-id-list'>
-                      {attribute.idStorage.map((id, i) => (
-                        <div key={i} className='attribute-id'>
-                          <p className='truncate-inner-text'>{idXpathMap[id].innerText}</p>
-                          <button
-                            className='btn-icon-only btn-link align-self-center remove-id-button'
-                            alt={t("form.select_valid_id.remove")}
-                            title={t("form.select_valid_id.remove")}
-                            onClick={() => removeIDFromAttribute(id)}>
+                      { attribute.idStorage.length == 0 ? (
+                        <div
+                          className="instructions"
+                          dangerouslySetInnerHTML={{__html: t("form.select_valid_id.no_ids", { attributeName: attribute.attribute })}} />
+                      ) : (
+                        <>
+                        {attribute.idStorage.map((id, i) => (
+                          <div key={i} className='attribute-id'>
+                            <p title={idXpathMap[id].innerText}>{idXpathMap[id].innerText}</p>
+                            <button
+                              className='btn-icon-only btn-text btn-small'
+                              alt={t("form.select_valid_id.remove")}
+                              title={t("form.select_valid_id.remove")}
+                              onClick={() => removeIDFromAttribute(id)}>
+                                <CloseIcon className="icon-md udoit-issue"/>
+                            </button>
+                          </div>
+                        ))}
+                        </>
+                    )}
+                    </div>
+                  )}
+                  { attribute.selected && (
+                    <div className="attribute-footer">
+                      { activeIssue.scanRuleId == "aria_complementary_label_visible" && attribute.attribute === "aria-labelledby"? (
+                        <div className="footer-required">{t("form.select_valid_id.label.required")}</div>
+                      ) : (
+                        <button 
+                          className="btn-link btn-icon-left btn-small" 
+                          onClick={() => handleRemoveAttribute(attribute)}
+                          >
+                          {attribute.deactivated ? (
+                            <>
+                              <UndoIcon className="icon-md"/>
+                              {t("form.select_valid_id.use_attribute")}
+                            </>
+                          ) : (
+                            <>
                               <DeleteIcon className="icon-md"/>
-                          </button>
-                        </div>
-                      ))}
+                              {t("form.select_valid_id.remove_attribute")}
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -359,8 +373,6 @@ export default function SelectValidIdForm ({
           labelText = {t('fix.label.no_changes')}
           />
       </div>
-
-      <div className='off-screen' aria-live='polite' aria-atomic='true'>{liveMessage}</div>
     </>
   )
 }

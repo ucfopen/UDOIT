@@ -4,13 +4,14 @@
       display: flex;
       position: relative;
       background-color: var(--container-color);
-      border-radius:  var(--element-radius);
+      border-radius:  var(--window-radius);
       overflow: hidden;
       width: max-content;
       height: fit-content;
       isolation: isolate;
       padding: .4rem;
       gap: .5rem;
+      border: 1px solid var(--border-color);
 
       &:has(input[type="radio"]:checked){
         --slider-select-opacity: 1;
@@ -103,6 +104,14 @@
       gap: .25rem;
 
       .slider-option-container {
+        cursor: pointer;
+        padding: 0 .25em;
+        border-radius: var(--element-radius);
+        
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: 2px;
+        }
 
         label {
           display: flex;

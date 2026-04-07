@@ -61,6 +61,7 @@ export default function SliderSelect({
           <label aria-hidden="true">
             {option.name}
             <input
+              tabIndex="-1"
               type="radio"
               id={option.value}
               name={groupName}

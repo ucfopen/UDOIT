@@ -69,6 +69,7 @@ export default function FixIssuesPage({
   const dialogId = "udoit-issue-dialog"
 
   const [activeIssue, setActiveIssue] = useState(null)
+  const [activeOption, setActiveOption] = useState('')
   const [mostRecentIssueId, setMostRecentIssueId] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
@@ -958,6 +959,8 @@ export default function FixIssuesPage({
 
                       activeContentItem={activeContentItem}
                       handleActiveContentItem={handleActiveContentItem}
+                      activeOption={activeOption}
+                      setActiveOption={setActiveOption}
                       addMessage={addMessage}
                       handleIssueSave={handleIssueSave}
                       isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
@@ -989,6 +992,7 @@ export default function FixIssuesPage({
 
                     activeContentItem={tempActiveContentItem}
                     activeIssue={tempActiveIssue}
+                    activeOption={activeOption}
                     contentItemsBeingScanned={contentItemsBeingScanned}
                     liveUpdateToggle={liveUpdateToggle}
                     setIsErrorFoundInContent={setIsErrorFoundInContent}
