@@ -51,6 +51,11 @@ else
 	$(COMPOSE) run --rm php php bin/console doctrine:migrations:migrate
 endif
 
+# Show migrations 
+# usage: `make migration-list` to show all migrations
+migration-list:
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:list
+
 ## Run all pending migrations up to and including a specific version
 ## usage: `make migrate-to VERSION=20260311150018`
 migrate-to:
