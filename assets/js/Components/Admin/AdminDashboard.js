@@ -171,7 +171,7 @@ export default function AdminDashboard({ t, settings, courses }) {
                       circlePortion={75}
                       strokeWidth={10}
                     />
-                    <div className="progress-text-container flex-column justify-content-center">
+                    <div className="progress-text-container flex-column justify-content-center text-center">
                       <div className="progress-text">
                         {scanPercentage.toFixed(0)}%
                       </div>
@@ -194,7 +194,7 @@ export default function AdminDashboard({ t, settings, courses }) {
                       circlePortion={75}
                       strokeWidth={10}
                     />
-                    <div className="progress-text-container flex-column justify-content-center">
+                    <div className="progress-text-container flex-column justify-content-center text-center">
                       <div className="progress-text">
                         {instructorAdoption.toFixed(0)}%
                       </div>
