@@ -200,19 +200,34 @@ export default function ListForm({
         return
       }
 
-      if (metadata.isListGroup) {
-        // Store the new HTML for the entire group
+      if (metadata.isListGroup && issue.groupedIssues && issue.groupedIssues.length > 0) {
+        // Use the first grouped issue's real identifiers so the server can find it via xpath
+        const firstGroupedIssue = issue.groupedIssues[0]
+
+        // Store the remaining elements' HTML for removal (skip first element, it gets replaced)
+        const remainingElementsHtml = (issue.groupedElementsHtml || []).slice(1)
+
+        issue.id = firstGroupedIssue.id
+        issue.xpath = firstGroupedIssue.xpath
+        issue.sourceHtml = firstGroupedIssue.sourceHtml
+        issue.contentItemId = firstGroupedIssue.contentItemId
+        issue.scanRuleId = firstGroupedIssue.scanRuleId
         issue.newHtml = editorElement.outerHTML
+
+        // Pass remaining grouped issues AND their original element HTML for removal
+        const remainingGroupedIssues = issue.groupedIssues.slice(1)
+        handleActiveIssue(issue)
+        handleIssueSave(issue, remainingGroupedIssues, remainingElementsHtml)
       } else {
         // Single issue - add ignore class
         const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
         let newElement = Html.addClass(issue.sourceHtml, specificClassName)
         newElement.innerHTML = editorElement.innerHTML
         issue.newHtml = Html.toString(newElement)
-      }
 
-      handleActiveIssue(issue)
-      handleIssueSave(issue)
+        handleActiveIssue(issue)
+        handleIssueSave(issue)
+      }
     }
   }
 

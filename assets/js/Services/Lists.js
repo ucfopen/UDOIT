@@ -4,7 +4,7 @@ import * as Html from './Html'
 // Match IBM Equal Access scanner pattern:
 // /^[ \t\r\n]*[( ]*[1-9]*[\*\-).][ \t][A-Z,a-z]+/
 export const numberedPattern = /^\s*[(\s]*([1-9]\d*)\s*[.\)\-]\s+/
-export const letteredPattern = /^\s*[(\s]*([a-zA-Z])\s*[.\)\-]\s+/
+export const letteredPattern = /^\s*[(\s]*([a-zA-Z])\s*[.\)\-]\s+/ // IBM doesn't actually catch letter lists right now ;(
 export const bulletPattern = /^\s*([\*\-])\s+/  // Only * and -, requires space after
 
 export function groupListIssues(issues, parsedDocuments) {
@@ -172,6 +172,8 @@ function createParentIssue(group) {
     groupedIssues: issueGroup,
     groupCount: issueGroup.length,
     groupedIssueIds: issueGroup.map(i => i.id),
+    // Store each element's HTML individually for removal later
+    groupedElementsHtml: elements.map(el => el.outerHTML),
   }
   
   let metadata = {}
