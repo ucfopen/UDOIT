@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import FixIssuesFilters from './Widgets/FixIssuesFilters'
 import FixIssuesList from './Widgets/FixIssuesList'
 import LearnMore from './Widgets/LearnMore'
@@ -90,6 +90,9 @@ export default function FixIssuesPage({
   const [previewData, setPreviewData] = useState(null)
 
   const [elementFocus, setElementFocus] = useState(true)
+
+  // Ref to track grouped save in progress - prevents report useEffect from closing dialog
+  const groupedSaveRef = useRef({ inProgress: false, nextIssueToShow: null })
 
   const getSectionTitles = () => {
     let sectionTitles = {}
@@ -309,35 +312,52 @@ export default function FixIssuesPage({
       tempUnfilteredIssues.push(tempIssue)
     }
 
-    // let tempFiles = Object.assign({}, report.files)
-    // for (const [key, value] of Object.entries(tempFiles)) {
-    //   let tempFile = formatFileData(value)
-    //   tempUnfilteredIssues.push(tempFile)
-    // }
-
     tempUnfilteredIssues.sort((a, b) => {
       return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
     })
 
-    // Every time the list changes, we need to reload the activeContentItem. This will come from the
-    // cache (contentItemCache) or from the database, if not in the cache.
     setActiveContentItem(null)
 
-    // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
-    // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
-    // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
+    // If a grouped save is in progress, skip the normal holdover logic
+    // and navigate to the next issue instead
+    if (groupedSaveRef.current.inProgress) {
+      groupedSaveRef.current.inProgress = false
+
+      setUnfilteredIssues(tempUnfilteredIssues)
+      let tempFilteredContent = getFilteredContent(tempUnfilteredIssues)
+      setFilteredIssues(tempFilteredContent)
+      setGroupedList(groupList(tempFilteredContent))
+
+      const targetIndex = groupedSaveRef.current.nextIssueIndex
+      let newActiveIssue = null
+
+      if (tempFilteredContent.length > 0) {
+        // Use the same index position, clamped to the new list length
+        const clampedIndex = Math.min(targetIndex, tempFilteredContent.length - 1)
+        newActiveIssue = tempFilteredContent[clampedIndex >= 0 ? clampedIndex : 0]
+      }
+
+      if (newActiveIssue) {
+        setActiveIssue(newActiveIssue)
+        setWidgetState(WIDGET_STATE.FIXIT)
+      } else {
+        setActiveIssue(null)
+        setWidgetState(WIDGET_STATE.LIST)
+      }
+
+      groupedSaveRef.current.nextIssueIndex = null
+      return
+    }
+
     let holdoverActiveIssue = null
 
-    // If there is an activeIssue, we need to connect it to something in the new list of issues.
     if(activeIssue) {  
-      // Quick check: is the old activeIssue still in the list?
       tempUnfilteredIssues.forEach((issue) => {
         if(issue.id === activeIssue.id) {
           holdoverActiveIssue = issue
         }
       })
 
-      // If not, we need to do a more thorough check.
       if(holdoverActiveIssue === null) {
         if(activeIssue.contentType === FILTER.FILE_OBJECT) {
           tempUnfilteredIssues.forEach((issue) => {
@@ -702,13 +722,16 @@ export default function FixIssuesPage({
 
   }
 
-  const handleIssueSave = async () => {
+  const handleIssueSave = async (overrideIssue = null, remainingGroupedIssues = [], remainingElementsHtml = []) => {
 
     if(!tempActiveContentItem || !tempActiveContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
     }
 
-    let issue = tempActiveIssue.issueData
+    const isGroupedSave = remainingGroupedIssues.length > 0
+
+    // Use override issue (first real grouped issue) or fallback to tempActiveIssue
+    let issue = overrideIssue ? overrideIssue : tempActiveIssue.issueData
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
@@ -732,17 +755,62 @@ export default function FixIssuesPage({
       }
     }
 
+    // getNewFullPageHtml uses issue.xpath to find the first real element and replace it
+    // with issue.newHtml (the combined fixed HTML)
     let fullPageHtml = getNewFullPageHtml(tempActiveContentItem, issue)
+    if (!fullPageHtml) {
+      console.error('Could not get full page HTML')
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+      removeItemFromBeingScanned(issue.contentItemId)
+      return
+    }
+
+    // For grouped saves, remove the remaining grouped issue elements from the page
+    // Use the stored element HTML strings which are the EXACT outerHTML from the original DOM
+    if (isGroupedSave) {
+      for (const elementHtml of remainingElementsHtml) {
+        // Direct string replacement - most reliable since we have the exact original HTML
+        const trimmedHtml = elementHtml.trim()
+        if (fullPageHtml.includes(trimmedHtml)) {
+          fullPageHtml = fullPageHtml.replace(trimmedHtml, '')
+        } else {
+          // Fallback: try DOM-based removal
+          const parser = new DOMParser()
+          const tempDoc = parser.parseFromString(fullPageHtml, 'text/html')
+          const allElements = tempDoc.body.querySelectorAll('*')
+          let foundElement = null
+          for (const el of allElements) {
+            if (el.outerHTML.trim() === trimmedHtml) {
+              foundElement = el
+              break
+            }
+          }
+          if (foundElement) {
+            foundElement.remove()
+            fullPageHtml = tempDoc.body.innerHTML
+          } else {
+            console.warn(`Could not find element to remove:`, trimmedHtml.substring(0, 80))
+          }
+        }
+      }
+
+      // Clean up any empty lines left behind from removal
+      fullPageHtml = fullPageHtml.replace(/\n\s*\n/g, '\n')
+    }
+
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
     issue.xpath = newXpath || ''
-    
+
     // Save the updated issue using the LMS API
     let api = new Api(settings)
     try {
       const saveResponse = await api.saveIssue(issue, fullPageHtml, markAsReviewed)
       if(!saveResponse.ok){
+        console.error('Save failed with status:', saveResponse.status, saveResponse.statusText)
+        const errorBody = await saveResponse.text()
+        console.error('Server response body:', errorBody)
         processServerError(saveResponse)
         updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
         removeItemFromBeingScanned(issue.contentItemId)
@@ -755,13 +823,9 @@ export default function FixIssuesPage({
         updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
         removeItemFromBeingScanned(issue.contentItemId)
         saveResponseJson.messages.forEach((msg) => addMessage(msg))
-
         if (Array.isArray(saveResponseJson.errors)) {
           saveResponseJson.errors.forEach((error) => {
-            addMessage({
-              severity: 'error',
-              message: t(error)
-            })
+            addMessage({ severity: 'error', message: t(error) })
           })
         }
         throw Error('Save failed.')
@@ -773,20 +837,42 @@ export default function FixIssuesPage({
         activeContentItem.body = fullPageHtml
       }
 
-      // If there isn't a new issue created, we're done.
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+
+      if (isGroupedSave) {
+        // Capture the INDEX of the next issue BEFORE rescan rebuilds filteredIssues
+        const currentActiveIndex = filteredIssues.findIndex(fi => fi.id === activeIssue?.id)
+        const nextIssueIndex = currentActiveIndex !== -1 ? currentActiveIndex : 0
+
+        // Store the index for the report useEffect to use
+        groupedSaveRef.current = {
+          inProgress: true,
+          nextIssueIndex: nextIssueIndex,
+        }
+
+        // Rescan - the removed elements will naturally be marked as resolved by the scanner
+        removeItemFromBeingScanned(issue.contentItemId)
+        const scanResponse = await api.scanContent(issue.contentItemId)
+        if (scanResponse.ok) {
+          const scanResponseJson = await scanResponse.json()
+          if (scanResponseJson.data) {
+            const tempReport = Object.assign({}, scanResponseJson.data)
+            processNewReport(tempReport)
+          }
+        }
+        return
+      }
+
       if(!saveResponseJson?.data?.issue) {
-        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
         removeItemFromBeingScanned(issue.contentItemId)
         return
       }
 
       if(saveResponseJson?.data?.issue) {
-        // Update the report object by rescanning the content
         const newIssue = Object.assign({}, issue, saveResponseJson.data.issue)
         updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
 
         const scanResponse = await api.scanContent(newIssue.contentItemId)
-
         if(scanResponse.ok) {
           const scanResponseJson = await scanResponse.json()
           if(scanResponseJson.data) {
@@ -798,7 +884,6 @@ export default function FixIssuesPage({
         }
       }
 
-      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
       removeItemFromBeingScanned(issue.contentItemId)
 
     } catch (error) {
