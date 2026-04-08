@@ -59,11 +59,11 @@
     }
 
     input:checked + .slider {
-        background-color: var(--pill-success-text);
+        background-color: var(--pill-success-border);
     }
 
     input:focus + .slider {
-        box-shadow: 0 0 1px var(--pill-success-text);
+        box-shadow: 0 0 1px var(--pill-success-border);
     }
 
     input:checked + .slider:before {

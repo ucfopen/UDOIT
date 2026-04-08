@@ -118,7 +118,8 @@
   button {
     padding: .75em;
     width: 100%;
-    background-color: var(--selection-color);
+    background-color: var(--primary-color);
+    color: var(--primary-color-inverse);
     border-color: transparent;
   }
 }

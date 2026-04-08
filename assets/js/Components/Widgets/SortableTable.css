@@ -71,7 +71,7 @@
 
         &:hover,
         &:focus {
-          background-color: var(--link-color-light);
+          background-color: var(--gray-lightest);
 
           .clickable-text {
             text-decoration: underline;
@@ -93,6 +93,10 @@
 
         &.divider {
           border-right: 2px solid var(--border-color);
+        }
+
+        .file-label-pill {
+          font-size: .9375em; /* We want .75em, but we're inside a table with font-size: .8em. 0.75 / 0.8 = 0.9375 */
         }
       }
 
