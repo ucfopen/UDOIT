@@ -323,7 +323,7 @@ export default function SelectValidIdForm ({
                               alt={t("form.select_valid_id.remove")}
                               title={t("form.select_valid_id.remove")}
                               onClick={() => removeIDFromAttribute(id)}>
-                                <CloseIcon className="icon-md udoit-issue"/>
+                                <CloseIcon className="icon-md"/>
                             </button>
                           </div>
                         ))}

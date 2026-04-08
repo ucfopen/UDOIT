@@ -113,9 +113,9 @@
           justify-content: center;
 
           &.active-link {
-            color: var(--primary-color);
-            fill: var(--primary-color);
-            border-bottom-color: var(--primary-color);
+            color: var(--header-active-color);
+            fill: var(--header-active-color);
+            border-bottom-color: var(--header-active-color);
           }
 
           &:hover:not(.active-link):not([disabled]),

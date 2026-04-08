@@ -38,8 +38,6 @@
     --primary-color-inverse: var(--gray-lightest);
     --primary-color-disabled: #B2D2C3;
 
-    --selection-color-background: #F7FEF9;
-
     --info-color-background: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
 
     --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
@@ -48,13 +46,16 @@
     
     --text-secondary-color: #434D5B; /* #4A5565; #2F3741; */
     --text-disabled-color: #8B95A7; /* #D1D5DC; */
+    --button-disabled-border-color: var(--gray-light);
+    --button-disabled-background-color: var(--gray-light);
+    --button-disabled-text-color: var(--gray);
 
     /* PILLS have three colors: border color, light background color, and text color */
     --pill-success-border: #80D39E;
     --pill-success-background: #F0FDF4;
     --pill-success-text: var(--success-color);
 
-    --pill-warning-border: #FEE685;
+    --pill-warning-border: #FDDA4E; /* #FEE685; */
     --pill-warning-background: #FFFBEB;
     --pill-warning-text: #992E00; /* #BB4D00; */
 
@@ -70,11 +71,15 @@
     --help-color-background: #FFFBEB;
     --help-color-text: #BB4D00;
 
+    --selection-color-border: var(--selection-color);
+    --selection-color-background: #F7FEF9;
+
     --background-color: var(--gray-lightest);
     --container-color: #F2F4F7;
     --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
     --progress-bar-color: var(--selection-color);
+    --header-active-color: var(--link-color);
     --shadow-color: #00000044;
     --backdrop-color: rgba(0, 0, 0, 0.25);
 
@@ -133,40 +138,38 @@
     &.dark-mode {
 
       --white: #090A11; /* #242B48; */
-      --gray-lightest: #2E3856;
-      --gray-lighter: #2E3856;
+      --gray-lightest: #151a28;
+      --gray-lighter: #373749;
       --gray-light: #A2A2A2;
       --gray: #D9D9D9;
       --gray-dark: #E2E2E2;
       --gray-darker: #F7F7F7;
       --black: #FFFFFF;
 
-      --primary-color: #1DA54F;
+      /* Main Color Palette */
+      --primary-color: #196937; /* #1DAF55;#1DA54F; */
+      --success-color: #1DAF55; /* #1DA54F; */
+      --selection-color: #1DAF55; /* #1DA54F; */
+      --potential-color: #CC6D00;
+      --error-color: #B30009;
+      --file-color: #1A7DFF;
+      --info-color: #5BAEDF;
+      --link-color: #97BCED;
+      --focus-color: #66D6FF;
+      --text-color: var(--black);
+
       --primary-color-dark: var(--primary-color);
       --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%);
       --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);
       --primary-color-inverse: var(--gray-lightest);
       --text-color: var(--black);
 
-      /* Main Color Palette */
-      --primary-color: #5AD88A; /* #1DAF55;#1DA54F; */
-      --success-color: #1DAF55; /* #1DA54F; */
-      --selection-color: #1DAF55; /* #1DA54F; */
-      --potential-color: #FF8904;
-      --file-color: #5BA1FF;
-      --info-color: #5BAEDF;
-      --link-color: #79BAFF;
-      --focus-color: #009AD0;
-      --text-color: var(--black);
-
       /* Variants of Main Colors */
       --primary-color-dark: var(--primary-color);
       --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
       --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
-      --primary-color-inverse: var(--white);
+      --primary-color-inverse: var(--black);
       --primary-color-disabled: #B2D2C3;
-
-      --selection-color-background: #072211;
 
       --info-color-background: #103B56;
 
@@ -176,21 +179,24 @@
       
       --text-secondary-color: #D9D9D9; /* #B6B9C7; #4A5565; #2F3741; */
       --text-disabled-color: #8B95A7; /* #D1D5DC; */
+      --button-disabled-border-color: #464653;
+      --button-disabled-background-color: var(--background-color);
+      --button-disabled-text-color: #464653;
 
       /* PILLS have three colors: border color, light background color, and text color */
-      --pill-success-border: var(--success-color);
+      --pill-success-border: #27A557;
       --pill-success-background: #072C15; /* #2B4C5A; */
-      --pill-success-text: var(--success-color);
+      --pill-success-text: #D3F8E1;
 
-      --pill-warning-border: #B86200; /* #584245; */
-      --pill-warning-background: #331B00; /* #44191A; */
+      --pill-warning-border: #8A4900; /* #584245; */
+      --pill-warning-background: #422300; /* #44191A; */
       --pill-warning-text: #FFE7CC; /* #FF8904; */
 
-      --pill-error-border: #AB0B13; /* #EF141E; */
-      --pill-error-background: #300306; /* #44191A; */
+      --pill-error-border: #73070D; /* #EF141E; */
+      --pill-error-background: #3D0F12; /* #44191A; */
       --pill-error-text: #FFDBDD; /* #EF141E; */
 
-      --pill-info-border: #5BA1FF;
+      --pill-info-border: #0054C2;
       --pill-info-background: #00214d; /* #323F72; */
       --pill-info-text: var(--file-color);
 
@@ -198,13 +204,17 @@
       --help-color-background: #182634; /* #324e6c; */
       --help-color-text: var(--text-secondary-color);
 
+      --selection-color-border: var(--help-color-border);
+      --selection-color-background: var(--help-color-background);
+
       --background-color: #21212c; /* #1F202E; #0A092D; */
       --container-color: #21212c;
       --border-color: #505975;
-      --progress-bar-background-color: #4D4D4D; /* var(--gray-light); */
-      --progress-bar-color: var(--primary-color);
-      --shadow-color: #FFFFFF44;
-      --backdrop-color: rgba(256, 256, 256, 0.25);
+      --progress-bar-background-color: #373749;
+      --progress-bar-color: #2AB25E;
+      --header-active-color: var(--link-color);
+      --shadow-color: transparent;
+      --backdrop-color: rgba(0, 0, 0, 0.25);
     }
   }
 
@@ -304,10 +314,10 @@
 
     &:disabled {
       cursor: not-allowed !important;
-      color: var(--gray) !important;
-      fill: var(--gray) !important;
-      border-color: var(--gray-light) !important;
-      background-color: var(--gray-light) !important;
+      color: var(--button-disabled-text-color) !important;
+      fill: var(--button-disabled-text-color) !important;
+      border-color: var(--button-disabled-border-color) !important;
+      background-color: var(--button-disabled-background-color) !important;
 
       &:hover,
       &:focus {
@@ -630,6 +640,21 @@
     }
   }
 
+  svg.icon-block {
+    background-color: var(--gray-lightest);
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    padding: .5em;
+    fill: var(--gray);
+    stroke: var(--gray);
+
+    &.no-fill {
+      fill: none;
+      stroke: var(--gray);
+      stroke-width: 2px;
+    }
+  }
+
   .dialog-backdrop {
     position: absolute;
     top: 0;
@@ -639,7 +664,7 @@
     background-color: var(--backdrop-color);
     z-index: 50;
     display: none;
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(1.5px);
 
     &.open {
       display: block;
@@ -652,7 +677,7 @@
     max-width: 50em;
     overflow: hidden;
     box-sizing: border-box;
-    border: none;
+    border: 1px solid var(--border-color);
     border-radius: var(--window-radius);
     padding: 0;
     z-index: 100;
@@ -734,6 +759,31 @@
     }
   }
 
+  .option-feedback {
+    margin-top: .5em;
+    padding: .5em .75em;
+    font-size: .85em;
+    font-weight: 300;
+    line-height: normal;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: var(--element-radius);
+
+    &.feedback-error {
+      background-color: var(--pill-error-background);
+      border: 1px solid var(--pill-error-border);
+      color: var(--pill-error-text);
+    }
+
+    &.feedback-warning {
+      background-color: var(--pill-warning-background);
+      border: 1px solid var(--pill-warning-border);
+      color: var(--pill-warning-text);
+    }
+  }
+
   .info-pill {
     display: flex;
     flex-direction: row;
@@ -749,6 +799,7 @@
     font-weight: 400;
     align-self: center;
     align-items: center;
+    white-space: nowrap;
     width: fit-content;
 
     &.issue {
@@ -1242,6 +1293,24 @@
   .fw-lighter {
     font-weight: 200;
   }
+  
+  .font-smaller {
+    font-size: .9em;
+  }
+  
+  .font-larger {
+    font-size: 1.25em;
+  }
+
+  .border-top {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .strong-caps {
+    font-size: .9em;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
 
   .primary {
     color: var(--primary-color);
@@ -1354,7 +1423,7 @@
   .udoit-success,
   .color-success {
     color: var(--pill-success-text);
-    fill: var(--pill-success-text);
+    fill: var(--success-color);
   }
 
   .udoit-info,

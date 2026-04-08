@@ -1,10 +1,6 @@
 import React, { useState, useEffect, act } from 'react'
 import UploadIcon from '../Icons/UploadIcon'
-import SaveIcon from '../Icons/SaveIcon'
-import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
-import DeleteIcon from '../Icons/DeleteIcon'
-import FileStatus from '../Widgets/FileStatus'
 import FileInformation from '../Widgets/FileInformation'
 import * as Text from '../../Services/Text'
 import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
@@ -206,7 +202,7 @@ export default function FileForm ({
 
   return (
     <>
-    {activeFile.reviewed && activeFile.replacement && 
+    { activeFile.reviewed && activeFile.replacement && 
       <div className='flex-column gap-1'>
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
             <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
@@ -246,14 +242,19 @@ export default function FileForm ({
 
     {activeFile.reviewed && !activeFile.replacement && 
       <div className='resolve-option selected'>
-        <div className='marked-as-reviewed-container p-4 flex-column justify-content-center align-items-center text-center'>
-          <h3>{t('form.file.marked_review')}</h3>
-          <div>{t('form.file.marked_review_instruction')}</div>
-          <div className='btn-link fw-bold mt-3' onClick={handleFileResolveWrapper}>{t('fix.button.unresolved')}</div>
+        <div className='p-2 flex-column justify-content-center align-items-center text-center'>
+          <h3 className="mt-0">{t('form.file.marked_review')}</h3>
+          <div className="instructions">{t('form.file.marked_review_instruction')}</div>
+          <button
+            className='btn-secondary mt-3'
+            onClick={handleFileResolveWrapper}>{t('fix.button.unresolved')}
+          </button>
         </div> 
       </div>
-      }
-    {!activeFile.reviewed && !activeFile.replacement && <div>
+    }
+
+    { !activeFile.reviewed && !activeFile.replacement && 
+      <>
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
             <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
             <input
@@ -270,75 +271,76 @@ export default function FileForm ({
             </label>
         </div>
 
-        {!nonReferenced && <div className={`resolve-option mt-2 ${activeOption === FORM_OPTIONS.REPLACE_FILE ? 'selected' : ''}`}>
+        {!nonReferenced && <div className={`resolve-option${activeOption === FORM_OPTIONS.REPLACE_FILE ? ' selected' : ''}`}>
             <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-            <input
-              type="radio"
-              id={FORM_OPTIONS.REPLACE_FILE}
-              name="altTextOption"
-              tabIndex="0"
-              checked={activeOption === FORM_OPTIONS.REPLACE_FILE}
-              disabled={isDisabled}
-              onChange={() => {
-                handleOptionChange(FORM_OPTIONS.REPLACE_FILE)
-              }} />
+              <input
+                type="radio"
+                id={FORM_OPTIONS.REPLACE_FILE}
+                name="altTextOption"
+                tabIndex="0"
+                checked={activeOption === FORM_OPTIONS.REPLACE_FILE}
+                disabled={isDisabled}
+                onChange={() => {
+                  handleOptionChange(FORM_OPTIONS.REPLACE_FILE)
+                }} />
               {t('form.file.label.replace')}
             </label>
             {activeOption == FORM_OPTIONS.REPLACE_FILE && (
               <div className='flex-column align-items-center justify-content-center'>
-                <div className='w-100 p-2'>
-                  <FileStatus t={t} fileStatus={0} fileTagText={t("form.file.original.label")} />
-                    <div className='file-info-container p-2'>
-                      <FileInformation t={t} file={copiedActiveFile} />
-                    </div>
+                <div className='file-label-pill'>{t('form.file.original.label')}</div>
+                <div className='callout-container w-100 mt-1'>
+                  <FileInformation t={t} file={copiedActiveFile} />
                 </div>
-                <DownwardArrowIcon className="icon-md pt-4 pb-4" />
-                <div className='w-100 p-2' >
-                  <FileStatus t={t} fileStatus={1} fileTagText={t("form.file.new.label")} />
-                  <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
-                    onDrop={handleDrop}
-                    onClick={handleFileSelect}
-                    onDrag={handleDragOver}
-                    onKeyDown={handleKeyPress}
-                    tabIndex='0'
-                  >
-                    {uploadedFile && copiedUploadedFile ? 
+
+                <DownwardArrowIcon className="icon-md gray m-3" aria-hidden="true" />
+
+                <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
+                <div className={`file-upload-container mt-1 ${uploadedFile ? 'uploaded' : 'p-3 flex-column text-center jusitify-content-center align-items-center'}`}
+                  onDrop={handleDrop}
+                  onClick={handleFileSelect}
+                  onDrag={handleDragOver}
+                  onKeyDown={handleKeyPress}
+                  tabIndex='0'
+                >
+                  { uploadedFile && copiedUploadedFile ? (
                     <div className='flex-row align-items-center justify-content-between'>
-                      <FileInformation t={t} file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
-                      <div className='close-icon'>
-                        <CloseIcon onClick={removeUploadedFile} onKeyDown={(e) => e.key == "Enter" ? removeUploadedFile() : ""} className='remove-file' tabIndex='0' />
+                      <FileInformation t={t} file={copiedUploadedFile} />
+                      <div className='ps-2 pe-1 align-self-start'>
+                        <CloseIcon onClick={removeUploadedFile} onKeyDown={(e) => e.key == "Enter" ? removeUploadedFile() : ""} className='close-icon udoit-issue icon-sm' tabIndex='0' />
                       </div>
-                    </div> :
-                    
-                    <div>
-                      <UploadIcon className='upload-icon icon-md p-2 mb-2' />
-                      <div className='upload-instructions'>{t('form.file.upload_instrcutions')}</div>  
                     </div>
-                    }
-                  </div>
+                  ) : (
+                    <div>
+                      <UploadIcon className='icon-md icon-block mb-3' />
+                      <div className='font-smaller'>{t('form.file.upload_instrcutions')}</div>  
+                    </div>
+                    )
+                  }
                 </div>
               </div>
             )}
         </div>}
-      </div>}
-      {nonReferenced && (
-        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
-            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-            <input
-              type="radio"
-              id={FORM_OPTIONS.MARK_DELETE}
-              name="altTextOption"
-              tabIndex="0"
-              checked={activeOption === FORM_OPTIONS.MARK_DELETE}
-              disabled={isDisabled}
-              onChange={() => {
-                handleOptionChange(FORM_OPTIONS.MARK_DELETE)
-              }} />
-              {t('form.file.delete.original.label')}
-            </label>
-              {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='mt-1'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
-          </div>
-      )}
+      </>
+    }
+
+    { nonReferenced &&
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+        <input
+          type="radio"
+          id={FORM_OPTIONS.MARK_DELETE}
+          name="altTextOption"
+          tabIndex="0"
+          checked={activeOption === FORM_OPTIONS.MARK_DELETE}
+          disabled={isDisabled}
+          onChange={() => {
+            handleOptionChange(FORM_OPTIONS.MARK_DELETE)
+          }} />
+          {t('form.file.delete.original.label')}
+        </label>
+          {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='instructions'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
+      </div>
+    }
 
     </>
   )
