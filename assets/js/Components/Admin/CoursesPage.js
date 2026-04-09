@@ -43,8 +43,8 @@ export default function CoursePage({
     },
     { id: "barriers", text: t("report.header.issues"), alignText: "center" },
     {
-      id: "suggestions",
-      text: t("report.header.suggestions"),
+      id: "potentialBarriers",
+      text: t("report.header.potential"),
       alignText: "center",
     },
     {
@@ -118,7 +118,10 @@ export default function CoursePage({
           accountName: course.accountName || "---",
           lastUpdated: course.lastUpdated || "---",
           barriers: hasReport && course.latestReport ? barriers : "---",
-          suggestions: hasReport && course.latestReport ? suggestions : "---",
+          potentialBarriers:
+            hasReport && course.latestReport.scanCounts?.potentials
+              ? course.latestReport.scanCounts.potentials
+              : "---",
           contentFixed:
             hasReport && course.latestReport
               ? course.latestReport.contentFixed
