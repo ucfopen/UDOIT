@@ -22,23 +22,23 @@ final class Version20260312202114 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
         $this->addSql("
-						UPDATE course c
-						SET lms_account_id = NULL
-						WHERE NOT EXISTS (
-								SELECT 1
-								FROM account a
-								WHERE a.lms_account_id = c.lms_account_id
-						)
-				");
+            UPDATE course c
+            SET lms_account_id = NULL
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM account a
+                WHERE a.lms_account_id = c.lms_account_id
+            )
+        ");
         $this->addSql("
-						UPDATE course c
-						SET lms_term_id = NULL
-						WHERE NOT EXISTS (
-								SELECT 1
-								FROM term t
-								WHERE t.lms_term_id = t.lms_term_id
-						)
-				");
+            UPDATE course c
+            SET lms_term_id = NULL
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM term t
+                WHERE t.lms_term_id = t.lms_term_id
+            )
+        ");
         $this->addSql('ALTER TABLE course ADD course_professors JSON DEFAULT NULL, CHANGE lms_term_id lms_term_id VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE course ADD CONSTRAINT FK_169E6FB9FE3F90C9 FOREIGN KEY (lms_account_id) REFERENCES account (lms_account_id)');
         $this->addSql('ALTER TABLE course ADD CONSTRAINT FK_169E6FB9C338CE2B FOREIGN KEY (lms_term_id) REFERENCES term (lms_term_id)');
