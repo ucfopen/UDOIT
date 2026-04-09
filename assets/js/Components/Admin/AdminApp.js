@@ -149,19 +149,18 @@ export default function AdminApp(initialData) {
         handleNavigation={handleNavigation}
       />
 
-      <main role="main" className="pt-2">
-        {navigation !== "reports" && navigation !== "dashboard" && (
-          <AdminFilters
-            t={t}
-            settings={settings}
-            filters={filters}
-            handleFilter={handleFilter}
-            loadingContent={loadingCourses}
-            searchTerm={searchTerm}
-            handleSearchTerm={setSearchTerm}
-          />
-        )}
+      <AdminFilters
+        t={t}
+        settings={settings}
+        filters={filters}
+        handleFilter={handleFilter}
+        loadingContent={loadingCourses}
+        searchTerm={searchTerm}
+        handleSearchTerm={setSearchTerm}
+        navigation={navigation}
+      />
 
+      <main role="main" className="pt-2">
         {loadingCourses && (
           <div className="mt-3 flex-row justify-content-center">
             <div className="flex-column justify-content-center me-3">

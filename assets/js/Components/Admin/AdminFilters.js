@@ -11,6 +11,7 @@ export default function AdminFilters({
   loadingContent,
   searchTerm,
   handleSearchTerm,
+  navigation,
 }) {
   const [accountOptions, setAccountOptions] = useState([]);
   const [termOptions, setTermOptions] = useState([]);
@@ -47,15 +48,17 @@ export default function AdminFilters({
   return (
     <div className="filter-container mb-2">
       <div className="flex-row flex-wrap gap-1">
-        <div className="search-group">
-          <input
-            value={searchTerm}
-            type="text"
-            placeholder={t("filter.label.search")}
-            onChange={(e) => handleSearchTerm(e.target.value)}
-          />
-          <SearchIcon className="search-icon icon-sm" />
-        </div>
+        {navigation === "courses" && (
+          <div className="search-group">
+            <input
+              value={searchTerm}
+              type="text"
+              placeholder={t("filter.label.search")}
+              onChange={(e) => handleSearchTerm(e.target.value)}
+            />
+            <SearchIcon className="search-icon icon-sm" />
+          </div>
+        )}
         <div className="flex-row me-3">
           <div className="flex-column justify-content-center">
             <label htmlFor="inputAccount" className="me-2">
