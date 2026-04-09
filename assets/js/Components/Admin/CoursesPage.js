@@ -32,11 +32,6 @@ export default function CoursePage({
     },
     { id: "instructors", text: "Instructors", alignText: "center" },
     {
-      id: "accountName",
-      text: t("report.header.account_name"),
-      alignText: "center",
-    },
-    {
       id: "lastUpdated",
       text: t("report.header.last_scanned"),
       alignText: "center",
@@ -115,7 +110,6 @@ export default function CoursePage({
           ),
           instructors: names.length ? names.join(", ") : "---",
           courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
-          accountName: course.accountName || "---",
           lastUpdated: course.lastUpdated || "---",
           barriers: hasReport && course.latestReport ? barriers : "---",
           potentialBarriers:
@@ -457,4 +451,3 @@ export default function CoursePage({
     </div>
   );
 }
-
