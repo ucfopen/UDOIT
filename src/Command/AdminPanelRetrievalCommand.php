@@ -56,7 +56,7 @@ class AdminPanelRetrievalCommand extends Command
         $syncCourses  = in_array('courses', $tables);
 
         $requiredEnvVars = [
-            'ADMIN_RETRIEVAL_LMS_URL',
+            'ADMIN_RETRIEVAL_LMS_DOMAIN',
             'ADMIN_RETRIEVAL_API_TOKEN',
             'ADMIN_PANEL_INSTITUTION_ID',
         ];
