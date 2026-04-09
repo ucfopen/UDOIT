@@ -82,7 +82,7 @@
   }
 
   .file-upload-container{
-    background-color: var(--white);
+    background-color: var(--container-color);
     border: dotted;
     border-radius: var(--element-radius);
     cursor: pointer;

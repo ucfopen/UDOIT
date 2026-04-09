@@ -407,7 +407,7 @@ export default function ContrastForm({
             />
           </div>
           <div className="flex-row align-items-center gap-1">
-            <DarkIcon className="icon-md" alt="" aria-hidden="true"/>
+            <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
             <input
               type="range"
               id="textLumSlider"
@@ -424,7 +424,7 @@ export default function ContrastForm({
                 setTextColor(Contrast.setLuminance(textColor, e.target.value))
               }}
               />
-            <LightIcon className="icon-md" alt="" aria-hidden="true"/>
+            <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
           </div>
         </div>
       </div>
@@ -464,7 +464,7 @@ export default function ContrastForm({
                 )}
               </div>
               <div className="flex-row align-items-center gap-1">
-                <DarkIcon className="icon-md" alt="" aria-hidden="true"/>
+                <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
                 <input
                   type="range"
                   id={`backgroundLumSlider${idx}`}
@@ -481,7 +481,7 @@ export default function ContrastForm({
                     handleBackgroundChange(idx, e.target.value)
                   }}
                   />
-                <LightIcon className="icon-md" alt="" aria-hidden="true"/>
+                <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
               </div>
             </div>
           );

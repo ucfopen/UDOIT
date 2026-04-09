@@ -503,7 +503,7 @@
   "form.file.marked_review": "TODO: Marked as Reviewed",
   "form.file.marked_review_instruction": "TODO: This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes",
   "form.file.keep_current": "TODO: Keep Current File",
-  "form.file.upload_instrcutions": "TODO: Click to upload or drag and drop PDF, DOC, PPT",
+  "form.file.upload_instructions": "TODO: Click or drag and drop here to upload a new file.",
   "form.file.instances.label": "TODO: Instances of this file",
   "form.file.content.label": "TODO: Content",
   "form.file.location.label": "TODO: Location",

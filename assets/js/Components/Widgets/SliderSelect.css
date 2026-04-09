@@ -3,7 +3,7 @@
     .slider-select {
       display: flex;
       position: relative;
-      background-color: var(--container-color);
+      background-color: var(--background-color);
       border-radius:  var(--window-radius);
       overflow: hidden;
       width: max-content;
@@ -42,7 +42,7 @@
         content : '';
         position:absolute;
         inset:0px;
-        background-color: var(--white);
+        background-color: var(--table-header-background-color);
         box-shadow: 0px 2px 3px var(--shadow-color);
         border-radius: var(--element-radius);
         z-index:-1;

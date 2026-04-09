@@ -43,6 +43,7 @@ export default function FileForm ({
     const [nonReferenced, setNonReferenced] = useState(false)
 
     useEffect(() => { 
+      console.log("Active File: ", activeFile)
       setUploadedFile(null)
       setNonReferenced(false)
       setActiveOption('')
@@ -241,7 +242,7 @@ export default function FileForm ({
     }
 
     {activeFile.reviewed && !activeFile.replacement && 
-      <div className='resolve-option selected'>
+      <div className='callout-container'>
         <div className='p-2 flex-column justify-content-center align-items-center text-center'>
           <h3 className="mt-0">{t('form.file.marked_review')}</h3>
           <div className="instructions">{t('form.file.marked_review_instruction')}</div>
@@ -287,14 +288,14 @@ export default function FileForm ({
             </label>
             {activeOption == FORM_OPTIONS.REPLACE_FILE && (
               <div className='flex-column align-items-center justify-content-center'>
-                <div className='file-label-pill'>{t('form.file.original.label')}</div>
+                {/* <div className='file-label-pill'>{t('form.file.original.label')}</div>
                 <div className='callout-container w-100 mt-1'>
                   <FileInformation t={t} file={copiedActiveFile} />
                 </div>
 
                 <DownwardArrowIcon className="icon-md gray m-3" aria-hidden="true" />
 
-                <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
+                <div className='file-label-pill file-new'>{t('form.file.new.label')}</div> */}
                 <div className={`file-upload-container mt-1 ${uploadedFile ? 'uploaded' : 'p-3 flex-column text-center jusitify-content-center align-items-center'}`}
                   onDrop={handleDrop}
                   onClick={handleFileSelect}
@@ -306,13 +307,13 @@ export default function FileForm ({
                     <div className='flex-row align-items-center justify-content-between'>
                       <FileInformation t={t} file={copiedUploadedFile} />
                       <div className='ps-2 pe-1 align-self-start'>
-                        <CloseIcon onClick={removeUploadedFile} onKeyDown={(e) => e.key == "Enter" ? removeUploadedFile() : ""} className='close-icon udoit-issue icon-sm' tabIndex='0' />
+                        <CloseIcon onClick={removeUploadedFile} onKeyDown={(e) => e.key == "Enter" ? removeUploadedFile() : ""} className='close-icon icon-sm' tabIndex='0' />
                       </div>
                     </div>
                   ) : (
                     <div>
                       <UploadIcon className='icon-md icon-block mb-3' />
-                      <div className='font-smaller'>{t('form.file.upload_instrcutions')}</div>  
+                      <div className='font-smaller'>{t('form.file.upload_instructions')}</div>  
                     </div>
                     )
                   }

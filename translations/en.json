@@ -503,7 +503,7 @@
   "form.file.marked_review": "Marked as Reviewed",
   "form.file.marked_review_instruction": "This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes",
   "form.file.keep_current": "Keep Current File",
-  "form.file.upload_instrcutions": "Click to upload or drag and drop PDF, DOC, PPT",
+  "form.file.upload_instructions": "Click or drag and drop here to upload a new file.",
   "form.file.instances.label": "Instances of this file",
   "form.file.content.label": "Content",
   "form.file.location.label": "Location",

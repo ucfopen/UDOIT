@@ -23,7 +23,7 @@
         color: var(--text-color);
         fill: var(--text-color);
         border-bottom: 1px solid var(--border-color);
-        background-color: var(--gray-lighter);
+        background-color: var(--table-header-background-color);
         text-align: start;
 
         &:focus {
@@ -32,8 +32,7 @@
         }
 
         &:hover, &:focus {
-          /* filter: brightness(var(--hover-brightness)); */
-          background-color: var(--gray-lightest);
+          background-color: var(--table-header-hover-color);
 
           .clickable-text {
             text-decoration: underline;
@@ -60,7 +59,7 @@
   tbody {
 
     tr {
-      background-color: var(--white);
+      background-color: var(--container-color);
 
       &:not(:last-child) {
         border-bottom: 1px solid var(--border-color);
@@ -71,7 +70,7 @@
 
         &:hover,
         &:focus {
-          background-color: var(--gray-lightest);
+          background-color: var(--link-color-light);
 
           .clickable-text {
             text-decoration: underline;
@@ -156,6 +155,6 @@
 }
 
 .paginationButton.selected {
-  border-color: var(--pill-info-border);
-  background-color: var(--pill-info-background);
+  border-color: var(--pill-file-border);
+  background-color: var(--pill-file-background);
 }
