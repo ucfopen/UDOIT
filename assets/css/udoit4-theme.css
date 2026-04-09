@@ -29,11 +29,13 @@
     --info-color: #5BAEDF;
     --link-color: #006AAC;
     --focus-color: #009AD0;
+
     --text-color: #0A0A0A;
+    --text-secondary-color: #434D5B;
+    --text-disabled-color: #8B95A7;
 
     /* Variants of Main Colors */
     --primary-color-dark: var(--primary-color);
-    --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
     --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
     --primary-color-inverse: var(--gray-lightest);
     --primary-color-disabled: #B2D2C3;
@@ -44,11 +46,10 @@
     --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
     --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
     
-    --text-secondary-color: #434D5B; /* #4A5565; #2F3741; */
-    --text-disabled-color: #8B95A7; /* #D1D5DC; */
     --button-disabled-border-color: var(--gray-light);
     --button-disabled-background-color: var(--gray-light);
     --button-disabled-text-color: var(--gray);
+    --button-secondary-background-color: var(--white);
 
     /* PILLS have three colors: border color, light background color, and text color */
     --pill-success-border: #80D39E;
@@ -63,9 +64,9 @@
     --pill-error-background: #FFEBEB;
     --pill-error-text: #750B0B; /* #8D0D0D; */
 
-    --pill-info-border: #9CC6FC; /* #DBEAFE; */
-    --pill-info-background: #EFF6FF;
-    --pill-info-text: var(--file-color);
+    --pill-file-border: #9CC6FC; /* #DBEAFE; */
+    --pill-file-background: #EFF6FF;
+    --pill-file-text: var(--file-color);
 
     --help-color-border: #F5E9C3;
     --help-color-background: #FFFBEB;
@@ -75,11 +76,13 @@
     --selection-color-background: #F7FEF9;
 
     --background-color: var(--gray-lightest);
-    --container-color: #F2F4F7;
+    --container-color: #FFFFFF; /* #F2F4F7; */
     --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
     --progress-bar-color: var(--selection-color);
     --header-active-color: var(--link-color);
+    --table-header-background-color: var(--gray-lighter);
+    --table-header-hover-color: var(--gray-lightest);
     --shadow-color: #00000044;
     --backdrop-color: rgba(0, 0, 0, 0.25);
 
@@ -137,7 +140,7 @@
 
     &.dark-mode {
 
-      --white: #090A11; /* #242B48; */
+      --white: #090A11;
       --gray-lightest: #151a28;
       --gray-lighter: #373749;
       --gray-light: #A2A2A2;
@@ -152,21 +155,17 @@
       --selection-color: #1DAF55; /* #1DA54F; */
       --potential-color: #CC6D00;
       --error-color: #B30009;
-      --file-color: #1A7DFF;
+      --file-color: #51a2ff;
       --info-color: #5BAEDF;
       --link-color: #97BCED;
       --focus-color: #66D6FF;
-      --text-color: var(--black);
 
-      --primary-color-dark: var(--primary-color);
-      --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%);
-      --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);
-      --primary-color-inverse: var(--gray-lightest);
       --text-color: var(--black);
+      --text-secondary-color: #C0CBD8;
+      --text-disabled-color: #8B95A7;
 
       /* Variants of Main Colors */
       --primary-color-dark: var(--primary-color);
-      --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
       --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
       --primary-color-inverse: var(--black);
       --primary-color-disabled: #B2D2C3;
@@ -174,17 +173,29 @@
       --info-color-background: #103B56;
 
       --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-      --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
+      --link-color-light: #191E29;
       --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
       
-      --text-secondary-color: #D9D9D9; /* #B6B9C7; #4A5565; #2F3741; */
-      --text-disabled-color: #8B95A7; /* #D1D5DC; */
-      --button-disabled-border-color: #464653;
+      --button-disabled-border-color: #292e3d;
       --button-disabled-background-color: var(--background-color);
-      --button-disabled-text-color: #464653;
+      --button-disabled-text-color: #353d50;
+      --button-secondary-background-color: #1E2230;
+
+      --background-color: #0F1117;
+      --container-color: #161923;
+      --border-color: #3A4155;
+      --progress-bar-background-color: #272c3f;
+      --progress-bar-color: #2AB25E;
+      --header-active-color: var(--link-color);
+      --table-header-background-color: var(--button-secondary-background-color);
+      --table-header-hover-color: #232737;
+      --shadow-color: transparent;
+      --backdrop-color: rgba(0, 0, 0, 0.25);
+      --selection-color-border: var(--border-color);
+      --selection-color-background: var(--table-header-background-color);
 
       /* PILLS have three colors: border color, light background color, and text color */
-      --pill-success-border: #27A557;
+      --pill-success-border: #13532C;
       --pill-success-background: #072C15; /* #2B4C5A; */
       --pill-success-text: #D3F8E1;
 
@@ -196,25 +207,13 @@
       --pill-error-background: #3D0F12; /* #44191A; */
       --pill-error-text: #FFDBDD; /* #EF141E; */
 
-      --pill-info-border: #0054C2;
-      --pill-info-background: #00214d; /* #323F72; */
-      --pill-info-text: var(--file-color);
+      --pill-file-border: #2c4490;
+      --pill-file-background: #18254E; /* #323F72; */
+      --pill-file-text: var(--file-color);
 
-      --help-color-border: #3C4766;
-      --help-color-background: #182634; /* #324e6c; */
+      --help-color-border: var(--border-color);
+      --help-color-background: var(--container-color); /* #324e6c; */
       --help-color-text: var(--text-secondary-color);
-
-      --selection-color-border: var(--help-color-border);
-      --selection-color-background: var(--help-color-background);
-
-      --background-color: #21212c; /* #1F202E; #0A092D; */
-      --container-color: #21212c;
-      --border-color: #505975;
-      --progress-bar-background-color: #373749;
-      --progress-bar-color: #2AB25E;
-      --header-active-color: var(--link-color);
-      --shadow-color: transparent;
-      --backdrop-color: rgba(0, 0, 0, 0.25);
     }
   }
 
@@ -268,6 +267,7 @@
 
   .secondary {
     color: var(--text-secondary-color);
+    fill: var(--text-secondary-color);
   }
 
   .subtext {
@@ -343,13 +343,13 @@
 
   .btn-secondary {
     border-color: var(--border-color);
-    background-color: var(--white);
+    background-color: var(--button-secondary-background-color);
     color: var(--text-color);
     fill: var(--text-color);
     
     &:hover,
     &:focus {
-      background-color: var(--gray-lightest);
+      filter: brightness(var(--hover-brightness));
     }
   }
 
@@ -641,7 +641,7 @@
   }
 
   svg.icon-block {
-    background-color: var(--gray-lightest);
+    background-color: var(--background-color);
     border: 1px solid var(--border-color);
     border-radius: var(--element-radius);
     padding: .5em;
@@ -742,6 +742,7 @@
     padding: .75rem 1rem;
     border: 1px solid var(--border-color);
     box-sizing: border-box;
+    background-color: var(--container-color);
 
     &.help-container {
       background-color: var(--help-color-background);

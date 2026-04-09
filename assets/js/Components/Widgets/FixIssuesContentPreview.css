@@ -26,6 +26,7 @@
   --lms-text-color: #2D3B45;
   --lms-link-color: #1d6adb;
   --lms-border-color: #C7CDD1;
+  --content-preview-elements-background-color: #555555;
   --lms-text-font-family: LatoWeb, "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --lms-heading-font-family: "Lato Extended", "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
   
@@ -179,14 +180,14 @@
 
     #ufixit-alt-text-preview {
       font-family: var(--text-font-family);
-      background-color: #555555;
+      background-color: var(--content-preview-elements-background-color);
       color: #FFFFFF;
       border-radius: 8px;
       width: fit-content;
 
       display: flex;
       flex-direction: row;
-      border: 2px solid #555555;
+      border: 2px solid var(--content-preview-elements-background-color);
       margin: 5px 0px;
       
       #ufixit-alt-text-preview-icon {
@@ -308,7 +309,7 @@
   &::before {
     content: attr(ufixit-heading-type);
     font-size: .85rem;
-    background-color: var(--gray-dark);
+    background-color: var(--content-preview-elements-background-color);
     color: #fff;
     position: absolute;
     padding: 4px;
@@ -316,7 +317,7 @@
     margin-left: -32px;
     width: 20px;
     text-align: center;
-    border: 1px solid var(--white)
+    border: 1px solid var(--content-preview-elements-background-color);
   }
 }
 

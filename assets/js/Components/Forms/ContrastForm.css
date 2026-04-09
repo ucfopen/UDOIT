@@ -77,19 +77,11 @@
     &.ratio-valid {
       background-color: var(--pill-success-background);
       border-color: var(--pill-success-border);
-
-      .ratio-value {
-        color: var(--pill-success-text);
-      }
     }
 
     &.ratio-invalid {
       background-color: var(--pill-error-background);
       border-color: var(--error-color);
-
-      .ratio-value {
-        color: var(--error-color);
-      }
     }
 
     .ratio-label {

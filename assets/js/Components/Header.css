@@ -1,7 +1,7 @@
 @layer udoit-component {
   
   header#udoit-header {
-    background-color: var(--white);
+    background-color: var(--container-color);
     border-radius: var(--window-radius) var(--window-radius) 0 0;
     margin: 0;
     padding: 0 1rem;
@@ -108,7 +108,7 @@
           gap: .5em;
           box-sizing: border-box;
           width: fit-content;
-          background-color: var(--white);
+          background-color: var(--container-color);
           border-bottom: 2px solid transparent;
           justify-content: center;
 
@@ -188,8 +188,9 @@
               border-bottom: 1px solid var(--border-color);
 
               &.active-link {
-                background-color: var(--primary-color-light);
+                background-color: var(--link-color-light);
                 border-bottom-color: var(--border-color);
+                text-decoration: underline;
               }
 
               &:hover:not(.active-link):not([disabled]),

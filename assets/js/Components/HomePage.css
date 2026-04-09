@@ -32,7 +32,7 @@
   box-sizing: border-box;
   border: 1px solid var(--border-color);
   border-radius: var(--element-radius);
-  background-color: var(--white);
+  background-color: var(--container-color);
 
   .summary-icon-container {
     padding: .5rem;
@@ -98,11 +98,14 @@
 
     &.emphasis {
       border-color: var(--pill-error-border);
-      background: linear-gradient(90deg, var(--pill-error-background), var(--white));
+      background: linear-gradient(90deg, var(--pill-error-background), var(--container-color));
+    }
+
+    .summary-icon-container {
+      border-color: var(--pill-error-border);
     }
 
     &:not(.emphasis) .summary-icon-container {
-      border-color: var(--pill-error-border);
       background-color: var(--pill-error-background);
     }
 
@@ -118,11 +121,14 @@
   &.type-potential {
     &.emphasis {
       border-color: var(--pill-warning-border);
-      background: linear-gradient(90deg, var(--pill-warning-background), var(--white));
+      background: linear-gradient(90deg, var(--pill-warning-background), var(--container-color));
+    }
+
+    .summary-icon-container {
+      border-color: var(--pill-warning-border);
     }
 
     &:not(.emphasis) .summary-icon-container {
-      border-color: var(--pill-warning-border);
       background-color: var(--pill-warning-background);
     }
 
@@ -137,13 +143,16 @@
 
   &.type-file {
     &.emphasis {
-      border-color: var(--pill-info-border);
-      background: linear-gradient(90deg, var(--pill-info-background), var(--white));
+      border-color: var(--pill-file-border);
+      background: linear-gradient(90deg, var(--pill-file-background), var(--container-color));
+    }
+
+    .summary-icon-container {
+      border-color: var(--pill-file-border);
     }
 
     &:not(.emphasis) .summary-icon-container {
-      border-color: var(--pill-info-border);
-      background-color: var(--pill-info-background);
+      background-color: var(--pill-file-background);
     }
 
     .progress-bar-container {

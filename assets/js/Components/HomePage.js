@@ -250,7 +250,7 @@ export default function HomePage({
           </div>
         </div>
 
-        <div className="callout-container filled-container feedback-container flex-column p-4 h-fit flex-grow-1 align-self-end">
+        <div className="callout-container feedback-container flex-column p-4 h-fit flex-grow-1 align-self-end">
           <h2 className="mt-0 mb-4">Help & Feedback</h2>
           <div className="flex-row mb-3">
             <InfoIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />
