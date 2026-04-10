@@ -271,7 +271,7 @@ export default function CoursePage({
 
           if (response.data && response.data.courseId) {
             // Update the course object with the new UDOIT ID and instructors
-            course.udoitId = response.data.courseId``;
+            course.udoitId = response.data.courseId;
             const newCourseId = response.data.courseId;
 
             // Update instructors if they were fetched
