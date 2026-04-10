@@ -219,7 +219,7 @@ export default function FileForm ({
               }} />
               {t('form.file.delete.original.label')}
             </label>
-            {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='mt-1'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
+            {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='instructions'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
         </div>
 
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_REVERT ? 'selected' : ''}`}>
@@ -236,7 +236,7 @@ export default function FileForm ({
                 }} />
                 {t('form.file.revert_label')}
               </label>
-              {activeOption === FORM_OPTIONS.MARK_REVERT && <div className='mt-1'>{t('form.file.revert_instructions', {file: activeFile.fileName})}</div>}
+              {activeOption === FORM_OPTIONS.MARK_REVERT && <div className='instructions'>{t('form.file.revert_instructions', {file: activeFile.fileName})}</div>}
         </div>
       </div>
     }

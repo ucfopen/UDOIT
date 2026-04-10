@@ -17,7 +17,7 @@ import * as Html from '../Services/Html.js'
 import * as Text from '../Services/Text'
 
 import './FixIssuesPage.css'
-import './ReviewFilesPage.css'
+import './Widgets/SortableTable.css'
 
 export default function ReviewFilesPage({
   t,
