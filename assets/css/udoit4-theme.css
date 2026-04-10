@@ -42,6 +42,8 @@
 
     --info-color-background: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
 
+    --radio-selected-color: var(--selection-color);
+
     --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
     --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
     --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
@@ -158,7 +160,7 @@
       --file-color: #51a2ff;
       --info-color: #5BAEDF;
       --link-color: #97BCED;
-      --focus-color: #66D6FF;
+      --focus-color: #33C9FF;
 
       --text-color: var(--black);
       --text-secondary-color: #C0CBD8;
@@ -171,6 +173,8 @@
       --primary-color-disabled: #B2D2C3;
 
       --info-color-background: #103B56;
+
+      --radio-selected-color: var(--focus-color);
 
       --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
       --link-color-light: #191E29;
@@ -479,7 +483,7 @@
     cursor: pointer;
 
     &:checked {
-      border-color: var(--selection-color);
+      border-color: var(--radio-selected-color);
       border-width: .4em;
     }
 
@@ -631,12 +635,13 @@
     padding: .2rem;
     margin-inline-end: -.5rem;
     border: 1px solid transparent;
-    fill: var(--text-color);
+    fill: var(--text-secondary-color);
     box-shadow: none;
     border-radius: 50%;
 
     &:hover,
     &:focus {
+      fill: var(--text-color);
       background-color: var(--gray-lighter);
     }
 

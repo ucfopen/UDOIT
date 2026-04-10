@@ -59,11 +59,11 @@
     }
 
     input:checked + .slider {
-        background-color: var(--success-color);
+        background-color: var(--progress-bar-color);
     }
 
     input:focus + .slider {
-        box-shadow: 0 0 1px var(--success-color);
+        box-shadow: 0 0 1px var(--progress-bar-color);
     }
 
     input:checked + .slider:before {

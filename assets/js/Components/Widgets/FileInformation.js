@@ -1,6 +1,7 @@
 import React from 'react'
 import ContentPageIcon from '../Icons/ContentPageIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
+import FileTypeIcon from '../Icons/FileTypeIcon'
 
 const FileInformation = (
 {
@@ -13,7 +14,7 @@ const FileInformation = (
   return (
     <>
     {file && <div className='flex-row gap-2 align-items-start'>
-        <ContentPageIcon className='icon-block icon-md' />
+        <FileTypeIcon type={file.fileIconType} className="icon-md icon-block no-fill" aria-hidden="true"/>
         <div className='flex-column font-smaller w-100'>
             {file?.fileLink ?  
             <a href={file.fileLink} target='_blank'>
@@ -25,7 +26,7 @@ const FileInformation = (
             :  
             <div>{file.fileName}</div>
             }
-            <div className='font-smaller flex-row pt-1 mt-2 border-top gap-1'>
+            <div className='font-smaller flex-row pt-1 mt-2 border-top gap-2'>
                 <div>{t("form.file.label.file_type")}: <span className='fw-bold'>{file.fileType}</span> </div>
                 <div>{t("form.file.label.file_size")}: <span className='fw-bold'>{file.fileSize}</span> </div>
             </div>
