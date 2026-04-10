@@ -20,6 +20,7 @@
 
       &.open {
         border: none;
+        background-color: var(--container-color);
       }
 
       &:last-child {
@@ -30,7 +31,7 @@
     .ufixit-list-heading {
       position: sticky;
       top: 0;
-      background-color: var(--white);
+      background-color: var(--table-header-background-color);
       padding: .75rem 1rem;
       cursor: pointer;
       border-radius: var(--list-heading-border-radius);
@@ -65,14 +66,13 @@
       }
 
       &.open {
-        background-color: var(--background-color);
         border: 1px solid var(--border-color);
         border-radius: 0; /* var(--list-heading-border-radius) var(--list-heading-border-radius) 0 0; */
       }
       
-      &:hover, &:focus {
+      /* &:hover, &:focus {
         background-color: var(--link-color-light);
-      }
+      } */
 
       &:focus {
         outline: 2px solid var(--focus-color);
@@ -85,7 +85,7 @@
     max-height: 0px;
     overflow-x: hidden;
     overflow-y: auto;
-    background-color: var(--background-color);
+    background-color: var(--container-color);
     border-radius: 0 0 var(--list-heading-border-radius) var(--list-heading-border-radius);
 
     &.open {
@@ -101,7 +101,7 @@
       border-top: 1px solid var(--border-color);
       font-size: 1em;
       font-weight: 400;
-      background-color: var(--white);
+      background-color: var(--container-color);
 
       &:first-child {
         border-top: none;
@@ -109,16 +109,6 @@
 
       &:last-child {
         border-radius: 0 0 var(--list-heading-border-radius) var(--list-heading-border-radius);
-      }
-
-      .ufixit-list-content-type-icon-container {
-        display: flex;
-        padding: 0.4em;
-        background: var(--gray-lightest);
-        align-self: center;
-        border: 1px solid var(--border-color);
-        border-radius: var(--element-radius);
-        box-sizing: border-box;
       }
 
       .list-item-subtitle {

@@ -23,7 +23,7 @@
         color: var(--text-color);
         fill: var(--text-color);
         border-bottom: 1px solid var(--border-color);
-        background-color: var(--gray-lighter);
+        background-color: var(--table-header-background-color);
         text-align: start;
 
         &:focus {
@@ -32,8 +32,7 @@
         }
 
         &:hover, &:focus {
-          /* filter: brightness(var(--hover-brightness)); */
-          background-color: var(--gray-lightest);
+          background-color: var(--table-header-hover-color);
 
           .clickable-text {
             text-decoration: underline;
@@ -41,7 +40,7 @@
         }
 
         &.divider {
-          border-right: 2px solid var(--primary-color-inverse);
+          border-right: 2px solid var(--border-color);
         }
 
         svg {
@@ -49,8 +48,8 @@
         }
 
         .header-spacer {
-          width: 32px;
-          min-width: 32px;
+          width: 1.5em;
+          min-width: 1.5em;
           height: auto;
         }
       }
@@ -60,7 +59,7 @@
   tbody {
 
     tr {
-      background-color: var(--white);
+      background-color: var(--container-color);
 
       &:not(:last-child) {
         border-bottom: 1px solid var(--border-color);
@@ -92,7 +91,11 @@
         }
 
         &.divider {
-          border-right: 2px solid var(--primary-color);
+          border-right: 2px solid var(--border-color);
+        }
+
+        .file-label-pill {
+          font-size: .9375em; /* We want .75em, but we're inside a table with font-size: .8em. 0.75 / 0.8 = 0.9375 */
         }
       }
 
@@ -152,5 +155,6 @@
 }
 
 .paginationButton.selected {
-  background-color: var(--pill-info-border);
+  border-color: var(--pill-file-border);
+  background-color: var(--pill-file-background);
 }

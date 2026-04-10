@@ -8,6 +8,7 @@ import HomeIcon from './Icons/HomeIcon'
 import MenuIcon from './Icons/MenuIcon'
 import ReportIcon from './Icons/ReportIcon'
 import SettingsIcon from './Icons/SettingsIcon'
+import ExpandIcon from './Icons/ExpandIcon'
 import './Header.css'
 
 export default function Header({
@@ -29,16 +30,18 @@ export default function Header({
     *  the user.
   *****************************************************************************************************************/
   const isNavOverflowing = () => {
-    const nav = document.querySelector('nav')
-    const navList = document.querySelector('#main-nav')
+    const navContainer = document.querySelector('#nav-container')
+    const navList = document.querySelector('#nav-row')
 
-    if(!nav || !navList) {
+    if(!navContainer || !navList) {
       return false
     }
 
-    nav.classList.add('force-measurement')
-    let isOverflowing = navList.scrollWidth > nav.scrollWidth
-    nav.classList.remove('force-measurement')
+    navContainer.classList.add('force-measurement')
+    let navWidth = navList.clientWidth
+    let containerWidth = navContainer.clientWidth
+    navContainer.classList.remove('force-measurement')
+    let isOverflowing = navWidth > containerWidth
 
     return isOverflowing
   }
@@ -54,7 +57,22 @@ export default function Header({
     { name: t('menu.settings'), icon: SettingsIcon, key: 'settings' },
   ]
 
-  function updateNavLayout() {
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      try {
+        document.documentElement.requestFullscreen()
+      }
+      catch (err) {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      }
+    }
+  }
+
+  const updateNavLayout = () => {
     const isOverflowing = isNavOverflowing()
 
     setIsMobile(isOverflowing)
@@ -70,6 +88,13 @@ export default function Header({
     updateNavLayout()
   }, [])
 
+  useEffect(() => {
+    // Wait until after the render to check if the nav is overflowing
+    setTimeout(() => {
+      updateNavLayout()
+    }, 1)
+  }, [settings])
+
   const handleClick = (destination) => {
     setMobileMenuVisible(false)
     handleNavigation(destination)
@@ -77,7 +102,7 @@ export default function Header({
 
   /* CSS-Only Responsive Mobile menu based on: https://blog.logrocket.com/create-responsive-mobile-menu-css-without-javascript/ */
   return (
-    <header role="banner" inert={modalActive ? "inert" : undefined} aria-hidden={!modalActive}>
+    <header id="udoit-header" role="banner" inert={modalActive ? "inert" : undefined} aria-hidden={!modalActive}>
       <a className="skip-link" href="#main-content">{t('menu.nav.skip_to_main')}</a>
       <img alt={t('alt.UDOIT')} src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}></img>
       <input
@@ -88,48 +113,66 @@ export default function Header({
         checked={mobileMenuVisible}
         onChange={() => {}}
       />
-      <div
-        id="nav-menu-toggle-icon"
-        aria-label={t('menu.nav.toggle_menu')}
-        role="button"
-        aria-expanded={mobileMenuVisible}
-        aria-controls="main-nav"
-        aria-hidden={!isMobile}
-        className={`nav-menu-toggle-icon${!isMobile ? ' hidden' : ''}`}
-        onClick={() => setMobileMenuVisible(!mobileMenuVisible)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            setMobileMenuVisible(!mobileMenuVisible)
-          }
-        }}
-        tabIndex="0">
-        {mobileMenuVisible ? <CloseIcon className="icon-md text-color" /> : <MenuIcon className="icon-md text-color" />}
+      
+      <div id="nav-container" className={isMobile ? 'mobile' : ''}>
+        <div className="flex-row gap-1" id="nav-row">
+          <div
+            id="nav-menu-toggle-icon"
+            aria-label={t('menu.nav.toggle_menu')}
+            role="button"
+            aria-expanded={mobileMenuVisible}
+            aria-controls="main-nav"
+            aria-hidden={!isMobile}
+            className="nav-menu-toggle-icon"
+            onClick={() => setMobileMenuVisible(!mobileMenuVisible)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setMobileMenuVisible(!mobileMenuVisible)
+              }
+            }}
+            tabIndex="0">
+            {mobileMenuVisible ? <CloseIcon className="icon-md text-color" /> : <MenuIcon className="icon-md text-color" />}
+          </div>
+          <nav
+            aria-label={t('menu.nav.label')}
+            className={!mobileMenuVisible ? 'hide-mobile' : ''}>
+            <ul id="main-nav">
+              {links.map(link => (
+                <li
+                  key={link.key}
+                  role="link"
+                  disabled={!syncComplete}
+                  aria-disabled={!syncComplete}
+                  aria-label={link.name}
+                  className={navigation === link.key ? 'active-link' : ''}
+                  onClick={()=>handleClick(link.key)}
+                  onKeyDown={(e) => {
+                    if(e.key === 'Enter' || e.key === ' ') {
+                      handleClick(link.key)
+                    }
+                  }}
+                  tabIndex='0'>
+                  <link.icon className='icon-md' aria-hidden="true"/>
+                  <div aria-hidden="true">{link.name}</div>
+                </li>
+              ))}
+            </ul>          
+          </nav>
+          <ExpandIcon
+            role="button"
+            id="full-screen-toggle"
+            className='icon-md close-icon'
+            aria-label={t('menu.nav.toggle_full_screen')}
+            title={t('menu.nav.toggle_full_screen')}
+            onClick={toggleFullScreen}
+            onKeyDown={(e) => {
+              if(e.key === 'Enter' || e.key === ' ') {
+                toggleFullScreen()
+              }
+            }}
+            tabIndex='0' />
+        </div>
       </div>
-      <nav
-        aria-label={t('menu.nav.label')}
-        className={(isMobile ? ' mobile' : '') + (!mobileMenuVisible ? ' hide-mobile' : '')}>
-        <ul id="main-nav">
-          {links.map(link => (
-            <li
-              key={link.key}
-              role="link"
-              disabled={!syncComplete}
-              aria-disabled={!syncComplete}
-              aria-label={link.name}
-              className={navigation === link.key ? 'active-link' : ''}
-              onClick={()=>handleClick(link.key)}
-              onKeyDown={(e) => {
-                if(e.key === 'Enter' || e.key === ' ') {
-                  handleClick(link.key)
-                }
-              }}
-              tabIndex='0'>
-              <link.icon className='icon-md' aria-hidden="true"/>
-              <div aria-hidden="true">{link.name}</div>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </header>
   )
 }

@@ -30,8 +30,8 @@
   align-content: center;
 
   &.selected {
-    border-color: var(--selection-color);
-    background-color: var(--selection-color-light);
+    border-color: var(--selection-color-border);
+    background-color: var(--selection-color-background);
   }
 
   .option-label {
@@ -42,44 +42,9 @@
     cursor: pointer;
     align-items: center;
 
-    /* Custom CSS-only radio button styling adapted from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */  
-    > input[type="radio"] {
-      /* Remove default appearance */
-      -webkit-appearance: none;
-      appearance: none;
-      background-color: transparent;
-      margin: 0;
-
-      /* Draw a circle for the border */
-      font: inherit;
-      color: var(--text-color);
-      width: 1.15em;
-      height: 1.15em;
-      border: 0.15em solid var(--text-color);
-      border-radius: 50%;
-      margin-right: .75rem;
-      transition: 120ms border-width ease-in-out;
-      flex-shrink: 0;
-
-      &:checked {
-        border-color: var(--selection-color);
-        border-width: .4em;
-      }
-
-      &:focus {
-        outline: 2px solid var(--focus-color);
-        outline-offset: 2px;
-      }
-    }
-
     &.disabled {
       color: var(--text-disabled-color);
       cursor: not-allowed;
-
-      > input[type="radio"] {
-        border-color: var(--text-disabled-color) !important;
-        cursor: not-allowed;
-      }
     }
   }
 
@@ -87,27 +52,12 @@
     + * {
       width: 100%;
       margin-block-start: 1rem;
-      /* border-block-start: 1px solid var(--selection-color);
-      padding-block-start: .5rem; */
     }
   }
 
   .subtext {
     text-align: end;
     margin-block-start: .5rem;
-  }
-
-  .option-feedback {
-    margin-top: .5em;
-    font-size: .85em;
-    font-weight: 300;
-    text-align: end;
-    line-height: normal;
-    font-style: italic;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
   }
 
   .indented {
@@ -121,14 +71,16 @@
 }
 
 .dialog-indicator-background {
-  background-color: var(--help-color-light);
-  border: 1px solid var(--help-color);
+  background-color: var(--help-color-background);
+  border: 1px solid var(--help-color-border);
   border-radius: var(--element-radius);
   padding: .75rem 1rem;
+  box-sizing: border-box;
+  width: min(100%, 40em);
+  margin: auto;
 }
 
 .dialog-indicator-container {
-  max-width: calc(40em / .9);
   margin: 0 auto;  
   color: var(--help-color-text);
   font-size: .85em;
@@ -143,7 +95,7 @@
 }
 
 .indicator-container {
-  border: 1px solid var(--help-color);
+  border: 1px solid var(--help-color-text);
   background-color: var(--white);
   border-radius: 2rem;
   display: flex;
@@ -166,7 +118,7 @@
 
 .clarification-container {
   padding-top: .5rem;
-  border-top: 1px solid var(--help-color);
+  border-top: 1px solid var(--help-color-border);
   margin-top: .5rem;
 
   .clarification-text {
@@ -369,7 +321,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(1.5px);
   background-color: transparent;
   z-index: 1000;
   padding: 0 5px;
@@ -412,25 +364,6 @@
   }
 }
 
-.ufixit-widget-dialog-header {
-  padding: 1rem 1rem .75rem 1rem;
-  background-color: var(--primary-color-light);
-  position: sticky;
-  top: 0;
-  box-shadow: 0 2px 2px var(--shadow-color);
-
-  .close-icon { 
-    padding: .25rem;
-    border-radius: 2rem;
-    cursor:pointer;
-    background-color: transparent;
-
-    &:hover, &:focus {
-      background-color: var(--white);
-    }
-  }
-}
-
 .ufixit-widget-dialog-content {
   padding: 0 1rem;
   color: var(--text-color);
@@ -443,7 +376,7 @@
 dialog::backdrop {
   pointer-events: none;
   background: var(--backdrop-color);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(1.5px);
 }
 
 .file-review-status-container{

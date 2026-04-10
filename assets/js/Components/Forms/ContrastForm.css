@@ -72,17 +72,16 @@
     padding: .75rem 1rem;
     margin-block-start: 1rem;
     border: 2px solid var(--border-color);
+    color: var(--text-color);
 
     &.ratio-valid {
       background-color: var(--pill-success-background);
       border-color: var(--pill-success-border);
-      color: var(--pill-success-text);
     }
 
     &.ratio-invalid {
       background-color: var(--pill-error-background);
       border-color: var(--error-color);
-      color: var(--pill-error-text);
     }
 
     .ratio-label {

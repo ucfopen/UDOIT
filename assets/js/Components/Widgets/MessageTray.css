@@ -11,7 +11,7 @@
   .messageItemContainer {
     position: relative;
     background-color: var(--primary-color-light);
-    box-shadow: 0px 0px 3px var(--gray-dark);
+    box-shadow: 0px 0px 3px var(--shadow-color);
     transform: translateX(calc(100% + 20px));
     transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35);
 
@@ -40,7 +40,7 @@
 
     &.info {
       border: 1px solid var(--info-color);
-      background-color: var(--info-color-light);
+      background-color: var(--info-color-background);
     }
 
     &:hover {

@@ -26,21 +26,14 @@
     }
 
     .table-pill {
-      background-color: var(--gray-lighter);
+      background-color: var(--gray-lightest);
+      border: 1px solid var(--border-color);
       inline-size: fit-content;
       padding: .05rem .5rem 0;
       border-radius: var(--element-radius);
       text-transform: uppercase;
       font-size: .8em;
       font-weight: 400;
-    }
-
-    &.clickable:hover,
-    &.clickable:focus {
-      .fileTypeIconBackground,
-      .table-pill {
-        background-color: var(--white);
-      }
     }
 
     .table-status-container {

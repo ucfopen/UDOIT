@@ -3,7 +3,6 @@ import ScrollButton from './ScrollButton'
 import HtmlPreview from './HtmlPreview'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ProgressIcon from '../Icons/ProgressIcon'
-import InfoIcon from '../Icons/InfoIcon'
 import './FixIssuesContentPreview.css'
 
 export default function FixIssuesContentPreview({
@@ -12,6 +11,7 @@ export default function FixIssuesContentPreview({
 
   activeContentItem,
   activeIssue,
+  activeOption,
   contentItemsBeingScanned,
   clickedInfo,
   setClickedInfo,
@@ -123,9 +123,11 @@ export default function FixIssuesContentPreview({
                 <HtmlPreview
                   key={"html-preview"}
                   t={t}
+                  settings={settings}
 
                   activeContentItem={activeContentItem}
                   activeIssue={activeIssue}
+                  activeOption={activeOption}
                   liveUpdateToggle={liveUpdateToggle}
                   setIsErrorFoundInContent={setIsErrorFoundInContent}
                   clickedInfo={clickedInfo}

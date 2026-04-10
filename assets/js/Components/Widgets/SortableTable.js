@@ -189,7 +189,7 @@ export default function SortableTable({
                           <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
                         </div>
                         ) : (
-                          <div className="header-spacer" />
+                          <div className="header-spacer ps-2" />
                         )
                       }
                     </div>
@@ -217,15 +217,16 @@ export default function SortableTable({
                   }}
                   aria-label={row.label ? row.label : ''}
                 >
-                  {headers.map(({ id, alignText }) => (
+                  {headers.map(({ id, alignText, divider }) => (
                     <td
                       key={`row${row.id}cell${id}`}
                       className={
-                        alignText === 'center'
+                        (alignText === 'center'
                           ? 'text-center'
                           : alignText === 'end'
                           ? 'text-end'
-                          : 'text-start'
+                          : 'text-start') + 
+                        ((divider) ? ' divider' : '')
                       }
                     >
                       {(typeof row[id] === 'object' && row[id]?.display) ? row[id].display : row[id]}

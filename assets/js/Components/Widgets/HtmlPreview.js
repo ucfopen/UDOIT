@@ -6,9 +6,11 @@ import './FixIssuesContentPreview.css'
 
 export default function HtmlPreview({
   t,
+  settings,
 
   activeContentItem,
   activeIssue,
+  activeOption,
   liveUpdateToggle,
   setIsErrorFoundInContent,
   clickedInfo,
@@ -30,6 +32,20 @@ export default function HtmlPreview({
   }
 
   const convertErrorHtmlElement = (htmlElement) => {
+
+    // Sometimes, instead of a valid element, a GROUP of elements are returned inside of a DocumentFragment.
+    // For instance, when a BlockQuote is removed, however many elements were inside (like a set of paragraphs) are now the
+    // replacement "html" for the issue. In order to display this on screen and add the 'ufixit-error-highlight' class, we
+    // need to convert the DocumentFragment into a single container (div) element that we can add the class to.
+    if(htmlElement.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+      const container = document.createElement('div')
+      htmlElement.childNodes.forEach((child) => {
+        container.appendChild(child)
+      })
+      container.classList.add('ufixit-error-highlight')
+      return container
+    }
+
     htmlElement.classList.add('ufixit-error-highlight')
 
     return htmlElement
@@ -40,17 +56,21 @@ export default function HtmlPreview({
       return doc
     }
 
-    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))){
+    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT){
       const allElements = doc.querySelectorAll('*')
       allElements.forEach((el) => {
         if (el.id?.includes('ufixit-alt-text-preview')) {
           return
         }
         el.tabIndex = 0
+        // If it is a link, we need to remove the destination so it can be clickable without navigating away.
+        if(el.tagName.toLowerCase() === 'a') {
+          el.removeAttribute('href')
+        }
       })
     }
 
-    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT) {
       doc.querySelectorAll('.ufixit-temp-selected').forEach((el) => {
         el.classList.remove('ufixit-temp-selected')
       })
@@ -231,7 +251,7 @@ export default function HtmlPreview({
 
   useEffect(() => {
     checkTaggedContentUpdate()
-  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData])
+  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData, activeOption])
 
   useEffect(() => {
     checkTaggedContentUpdate()
@@ -270,7 +290,7 @@ export default function HtmlPreview({
       ) : (
         <div
           key={"html-content-preview-div"}
-          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) ? ' ufixit-clickable-container' : ''}`}
+          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT ? ' ufixit-clickable-container' : ''}`}
           id='ufixit-content-preview-main'
           onScroll={() => handleScroll()}
           onClick={handleClickedElement}
