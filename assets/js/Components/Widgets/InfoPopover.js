@@ -117,7 +117,7 @@ export default function InfoPopover({
         <div className="info-popover-title">
           <h2 id={uuid + '-info-popover-title'} tabIndex="-1">{title}</h2>
           <CloseIcon
-            className="icon-sm"
+            className="icon-sm close-icon me-0"
             onClick={handleClose}
             onKeyDown={(e) => {
               if(e.key === 'Enter' || e.key === ' ') {
