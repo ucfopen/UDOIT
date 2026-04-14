@@ -52,7 +52,16 @@ services:
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.composer
-      command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader"
+      command: >
+        sh -c '
+          if [ "$APP_ENV" = "dev" ]; then
+            echo "composer install (dev)" &&
+            composer install --no-interaction --no-progress --optimize-autoloader;
+          else
+            echo "composer install (prod)" &&
+            composer install --no-dev --no-interaction --no-progress --optimize-autoloader;
+          fi
+        '
       volumes:
         - ./:/app
       env_file:

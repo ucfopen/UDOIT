@@ -63,11 +63,7 @@ We provide a fast and simple way of setting up a local UDOIT instance through Do
 
 #### 2. (Optional) Install the Necessary PHP Dependencies for Dev Environment
 
-UDOIT uses Composer to install PHP dependencies. If your `APP_ENV` is set to `prod`, UDOIT will handle this for you. However, if it is set to `dev`, you may need some additional dependencies.
-
-To set up the dependencies:
-
-- Run the command `docker compose -f docker-compose.nginx.yml run composer composer install`.
+UDOIT uses Composer to install PHP dependencies. Running the following command will handle installing the dependencies for you.
 
 #### 3. Build the Containers
 
