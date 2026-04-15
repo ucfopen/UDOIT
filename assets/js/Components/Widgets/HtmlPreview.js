@@ -125,7 +125,7 @@ export default function HtmlPreview({
           
           let elementTag = Html.getTagName(errorElement)
           // If the element is an <area>, find its parent <map> element
-          if (elementTag.toLowerCase() === 'area') {
+          if (elementTag?.toLowerCase() === 'area') {
             const mapElement = errorElement.closest('map')
             if (mapElement && mapElement.parentNode) {
               mapElement.insertAdjacentHTML('afterend', altTextPreviewCode)
@@ -176,88 +176,87 @@ export default function HtmlPreview({
     let fullPageHtml = activeContentItem.body
     const parser = new DOMParser()
     let doc = parser.parseFromString(fullPageHtml, 'text/html')
+    let errorElement = null
 
-    // Check if this is a grouped list issue
-    let metadata = {}
-    try {
-      metadata = typeof activeIssue?.issueData?.metadata === 'string' 
-        ? JSON.parse(activeIssue.issueData.metadata) 
-        : (activeIssue?.issueData?.metadata || {})
-    } catch (e) {
-      metadata = {}
+    if(FORM_CLASSIFICATIONS.LIST_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+
+      if (previewData?.listGroupXpaths?.length > 0) {
+        
+        // Handle grouped list issues
+        const groupElements = []
+        
+        previewData.listGroupXpaths.forEach((xpath) => {
+          const element = Html.findElementWithXpath(doc, xpath)
+          if (element) {
+            groupElements.push(element)
+          }
+        })
+
+        if (groupElements.length === 0) {
+          setShowMessage(true)
+          setIsErrorFoundInContent(false)
+          return null
+        }
+
+        let parentElement = groupElements[0].parentElement
+        let allSameParent = groupElements.every(el => el.parentElement === parentElement)
+        if (allSameParent) {
+          const wrapper = doc.createElement('div')
+          wrapper.classList.add('ufixit-error-highlight')
+          wrapper.setAttribute('data-list-group', 'true')
+          
+          parentElement.insertBefore(wrapper, groupElements[0])
+          
+          groupElements.forEach(element => {
+            wrapper.appendChild(element)
+          })
+        } else {
+          groupElements.forEach(element => {
+            element.classList.add('ufixit-error-highlight')
+          })
+        }
+
+        setShowMessage(false)
+        setIsErrorFoundInContent(true)
+      }
+
+      else {
+        errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
+        if(!errorElement) {
+          setShowMessage(true)
+          setIsErrorFoundInContent(false)
+        }
+        else {
+          errorElement.classList.add('ufixit-error-highlight')
+          setShowMessage(false)
+          setIsErrorFoundInContent(true)
+        }
+      }
     }
 
-    // Handle grouped list issues
-    if (metadata.isListGroup && metadata.listGroupXpaths) {
-      const groupElements = []
-      
-      metadata.listGroupXpaths.forEach((xpath) => {
-        const element = Html.findElementWithXpath(doc, xpath)
-        if (element) {
-          groupElements.push(element)
-        }
-      })
-
-      if (groupElements.length === 0) {
+    else {
+      // Original single-issue logic
+      errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
+      let editedElement = Html.getIssueHtml(activeIssue?.issueData)
+    
+      if(!errorElement) {
         setShowMessage(true)
         setIsErrorFoundInContent(false)
-        return null
       }
-
-      const firstElement = groupElements[0]
-      const lastElement = groupElements[groupElements.length - 1]
-      
-      // Wrap in highlight div
-      if (firstElement.parentElement === lastElement.parentElement) {
-        const wrapper = doc.createElement('div')
-        wrapper.classList.add('ufixit-error-highlight')
-        wrapper.setAttribute('data-list-group', 'true')
-        
-        firstElement.parentElement.insertBefore(wrapper, firstElement)
-        
-        groupElements.forEach(element => {
-          wrapper.appendChild(element)
-        })
-      } else {
-        groupElements.forEach(element => {
-          element.classList.add('ufixit-error-highlight')
-        })
-      }
-
-      setShowMessage(false)
-      setIsErrorFoundInContent(true)
-      
-      const detailsElements = Array.from(doc.body.querySelectorAll('details'))
-      detailsElements.forEach((detailsElement) => {
-        if (!detailsElement.open) {
-          detailsElement.open = true
+      else {
+        if(editedElement) { 
+          errorElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(editedElement)))
+          let tempElement = errorElement.nextSibling
+          errorElement.remove()
+          errorElement = tempElement
+        } else {
+          errorElement.replaceWith(convertErrorHtmlElement(errorElement))
         }
-      })
-
-      return doc.body.innerHTML
-    }
-
-    // Original single-issue logic
-    let errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
-    let editedElement = Html.getIssueHtml(activeIssue?.issueData)
-  
-    if(!errorElement) {
-      setShowMessage(true)
-      setIsErrorFoundInContent(false)
-    }
-    else {
-      if(editedElement) { 
-        errorElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(editedElement)))
-        let tempElement = errorElement.nextSibling
-        errorElement.remove()
-        errorElement = tempElement
-      } else {
-        errorElement.replaceWith(convertErrorHtmlElement(errorElement))
+        setShowMessage(false)
+        setIsErrorFoundInContent(true)
       }
-      setShowMessage(false)
-      setIsErrorFoundInContent(true)
     }
-    
+
     // Find all of the <details> elements in the document (if present).
     const detailsElements = Array.from(doc.body.querySelectorAll('details'))
     detailsElements.forEach((detailsElement) => {

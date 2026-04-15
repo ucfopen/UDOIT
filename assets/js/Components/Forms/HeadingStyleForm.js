@@ -40,7 +40,7 @@ export default function HeadingStyleForm ({
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
     const hasStyle = Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
-    const tagName = Html.getTagName(element).toUpperCase()
+    const tagName = Html.getTagName(element)?.toUpperCase()
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     
     const tagSelection = tagOptions.includes(tagName) ? tagName : ''

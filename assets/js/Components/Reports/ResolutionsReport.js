@@ -324,6 +324,22 @@ export default function ResolutionsReport({
     setSelectedPreset(daysStr)
   }
 
+  const getFontSize = () => {
+    let fontSize = settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE;
+    switch (fontSize) {
+      case 'font-small':
+        return '14';
+      case 'font-medium':
+        return '16';
+      case 'font-large':
+        return '20';
+      case 'font-xlarge':
+        return '24';
+      default:
+        return '16';
+    }
+  }
+
   /** ---------- Chart options ---------- */
   const options = useMemo(
     () => ({
@@ -336,7 +352,7 @@ export default function ResolutionsReport({
           labels: {
             font: {
               color: darkMode ? "#D9D9D9" : "#434D5B",
-              size: 15,
+              size: getFontSize(),
               weight: "normal",
               lineHeight: 1.5,
               family: "'Open Sans', Arial, Helvetica, sans-serif",
@@ -352,11 +368,32 @@ export default function ResolutionsReport({
               chartType === "bar"
                 ? t("report.header.courses")
                 : t("report.label.dates"),
+            font: {
+              size: getFontSize(),
+              weight: 'bold',
+            },
           },
+          ticks: {
+            font: {
+              size: getFontSize(),
+            }
+          }
         },
         y: {
           beginAtZero: true,
-          title: { display: true, text: t("report.label.errors") },
+          title: {
+            display: true,
+            text: t("report.label.issue"),
+            font: {
+              size: getFontSize(),
+              weight: 'bold',
+            },
+          },
+          ticks: {
+            font: {
+              size: getFontSize(),
+            }
+          }
         },
       },
     }),

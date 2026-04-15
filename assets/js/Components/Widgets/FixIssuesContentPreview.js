@@ -79,6 +79,8 @@ export default function FixIssuesContentPreview({
 
   useEffect(() => {
     handleScroll()
+    console.log('Active Content Item:', activeContentItem?.id)
+    console.log(contentItemsBeingScanned)
   }, [activeContentItem, activeIssue])
 
 
@@ -138,14 +140,10 @@ export default function FixIssuesContentPreview({
                 />
               </>
             ) : (
-              <div className="flex-column h-100 flex-grow-1 justify-content-center">
-                <div className="flex-row justify-content-center mb-4">
-                  <div className="flex-column justify-content-center">
-                    <ProgressIcon className="icon-lg udoit-progress spinner" />
-                  </div>
-                  <div className="flex-column justify-content-center ms-3">
-                    <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
-                  </div>
+              <div className="flex-column h-100 flex-grow-1 justify-content-center ufixit-content-preview-loader">
+                <div className="flex-row justify-content-center align-items-center mb-4">
+                  <ProgressIcon className="icon-lg udoit-progress spinner" />
+                  <h2 className="ps-3 mt-0 mb-0">{t('fix.label.loading_content')}</h2>
                 </div>
               </div>
             )}

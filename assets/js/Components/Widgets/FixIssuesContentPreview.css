@@ -160,8 +160,8 @@
     }
 
     ol, ul {
-      padding: 0;
-      margin: 0 0 .375em 1.5em;
+      padding: 0 0 0 1.5em;
+      margin: 0 0 .375em 0;
     }
     
     p {
@@ -230,6 +230,12 @@
           }
         }
       }
+    }
+  }
+
+  .ufixit-content-preview-loader {
+    h2 {
+      color: var(--lms-text-color);
     }
   }
 }

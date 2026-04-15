@@ -664,7 +664,7 @@
   "rule.desc.list_children_valid": "",
   "rule.desc.list_markup_review": "",
   "rule.desc.list_structure_proper": "",
-  "rule.info.list_markup_review": "This text seems to be part of a list, but is not marked as one. If it is a list, modify it in your LMS using the list tools. Otherwise, no changes are needed.",
+  "rule.info.list_markup_review": "",
 
   "form.media_captions.title": "Media Should Have Captions and Transcripts",
   "form.media_captions.summary": "Videos and audio files should have captions or transcripts to ensure that all users can access the content, including those with hearing disabilities or those who speak different languages.",

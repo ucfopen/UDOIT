@@ -6,46 +6,51 @@ import { numberedPattern, letteredPattern, bulletPattern } from '../../Services/
 
 export default function ListForm({
   t,
-  settings, 
+  settings,
   activeIssue,
-  isContentLoading,
-  markAsReviewed,
-  setMarkAsReviewed,
-  handleIssueSave,
-  handleActiveIssue,
+  activeContentItem,
+  handleActiveContentItem,
   addMessage,
-  isDisabled
+  isDisabled,
+  handleActiveIssue,
+  isContentLoading,
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors,
+  setPreviewData
 }) {
   
-  const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
-  const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
-  const [hasValidList, setHasValidList] = useState(false)
-  const editorRef = useRef(null)
-
-  // Parse metadata at component level
-  let metadata = {}
-  try {
-    metadata = typeof activeIssue?.metadata === 'string' 
-      ? JSON.parse(activeIssue.metadata) 
-      : (activeIssue?.metadata || {})
-  } catch (e) {
-    metadata = {}
+  const FORM_OPTIONS = {
+    EDIT_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT
   }
+
+  const editorRef = useRef(null)
 
   useEffect(() => {
     if(!activeIssue) {
       return
     }
     
+    let tempPreviewData = {}
+    try {
+      tempPreviewData = typeof activeIssue?.metadata === 'string' 
+        ? JSON.parse(activeIssue.metadata) 
+        : (activeIssue?.metadata || {})
+    } catch (e) {
+      tempPreviewData = {}
+    }
+    setPreviewData(tempPreviewData)
+
     let html = Html.getIssueHtml(activeIssue)
-    setHtml(html)
-    setEditorHtml(html)
+    setActiveOption(FORM_OPTIONS.EDIT_TEXT)
+    setFormErrors([])
 
     tinymce.remove()
     tinymce.init({
       selector: '#list-form-textarea',
       license_key: "gpl",
-      height: 300,
+      height: 250,
       menubar: false,
       plugins: "code lists",
       toolbar: "undo redo | bold italic underline | bullist numlist | code",
@@ -57,25 +62,37 @@ export default function ListForm({
         editor.on('init', () => {
           editor.setContent(html)
           editorRef.current = editor
-          validateContent()
         })
-        editor.on('change keyup input', () => {
-          validateContent()
+        editor.on('input', () => {
+          handleEditorChange(editor.getContent())
+        })
+        editor.on('SetContent', () => {
+          handleEditorChange(editor.getContent())
+        })
+
+        // By default, certain commands like undo/redo and toggling things like bold and italic do not trigger the 'input' event,
+        // meaning that the updatePreview function isn't called (which can affect saving).
+        editor.on('ExecCommand', (e) => {
+          const updateCommands = [
+            'undo',
+            'redo',
+            'mceToggleFormat', 
+            'InsertUnorderedList',
+            'InsertOrderedList'
+          ]
+          if(e.command && updateCommands.includes(e.command)) {
+            handleEditorChange(editor.getContent())
+          }
         })
       }
     })
   }, [activeIssue])
 
-  const validateContent = () => {
-    if (editorRef.current) {
-      const currentContent = editorRef.current.getContent()
-      const isValid = checkForValidList(currentContent)
-      setHasValidList(isValid)
-    }
-  }
-
   const handleEditorChange = (html) => {
-    setEditorHtml(html)
+    if (!html) {
+      return
+    }
+    rebuildContentItem(html)
   }
 
   const checkForValidList = (html) => {
@@ -176,59 +193,121 @@ export default function ListForm({
       editorRef.current.setContent(listHtml)
     })
     
-    validateContent()
+    rebuildContentItem(listHtml)
   }
 
-  const handleSubmit = () => {
-    if (editorRef.current) {
-      let issue = activeIssue
+  /* We want the activeContentItem to ALWAYS reflect the current state of the issue.
+     This way, we can have an up-to-date preview AND when the user clicks "Save", we can just
+     send the up-to-date activeContentItem without any additional processing.
 
-      let editorCode = editorRef.current.getContent()
-      if(editorCode === null || editorCode === undefined || editorCode === '') {
-        addMessage('Problem getting HTML out of the editor...', 'error')
-        return
+     What this means in THIS instance is that we need to remove the old "list" and
+     replace it with exactly what's in the HTML editor every time the editor content changes.
+  */
+  const rebuildContentItem = (html) => {
+    if(!activeIssue || !activeContentItem) {
+      return
+    }
+
+    let issue = activeIssue
+    let editorCode = html
+    if(editorCode === null || editorCode === undefined || editorCode === '') {
+      addMessage('Problem getting HTML out of the editor...', 'error')
+      return
+    }
+
+    // Start with the clean original content item.
+    let tempActiveContentItem = JSON.parse(JSON.stringify(activeContentItem))
+    let fullPageHtml = tempActiveContentItem?.body
+    if(!fullPageHtml){
+      addMessage('No HTML content found in page...', 'error')
+      return
+    }
+
+    const parser = new DOMParser()
+    let doc = parser.parseFromString(fullPageHtml, 'text/html')
+
+    let editorElement = Html.toElement(editorCode)
+    if (editorElement === null || editorElement === undefined) {
+      addMessage('Problem converting the editor HTML to an element...', 'error')
+      return
+    }
+
+    // We're going to inject the new HTML right before the original element, so it
+    // ends up in the same place.
+    let bookmarkElement = null
+    let elementsToRemove = []
+    if (issue.isGrouped && issue.groupedIssues && issue.groupedIssues.length > 0) {
+      // Use the first grouped issue's real identifiers so the server can find it via xpath
+      const firstGroupedIssue = issue.groupedIssues[0]
+      issue.id = firstGroupedIssue.id
+      bookmarkElement = Html.findElementWithXpath(doc, firstGroupedIssue.xpath)
+
+      issue.groupedIssues.forEach(groupedIssue => {
+        let tempElementToRemove = Html.findElementWithXpath(doc, groupedIssue.xpath)
+        if (tempElementToRemove && tempElementToRemove.parentNode) {
+          elementsToRemove.push(tempElementToRemove)
+        }
+      })
+    }
+    else {
+      bookmarkElement = Html.findElementWithXpath(doc, issue.xpath)
+      elementsToRemove.push(bookmarkElement)
+    }
+
+    if(!bookmarkElement || !bookmarkElement.parentNode) {
+      addMessage('Problem finding the original element in the page HTML...', 'error')
+      return
+    }
+
+    let tempIsListGroup = false
+    let tempListGroupXpaths = []
+
+    // Insert all of the new content from the editor.
+    // If the content in the editor is not a single element (like several paragraps NOT in an <ol>),
+    // then we need to wrap it in a div so we can insert it into the page as a block.
+    if (editorElement?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+      if (editorElement.childNodes.length > 1) {
+        tempIsListGroup = true
       }
+      for (let i = 0; i < editorElement.childNodes.length; i++) {
+        const child = editorElement.childNodes[i]
+        Html.addClass(child, 'udoit-temp-list-group-' + i.toString())
+        bookmarkElement.parentNode.insertBefore(child, bookmarkElement)
 
-      // Remove the wrapper div if it exists
-      editorCode = editorCode.replace(/<div data-udoit-list-group="true">\s*/gi, '')
-                             .replace(/\s*<\/div>\s*$/gi, '')
-                             .trim()
-
-      let editorElement = Html.toElement(editorCode)
-      if (editorElement === null || editorElement === undefined) {
-        addMessage('Problem converting the editor HTML to an element...', 'error')
-        return
-      }
-
-      if (metadata.isListGroup && issue.groupedIssues && issue.groupedIssues.length > 0) {
-        // Use the first grouped issue's real identifiers so the server can find it via xpath
-        const firstGroupedIssue = issue.groupedIssues[0]
-
-        // Store the remaining elements' HTML for removal (skip first element, it gets replaced)
-        const remainingElementsHtml = (issue.groupedElementsHtml || []).slice(1)
-
-        issue.id = firstGroupedIssue.id
-        issue.xpath = firstGroupedIssue.xpath
-        issue.sourceHtml = firstGroupedIssue.sourceHtml
-        issue.contentItemId = firstGroupedIssue.contentItemId
-        issue.scanRuleId = firstGroupedIssue.scanRuleId
-        issue.newHtml = editorElement.outerHTML
-
-        // Pass remaining grouped issues AND their original element HTML for removal
-        const remainingGroupedIssues = issue.groupedIssues.slice(1)
-        handleActiveIssue(issue)
-        handleIssueSave(issue, remainingGroupedIssues, remainingElementsHtml)
-      } else {
-        // Single issue - add ignore class
-        const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-        let newElement = Html.addClass(issue.sourceHtml, specificClassName)
-        newElement.innerHTML = editorElement.innerHTML
-        issue.newHtml = Html.toString(newElement)
-
-        handleActiveIssue(issue)
-        handleIssueSave(issue)
+        let embeddedElement = doc.querySelector('.udoit-temp-list-group-' + i.toString())
+        if (embeddedElement) {
+          Html.removeClass(embeddedElement, 'udoit-temp-list-group-' + i.toString())
+          tempListGroupXpaths.push(Html.findXpathFromElement(embeddedElement))
+        }
       }
     }
+    
+    else if (editorElement?.nodeType === Node.ELEMENT_NODE) {
+      Html.addClass(editorElement, 'udoit-temp-list-group-single')
+      bookmarkElement.parentNode.insertBefore(editorElement, bookmarkElement)
+      let embeddedElement = doc.querySelector('.udoit-temp-list-group-single')
+      if (embeddedElement) {
+        Html.removeClass(embeddedElement, 'udoit-temp-list-group-single')
+        issue.xpath = Html.findXpathFromElement(embeddedElement)
+      }
+    }
+
+    // Finally, remove all of the original elements that have been replaced.
+    elementsToRemove.forEach(element => {
+      if (element && element.parentNode) {
+        element.parentNode.removeChild(element)
+      }
+    })
+
+    setPreviewData(prev => ({
+      ...prev,
+      isListGroup: tempIsListGroup,
+      listGroupXpaths: tempListGroupXpaths
+    }))
+    issue.newHtml = editorCode
+    tempActiveContentItem.body = doc.body.innerHTML
+    handleActiveContentItem(tempActiveContentItem)
+    handleActiveIssue(issue)
   }
 
   return (
@@ -250,16 +329,6 @@ export default function ListForm({
       <div className="mt-3">
         <textarea id="list-form-textarea"></textarea>
       </div>
-
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={!hasValidList}
-        handleSubmit={handleSubmit}
-        formErrors={[]}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

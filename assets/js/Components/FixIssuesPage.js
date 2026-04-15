@@ -304,7 +304,7 @@ export default function FixIssuesPage({
   // needs to be rebuilt and the activeIssue may need to be updated. For instance, if an issue is marked as
   // unreviewed then it will be deleted during the rescan and a new issue with a new id will take its place.
   useEffect(() => {
-    let tempIssues = Object.assign({}, report.issues)
+    let tempIssues = Object.assign({}, report?.issues)
     let tempUnfilteredIssues = []
 
     for (const [key, value] of Object.entries(tempIssues)) {
@@ -371,7 +371,7 @@ export default function FixIssuesPage({
             if(issue.scanRuleId === activeIssue.scanRuleId &&
                 issue.contentId === activeIssue.contentId &&
                 issue.issueData.xpath === activeIssue.issueData.xpath) {
-              updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
+              updateActiveSessionIssue(issue.id, null)
               holdoverActiveIssue = issue
             }
           })
@@ -544,14 +544,14 @@ export default function FixIssuesPage({
   // - unfilteredIssues
   // - filteredIssues
   // This does NOT change the report object, which updates when the issue's data changes.
-  const updateActiveSessionIssue = (issueId, state = null, contentItemId = null) => {
+  const updateActiveSessionIssue = (issueId, state = null) => {
     
     if(state === null) {
       state = settings.ISSUE_STATE.UNCHANGED
     }
 
     // This updates the counter for the daily progress
-    updateSessionIssue(issueId, state, contentItemId)
+    updateSessionIssue(issueId, state)
 
     // Only update the whole list if the issue is saved, resolved, or marked as unresolved.
     if(state === settings.ISSUE_STATE.SAVED
@@ -722,16 +722,13 @@ export default function FixIssuesPage({
 
   }
 
-  const handleIssueSave = async (overrideIssue = null, remainingGroupedIssues = [], remainingElementsHtml = []) => {
+  const handleIssueSave = async () => {
 
     if(!tempActiveContentItem || !tempActiveContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
     }
 
-    const isGroupedSave = remainingGroupedIssues.length > 0
-
-    // Use override issue (first real grouped issue) or fallback to tempActiveIssue
-    let issue = overrideIssue ? overrideIssue : tempActiveIssue.issueData
+    let issue = tempActiveIssue.issueData
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
@@ -757,47 +754,48 @@ export default function FixIssuesPage({
 
     // getNewFullPageHtml uses issue.xpath to find the first real element and replace it
     // with issue.newHtml (the combined fixed HTML)
-    let fullPageHtml = getNewFullPageHtml(tempActiveContentItem, issue)
-    if (!fullPageHtml) {
-      console.error('Could not get full page HTML')
-      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-      removeItemFromBeingScanned(issue.contentItemId)
-      return
-    }
+    // let fullPageHtml = getNewFullPageHtml(tempActiveContentItem, issue)
+    // if (!fullPageHtml) {
+    //   console.error('Could not get full page HTML')
+    //   updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+    //   removeItemFromBeingScanned(issue.contentItemId)
+    //   return
+    // }
 
-    // For grouped saves, remove the remaining grouped issue elements from the page
-    // Use the stored element HTML strings which are the EXACT outerHTML from the original DOM
-    if (isGroupedSave) {
-      for (const elementHtml of remainingElementsHtml) {
-        // Direct string replacement - most reliable since we have the exact original HTML
-        const trimmedHtml = elementHtml.trim()
-        if (fullPageHtml.includes(trimmedHtml)) {
-          fullPageHtml = fullPageHtml.replace(trimmedHtml, '')
-        } else {
-          // Fallback: try DOM-based removal
-          const parser = new DOMParser()
-          const tempDoc = parser.parseFromString(fullPageHtml, 'text/html')
-          const allElements = tempDoc.body.querySelectorAll('*')
-          let foundElement = null
-          for (const el of allElements) {
-            if (el.outerHTML.trim() === trimmedHtml) {
-              foundElement = el
-              break
-            }
-          }
-          if (foundElement) {
-            foundElement.remove()
-            fullPageHtml = tempDoc.body.innerHTML
-          } else {
-            console.warn(`Could not find element to remove:`, trimmedHtml.substring(0, 80))
-          }
-        }
-      }
+    // // For grouped saves, remove the remaining grouped issue elements from the page
+    // // Use the stored element HTML strings which are the EXACT outerHTML from the original DOM
+    // if (isGroupedSave) {
+    //   for (const elementHtml of remainingElementsHtml) {
+    //     // Direct string replacement - most reliable since we have the exact original HTML
+    //     const trimmedHtml = elementHtml.trim()
+    //     if (fullPageHtml.includes(trimmedHtml)) {
+    //       fullPageHtml = fullPageHtml.replace(trimmedHtml, '')
+    //     } else {
+    //       // Fallback: try DOM-based removal
+    //       const parser = new DOMParser()
+    //       const tempDoc = parser.parseFromString(fullPageHtml, 'text/html')
+    //       const allElements = tempDoc.body.querySelectorAll('*')
+    //       let foundElement = null
+    //       for (const el of allElements) {
+    //         if (el.outerHTML.trim() === trimmedHtml) {
+    //           foundElement = el
+    //           break
+    //         }
+    //       }
+    //       if (foundElement) {
+    //         foundElement.remove()
+    //         fullPageHtml = tempDoc.body.innerHTML
+    //       } else {
+    //         console.warn(`Could not find element to remove:`, trimmedHtml.substring(0, 80))
+    //       }
+    //     }
+    //   }
 
-      // Clean up any empty lines left behind from removal
-      fullPageHtml = fullPageHtml.replace(/\n\s*\n/g, '\n')
-    }
+    //   // Clean up any empty lines left behind from removal
+    //   fullPageHtml = fullPageHtml.replace(/\n\s*\n/g, '\n')
+    // }
 
+    let fullPageHtml = tempActiveContentItem?.body
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
@@ -839,29 +837,29 @@ export default function FixIssuesPage({
 
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
 
-      if (isGroupedSave) {
-        // Capture the INDEX of the next issue BEFORE rescan rebuilds filteredIssues
-        const currentActiveIndex = filteredIssues.findIndex(fi => fi.id === activeIssue?.id)
-        const nextIssueIndex = currentActiveIndex !== -1 ? currentActiveIndex : 0
+      // if (isGroupedSave) {
+      //   // Capture the INDEX of the next issue BEFORE rescan rebuilds filteredIssues
+      //   const currentActiveIndex = filteredIssues.findIndex(fi => fi.id === activeIssue?.id)
+      //   const nextIssueIndex = currentActiveIndex !== -1 ? currentActiveIndex : 0
 
-        // Store the index for the report useEffect to use
-        groupedSaveRef.current = {
-          inProgress: true,
-          nextIssueIndex: nextIssueIndex,
-        }
+      //   // Store the index for the report useEffect to use
+      //   groupedSaveRef.current = {
+      //     inProgress: true,
+      //     nextIssueIndex: nextIssueIndex,
+      //   }
 
-        // Rescan - the removed elements will naturally be marked as resolved by the scanner
-        removeItemFromBeingScanned(issue.contentItemId)
-        const scanResponse = await api.scanContent(issue.contentItemId)
-        if (scanResponse.ok) {
-          const scanResponseJson = await scanResponse.json()
-          if (scanResponseJson.data) {
-            const tempReport = Object.assign({}, scanResponseJson.data)
-            processNewReport(tempReport)
-          }
-        }
-        return
-      }
+      //   // Rescan - the removed elements will naturally be marked as resolved by the scanner
+      //   removeItemFromBeingScanned(issue.contentItemId)
+      //   const scanResponse = await api.scanContent(issue.contentItemId)
+      //   if (scanResponse.ok) {
+      //     const scanResponseJson = await scanResponse.json()
+      //     if (scanResponseJson.data) {
+      //       const tempReport = Object.assign({}, scanResponseJson.data)
+      //       processNewReport(tempReport)
+      //     }
+      //   }
+      //   return
+      // }
 
       if(!saveResponseJson?.data?.issue) {
         removeItemFromBeingScanned(issue.contentItemId)

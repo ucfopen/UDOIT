@@ -119,17 +119,13 @@ export default function App(initialData) {
   // and can allow the activeIssue to change without losing information about the previous issue.
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
-  const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
+  const updateSessionIssue = (issueId, issueState = null) => {
     if(issueState === null || issueState === settings.ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
       if(newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
       }
       setSessionIssues(newSessionIssues)
-
-      if(contentItemId) {
-        removeContentItemFromCache(contentItemId)
-      }
 
       return
     }

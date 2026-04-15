@@ -12,7 +12,7 @@ export function groupListIssues(issues, parsedDocuments) {
   const otherIssues = []
   
   issues.forEach(issue => {
-    if (issue.scanRuleId === 'list_markup_review') {
+    if (issue.scanRuleId === 'list_markup_review' && issue.status === 0) {
       listIssues.push(issue)
     } else {
       otherIssues.push(issue)

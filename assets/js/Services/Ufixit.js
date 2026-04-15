@@ -104,14 +104,17 @@ export const FORM_CLASSIFICATIONS = {
     formNames.SELECT_VALID_ID
   ],
 
+  CLICKABLE_RELATED: [
+    formNames.SELECT_VALID_ID
+  ],
+
   HEADINGS_RELATED : [
     formNames.HEADING_EMPTY,
     formNames.HEADING_STYLE
   ],
 
-  CLICKABLE_RELATED: [
-    formNames.LIST,
-    formNames.SELECT_VALID_ID
+  LIST_RELATED: [
+    formNames.LIST
   ],
 
   VALID_ID_RELATED: [

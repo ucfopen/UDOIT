@@ -62,9 +62,19 @@ export function toElement(htmlString) {
 }
 
 export function toString(element) {
-  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+  if (!element) {
     return ''
   }
+  else if (element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+    let html = ''
+    element.childNodes.forEach(node => {
+      html += node.outerHTML || node.textContent
+    })
+    return html
+  } else if (element?.nodeType === Node.TEXT_NODE) {
+    return element.textContent
+  }
+
   return element.outerHTML
 }
 
@@ -206,8 +216,13 @@ export function removeClass(element, className) {
   let classes = getClasses(element)
   classes = classes.filter(item => item !== className)
 
-  element.setAttribute('class', classes.join(' '))
-
+  if(classes.length === 0) {
+    element.removeAttribute('class')
+  }
+  else {
+    element.setAttribute('class', classes.join(' '))
+  }
+  
   return element;
 }
 
@@ -403,7 +418,7 @@ export function getAccessibleName(element, tempDocument = null) {
   }
 
   // 3. Run a BUNCH of tag-specific and role-specific logic.
-  let tagName = getTagName(element).toLowerCase()
+  let tagName = getTagName(element)?.toLowerCase()
   let type = getAttribute(element, 'type')?.toLowerCase()
   
   let value = getAttribute(element, 'value')

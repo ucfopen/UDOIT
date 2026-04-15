@@ -31,9 +31,9 @@ export default function AnchorTextForm ({
     }
     const html = Html.getIssueHtml(activeIssue)
     let initialText = ''
-    if(Html.getTagName(html).toLowerCase() === 'a') {
+    if(Html.getTagName(html)?.toLowerCase() === 'a') {
       initialText = Html.getInnerText(html)
-    } else if(Html.getTagName(html).toLowerCase() === 'area') {
+    } else if(Html.getTagName(html)?.toLowerCase() === 'area') {
       initialText = Html.getAttribute(html, 'alt') || ''
     }
     setLinkUrl(Html.getAttribute(html, 'href') || '')
