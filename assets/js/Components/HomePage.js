@@ -9,6 +9,7 @@ import SeverityIcon from './Icons/SeverityIcon'
 import SummaryIcon from './Icons/SummaryIcon'
 import * as Html from '../Services/Html'
 import './HomePage.css'
+import { ISSUE_STATE } from '../Services/Constants'
 
 export default function HomePage({
   t,
@@ -61,7 +62,7 @@ export default function HomePage({
     let percentComplete = 0
     if(sessionIssues && Object.keys(sessionIssues).length > 0) {
       for (const issueState of Object.values(sessionIssues)) {
-        if(issueState === settings.ISSUE_STATE.SAVED || issueState === settings.ISSUE_STATE.RESOLVED) {
+        if(issueState === ISSUE_STATE.SAVED || issueState === ISSUE_STATE.RESOLVED) {
           totalIssuesFixed += 1
         }
       }

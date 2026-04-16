@@ -1,3 +1,4 @@
+import { ISSUE_STATE } from './Constants'
 import * as Html from './Html'
 
 /** With all of the data inconsistency between the old and new issues, we need to double-check some things:
@@ -257,7 +258,7 @@ const getReferenceFromSection = (contentSections, sectionId) => {
   return sectionReference
 }
 
-export function analyzeReport(report, ISSUE_STATE) {
+export function analyzeReport(report) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,

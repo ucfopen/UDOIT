@@ -11,7 +11,8 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS} from '../Services/Settings'
+import { WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS } from '../Services/Settings'
+import { ISSUE_STATE } from '../Services/Constants'
 
 
 export default function App(initialData) {
@@ -20,8 +21,7 @@ export default function App(initialData) {
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(Object.assign({},
-    initialData?.settings || {}, 
-    { ISSUE_STATE }, 
+    initialData?.settings || {},
     { WIDGET_STATE }, 
     { ISSUE_FILTER }, 
     { FILE_FILTER },
@@ -121,7 +121,7 @@ export default function App(initialData) {
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
   const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
-    if(issueState === null || issueState === settings.ISSUE_STATE.UNCHANGED) {
+    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
       if(newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
@@ -139,7 +139,7 @@ export default function App(initialData) {
   }
 
     const updateSessionFiles = (fileId, fileState = null, contentItemId = null) => {
-    if(fileState === null || fileState === settings.ISSUE_STATE.UNCHANGED) {
+    if(fileState === null || fileState === ISSUE_STATE.UNCHANGED) {
       let newSessionFiles = Object.assign({}, sessionFiles)
       if(newSessionFiles[fileId]) {
         delete newSessionFiles[fileId]
@@ -157,7 +157,7 @@ export default function App(initialData) {
   }
 
   const processNewReport = (rawReport) => {
-    const tempReport = analyzeReport(rawReport, settings.ISSUE_STATE)
+    const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
 
     let api = new Api(settings)
