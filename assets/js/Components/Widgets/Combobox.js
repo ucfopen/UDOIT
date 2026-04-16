@@ -14,7 +14,7 @@ import ResolvedIcon from '../Icons/ResolvedIcon'
 import SortIcon from '../Icons/SortIcon'
 import FileTypeIcon from '../Icons/FileTypeIcon'
 import './Combobox.css'
-import { ISSUE_FILTER } from '../../Services/Constants'
+import { FILE_FILTER, ISSUE_FILTER } from '../../Services/Constants'
 
 
 /*   This component is adapted from: 
@@ -111,14 +111,14 @@ export default function Combobox({
         return <FixedIcon className={`${size} color-success`} />
       case ISSUE_FILTER.RESOLVED:
       case ISSUE_FILTER.REVIEWED:
-      case settings.FILE_FILTER.REVIEWED:
+      case FILE_FILTER.REVIEWED:
         return <ResolvedIcon className={`${size} color-success`} />
-      case settings.FILE_FILTER.FILE_PDF:
-      case settings.FILE_FILTER.FILE_WORD:
-      case settings.FILE_FILTER.FILE_POWERPOINT:
-      case settings.FILE_FILTER.FILE_EXCEL:
-      case settings.FILE_FILTER.FILE_AUDIO:
-      case settings.FILE_FILTER.FILE_VIDEO:
+      case FILE_FILTER.FILE_PDF:
+      case FILE_FILTER.FILE_WORD:
+      case FILE_FILTER.FILE_POWERPOINT:
+      case FILE_FILTER.FILE_EXCEL:
+      case FILE_FILTER.FILE_AUDIO:
+      case FILE_FILTER.FILE_VIDEO:
         return <FileTypeIcon className={`${size} gray-stroke`} type={iconString.toUpperCase()} strokeWidth={2} />
       default:
         return ''

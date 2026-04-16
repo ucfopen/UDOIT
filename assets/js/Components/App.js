@@ -11,7 +11,7 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS } from '../Services/Settings'
+import { DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS } from '../Services/Settings'
 import { ISSUE_STATE } from '../Services/Constants'
 
 
@@ -22,9 +22,6 @@ export default function App(initialData) {
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(Object.assign({},
     initialData?.settings || {},
-    { FILE_FILTER },
-    { FILE_TYPES },
-    { FILE_TYPE_MAP },
     { DEFAULT_USER_SETTINGS },
     { UFIXIT_OPTIONS },
   ))

@@ -4,6 +4,7 @@ import CloseIcon from '../Icons/CloseIcon'
 import FilterOnIcon from '../Icons/FilterOnIcon'
 import FilterOffIcon from '../Icons/FilterOffIcon'
 import Combobox from './Combobox'
+import { FILE_FILTER as FILTER} from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
 
@@ -18,7 +19,6 @@ export default function ReviewFilesFilters({
   updateActiveFilters
  }) {
 
-  const FILTER = settings.FILE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.UTILIZATION]: t('filter.label.utilization'),

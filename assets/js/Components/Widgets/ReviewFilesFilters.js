@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 import Combobox from './Combobox'
 import ToggleSwitch from './ToggleSwitch'
+import { FILE_FILTER as FILTER} from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
 
@@ -15,8 +16,6 @@ export default function ReviewFilesFilters({
   sections,
   updateActiveFilters
  }) {
-
-  const FILTER = settings.FILE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.UTILIZATION]: t('filter.label.utilization'),

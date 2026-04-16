@@ -9,7 +9,7 @@ import RightArrowIcon from './Icons/RightArrowIcon'
 import StatusPill from './Widgets/StatusPill'
 import * as Text from '../Services/Text'
 import Api from '../Services/Api'
-import { WIDGET_STATE } from '../Services/Constants'
+import { FILE_TYPES, FILE_TYPE_MAP, WIDGET_STATE } from '../Services/Constants'
 
 import './FixIssuesPage.css'
 import './ReviewFilesPage.css'
@@ -34,7 +34,7 @@ import './ReviewFilesPage.css'
 import * as Html from '../Services/Html.js'
 import CloseIcon from './Icons/CloseIcon.js'
 import LearnMore from './Widgets/LearnMore.js'
-import { ISSUE_STATE } from '../Services/Constants'
+import { ISSUE_STATE, FILE_FILTER as FILTER } from '../Services/Constants'
 
 export default function ReviewFilesPage({
   t,
@@ -51,8 +51,6 @@ export default function ReviewFilesPage({
 {
 
   // Define the kinds of filters that will be available to the user
-  const FILTER = settings.FILE_FILTER
-
   const defaultFilters = {
     [FILTER.TYPE.UTILIZATION]: FILTER.USED,
     [FILTER.TYPE.FILE_TYPE]: FILTER.ALL,
@@ -121,8 +119,8 @@ export default function ReviewFilesPage({
     let keywords = [ fileData.fileName ? fileData.fileName.toLowerCase() : fileData.display_name.toLowerCase() ]
     
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
-    if(settings.FILE_TYPES.includes(fileData.fileType)) {
-      fileType = settings.FILE_TYPE_MAP[fileData.fileType]
+    if(FILE_TYPES.includes(fileData.fileType)) {
+      fileType = FILE_TYPE_MAP[fileData.fileType]
       fileTypeLabel = t(`label.mime.${fileData.fileType}`)
       keywords.push[fileTypeLabel.toLowerCase()]
     }
