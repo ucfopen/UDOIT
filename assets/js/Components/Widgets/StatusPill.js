@@ -4,6 +4,7 @@ import SeverityIcon from '../Icons/SeverityIcon'
 import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import FixedIcon from '../Icons/FixedIcon'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function StatusPill({
   t,
@@ -13,17 +14,17 @@ export default function StatusPill({
 
   return (
     <>
-      { issue.status === settings.ISSUE_FILTER.ACTIVE ? (
+      { issue.status === ISSUE_FILTER.ACTIVE ? (
         <div aria-label={t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)} className={`info-pill ml-2 ` + issue.severity.toLowerCase()}>
           <SeverityIcon type={issue.severity} className="icon-md flex-column align-self-center"  aria-hidden="true"/>
           <div aria-hidden="true" className="info-pill-text">{t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)}</div>
         </div>
-      ) : (issue.status === settings.ISSUE_FILTER.FIXED || issue.status == settings.ISSUE_FILTER.FIXEDANDRESOLVED) ? (
+      ) : (issue.status === ISSUE_FILTER.FIXED || issue.status == ISSUE_FILTER.FIXEDANDRESOLVED) ? (
         <div aria-label={t('filter.label.resolution.fixed_single')} className="info-pill fixed ml-2">
           <FixedIcon className="color-success icon-md flex-column align-self-center" aria-hidden="true"/>
           <div aria-hidden="true" className="info-pill-text">{t('filter.label.resolution.fixed_single')}</div>
         </div>
-      ) : (issue.status === settings.ISSUE_FILTER.RESOLVED) ? (
+      ) : (issue.status === ISSUE_FILTER.RESOLVED) ? (
         <div aria-label={t('filter.label.resolution.resolved_single')} className="info-pill fixed ml-2">
           <ResolvedIcon className="color-success icon-md flex-column align-self-center" aria-hidden="true"/>
           <div aria-hidden="true" className="info-pill-text">{t('filter.label.resolution.resolved_single')}</div>

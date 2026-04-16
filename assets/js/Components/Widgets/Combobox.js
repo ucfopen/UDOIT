@@ -14,6 +14,7 @@ import ResolvedIcon from '../Icons/ResolvedIcon'
 import SortIcon from '../Icons/SortIcon'
 import FileTypeIcon from '../Icons/FileTypeIcon'
 import './Combobox.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 
 /*   This component is adapted from: 
@@ -84,32 +85,32 @@ export default function Combobox({
     let size = 'icon-md'
 
     switch(iconString?.toUpperCase()) {
-      case settings.ISSUE_FILTER.ISSUE:
+      case ISSUE_FILTER.ISSUE:
         return <SeverityIssueIcon className={`${size} color-issue`} />
-      case settings.ISSUE_FILTER.POTENTIAL:
-      case settings.ISSUE_FILTER.UNREVIEWED:
+      case ISSUE_FILTER.POTENTIAL:
+      case ISSUE_FILTER.UNREVIEWED:
         return <SeverityPotentialIcon className={`${size} color-potential`} />
-      case settings.ISSUE_FILTER.ANNOUNCEMENT:
+      case ISSUE_FILTER.ANNOUNCEMENT:
         return <ContentAnnouncementIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.ASSIGNMENT:
+      case ISSUE_FILTER.ASSIGNMENT:
         return <ContentAssignmentIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.DISCUSSION_FORUM:
+      case ISSUE_FILTER.DISCUSSION_FORUM:
         return <ContentDiscussionForumIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.DISCUSSION_TOPIC:
+      case ISSUE_FILTER.DISCUSSION_TOPIC:
         return <ContentDiscussionTopicIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.FILE:
+      case ISSUE_FILTER.FILE:
         return <ContentFileIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.PAGE:
+      case ISSUE_FILTER.PAGE:
         return <ContentPageIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.QUIZ:
+      case ISSUE_FILTER.QUIZ:
         return <ContentQuizIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.SYLLABUS:
+      case ISSUE_FILTER.SYLLABUS:
         return <ContentSyllabusIcon className={`${size} gray`} />
-      case settings.ISSUE_FILTER.FIXED:
-      case settings.ISSUE_FILTER.FIXEDANDRESOLVED:
+      case ISSUE_FILTER.FIXED:
+      case ISSUE_FILTER.FIXEDANDRESOLVED:
         return <FixedIcon className={`${size} color-success`} />
-      case settings.ISSUE_FILTER.RESOLVED:
-      case settings.ISSUE_FILTER.REVIEWED:
+      case ISSUE_FILTER.RESOLVED:
+      case ISSUE_FILTER.REVIEWED:
       case settings.FILE_FILTER.REVIEWED:
         return <ResolvedIcon className={`${size} color-success`} />
       case settings.FILE_FILTER.FILE_PDF:

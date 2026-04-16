@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 import Combobox from '../Widgets/Combobox'
 import ToggleSwitch from './ToggleSwitch'
+import { ISSUE_FILTER as FILTER } from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
 
@@ -15,8 +16,6 @@ export default function FixIssuesFilters({
   sections,
   updateActiveFilters
  }) {
-
-  const FILTER = settings.ISSUE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.SEVERITY]: t('filter.label.severity'),

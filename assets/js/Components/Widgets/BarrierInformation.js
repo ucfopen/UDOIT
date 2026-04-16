@@ -7,6 +7,7 @@ import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import FormClarification from '../Forms/FormClarification'
 import { disabilityTypes, disabilitiesFromRule, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 
 export default function BarrierInformation ({
@@ -46,7 +47,7 @@ export default function BarrierInformation ({
       return
     }
 
-    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
       setFormSummary(t('form.file.summary'))
       setShowLearnMore(true)
     }

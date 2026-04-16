@@ -9,7 +9,7 @@ import SeverityIcon from './Icons/SeverityIcon'
 import SummaryIcon from './Icons/SummaryIcon'
 import * as Html from '../Services/Html'
 import './HomePage.css'
-import { ISSUE_STATE } from '../Services/Constants'
+import { ISSUE_FILTER, ISSUE_STATE } from '../Services/Constants'
 
 export default function HomePage({
   t,
@@ -23,9 +23,9 @@ export default function HomePage({
 }) {
 
   const BARRIERS = {
-    ISSUE: settings.ISSUE_FILTER.ISSUE,
-    POTENTIAL: settings.ISSUE_FILTER.POTENTIAL,
-    FILE: settings.ISSUE_FILTER.FILE
+    ISSUE: ISSUE_FILTER.ISSUE,
+    POTENTIAL: ISSUE_FILTER.POTENTIAL,
+    FILE: ISSUE_FILTER.FILE
   }
 
   const [issueCount, setIssueCount] = useState({"fixed": 0, "total": 0, "percent": 0})

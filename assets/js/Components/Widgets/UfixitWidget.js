@@ -4,6 +4,7 @@ import FileForm from '../Forms/FileForm'
 import StatusPill from './StatusPill'
 import { formFromIssue } from '../../Services/Ufixit'
 import './UfixitWidget.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 
 
@@ -43,10 +44,10 @@ export default function UfixitWidget({
     }
 
     if(tempActiveIssue.isModified === undefined) {
-      setMarkAsReviewed(tempActiveIssue.status === settings.ISSUE_FILTER.RESOLVED || tempActiveIssue.status === settings.ISSUE_FILTER.FIXEDANDRESOLVED)
+      setMarkAsReviewed(tempActiveIssue.status === ISSUE_FILTER.RESOLVED || tempActiveIssue.status === ISSUE_FILTER.FIXEDANDRESOLVED)
     }
 
-    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
       setUfixitForm(() => { return FileForm })
     }
     else {
