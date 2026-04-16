@@ -128,43 +128,6 @@ class LtiController extends AbstractController
         return $response;
     }
 
-    #[Route('/lti/authorize/dev_lti_authorize', name: 'dev_lti_authorize')]
-    public function dev_lti_authorize(
-        Request $request,
-        SessionService $sessionService,
-        UtilityService $util
-    ) {
-        if ($this->getParameter('app.use_development_auth') != 'YES') {
-            throw $this->createNotFoundException('Route not found.');
-        }
-
-        $userId = $request->query->get('user');
-        if (!isset($userId)) {
-            $userId = 37;
-        }
-        $lmsCourseId = $request->query->get('lmsCourseId');
-        if (!isset($lmsCourseId)) {
-            $lmsCourseId = 396;
-        }
-        $this->request = $request;
-        $this->session = $sessionService->getSession();
-        $this->util = $util;
-        $this->session->set('userId', $userId);
-        $this->session->set('lms_course_id', $lmsCourseId);
-        $this->saveRequestToSession();
-        $response = $this->redirectToRoute('dashboard');
-        $response->headers->setCookie(
-            Cookie::create('AUTH_TOKEN')
-                ->withValue($this->session->getUuid())
-                ->withExpires(0)
-                ->withPath('/')
-                ->withSecure(true)
-                ->withHttpOnly(true)
-                ->withSameSite('none')
-        );
-        return $response;
-    }
-
     #[Route('/lti/config/{lms}', name: 'lti_config')]
     public function ltiConfig(Request $request, $lms = 'canvas')
     {
