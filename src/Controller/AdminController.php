@@ -222,9 +222,8 @@ class AdminController extends ApiController
             $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
             if (!$course) {
-                // Create new course
-                $institution = $user->getInstitution();
-                $course = $this->createCourseFromLmsId($institution, $lmsCourseId, $em);
+                $apiResponse->addMessage("No course was found with the given course ID", 'error', 0);
+                return new JsonResponse($apiResponse);
             }
 
             // Update course data from Canvas before scanning
@@ -473,18 +472,4 @@ class AdminController extends ApiController
 
     }
 
-    protected function createCourseFromLmsId(Institution $institution, $lmsCourseId, EntityManagerInterface $em)
-    {
-        $course = new Course();
-        $course->setInstitution($institution);
-        $course->setLmsCourseId($lmsCourseId);
-        $course->setTitle("New Course: ID#{$lmsCourseId}");
-        $course->setActive(true);
-        $course->setDirty(false);
-
-        $em->persist($course);
-        $em->flush();
-
-        return $course;
-    }
 }

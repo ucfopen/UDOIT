@@ -9,7 +9,7 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
-use \Firebase\JWT\JWT;
+use Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -95,7 +95,7 @@ class LtiController extends AbstractController
         }
 
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
-        if(!$this->sessionService->verifyNonce($token->nonce)) {
+        if (!$this->sessionService->verifyNonce($token->nonce)) {
             throw new \Exception("Invalid nonce!");
         }
 
@@ -130,39 +130,39 @@ class LtiController extends AbstractController
 
     #[Route('/lti/authorize/dev_lti_authorize', name: 'dev_lti_authorize')]
     public function dev_lti_authorize(
-      Request $request,
-      SessionService $sessionService,
-      UtilityService $util
+        Request $request,
+        SessionService $sessionService,
+        UtilityService $util
     ) {
-      if ($this->getParameter('app.use_development_auth') != 'YES') {
-        throw $this->createNotFoundException('Route not found.');
-      }
+        if ($this->getParameter('app.use_development_auth') != 'YES') {
+            throw $this->createNotFoundException('Route not found.');
+        }
 
-      $userId = $request->query->get('user');
-      if (!isset($userId)) {
-        $userId = 37;
-      }
-      $lmsCourseId = $request->query->get('lmsCourseId');
-      if (!isset($lmsCourseId)) {
-        $lmsCourseId = 396;
-      }
-      $this->request = $request;
-      $this->session = $sessionService->getSession();
-      $this->util = $util;
-      $this->session->set('userId', $userId);
-      $this->session->set('lms_course_id', $lmsCourseId);
-      $this->saveRequestToSession();
-      $response = $this->redirectToRoute('dashboard');
-      $response->headers->setCookie(
-          Cookie::create('AUTH_TOKEN')
-              ->withValue($this->session->getUuid())
-              ->withExpires(0)
-              ->withPath('/')
-              ->withSecure(true)
-              ->withHttpOnly(true)
-              ->withSameSite('none')
-      );
-      return $response;
+        $userId = $request->query->get('user');
+        if (!isset($userId)) {
+            $userId = 37;
+        }
+        $lmsCourseId = $request->query->get('lmsCourseId');
+        if (!isset($lmsCourseId)) {
+            $lmsCourseId = 396;
+        }
+        $this->request = $request;
+        $this->session = $sessionService->getSession();
+        $this->util = $util;
+        $this->session->set('userId', $userId);
+        $this->session->set('lms_course_id', $lmsCourseId);
+        $this->saveRequestToSession();
+        $response = $this->redirectToRoute('dashboard');
+        $response->headers->setCookie(
+            Cookie::create('AUTH_TOKEN')
+                ->withValue($this->session->getUuid())
+                ->withExpires(0)
+                ->withPath('/')
+                ->withSecure(true)
+                ->withHttpOnly(true)
+                ->withSameSite('none')
+        );
+        return $response;
     }
 
     #[Route('/lti/config/{lms}', name: 'lti_config')]
@@ -204,17 +204,17 @@ class LtiController extends AbstractController
                                 "message_type" => "LtiResourceLinkRequest",
                                 "target_link_uri" => "{$baseUrl}/admin",
                                 "enabled" => true,
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                     "privacy_level" => "name_only",
-                ]
+                ],
             ],
             "public_jwk" => [],
             "description" => "User settings for UDOIT 3.x",
             "public_jwk_url" => "https://canvas.instructure.com/api/lti/security/jwks",
             "target_link_uri" => "{$baseUrl}/lti/authorize/check",
-            "oidc_initiation_url" => "{$baseUrl}/lti/authorize"
+            "oidc_initiation_url" => "{$baseUrl}/lti/authorize",
         ];
 
         if ('canvas' === $lms) {
@@ -225,8 +225,7 @@ class LtiController extends AbstractController
                 "lms_account_id" => "\$Canvas.account.id",
                 "lms_api_domain" => "\$Canvas.api.domain",
             ];
-        }
-        else {
+        } else {
             // D2L custom fields
         }
 
@@ -240,12 +239,11 @@ class LtiController extends AbstractController
 
     protected function claimMatchOrExit($claimType, $sessionClaim, $tokenClaim)
     {
-        if(is_array($tokenClaim)) {
-            if(in_array($sessionClaim, $tokenClaim)) {
+        if (is_array($tokenClaim)) {
+            if (in_array($sessionClaim, $tokenClaim)) {
                 return true;
             }
-        }
-        else if($sessionClaim == $tokenClaim) {
+        } elseif ($sessionClaim == $tokenClaim) {
             return true;
         }
         $this->util->exitWithMessage(sprintf('The "%s" provided does not match the expected value: %s.', $claimType, $sessionClaim));
@@ -255,6 +253,12 @@ class LtiController extends AbstractController
     {
         try {
             $lms = $this->lmsApi->getLms();
+            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/context'})) {
+                $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
+                foreach ($contextFields as $key => $val) {
+                    $this->session->set($key, $val);
+                }
+            }
 
             if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/custom'})) {
                 $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
@@ -278,8 +282,7 @@ class LtiController extends AbstractController
             }
 
             $lms->saveTokenToSession($token);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             print_r($e->getMessage());
         }
     }
