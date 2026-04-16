@@ -15,6 +15,17 @@
     border-radius: var(--element-radius) !important;
   }
 
+  .tox-dialog {
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--window-radius) !important;
+  }
+
+  .tox-dialog-wrap__backdrop {
+    background-color: var(--backdrop-color) !important;
+    backdrop-filter: blur(1.5px) !important;
+    border-radius: var(--window-radius);
+  }
+
   .tox-editor-header:not(.tox-editor-dock-transition),
   .tox-toolbar__primary,
   .tox-statusbar {

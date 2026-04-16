@@ -79,8 +79,6 @@ export default function FixIssuesContentPreview({
 
   useEffect(() => {
     handleScroll()
-    console.log('Active Content Item:', activeContentItem?.id)
-    console.log(contentItemsBeingScanned)
   }, [activeContentItem, activeIssue])
 
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import './SensoryMisuseForm.css'
 import { numberedPattern, letteredPattern, bulletPattern } from '../../Services/Lists'
@@ -10,7 +9,6 @@ export default function ListForm({
   activeIssue,
   activeContentItem,
   handleActiveContentItem,
-  addMessage,
   isDisabled,
   handleActiveIssue,
   isContentLoading,
@@ -26,6 +24,7 @@ export default function ListForm({
   }
 
   const editorRef = useRef(null)
+  const [editorHtml, setEditorHtml] = useState('')
 
   useEffect(() => {
     if(!activeIssue) {
@@ -66,6 +65,10 @@ export default function ListForm({
         editor.on('input', () => {
           handleEditorChange(editor.getContent())
         })
+        // The 'input' event 
+        editor.on('change', () => {
+          handleEditorChange(editor.getContent())
+        })
         editor.on('SetContent', () => {
           handleEditorChange(editor.getContent())
         })
@@ -89,11 +92,16 @@ export default function ListForm({
   }, [activeIssue])
 
   const handleEditorChange = (html) => {
-    if (!html) {
+    if (html === null || html === undefined) {
       return
     }
-    rebuildContentItem(html)
+    setEditorHtml(html)
   }
+
+  useEffect(() => {
+    rebuildContentItem(editorHtml)
+  }, [editorHtml])
+
 
   const checkForValidList = (html) => {
     if (!html) return false
@@ -192,8 +200,6 @@ export default function ListForm({
     editorRef.current.undoManager.transact(() => {
       editorRef.current.setContent(listHtml)
     })
-    
-    rebuildContentItem(listHtml)
   }
 
   /* We want the activeContentItem to ALWAYS reflect the current state of the issue.
@@ -210,16 +216,17 @@ export default function ListForm({
 
     let issue = activeIssue
     let editorCode = html
-    if(editorCode === null || editorCode === undefined || editorCode === '') {
-      addMessage('Problem getting HTML out of the editor...', 'error')
+    if(editorCode === null || editorCode === undefined) {
+      console.warn('Problem getting HTML out of the editor...')
       return
     }
+    issue.newHtml = editorCode
 
     // Start with the clean original content item.
     let tempActiveContentItem = JSON.parse(JSON.stringify(activeContentItem))
     let fullPageHtml = tempActiveContentItem?.body
     if(!fullPageHtml){
-      addMessage('No HTML content found in page...', 'error')
+      console.warn('No HTML content found in page...')
       return
     }
 
@@ -228,12 +235,25 @@ export default function ListForm({
 
     let editorElement = Html.toElement(editorCode)
     if (editorElement === null || editorElement === undefined) {
-      addMessage('Problem converting the editor HTML to an element...', 'error')
+      console.warn('Problem converting the editor HTML to an element...')
       return
     }
 
-    // We're going to inject the new HTML right before the original element, so it
-    // ends up in the same place.
+    /********************************************************************************************************************
+     * Usually, the replace-old-element-with-new-html is very straightforward. But here, it's hard, since both
+     * the old content and the new content can be multiple elements (like several paragraphs OR a single list).
+     * So here, we have to: 
+     * 1. Identify the targeted element(s) in the original HTML.
+     *    - Set a "bookmark" element to place new stuff just before.
+     *    - Flag all of the original elements that need to be removed (in case of multiple).
+     * 2. Insert the new HTML from the editor right before the bookmark element.
+     *    - If there are multiple elements in the new HTML, we need to insert them one by one and keep track of them
+     *      so we can update the issue xpath to point to the first one.
+     *    - Only AFTER an element is placed in a document can we get an xpath for it.
+     *    - If there are multiple new items, we need to track their xpaths for the HtmlPreview to group and highlight.
+     * 3. Remove all of the original elements that have been replaced.
+     *******************************************************************************************************************/
+
     let bookmarkElement = null
     let elementsToRemove = []
     if (issue.isGrouped && issue.groupedIssues && issue.groupedIssues.length > 0) {
@@ -255,7 +275,7 @@ export default function ListForm({
     }
 
     if(!bookmarkElement || !bookmarkElement.parentNode) {
-      addMessage('Problem finding the original element in the page HTML...', 'error')
+      console.warn('Problem finding the original element in the page HTML...')
       return
     }
 
@@ -264,31 +284,33 @@ export default function ListForm({
 
     // Insert all of the new content from the editor.
     // If the content in the editor is not a single element (like several paragraps NOT in an <ol>),
-    // then we need to wrap it in a div so we can insert it into the page as a block.
+    // then we need to add each one's xpath to the previewData so the HtmlPreview can group them in a div.
     if (editorElement?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
       if (editorElement.childNodes.length > 1) {
         tempIsListGroup = true
       }
       for (let i = 0; i < editorElement.childNodes.length; i++) {
-        const child = editorElement.childNodes[i]
-        Html.addClass(child, 'udoit-temp-list-group-' + i.toString())
-        bookmarkElement.parentNode.insertBefore(child, bookmarkElement)
 
-        let embeddedElement = doc.querySelector('.udoit-temp-list-group-' + i.toString())
+        // The editorElement does not have an xpath since it's not in the document. We have to insert it first,
+        // then find the inserted element in the document, then get the xpath from that.
+        const child = editorElement.childNodes[i]
+        Html.addClass(child, 'udoit-list-group-temp-item-' + i.toString())
+        bookmarkElement.parentNode.insertBefore(child, bookmarkElement)
+        let embeddedElement = doc.querySelector('.udoit-list-group-temp-item-' + i.toString())
         if (embeddedElement) {
-          Html.removeClass(embeddedElement, 'udoit-temp-list-group-' + i.toString())
+          Html.removeClass(embeddedElement, 'udoit-list-group-temp-item-' + i.toString())
           tempListGroupXpaths.push(Html.findXpathFromElement(embeddedElement))
         }
       }
     }
     
     else if (editorElement?.nodeType === Node.ELEMENT_NODE) {
-      Html.addClass(editorElement, 'udoit-temp-list-group-single')
+      Html.addClass(editorElement, 'udoit-list-group-temp-item-single')
       bookmarkElement.parentNode.insertBefore(editorElement, bookmarkElement)
-      let embeddedElement = doc.querySelector('.udoit-temp-list-group-single')
+      let embeddedElement = doc.querySelector('.udoit-list-group-temp-item-single')
       if (embeddedElement) {
-        Html.removeClass(embeddedElement, 'udoit-temp-list-group-single')
-        issue.xpath = Html.findXpathFromElement(embeddedElement)
+        Html.removeClass(embeddedElement, 'udoit-list-group-temp-item-single')
+        tempListGroupXpaths.push(Html.findXpathFromElement(embeddedElement))
       }
     }
 
@@ -304,7 +326,6 @@ export default function ListForm({
       isListGroup: tempIsListGroup,
       listGroupXpaths: tempListGroupXpaths
     }))
-    issue.newHtml = editorCode
     tempActiveContentItem.body = doc.body.innerHTML
     handleActiveContentItem(tempActiveContentItem)
     handleActiveIssue(issue)
@@ -316,9 +337,9 @@ export default function ListForm({
         {t('form.list.label.instructions')}
       </div>
 
-      <div className="mt-3">
+      <div className="mt-1">
         <button 
-          className="btn-primary btn-small" 
+          className="btn-secondary btn-small"
           onClick={handleAutoFix}
           disabled={isContentLoading}
         >
@@ -326,7 +347,7 @@ export default function ListForm({
         </button>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-2">
         <textarea id="list-form-textarea"></textarea>
       </div>
     </>

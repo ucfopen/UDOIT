@@ -12,8 +12,16 @@ export function groupListIssues(issues, parsedDocuments) {
   const otherIssues = []
   
   issues.forEach(issue => {
-    if (issue.scanRuleId === 'list_markup_review' && issue.status === 0) {
-      listIssues.push(issue)
+    if (issue.scanRuleId === 'list_markup_review') {
+      // If the issue has been fixed or reviewed it MAY be a single, non-grouped item.
+      const tempElement = Html.toElement(Html.getIssueHtml(issue))
+      const listTags = ['OL', 'UL', 'DL']
+      if(tempElement && tempElement?.nodeType === Node.ELEMENT_NODE && listTags.includes(Html.getTagName(tempElement))) {
+        otherIssues.push(issue)
+      }
+      else {
+        listIssues.push(issue)
+      }
     } else {
       otherIssues.push(issue)
     }

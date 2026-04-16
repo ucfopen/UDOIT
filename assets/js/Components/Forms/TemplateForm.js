@@ -146,7 +146,8 @@ export default function TemplateForm ({
 
 
   // Whenever the input changes, and on initial load, we need to check for errors.
-  // These errors are sent to the FormSaveOrReview component to be displayed to the user.
+  // When an error of a specific type is present, it gets shown in the OptionFeedback component.
+  // FormErrors of type: "error" also prevent saving. To not prevent saving, use type: "warning".
   const checkFormErrors = () => {
     let tempErrors = {
       [FORM_OPTIONS.SELECT_LANGUAGE]: [],

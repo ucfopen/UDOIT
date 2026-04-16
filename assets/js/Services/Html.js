@@ -669,14 +669,14 @@ export function generateElementID(element){
 }
 
 export function getAriaAttributes(element){
-   const ariaAttributes = []
-   if(!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
-    return ariaAttributes
-   }
+  if(typeof element == "string"){
+    element = toElement(element)
+  }
 
-   if(typeof element == "string"){
-      element = toElement(element)
-   }
+  const ariaAttributes = []
+  if(!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return ariaAttributes
+  }
 
   for(const attr of element.attributes){
     if(attr.name.startsWith("aria-")){

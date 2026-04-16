@@ -6,7 +6,6 @@ export function toHSL(color) {
     const [h, s, l] = chromaColor.hsl()
     return { h, s, l }
   } catch {
-    console.error('Error converting color to HSL:', color)
     const tempDiv = document.createElement('div')
     tempDiv.style.color = color
     document.body.appendChild(tempDiv)
@@ -26,7 +25,6 @@ export function hslToHex(hsl) {
   try {
     return chroma.hsl(hsl.h, hsl.s, hsl.l).hex();
   } catch {
-    console.error('Error converting HSL to hex:', hsl);
     return null;
   }
 }
