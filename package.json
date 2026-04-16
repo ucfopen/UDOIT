@@ -3,7 +3,7 @@
     "description": "The Universal Design Online content Inspection Tool, or UDOIT (pronounced, 'You Do It') enables faculty to identify accessibility issues in their Learning Management System. It will scan a course, generate a report, and provide resources on how to address common accessibility issues.",
     "version": "4.0.0",
     "engines": {
-        "yarn": "1.x"
+        "yarn": "4.x"
     },
     "devDependencies": {
         "@babel/core": "^7.28.0",
@@ -40,9 +40,6 @@
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "tinymce": "^7.9.1",
-        "webpack": "^5.100.2"
-    },
-    "resolutions": {
-        "**/tar": "~6.1.11"
+        "webpack": "^5.106.2"
     }
 }

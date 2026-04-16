@@ -59,7 +59,9 @@ services:
         - .env
   yarn:
       container_name: udoit3-yarn
-      image: node:20
+      build:
+        context: ./build/nginx
+        dockerfile: Dockerfile.yarn
       volumes:
         - ./:/app
       env_file:
