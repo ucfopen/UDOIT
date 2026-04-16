@@ -25,6 +25,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set Yarn version to 4.x
+        run: corepack prepare yarn@4.x --activate
+
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
