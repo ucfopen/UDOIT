@@ -1,11 +1,3 @@
-export const WIDGET_STATE = {
-  LOADING: 0,
-  FIXIT: 1,
-  LEARN: 2,
-  LIST: 3,
-  NO_RESULTS: 4,
-}
-
 // Define the kinds of issue filters that will be available to the user
 export const ISSUE_FILTER = {
   TYPE: {

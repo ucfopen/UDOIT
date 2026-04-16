@@ -6,3 +6,11 @@ export const ISSUE_STATE = {
   RESOLVED: 4,
   ERROR: 5,
 };
+
+export const WIDGET_STATE = {
+  LOADING: 0,
+  FIXIT: 1,
+  LEARN: 2,
+  LIST: 3,
+  NO_RESULTS: 4,
+}

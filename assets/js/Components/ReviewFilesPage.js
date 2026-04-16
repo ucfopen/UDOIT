@@ -9,6 +9,7 @@ import RightArrowIcon from './Icons/RightArrowIcon'
 import StatusPill from './Widgets/StatusPill'
 import * as Text from '../Services/Text'
 import Api from '../Services/Api'
+import { WIDGET_STATE } from '../Services/Constants'
 
 import './FixIssuesPage.css'
 import './ReviewFilesPage.css'
@@ -58,8 +59,6 @@ export default function ReviewFilesPage({
     [FILTER.TYPE.RESOLUTION]: FILTER.UNREVIEWED,
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
-
-  const WIDGET_STATE = settings.WIDGET_STATE
 
   const dialogId = "udoit-file-dialog"
 
