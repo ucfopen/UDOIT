@@ -5,6 +5,8 @@ jobs:
   symfony:
     name: UDOIT (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
     runs-on: ${{ matrix.operating-system }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
       fail-fast: false
       matrix:
@@ -18,18 +20,18 @@ jobs:
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
 
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set Yarn version to 4.x
+        run: corepack prepare yarn@4.x --activate
+
         # This step now handles yarn caching as well
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Set Yarn version to 4.x
-        run: corepack prepare yarn@4.x --activate
 
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
