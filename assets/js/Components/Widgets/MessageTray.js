@@ -6,6 +6,7 @@ import './MessageTray.css'
 export default function MessageTray ({
   t,
   settings,
+  preferences,
   nextMessage
 }) {
 
@@ -56,7 +57,7 @@ export default function MessageTray ({
    * matches the most recent timer that was set for a given message.
    */
   const resumeTimer = (messageId) => {
-    let tempTimerMs = settings?.user?.roles?.alert_timeout || "5000"
+    let tempTimerMs = preferences.alertTimeout || "5000"
     if (tempTimerMs === 'none') {
       setMessageTimers(Object.assign({}, messageTimers, {[messageId]: null}) )
       return
@@ -151,6 +152,7 @@ export default function MessageTray ({
             key={msg.id}
             t={t}
             settings={settings}
+            preferences={preferences}
             messageObject={msg}
             pauseTimer={pauseTimer}
             resumeTimer={resumeTimer}

@@ -14,6 +14,7 @@ import { ISSUE_FILTER, ISSUE_STATE } from '../Services/Constants'
 export default function HomePage({
   t,
   settings,
+  preferences,
   report,
   hasNewReport,
   quickIssues,
@@ -36,7 +37,7 @@ export default function HomePage({
   const [emphasis, setEmphasis] = useState('')
   
   const progressMeterRadius = () => {
-    switch (settings?.user?.roles?.font_size) {
+    switch (preferences.fontSize) {
       case 'font-small':
         return 40;
       case 'font-normal':
@@ -58,7 +59,7 @@ export default function HomePage({
 
   useEffect(() => {
     let totalIssuesFixed = 0
-    let dailyGoal = settings?.user?.roles?.daily_goal || 10
+    let dailyGoal = preferences.dailyGoal || 10
     let percentComplete = 0
     if(sessionIssues && Object.keys(sessionIssues).length > 0) {
       for (const issueState of Object.values(sessionIssues)) {
@@ -80,7 +81,7 @@ export default function HomePage({
       total: dailyGoal,
       percent: percentComplete
     })
-  }, [settings?.user?.roles?.daily_goal])
+  }, [preferences.dailyGoal])
 
   useEffect(() => {
     if (!hasNewReport) return

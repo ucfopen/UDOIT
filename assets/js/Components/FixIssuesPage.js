@@ -32,6 +32,7 @@ import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER as FILTER } from '../Services/C
 export default function FixIssuesPage({
   t,
   settings,
+  preferences,
   initialSeverity = '',
   initialSearchTerm = '',
   contentItemCache,
@@ -494,7 +495,7 @@ export default function FixIssuesPage({
       }
 
       // Check to see if the user ONLY wants to see issues from published content
-      if(settings?.user?.roles?.view_only_published && issue.issueData) {
+      if(preferences.viewOnlyPublished && issue.issueData) {
         let tempContentItem = getContentById(issue.issueData.contentItemId)
         if(tempContentItem && tempContentItem.published === false) {
           continue
@@ -883,7 +884,7 @@ export default function FixIssuesPage({
           <FixIssuesFilters
             t={t}
             settings={settings}
-
+            preferences={preferences}
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
             searchTerm={searchTerm}

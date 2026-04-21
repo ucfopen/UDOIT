@@ -43,7 +43,7 @@ export default function ReviewFilesFilters({
   const [usedFilters, setUsedFilters] = useState(null)
   const [detailedFilters, setDetailedFilters] = useState(null)
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
-  const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : DEFAULT_USER_SETTINGS.SHOW_FILTERS)
+  const [showFilters, setShowFilters] = useState(preferences.showFilters ?? DEFAULT_USER_SETTINGS.SHOW_FILTERS)
 
   // When the page loads, only show the "Modules" filter is there are modules to filter by...
   useEffect(() => {

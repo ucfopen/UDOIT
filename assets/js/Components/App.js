@@ -24,7 +24,8 @@ export default function App(initialData) {
     initialData?.settings || {},
     { UFIXIT_OPTIONS },
   ))
-  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: DEFAULT_USER_SETTINGS.TEXT_SPACING) 
+  const [preferences, setPreferences] = useState(initialData.preferences || null);
+  const [textSpacing, setTextSpacing] = useState(preferences.textSpacing ?? DEFAULT_USER_SETTINGS.TEXT_SPACING) 
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -84,10 +85,12 @@ export default function App(initialData) {
 
   const updateUserSettings = (newUserSetting) => {
     let oldSettings = JSON.parse(JSON.stringify(settings))
-    let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
+    let newRoles = Object.assign({}, preferences, newUserSetting)
     let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
     let newSettings = Object.assign({}, settings, { user: newUser })
     setSettings(newSettings)
+
+    setPreferences(old => ({...old, ...newUserSetting}));
 
     let api = new Api(settings)
     api.updateUser(newUser)
@@ -364,21 +367,22 @@ export default function App(initialData) {
     <div id="app-container"
          style={{ '--text-spacing-percent': Number(textSpacing) }}
          className={`flex-column flex-grow-1 `
-          + `${settings?.user?.roles?.font_size || DEFAULT_USER_SETTINGS.FONT_SIZE} `
-          + `${settings?.user?.roles?.font_family || DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
-          lang={settings?.user?.roles?.lang || DEFAULT_USER_SETTINGS.LANGUAGE}>
+          + `${preferences.fontSize || DEFAULT_USER_SETTINGS.FONT_SIZE} `
+          + `${preferences.fontFamily || DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+          + `${preferences.darkMode ? 'dark-mode' : ''}`}
+          lang={preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
             settings={settings}
+            preferences={preferences}
             syncComplete={syncComplete}
             setWelcomeClosed={setWelcomeClosed} /> ) :
         (
           <>
             <Header
               t={t}
-              settings={settings}
+              preferences={preferences}
               modalActive={modalActive}
               navigation={navigation}
               handleNavigation={handleNavigation}
@@ -390,6 +394,7 @@ export default function App(initialData) {
                 <HomePage
                   t={t}
                   settings={settings}
+                  preferences={preferences}
                   report={report}
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
@@ -402,6 +407,7 @@ export default function App(initialData) {
                 <FixIssuesPage
                   t={t}
                   settings={settings}
+                  preferences={preferences}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
                   contentItemCache={contentItemCache}
@@ -446,6 +452,7 @@ export default function App(initialData) {
                 <SettingsPage
                   t={t}
                   settings={settings}
+                  preferences={preferences}
                   updateUserSettings={updateUserSettings}
                   syncComplete={syncComplete}
                   handleFullCourseRescan={handleFullCourseRescan}
@@ -464,6 +471,7 @@ export default function App(initialData) {
       <MessageTray
         t={t}
         settings={settings}
+        preferences={preferences}
         nextMessage={nextMessage}
       />
     </div>

@@ -48,7 +48,32 @@ class UserController extends AbstractController
             $oldRoles = $user->getRoles();
             $oldLang = $oldRoles['lang'] ?? 'en';
             
-            $newRoles = $userVals['roles'] ?? [];
+
+            $roleMap = [
+                'textSpacing' => 'text_spacing',
+                'fontSize' => 'font_size',
+                'fontFamily' => 'font_family',
+                'darkMode' => 'dark_mode',
+                'alertTimeout' => 'alert_timeout',
+                'dailyGoal' => 'daily_goal',
+                'showFilters' => 'show_filters',
+                'viewOnlyPublished' => 'view_only_published',
+                'lang' => 'lang'
+            ];
+
+            $newRoles = [];
+
+            if ($userRoles = $userVals['roles'])
+            {
+                foreach($userRoles as $roleKey => $roleValue)
+                {
+                    if (!isset($roleMap[$roleKey])) continue;
+                    $newKey = $roleMap[$roleKey];
+                    $newRoles[$newKey] = $roleValue;
+                }
+            }
+            
+
             $newLang = $newRoles['lang'] ?? 'en';
 
             $changeLang = ($oldLang !== $newLang);
