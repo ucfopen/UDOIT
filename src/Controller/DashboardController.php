@@ -108,6 +108,7 @@ class DashboardController extends AbstractController
         return new JsonResponse([
             'settings' => $this->getSettings($course),
             'messages' => $this->util->getUnreadMessages(true),
+            'preferences' => $this->getPreferences()
         ]);
     }
 
@@ -141,6 +142,37 @@ class DashboardController extends AbstractController
             'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
             'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
+        ];
+    }
+
+    protected function getPreferences(): array
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $roles = $user->getRoles();
+
+
+        /** @var \App\Entity\Institution $institution */
+        $institution = $user->getInstitution();
+
+        $metadata = $institution->getMetadata();
+
+        /** $lang should be two letters, and match an available JSON file in the /translations folder. */
+        $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
+        $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
+        $lang = (array_key_exists("lang", $roles) ? $roles["lang"] : $lang);
+        
+
+        return [
+            'textSpacing' => isset($roles['text_spacing']) ? $roles['text_spacing'] : NULL,
+            'fontSize' => isset($roles['font_size']) ? $roles['font_size'] : NULL,
+            'fontFamily' => isset($roles['font_family']) ? $roles['font_family'] : NULL,
+            'darkMode' => isset($roles['dark_mode']) ? $roles['dark_mode'] : NULL,
+            'alertTimeout' => isset($roles['alert_timeout']) ? $roles['alert_timeout'] : NULL,
+            'dailyGoal' => isset($roles['daily_goal']) ? $roles['daily_goal'] : NULL,
+            'showFilters' => isset($roles['show_filters']) ? $roles['show_filters'] : NULL,
+            'viewOnlyPublished' => isset($roles['view_only_published']) ? $roles['view_only_published'] : NULL,
+            'lang' => $lang
         ];
     }
 
