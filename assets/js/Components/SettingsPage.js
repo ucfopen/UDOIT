@@ -4,6 +4,7 @@ import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
 import Combobox from './Widgets/Combobox'
 import ToggleSwitch from './Widgets/ToggleSwitch'
 import './SettingsPage.css'
+import { DEFAULT_USER_SETTINGS } from '../Services/Settings'
 
 export default function SettingsPage({
   t,
@@ -20,7 +21,7 @@ export default function SettingsPage({
 
   useEffect(() => {
     // Set up alert options
-    let currentAlertTimeout = settings?.user?.roles?.alert_timeout || settings.DEFAULT_USER_SETTINGS.ALERT_TIMEOUT
+    let currentAlertTimeout = settings?.user?.roles?.alert_timeout || DEFAULT_USER_SETTINGS.ALERT_TIMEOUT
     setAlertOptions([
       { value: '5000', name: t('settings.option.alert_timeout.5s'), selected: currentAlertTimeout === '5000' },
       { value: '10000', name: t('settings.option.alert_timeout.10s'), selected: currentAlertTimeout === '10000' },
@@ -29,7 +30,7 @@ export default function SettingsPage({
     ])
 
     // Set up font size options
-    let currentFontSize = settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE
+    let currentFontSize = settings?.user?.roles?.font_size || DEFAULT_USER_SETTINGS.FONT_SIZE
     setFontSizeOptions([
       { value: 'font-small', name: t('settings.label.font_size.small'), selected: currentFontSize === 'font-small' },
       { value: 'font-medium', name: t('settings.label.font_size.medium'), selected: currentFontSize === 'font-medium' },
@@ -38,7 +39,7 @@ export default function SettingsPage({
     ])
 
     // Set up font family options
-    let currentFontFamily = settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY
+    let currentFontFamily = settings?.user?.roles?.font_family || DEFAULT_USER_SETTINGS.FONT_FAMILY
     setFontFamilyOptions([
       { value: 'sans-serif', name: t('settings.label.font_family.sans_serif'), selected: currentFontFamily === 'sans-serif' },
       { value: 'serif', name: t('settings.label.font_family.serif'), selected: currentFontFamily === 'serif' },
@@ -47,7 +48,7 @@ export default function SettingsPage({
     ])
 
     // Set up language options
-    let currentLanguage = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE
+    let currentLanguage = settings?.user?.roles?.lang || DEFAULT_USER_SETTINGS.LANGUAGE
     setLanguageOptions([
       { value: 'en', name: 'English', selected: currentLanguage === 'en' },
       { value: 'es', name: 'Español', selected: currentLanguage === 'es' }
@@ -56,7 +57,7 @@ export default function SettingsPage({
 
   // For new users, the 'dark_mode' attribute may not be set, so we need to check if it exists before using it
   // Because the values might be false, we need to differentiate between undefined and false
-  const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
+  const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : DEFAULT_USER_SETTINGS.DARK_MODE)
 
   const handleDarkModeChange = (newValue) => {
     setDarkMode(newValue)

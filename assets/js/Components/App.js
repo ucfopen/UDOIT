@@ -22,10 +22,9 @@ export default function App(initialData) {
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(Object.assign({},
     initialData?.settings || {},
-    { DEFAULT_USER_SETTINGS },
     { UFIXIT_OPTIONS },
   ))
-  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: settings.DEFAULT_USER_SETTINGS.TEXT_SPACING) 
+  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: DEFAULT_USER_SETTINGS.TEXT_SPACING) 
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -365,10 +364,10 @@ export default function App(initialData) {
     <div id="app-container"
          style={{ '--text-spacing-percent': Number(textSpacing) }}
          className={`flex-column flex-grow-1 `
-          + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
-          + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+          + `${settings?.user?.roles?.font_size || DEFAULT_USER_SETTINGS.FONT_SIZE} `
+          + `${settings?.user?.roles?.font_family || DEFAULT_USER_SETTINGS.FONT_FAMILY} `
           + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
-          lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
+          lang={settings?.user?.roles?.lang || DEFAULT_USER_SETTINGS.LANGUAGE}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
