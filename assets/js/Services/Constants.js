@@ -90,3 +90,14 @@ export const FILE_TYPE_MAP = {
   'audio': FILE_FILTER.FILE_AUDIO,
   'video': FILE_FILTER.FILE_VIDEO,
 }
+
+export const UFIXIT_OPTIONS = {
+  ADD_EMPHASIS: 'add-emphasis',
+  ADD_TEXT: 'add-text',
+  DELETE_ATTRIBUTE: 'delete-attribute',
+  DELETE_ELEMENT: 'delete-element',
+  MARK_AS_REVIEWED: 'mark-as-reviewed',
+  MARK_DECORATIVE: 'mark-decorative',
+  SELECT_ATTRIBUTE_VALUE: 'select-attribute-value',
+  SELECT_TAG: 'select-tag'
+}

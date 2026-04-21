@@ -4,7 +4,7 @@ import FileForm from '../Forms/FileForm'
 import StatusPill from './StatusPill'
 import { formFromIssue } from '../../Services/Ufixit'
 import './UfixitWidget.css'
-import { ISSUE_FILTER } from '../../Services/Constants'
+import { ISSUE_FILTER, UFIXIT_OPTIONS } from '../../Services/Constants'
 
 
 
@@ -87,7 +87,7 @@ export default function UfixitWidget({
   const handleOptionChange = (option) => {
     setActiveOption(option)
 
-    if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
+    if (option === UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
       setMarkAsReviewed(true)
     }
     else {

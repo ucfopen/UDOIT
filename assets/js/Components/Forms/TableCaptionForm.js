@@ -3,6 +3,7 @@ import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function TableCaptionForm({
   t,
@@ -17,9 +18,9 @@ export default function TableCaptionForm({
  }) {
   
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    DELETE_CAPTION: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    DELETE_CAPTION: UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [textInputValue, setTextInputValue] = useState('')

@@ -3,6 +3,7 @@ import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function LabelForm({
   t,
@@ -17,8 +18,8 @@ export default function LabelForm({
  }) {
   
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   const [textInputValue, setTextInputValue] = useState('')
 
