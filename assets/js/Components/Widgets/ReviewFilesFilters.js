@@ -10,7 +10,7 @@ import { DEFAULT_USER_SETTINGS } from '../../Services/Settings'
 export default function ReviewFilesFilters({
   t,
   settings,
-  
+  preferences,
   activeFilters,
   handleSearchTerm,
   searchTerm,

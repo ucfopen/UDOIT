@@ -39,7 +39,7 @@ import { ISSUE_STATE, FILE_FILTER as FILTER } from '../Services/Constants'
 export default function ReviewFilesPage({
   t,
   settings,
-  
+  preferences,
   report,
   sections,
   processNewReport,
@@ -966,7 +966,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           <ReviewFilesFilters
             t={t}
             settings={settings}
-
+            preferences={preferences}
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
             searchTerm={searchTerm}

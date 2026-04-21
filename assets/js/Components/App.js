@@ -424,6 +424,7 @@ export default function App(initialData) {
                 <ReviewFilesPage
                   t={t}
                   settings={settings}
+                  preferences={preferences}
                   contentItemCache={contentItemCache}
                   addContentItemToCache={addContentItemToCache}
                   report={report}
