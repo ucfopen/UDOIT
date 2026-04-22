@@ -61,10 +61,10 @@ migration-list:
 migrate-to:
 	$(COMPOSE) run --rm php php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version$(VERSION)'
 
-## Revert all migrations after the given version
+## Revert the changes of a single migration
 ## usage: `make migrate-down VERSION=20260311150018`
 migrate-down:
-	$(COMPOSE) run --rm php php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version$(VERSION)' --no-interaction
+	$(COMPOSE) run --rm php php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version$(VERSION)' --down
 
 # ──────────────────────────────────────────────
 # Utilities
