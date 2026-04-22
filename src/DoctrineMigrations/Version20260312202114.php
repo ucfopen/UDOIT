@@ -21,6 +21,26 @@ final class Version20260312202114 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
+        $this->addSql("DELETE FROM issue WHERE content_item_id IN (
+            SELECT ci.id FROM content_item ci
+            JOIN course c ON ci.course_id = c.id
+            WHERE c.title LIKE '%New Course%'
+        )");
+
+        $this->addSql("DELETE FROM report WHERE course_id IN (
+            SELECT id FROM course WHERE title LIKE '%New Course%'
+        )");
+
+        $this->addSql("DELETE FROM log_entry WHERE course_id IN (
+            SELECT id FROM course WHERE title LIKE '%New Course%'
+        )");
+
+        $this->addSql("DELETE FROM content_item WHERE course_id IN (
+            SELECT id FROM course WHERE title LIKE '%New Course%'
+        )");
+
+        $this->addSql("DELETE FROM course WHERE title LIKE '%New Course%'");
         $this->addSql("
             UPDATE course c
             SET lms_account_id = NULL
