@@ -57,11 +57,7 @@ jobs:
         run: SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/phpunit
 
       - name: Yarn install
-        run: |
-          yarn config set enableImmutableInstalls false
-          yarn install
-        env:
-          YARN_ENABLE_HARDENED_MODE: 0
+        run: yarn install
 
       - name: Yarn build
         run: yarn build
