@@ -147,11 +147,7 @@ class SyncController extends ApiController
 
             // Add rescanned Issues to database
             foreach ($report->getIssues() as $issue) {
-                if (isset($issue->isGeneric)) {
-                    $lmsFetch->createGenericIssue($issue, $contentItem);
-                } else {
-                    $lmsFetch->createIssue($issue, $contentItem);
-                }
+                $lmsFetch->createGenericIssue($issue, $contentItem);
             }
 
             $response->addMessage('Successfully scanned content', 'success', 5000);

@@ -12,6 +12,7 @@ use App\Services\UtilityService;
 
 use App\Response\ApiResponse;
 use App\Services\LocalApiAccessibilityService;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 // Main scanner class, expects a phpAlly-styled JSON report from whichever scanner is run
 
@@ -56,7 +57,14 @@ class ScannerService {
 
                 $localService = new LocalApiAccessibilityService();
                 $json = $localService->scanContentItem($contentItem);
-                $report = $equalAccess->generateReport($json);
+                if(isset($json["error"])) {
+                    $output = new ConsoleOutput();
+                    $output->writeln("Failed to scan: " . json_encode($contentItem));
+                    throw new \Exception("Error from accessibility checker: " . $json["error"]);
+                }
+                else if(isset($json["results"]) && is_array($json["results"])) {
+                    $report = $equalAccess->generateReport($json);
+                }
             }
             else {
                 // Unknown scanner set in environment, should return error...
@@ -67,6 +75,21 @@ class ScannerService {
             $response->addMessage($e->getMessage(), 'error');
         }
 
+        return $report;
+    }
+
+    public function scanContentItemArray(array $contentItems) {
+
+        $equalAccess = new EqualAccessService();
+        $localService = new LocalApiAccessibilityService();
+        $report = [];
+        $json = $localService->scanMultipleContentItemsAsync($contentItems);
+        foreach ($json as $id => $itemJson) {
+            if(isset($itemJson["results"]) && is_array($itemJson["results"])) {
+                $tempReport = $equalAccess->generateReport($itemJson);
+                $report[$id] = $tempReport;
+            }
+        }
         return $report;
     }
 }

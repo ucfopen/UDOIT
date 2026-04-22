@@ -33,28 +33,24 @@ class LocalApiAccessibilityService {
         return $data;
     }
 
-    public function scanMultipleContentItemsAsync(array $contentItems, int $concurrency = 5, bool $stopOnFailure = false): array
+    public function scanMultipleContentItemsAsync(array $contentItems, int $concurrency = 10, bool $stopOnFailure = false): array
     {
         // Initialize Guzzle client with base options
         $client = new Client([
-            // TODO: the problem with this is that it does not matter if the scanner is the
-            // local or Lambda version, the URL is always the same location causing the
-            // local to be triggered.
             'base_uri' => 'http://host.docker.internal:3000',
             'timeout' => 30.0,
             'http_errors' => false, // Don't throw exceptions for 4xx/5xx responses
         ]);
 
         $output = new ConsoleOutput();
-        $output->writeln("Starting async scan of " . count($contentItems) . " content items");
 
         // Initialize promises array
         $promises = [];
         $results = [];
 
         // Create a promise for each content item
-        foreach ($contentItems as $contentItem) {
-            $id = $contentItem->getId();
+        foreach ($contentItems as $key => $contentItem) {
+            $id = $key;
             //$html = HtmlService::clean($contentItem->getBody());
             $html = $contentItem->getBody();
 
@@ -87,7 +83,6 @@ class LocalApiAccessibilityService {
                                 $output->writeln("JSON decode error for item {$id}: " . json_last_error_msg());
                                 $results[$id] = null;
                             } else {
-                                $output->writeln("Successfully scanned content item {$id}");
                                 $results[$id] = $result;
                             }
                         } catch (\Exception $e) {
@@ -112,10 +107,6 @@ class LocalApiAccessibilityService {
         $pool = new Promise\EachPromise($promises, [
             // Execute N requests concurrently
             'concurrency' => $concurrency,
-            // Invoked when a promise is fulfilled or rejected
-            'fulfilled' => function ($value, $idx, $aggregate) use ($output) {
-                $output->writeln("Completed request {$idx}");
-            },
             'rejected' => function ($reason, $idx, $aggregate) use ($output, $stopOnFailure) {
                 $output->writeln("Failed request {$idx}: " . $reason->getMessage());
 
@@ -129,7 +120,6 @@ class LocalApiAccessibilityService {
         try {
             // Wait for the pool to complete
             $pool->promise()->wait();
-            $output->writeln("All content items scanned successfully");
         } catch (\Exception $e) {
             $output->writeln("Error during scanning process: " . $e->getMessage());
             // Handle any uncaught exceptions from the promise pool

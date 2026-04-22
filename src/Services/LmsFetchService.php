@@ -101,7 +101,6 @@ class LmsFetchService {
               3. ContentItems that are in the LMS but not in our database are added to our database.
             */
             $contentItems = $lms->updateCourseContent($course, $user, $force);
-            $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
 
             $contentSections = $lms->getCourseSections($course, $user);
 
@@ -112,7 +111,6 @@ class LmsFetchService {
             /* Step 4: Process the updated content with PhpAlly and link to report */
             $this->scanContentItems($contentItems);
 
-            $output->writeln("Updating report now...");
             /* Step 5: Update report from all active issues */
             $this->updateReport($course, $user, count($contentItems));
 
@@ -231,94 +229,36 @@ class LmsFetchService {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
-        // $scanner = 'equalaccess_local';
-
-        // If we're using Equal Access Lambda, send all the requests to Lambda for the
-        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
-        // if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
-        //     $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
-        // }
-
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
 
         $index = 0;
+        $contentItemsById = array();
         foreach ($contentItems as $contentItem) {
             if($contentItem->getBody() == null) {
               continue; // Skip content items that have no body
             }
+            $contentItemsById[$contentItem->getId()] = $contentItem;
+        }
 
-            try {
-                // Scan the content item with the scanner set in the environment.
-                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
+        try {
+            $reports = $this->scanner->scanContentItemArray($contentItemsById);
 
-                if ($report) {
-                    // TODO: Do something with report errors
-                    if (count($report->getErrors())) {
-                        foreach ($report->getErrors() as $error) {
-                            $msg = $error . ', item = #' . $contentItem->getId();
-                            $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
-                        }
-                    }
-
-                    // Add Issues to report
+            foreach($reports as $id => $report) {
+                $contentItem = $contentItemsById[$id] ?? null;
+                if($contentItem !== null) {
                     foreach ($report->getIssues() as $issue) {
-                        if(isset($issue->isGeneric)) {
-                          $this->createGenericIssue($issue, $contentItem);
-                        }
-                        else {
-                          $this->createIssue($issue, $contentItem);
-                        }
+                        $this->createGenericIssue($issue, $contentItem);
                     }
                 }
             }
-            catch (\Exception $e) {
-                $this->util->createMessage($e->getMessage(), 'error', null, null, true);
-                throw $e; // Rethrow the exception to be caught by the controller
-            }
         }
+        catch (\Exception $e) {
+            $this->util->createMessage($e->getMessage(), 'error', null, null, true);
+            throw $e; // Rethrow the exception to be caught by the controller
+        }
+        
         $this->doctrine->getManager()->flush();
-    }
-
-    public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
-    {
-        $issueEntity = new Issue();
-        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
-        $issueType = self::ISSUE_TYPE_ERROR;
-
-        if (isset($meta['SUGGESTION_RULES'])) {
-            if (isset($meta['SUGGESTION_RULES'][$issue->getRuleId()])) {
-                $issueType = self::ISSUE_TYPE_SUGGESTION;
-            }
-        }
-        if (isset($_ENV['PHPALLY_SUGGESTION_RULES'])) {
-            if (strpos($_ENV['PHPALLY_SUGGESTION_RULES'], $issue->getRuleId()) !== false) {
-                $issueType = self::ISSUE_TYPE_SUGGESTION;
-            }
-        }
-
-        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess') {
-          $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
-          if($issueType == 'pass') {
-            // If the issue is a pass, we don't create an issue for it
-            return null;
-          }
-        }
-
-        $issueEntity->setType($issueType);
-        $issueEntity->setStatus(Issue::$issueStatusActive);
-        $issueEntity->setContentItem($contentItem);
-        $issueEntity->setScanRuleId($issue->getRuleId());
-        $issueEntity->setHtml($issue->getHtml());
-        $issueEntity->setPreviewHtml($issue->getPreview());
-        $issueEntity->setMetadata($issue->getMetadata());
-
-        $contentItem->addIssue($issueEntity);
-
-        $this->doctrine->getManager()->persist($issueEntity);
-
-        return $issueEntity;
     }
 
     public function createGenericIssue($issue, ContentItem $contentItem)
