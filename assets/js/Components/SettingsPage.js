@@ -152,11 +152,10 @@ export default function SettingsPage({
           <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.documentation')}</a> */}
           <a href='https://ucfopen.github.io/udoit.info/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_udoit')}</a>
           <a href='https://ucfopen.github.io/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_ucfopen')}</a>
-          <div className="divider" />
         </div>
 
         <div className="callout-container flex-column gap-2">
-          <h2>{t('settings.title.disclaimer')}</h2>
+          <h2 className="m-0">{t('settings.title.disclaimer')}</h2>
           <p className="m-0">{t('settings.text.disclaimer')}</p>
         </div>
       </div>

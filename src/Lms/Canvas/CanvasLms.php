@@ -122,16 +122,46 @@ class CanvasLms implements LmsInterface {
 
     public function testApiConnection(User $user)
     {
-        $url = 'users/self';
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
+        $api_status = [];
+        $apiKey = $user->getApiKey();
 
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $response = $canvasApi->apiGet($url);
+        $output = new ConsoleOutput();
+        // Check if the API key exists
+        if(empty($apiKey)){
+            $api_status['success'] = false;
+            $api_status['message'] = "User does not have an API Key. Please refresh the page to try again or contact your adminstrator";
+            return $api_status;
+        }
+        else{
+            $url = 'users/self';
+            $apiDomain = $this->getApiDomain($user);
+            $apiToken = $this->getApiToken($user);
 
-        return ($response->getStatusCode() < 400);
+            $canvasApi = new CanvasApi($apiDomain, $apiToken);
+            $response = $canvasApi->apiGet($url);
+
+            $statusCode = $response->getStatusCode();
+            if($statusCode == 500){
+                $api_status['success'] = false;
+                $api_status['message'] = "Something went wrong. Please refresh the page to try again or contact your adminstrator";
+            }
+            else if($statusCode == 404) {
+                $api_status['success'] = false;
+                $api_status['message'] = "User does not have an API Key. Please refresh the page to try again or contact your adminstrator";
+            }
+            else if($statusCode == 401){
+                $api_status['success'] = false;
+                $api_status['message'] = "Failed to authenticate user";
+            }
+            else{
+                $api_status['success'] = true;
+                $api_status['message'] = "Successfully verified user.";
+            }
+            
+        }
+
+        return $api_status;
     }
-
     /**
      * ****************
      * Course Functions
@@ -182,11 +212,6 @@ class CanvasLms implements LmsInterface {
             if (!empty($pageObj['body'])) {
                 $lmsContent['body'] = $pageObj['body'];
             }
-        }
-
-        /* get HTML file content */
-        if (('file' === $contentType) && ('html' === $content['mime_class'])) {
-            $lmsContent['body'] = file_get_contents($content['url']);
         }
 
         if (!$contentItem) {
@@ -354,22 +379,21 @@ class CanvasLms implements LmsInterface {
     {
         $output = new ConsoleOutput();
         $this->contentItemList = [];
-        $urls = $this->getCourseContentUrls($course->getLmsCourseId());
+        $courseId = $course->getLmsCourseId();
+        $urls = $this->getCourseContentUrls($courseId);
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $tempPages = [];
-        $pageUrls = [];
-        $asyncFetch = true;
+        $scanFails = 0;
 
-        $start_time = microtime(true);
         foreach ($urls as $contentType => $url) {
             $response = $canvasApi->apiGet($url);
+            $statusCode = $response->getStatusCode();
 
-            if ($response->getErrors()) {
-                $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
-                throw new \Exception('msg.sync.error.api');
+            if(!$statusCode || $statusCode != 200 || $response->getErrors()){
+                $scanFails += 1;
+                continue; // Continue to onto next content item if we failed to get a status code
             }
             else {
                 if ('syllabus' === $contentType) {
@@ -381,7 +405,6 @@ class CanvasLms implements LmsInterface {
 
                 foreach ($contentList as $content) {
                     if ('file' === $contentType) {
-                      $output->writeln('Found file: ' . $content['display_name'] . ' Type: ' . $content['mime_class']);
                       if (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())) {
                         $this->updateFileItem($course, $content);
                         continue;
@@ -396,122 +419,16 @@ class CanvasLms implements LmsInterface {
                     if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
                         continue;
                     }
-
-                    $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
-                    if (!$lmsContent) {
-                        continue;
-                    }
-
-                    /* Check to see if the existing content item is already in the database and hasn't been updated since.
-                       The $force variable is used to force the full rescan, and skips the 'already exists' check */
-
-                    $contentItem = $this->contentItemRepo->findOneBy([
-                        'contentType' => $contentType,
-                        'lmsContentId' => $lmsContent['id'],
-                        'course' => $course,
-                    ]);
-
-                    if (!$force && $contentItem) {
-                        $contentItemUpdated = $contentItem->getUpdated();
-                        $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
-                        if ($contentItemUpdated == $lmsUpdated) {
-                            $contentItem->setActive(true);
-                            continue;
-                        }
-                        $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
-                    }
-                    else {
-                        $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
-                    }
-
-                    if (!$contentItem) {
-                        $contentItem = new ContentItem();
-                        $contentItem->setCourse($course)
-                            ->setLmsContentId($lmsContent['id'])
-                            ->setActive(true)
-                            ->setContentType($contentType);
-                        $this->entityManager->persist($contentItem);
-                    }
-
-                    if ('page' === $contentType) {
-                        $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";  
-                        if($asyncFetch) {
-                            /* NEW PAGE FETCH: New asynchronous batch fetch. The real magic is in the $pageUrls handler beneath this foreach loop (line ~305). */
-                            $tempContentItems[] = $contentItem;
-                            $pageUrls[] = $url;
-                            continue;
-                        }
-                        else {
-                            /* OLD PAGE FETCH: 1-at-a-time synchronous fetch */
-                            $pageResponse = $canvasApi->apiGet($url);
-                            $pageObj = $pageResponse->getContent();
-
-                            if (!empty($pageObj['body'])) {
-                                $lmsContent['body'] = $pageObj['body'];
-                            }
-                        }
-                    }
-
-                    /* get HTML file content */
-                    if (('file' === $contentType) && ('html' === $content['mime_class'])) {
-                        $lmsContent['body'] = file_get_contents($content['url']);
-                    }
-
-                    // some content types don't have an updated date, so we'll compare content
-                    // to find out if content has changed.
-                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
-                        if ($contentItem->getBody() === $lmsContent['body']) {
-                            if ($contentItem->getUpdated()) {
-                                $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
-                            }
-                        }
-                    }
-
-                    $contentItem->update($lmsContent);
-                    if($contentItem->getBody() !== null) {
-                        $contentItems[] = $contentItem;
-                    }
+                    $this->saveOrUpdateContentItem($canvasApi, $course, $contentType, $content, $force);
                 }
             }
         }
-
-        // If there are any pages to fetch, handle that now...
-        if(count($pageUrls) > 0) {
-
-            $output->writeln('Fetching contents for ' . count($pageUrls) . ' pages asynchronously...');
-            
-            // Request pages in a batch instead of synchronously
-            $allPages = $canvasApi->apiGetBatch($pageUrls);
-            
-            // Save indices for the tempContentItems array so it will be easier (O(1)) to match up...
-            $tempContentItemsIndexById = [];
-            foreach($tempContentItems as $index => $item) {
-                $tempContentItemsIndexById[$item->getLmsContentId()] = $index;
-            }
-
-            foreach($allPages as $pageData) {
-                $lmsContent = $this->normalizeLmsContent($course, 'page', json_decode($pageData, true));
-
-                if (!empty($lmsContent['body'])) {
-                    $lmsContentId = $lmsContent['id'];
-                    // If the item exists in the tempContentItems array... Update and add to contentItems to scan.
-                    if(isset($tempContentItemsIndexById[$lmsContentId])) {
-                        $index = $tempContentItemsIndexById[$lmsContentId];
-                        $tempContentItems[$index]->update($lmsContent);
-                        $contentItems[] = $tempContentItems[$index];
-                    }
-                }
-            }
-        }
-
+        if($scanFails > 0){
+            $this->util->createMessage('Failed to fetch {$scanFails} from LMS. Please try to rescan the course to account for all issues.', 'error', $course, $user);
+        }        
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
-        // Log how long things took (compare synchronous vs asynchronous page fetch)
-        $end_time = microtime(true);
-        $output->writeln('updateCourseContent - time taken: ' . ($end_time - $start_time) . ' seconds');
-
-        return $contentItems;
+        return $this->contentItemList;
     }
 
     public function getCourseSections(Course $course, User $user)
@@ -1010,6 +927,13 @@ class CanvasLms implements LmsInterface {
                     'message' => $fullPageHtml,
                 ];
                 break;
+            case('quiz_question'):
+                $options = [
+                    'question' => [
+                        'question_text' => $fullPageHtml,
+                    ],
+                ];
+                break;
             default:
                 break;
         }
@@ -1126,7 +1050,7 @@ class CanvasLms implements LmsInterface {
                 $out['updated'] = 'now';
                 $out['body'] = $lmsContent['question_text'];
                 $out['status'] = true;
-                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['quiz_id']}/edit#questions_tab";
+                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['quiz_id']}/questions/{$lmsContent['id']}";
 
                 break;
         }

@@ -1,19 +1,11 @@
 .resolutions-report-container {
   display: flex;
-  flex-direction: row;
-  height: 100%;
+  flex-direction: column;
+  height: fit-content;
 }
 
 .resolutions-chart-area {
-  flex: 3;
-  padding: 20px;
-}
-
-.resolutions-header {
-  text-align: center;
-  width: 100%;
-  margin-top: 0;
-  margin-bottom: 0.5em;
+  padding-block-start: 1.5rem;
 }
 
 .resolutions-mode-toggle {

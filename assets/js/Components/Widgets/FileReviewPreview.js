@@ -145,7 +145,7 @@ export default function FixIssuesContentPreview({
                   <tr key={index}>
                       <td className='content-title'>{ref.contentItemTitle}</td>
                       <td>
-                          <a href={ref.contentItemUrl} target='_blank' className='location-link flex-row align-items-center'>
+                          <a href={ref.contentType == "quiz_question" ? ref.contentItemUrl.replace(/\/questions.*/, "/edit#questions_tab") : ref.contentItemUrl} target='_blank' className='location-link flex-row align-items-center'>
                               {t('form.file.external_url.label')}
                               <ExternalLinkIcon />
                           </a>

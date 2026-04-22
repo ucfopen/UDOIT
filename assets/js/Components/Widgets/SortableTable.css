@@ -66,23 +66,16 @@
         border-bottom: 1px solid var(--border-color);
       }
 
-      &:hover {
-        td div,
-        td span {
-          text-decoration: underline;
-        }
-      }
-
       &.clickable {
         cursor: pointer;
-        /* color: var(--link-color);
-        text-decoration: none;
-        font-weight: 600; */
 
         &:hover,
         &:focus {
-          text-decoration: underline;
           background-color: var(--link-color-light);
+
+          .clickable-text {
+            text-decoration: underline;
+          }
         }
 
         &:focus {
@@ -139,16 +132,25 @@
 }
 
 .paginationButton {
-  padding: .2rem .5rem;
+  display: flex;
+  justify-content: center;
+  padding: .4rem .5rem;
   min-width: 2rem;
-  border-radius: 8px;
+  border-radius: var(--element-radius);
   background-color: transparent;
   color: var(--link-color);
   border-color: transparent;
+  font-weight: 400;
   box-shadow: none;
+  border: 1px solid transparent;
+
+  &.paginationBordered {
+    border-color: var(--border-color);
+    align-items: center;
+    height: auto;
+  }
 }
 
 .paginationButton.selected {
-  background-color: var(--link-color);
-  color: var(--white);
+  background-color: var(--pill-info-border);
 }

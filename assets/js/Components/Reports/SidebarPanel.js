@@ -27,14 +27,15 @@ export default function SidebarPanel({
   minWidth = 280,
 }) {
   const DEFAULT_PRESET_DAYS = "14";
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
   const [selectedPreset, setSelectedPreset] = useState(DEFAULT_PRESET_DAYS);
 
   useEffect(() => {
-    const today = new Date();
     const from = new Date(today);
     from.setDate(today.getDate() - Number(DEFAULT_PRESET_DAYS));
     const startStr = from.toISOString().slice(0, 10);
-    const endStr = today.toISOString().slice(0, 10);
+    const endStr = todayStr;
     setDateStart(startStr);
     setDateEnd(endStr);
     // eslint-disable-next-line
@@ -42,25 +43,23 @@ export default function SidebarPanel({
 
   const handlePreset = (daysStr) => {
     const days = Number(daysStr);
-    const today = new Date();
     const from = new Date(today);
     from.setDate(today.getDate() - days);
     setDateStart(from.toISOString().slice(0, 10));
-    setDateEnd(today.toISOString().slice(0, 10));
+    setDateEnd(todayStr);
     setSelectedPreset(daysStr);
   };
 
   useEffect(() => {
     if (!selectedPreset) return;
-    const today = new Date().toISOString().slice(0, 10);
     const preset = PRESETS.find((p) => p.days === selectedPreset);
     if (preset) {
       const expectedStart = (() => {
         const d = new Date(today);
-        d.setDate(d.getDate() - Number(preset.days));
+        d.setDate(today.getDate() - Number(preset.days));
         return d.toISOString().slice(0, 10);
       })();
-      if (dateStart !== expectedStart || dateEnd !== today) {
+      if (dateStart !== expectedStart || dateEnd !== todayStr) {
         setSelectedPreset("");
       }
     }
@@ -104,6 +103,7 @@ export default function SidebarPanel({
                   setDateStart(e.target.value);
                   setSelectedPreset("");
                 }}
+                max={todayStr}
                 className="sidebar-panel-date-input"
               />
               <span className="sidebar-panel-date-separator">–</span>
@@ -114,7 +114,7 @@ export default function SidebarPanel({
                   setDateEnd(e.target.value);
                   setSelectedPreset("");
                 }}
-                max={new Date().toISOString().slice(0, 10)}
+                max={todayStr}
                 className="sidebar-panel-date-input"
               />
             </div>

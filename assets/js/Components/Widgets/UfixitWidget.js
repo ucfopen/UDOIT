@@ -59,7 +59,7 @@ export default function UfixitWidget({
     tempIssue.issueData = newIssue
     tempIssue.isModified = newIssue?.isModified || false
     setTempActiveIssue(tempIssue)
-    triggerLiveUpdate()
+    //triggerLiveUpdate()
   }
 
   useEffect(() => {
@@ -93,6 +93,8 @@ export default function UfixitWidget({
       setMarkAsReviewed(false)
     }
   }
+
+  const fullHtml = activeContentItem?.body
 
   return (
     <>

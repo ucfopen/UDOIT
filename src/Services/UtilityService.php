@@ -9,8 +9,6 @@ use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Twig\Environment;
-
 class UtilityService {
 
     const ENV_DEV = 'dev';
@@ -23,9 +21,6 @@ class UtilityService {
     /** @var SessionService $sessionService */
     private $sessionService;
 
-    /** @var Environment $twig */
-    private $twig;
-    
     /** @var ManagerRegistry */
     private $doctrine;
 
@@ -40,12 +35,10 @@ class UtilityService {
     public function __construct(
         SessionService $sessionService,
         ManagerRegistry $doctrine,
-        Environment $twig,
         Security $security,
         ParameterBagInterface $paramBag)
     {
         $this->sessionService = $sessionService;
-        $this->twig = $twig;
         $this->doctrine = $doctrine;
         $this->security = $security;
         $this->paramBag = $paramBag;
@@ -124,10 +117,29 @@ class UtilityService {
     {
         $this->createMessage($msg, $severity, $course);
 
-        print $this->twig->render('error.html.twig', [
-            'page_title' => 'Application Error',
-            'messages' => $this->getUnreadMessages(true),
-        ]);
+        $messages = $this->getUnreadMessages(true);
+
+        $html = '<!DOCTYPE html><html><head><title>Application Error</title></head><body>'
+            . '<div style="max-width:40em;margin: 2em auto;border: 1px solid #C5C9D3;border-radius: 16px;padding: 2em;font-family: system-ui, arial, sans-serif;">'
+                . '<div style="display: flex;justify-content:center;padding:1rem 2rem 1.5rem 2rem;">'
+                    .'<img src="./images/udoit-logo.svg" alt="UDOIT Logo" style="min-width: 30%;width: 200px;height: auto;" />'
+                . '</div>'
+                . '<h1 style="background-color: #666;color: #FFF;padding: 1rem;margin: 0 0 1.5rem 0;text-align: center;">Application Error</h1>';
+
+        foreach ($messages as $message) {
+            $severity = htmlspecialchars($message->getSeverity(), ENT_QUOTES, 'UTF-8');
+            $text     = htmlspecialchars($message->getMessage(), ENT_QUOTES, 'UTF-8');
+            $textColor = ($severity === 'error') ? '#a94442' : (($severity === 'info') ? '#31708f' : '#666');
+            $html .= '<div style="padding: 20px;margin: 20px 0px;border: 1px solid #555;font-size: 1.5em;color:' . $textColor . ';border-color:' . $textColor . ';">' . $text;
+            if ($message->getCourse()) {
+                $courseTitle = htmlspecialchars($message->getCourse()->getTitle(), ENT_QUOTES, 'UTF-8');
+                $html .= '<p><small>' . $courseTitle . '</small></p>';
+            }
+            $html .= '</div>';
+        }
+
+        $html .= '</div></body></html>';
+        print $html;
 
         exit;
     }

@@ -81,19 +81,49 @@
   }
 }
 
-.logo-large {
-  width: 75%;
-  min-width: 250px;
-  max-width: 300px;
-  margin-bottom: 1.25rem;
-  margin: 0 auto 2rem;
-  padding: 0 1rem 1rem 1rem;
+.welcome-container {
+  margin: 0 auto;
+  max-width: 40em;
+  text-align: center;
+  border-radius: var(--window-radius);
+  padding: 2em;
+  
+  .logo-large {
+    width: 200px;
+    min-width: 30%;
 
-  @media screen and (max-width: 768px) {
-    align-self: center;
-    max-width: 325px;
+    @media screen and (max-width: 768px) {
+      align-self: center;
+      max-width: 325px;
+    }
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  p {
+    color: var(--text-secondary-color);
+  }
+
+  .scanner-container {
+    height: 6em;
+
+    .status-text {
+      font-size: 1.2em;
+      font-weight: 400;
+    }
+  }
+
+  button {
+    padding: .75em;
+    width: 100%;
+    background-color: var(--selection-color);
+    border-color: transparent;
   }
 }
+
+
 
 .invisible-spacer {
   padding-bottom: 4rem;
@@ -106,7 +136,7 @@
 .tagline {
   text-transform: uppercase;
   font-size: 0.9em;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text-color);
   text-decoration: none;
 }
@@ -120,4 +150,25 @@
   &:hover {
     opacity: 1;
   }
+}
+
+/* Adapted from https://css-loaders.com/progress/ (#16) */
+.loader {
+  height: 8px;
+  border-radius: 4px;
+  width: 100%;
+  --c: no-repeat linear-gradient(var(--progress-bar-color) 0 0);
+  background: var(--c),var(--c), var(--progress-bar-background-color);
+  background-size: 60% 100%;
+  animation: l16 5s infinite;
+
+  &.complete {
+    animation: none;
+    background: var(--selection-color);
+  }
+}
+@keyframes l16 {
+  0%   {background-position:-150% 0,-150% 0}
+  66%  {background-position: 250% 0,-150% 0}
+  100% {background-position: 250% 0, 250% 0}
 }

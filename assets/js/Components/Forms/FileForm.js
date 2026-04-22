@@ -182,6 +182,12 @@ export default function FileForm ({
       setMarkAsReviewed(false)
       return
     }
+    else {
+      setMarkRevert(false)
+      setMarkAsReviewed(false)
+      setMarkDelete(false)
+      return
+    }
   }
 
   const removeUploadedFile = () => {
