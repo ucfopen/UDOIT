@@ -204,7 +204,6 @@ export default function SelectValidIdForm ({
     })
 
     tempActiveContentItem.body = Html.toString(doc.body)
-    issue.newHtml = Html.toString(errorElement)
     return tempActiveContentItem
   }
 
@@ -276,7 +275,7 @@ export default function SelectValidIdForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.EDIT_ATTRIBUTE}
           labelText = {t('form.select_valid_id.label.assign')}
-          />
+        />
 
         { activeOption === FORM_OPTIONS.EDIT_ATTRIBUTE && (
           <>
@@ -358,7 +357,10 @@ export default function SelectValidIdForm ({
                 </div>
               ))}
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.EDIT_ATTRIBUTE]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.EDIT_ATTRIBUTE]}
+            />
           </>
         )}
       </div>
@@ -371,7 +373,7 @@ export default function SelectValidIdForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

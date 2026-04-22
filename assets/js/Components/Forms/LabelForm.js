@@ -117,7 +117,7 @@ export default function LabelForm({
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.label.label.text')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
             <input
@@ -129,8 +129,12 @@ export default function LabelForm({
               value={textInputValue}
               onChange={handleInput}
               tabIndex="0"
-              disabled={isDisabled} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+              disabled={isDisabled}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -143,7 +147,7 @@ export default function LabelForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

@@ -5,8 +5,6 @@ import StatusPill from './StatusPill'
 import { formFromIssue } from '../../Services/Ufixit'
 import './UfixitWidget.css'
 
-
-
 export default function UfixitWidget({
   t,
   settings,
@@ -21,15 +19,12 @@ export default function UfixitWidget({
   isErrorFoundInContent,
   setTempActiveIssue,
   tempActiveIssue,
-  triggerLiveUpdate,
   markAsReviewed,
   setMarkAsReviewed,
   setFormInvalid,
   handleLearnMoreClick,
-  showLearnMore,
   clickedInfo,
   setClickedInfo,
-  handleContentIssueSave,
   setElementFocus,
   setPreviewData
 }) {
@@ -61,7 +56,6 @@ export default function UfixitWidget({
     tempIssue.issueData = newIssue
     tempIssue.isModified = newIssue?.isModified || false
     setTempActiveIssue(tempIssue)
-    //triggerLiveUpdate()
   }
 
   useEffect(() => {
@@ -96,15 +90,11 @@ export default function UfixitWidget({
     }
   }
 
-  const fullHtml = activeContentItem?.body
-
   return (
     <>
       {UfixitForm && tempActiveIssue ? (
         <>
-          <div className="ufixit-widget flex-column flex-grow-1"
-            aria-hidden={showLearnMore ? "false" : "true"}
-            style={{ display: showLearnMore ? "none" : "flex" }}>
+          <div className="ufixit-widget flex-column flex-grow-1">
 
             <BarrierInformation
               t={t}
@@ -134,7 +124,7 @@ export default function UfixitWidget({
                 handleActiveIssue={handleActiveIssue}
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
-                isDisabled={isContentLoading || !isErrorFoundInContent}
+                isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT)}
                 markAsReviewed={markAsReviewed}
                 setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}
@@ -143,7 +133,6 @@ export default function UfixitWidget({
                 setFormErrors={setFormErrors}
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
-                handleContentIssueSave={handleContentIssueSave}
                 setElementFocus={setElementFocus}
                 setPreviewData={setPreviewData} />
             </div>

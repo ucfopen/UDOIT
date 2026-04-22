@@ -207,7 +207,7 @@ export default function TableHeadersForm({
           option = {FORM_OPTIONS.SELECT_DIRECTION}
           labelId = "headerDirectionLabel"
           labelText = {t('form.table_headers.selection_description')}
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_DIRECTION && (
           <>
             <div className="flex-column indented gap-1" role="radiogroup" aria-labelledby="headerDirectionLabel">
@@ -220,10 +220,13 @@ export default function TableHeadersForm({
                   setActiveOption = {handleChange}
                   option = {value}
                   labelText = {t(`form.table_headers.${value}`)}
-                  />
+                />
               ))}
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]}
+            />
           </>
         )}
       </div>
@@ -236,7 +239,7 @@ export default function TableHeadersForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_DECORATIVE}
           labelText = {t('form.table_headers.decoration_only')}
-          />
+        />
       </div>
 
       {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
@@ -247,7 +250,7 @@ export default function TableHeadersForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

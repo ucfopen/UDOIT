@@ -122,7 +122,7 @@ export default function EmbeddedContentTitleForm({
           option={FORM_OPTIONS.ADD_LABEL}
           labelId = 'add-label-label'
           labelText = {t('form.embedded_content_title.label.text')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_LABEL && (
           <>
             <input
@@ -134,8 +134,12 @@ export default function EmbeddedContentTitleForm({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleInput} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_LABEL]} />
+              onChange={handleInput}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_LABEL]}
+            />
           </>
         )}
       </div>
@@ -148,7 +152,7 @@ export default function EmbeddedContentTitleForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

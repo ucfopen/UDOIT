@@ -16,7 +16,6 @@ export default function FixIssuesContentPreview({
   clickedInfo,
   setClickedInfo,
   previewData,
-  liveUpdateToggle,
   isErrorFoundInContent,
   setIsErrorFoundInContent,
   elementFocus
@@ -128,7 +127,7 @@ export default function FixIssuesContentPreview({
                   activeContentItem={activeContentItem}
                   activeIssue={activeIssue}
                   activeOption={activeOption}
-                  liveUpdateToggle={liveUpdateToggle}
+                  isErrorFoundInContent={isErrorFoundInContent}
                   setIsErrorFoundInContent={setIsErrorFoundInContent}
                   clickedInfo={clickedInfo}
                   setClickedInfo={setClickedInfo}

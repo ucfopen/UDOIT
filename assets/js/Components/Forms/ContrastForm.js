@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import CheckIcon from '../Icons/CheckIcon'
-import ContrastIcon from '../Icons/ContrastIcon'
 import DarkIcon from '../Icons/DarkIcon'
 import ErrorIcon from '../Icons/ErrorIcon'
 import LightIcon from '../Icons/LightIcon'
+import MagicIcon from '../Icons/MagicIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 import './ContrastForm.css'
@@ -505,7 +505,7 @@ export default function ContrastForm({
           disabled={isDisabled}
           onClick={handleAutoAdjustAll}
         >
-          <ContrastIcon className="icon-md" alt="" aria-hidden="true"/>
+          <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
           {t('form.contrast.label.auto_adjust_all')}
         </button>
       </div>

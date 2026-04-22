@@ -237,7 +237,8 @@ export default function TemplateForm ({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleTextInput} />
+              onChange={handleTextInput}
+            />
             
             {/* Example checkbox using the custom Toggle switch component */}
             <div className="flex-row justify-content-start gap-1">
@@ -246,10 +247,14 @@ export default function TemplateForm ({
                 initialValue={isToggleChecked}
                 updateToggle={setIsToggleChecked}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="exampleCheckbox" className="ufixit-instructions">Ignore what I wrote and mark the language as English</label>
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -263,7 +268,7 @@ export default function TemplateForm ({
           option={FORM_OPTIONS.SELECT_LANGUAGE}
           labelId = 'combo-label-language-select'
           labelText = {t(`form.language.label.select_language`)} 
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (
           <>
             <Combobox 
@@ -274,7 +279,10 @@ export default function TemplateForm ({
               options={selectOptions} 
               settings={settings}
             />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]}
+            />
           </>
         )}
       </div>
@@ -287,7 +295,7 @@ export default function TemplateForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DELETE_ATTRIBUTE}
           labelText = 'Remove the lang attribute'
-          />
+        />
       </div>
 
       {/* OPTION 4: Mark as Reviewed. ID: "mark-as-reviewed" */}
@@ -298,7 +306,7 @@ export default function TemplateForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

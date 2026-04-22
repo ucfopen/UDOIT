@@ -107,7 +107,7 @@ export default function HeadingEmptyForm({
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.heading_empty.label.text')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
             <input
@@ -119,8 +119,12 @@ export default function HeadingEmptyForm({
               value={textInputValue}
               onChange={handleInput}
               tabIndex="0"
-              disabled={isDisabled} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+              disabled={isDisabled}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -133,9 +137,12 @@ export default function HeadingEmptyForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DELETE_HEADING}
           labelText = {t('form.heading_empty.label.remove_heading')}
-          />
+        />
         {activeOption === FORM_OPTIONS.DELETE_HEADING && (
-          <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]} />
+          <OptionFeedback
+            t={t}
+            feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]}
+          />
         )}
       </div>
       
@@ -147,7 +154,7 @@ export default function HeadingEmptyForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

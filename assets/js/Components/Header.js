@@ -102,7 +102,7 @@ export default function Header({
 
   /* CSS-Only Responsive Mobile menu based on: https://blog.logrocket.com/create-responsive-mobile-menu-css-without-javascript/ */
   return (
-    <header id="udoit-header" role="banner" inert={modalActive ? "inert" : undefined} aria-hidden={!modalActive}>
+    <header id="udoit-header" role="banner" inert={modalActive ? "inert" : undefined}>
       <a className="skip-link" href="#main-content">{t('menu.nav.skip_to_main')}</a>
       <img alt={t('alt.UDOIT')} src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}></img>
       <input

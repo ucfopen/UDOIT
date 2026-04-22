@@ -3,7 +3,8 @@ import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
 
 export default function OptionFeedback ({
-    feedbackArray
+  t,
+  feedbackArray
 }) {
 
   return (
@@ -11,14 +12,19 @@ export default function OptionFeedback ({
       { feedbackArray && feedbackArray.length > 0 && (
         <div className="pt-2">
           { feedbackArray.map((feedback, index) => 
-            <div key={index} className={`option-feedback ${feedback.type === 'error' ? 'feedback-error' : 'feedback-warning'}`}>
+            <div
+              key={index}
+              className={`option-feedback ${feedback.type === 'error' ? 'feedback-error' : 'feedback-warning'}`}
+              aria-label={t(feedback.type === 'error' ? 'fix.label.feedback_error' : 'fix.label.feedback_caution', {message: feedback.text})}
+              role="presentation"
+              >
               {feedback.type === 'error' && (
-                <SeverityIssueIcon className="icon-md udoit-issue-highlight align-self-top pe-2"/>
+                <SeverityIssueIcon className="icon-md udoit-issue-highlight align-self-top pe-2" aria-hidden="true"/>
               )}
               {feedback.type === 'warning' && (
-                <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2"/>
+                <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2" aria-hidden="true"/>
               )}
-              <div>{feedback.text}</div>
+              <div aria-hidden="true">{feedback.text}</div>
             </div>
           )}
         </div>

@@ -309,7 +309,7 @@ export default function AriaRoleForm({
             option={FORM_OPTIONS.SELECT_ROLE}
             labelId = 'combo-label-role-select'
             labelText = {t('form.aria_role.label.select')}
-            />
+          />
           {activeOption === FORM_OPTIONS.SELECT_ROLE && (
             <>
               <Combobox
@@ -320,7 +320,10 @@ export default function AriaRoleForm({
                 options={selectOptions}
                 settings={settings}
               />
-              <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_ROLE]} />
+              <OptionFeedback
+                t={t}
+                feedbackArray={formErrors[FORM_OPTIONS.SELECT_ROLE]}
+              />
             </>
           )}
         </div>
@@ -334,9 +337,12 @@ export default function AriaRoleForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DELETE_ROLE}
           labelText = {t('form.aria_role.label.remove')}
-          />
+        />
         {activeOption === FORM_OPTIONS.DELETE_ROLE && (
-          <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_ROLE]} />
+          <OptionFeedback
+            t={t}
+            feedbackArray={formErrors[FORM_OPTIONS.DELETE_ROLE]}
+          />
         )}
       </div>
       
@@ -348,7 +354,7 @@ export default function AriaRoleForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import MagicIcon from '../Icons/MagicIcon'
 import * as Html from '../../Services/Html'
 import './SensoryMisuseForm.css'
 import { numberedPattern, letteredPattern, bulletPattern } from '../../Services/Lists'
@@ -337,12 +338,13 @@ export default function ListForm({
         {t('form.list.label.instructions')}
       </div>
 
-      <div className="mt-1">
+      <div className="flex-row justify-content-end">
         <button 
-          className="btn-secondary btn-small"
+          className="btn-small btn-icon-left btn-secondary"
           onClick={handleAutoFix}
           disabled={isContentLoading}
         >
+          <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
           {t('form.list.button.auto_fix')}
         </button>
       </div>

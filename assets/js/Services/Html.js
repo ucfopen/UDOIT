@@ -639,7 +639,7 @@ export function findElementWithIssue(content, issue) {
   }
   else {
     let errorHtml = issue?.sourceHtml || undefined
-    if(issue.status.toString() === '1') {
+    if(issue.status.toString() === '1' || issue.status.toString() === '3') {
       errorHtml = issue?.newHtml || undefined
     }
 
@@ -647,7 +647,7 @@ export function findElementWithIssue(content, issue) {
       return null
     }
 
-    return findElementWithError(content, issue.sourceHtml)
+    return findElementWithError(content, errorHtml)
   }
 }
 

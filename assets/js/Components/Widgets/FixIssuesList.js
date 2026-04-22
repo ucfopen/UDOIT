@@ -94,7 +94,7 @@ export default function FixIssuesList({
               <div
                 id={`list-items-${i}`}
                 className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
-                aria-hidden={openList[group.formLabel] ? 'false' : 'true'}
+                inert={openList[group.formLabel] ? undefined : true}
                 tabIndex="-1">
                 { group.issues.map((issue, j) => {
                   return (

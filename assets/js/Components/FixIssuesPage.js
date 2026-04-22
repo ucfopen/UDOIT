@@ -7,7 +7,7 @@ import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import CloseIcon from './Icons/CloseIcon'
-import { formNameFromRule } from '../Services/Ufixit'
+import { FORM_CLASSIFICATIONS, formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 
@@ -85,7 +85,6 @@ export default function FixIssuesPage({
   const [filteredIssues, setFilteredIssues] = useState([])
   const [groupedList, setGroupedList] = useState([])
   const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
-  const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
   const [clickedInfo, setClickedInfo] = useState({})
   const [previewData, setPreviewData] = useState(null)
 
@@ -581,147 +580,6 @@ export default function FixIssuesPage({
     }
   }
 
-  const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue) {
-      return
-    }
-
-    // Create the full HTML string for the new version of the content item.
-    const parser = new DOMParser()
-    const tempDoc = parser.parseFromString(content.body, 'text/html')
-
-    let errorElement = Html.findElementWithIssue(tempDoc, issue)
-      
-    if(!errorElement) {
-      console.warn("Could not find error element when attempting to save...")
-      return
-    }
-    const newElement = Html.toElement(issue?.newHtml)
-    
-    // Replace or remove the error element
-    if(newElement) {
-      errorElement.replaceWith(newElement)  
-    } else {
-      errorElement.remove()
-    }
-
-    return tempDoc.body.innerHTML
-  }
-
-  const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
-    if(!contentItem || !contentItem?.body || !issue) {
-      return
-    }
-
-    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
-    addItemToBeingScanned(issue.contentItemId)
-
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-    if (markAsReviewed) {
-      if (issue.status === 1) {
-        issue.status = 3
-        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName))
-      } else if (issue.status === 0) {
-        issue.status = 2
-        issue.newHtml = Html.toString(Html.addClass(issue.sourceHtml, specificClassName))
-      }
-    } else {
-      if (issue.status === 3) {
-        issue.status = 1
-        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName))
-      } else if (issue.status === 2) {
-        issue.status = 0
-        issue.newHtml = Html.toString(Html.removeClass(issue.sourceHtml, specificClassName))
-      }
-    }
-
-    let fullPageHtml = contentItem.body
-    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
-    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
-    let newXpath = Html.findXpathFromElement(newElement)
-    if(newXpath) {
-      issue.xpath = newXpath
-    }
-    else {
-      issue.xpath = ""
-    }
-    activeContentItem.body = fullPageHtml
-
-    // Save the updated issue using the LMS API
-    let api = new Api(settings)
-    try {
-      api.saveIssue(issue, fullPageHtml, markAsReviewed)
-      .then((responseStr) => {
-        // Check for HTTP errors before parsing JSON
-          if (!responseStr.ok) {
-            processServerError(responseStr)
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-            removeItemFromBeingScanned(issue.contentItemId)
-            return null
-          }
-          return responseStr.json()
-      })
-      .then((response) => {
-
-        // If the save falied, show the relevant error message
-        if (response.data.failed) {
-          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-          removeItemFromBeingScanned(issue.contentItemId)
-          response.messages.forEach((msg) => addMessage(msg))
-            
-          if (Array.isArray(response.data.issues)) {
-            response.data.issues.forEach((issue) => {
-              addMessage({
-                severity: 'error',
-                message: t(`form.error.${issue.ruleId}`)
-              })
-            })
-          }
-
-          if (Array.isArray(response.data.errors)) {
-            response.data.errors.forEach((error) => {
-              addMessage({
-                severity: 'error',
-                message: error
-              })
-            })
-          }
-        }
-        else {
-          
-          // If the save was successful, show the success message
-          response.messages.forEach((msg) => addMessage(msg))
-          
-          if (response.data.issue) {
-            // Update the report object by rescanning the content
-            const newIssue = Object.assign({}, issue, response.data.issue)
-            // const formattedData = formatIssueData(newIssue)
-            // setActiveIssue(formattedData)
-            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
-
-            api.scanContent(newIssue.contentItemId)
-              .then((responseStr) => responseStr.json())
-              .then((res) => { 
-                const tempReport = Object.assign({}, res?.data)
-                processNewReport(tempReport)
-                removeItemFromBeingScanned(newIssue.contentItemId)
-              })
-          }
-          else {
-            // setActiveIssue(formatIssueData(issue))
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
-            removeItemFromBeingScanned(issue.contentItemId)
-          }
-        }
-      })
-    } catch (error) {
-      console.error(error)
-      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-    }
-
-
-  }
-
   const handleIssueSave = async () => {
 
     if(!tempActiveContentItem || !tempActiveContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
@@ -752,50 +610,11 @@ export default function FixIssuesPage({
       }
     }
 
-    // getNewFullPageHtml uses issue.xpath to find the first real element and replace it
-    // with issue.newHtml (the combined fixed HTML)
-    // let fullPageHtml = getNewFullPageHtml(tempActiveContentItem, issue)
-    // if (!fullPageHtml) {
-    //   console.error('Could not get full page HTML')
-    //   updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-    //   removeItemFromBeingScanned(issue.contentItemId)
-    //   return
-    // }
+    if (activeOption === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+      issue.newHtml = ''
+    }
 
-    // // For grouped saves, remove the remaining grouped issue elements from the page
-    // // Use the stored element HTML strings which are the EXACT outerHTML from the original DOM
-    // if (isGroupedSave) {
-    //   for (const elementHtml of remainingElementsHtml) {
-    //     // Direct string replacement - most reliable since we have the exact original HTML
-    //     const trimmedHtml = elementHtml.trim()
-    //     if (fullPageHtml.includes(trimmedHtml)) {
-    //       fullPageHtml = fullPageHtml.replace(trimmedHtml, '')
-    //     } else {
-    //       // Fallback: try DOM-based removal
-    //       const parser = new DOMParser()
-    //       const tempDoc = parser.parseFromString(fullPageHtml, 'text/html')
-    //       const allElements = tempDoc.body.querySelectorAll('*')
-    //       let foundElement = null
-    //       for (const el of allElements) {
-    //         if (el.outerHTML.trim() === trimmedHtml) {
-    //           foundElement = el
-    //           break
-    //         }
-    //       }
-    //       if (foundElement) {
-    //         foundElement.remove()
-    //         fullPageHtml = tempDoc.body.innerHTML
-    //       } else {
-    //         console.warn(`Could not find element to remove:`, trimmedHtml.substring(0, 80))
-    //       }
-    //     }
-    //   }
-
-    //   // Clean up any empty lines left behind from removal
-    //   fullPageHtml = fullPageHtml.replace(/\n\s*\n/g, '\n')
-    // }
-
-    let fullPageHtml = tempActiveContentItem?.body
+    let fullPageHtml = tempActiveContentItem?.body || ''
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
@@ -837,30 +656,6 @@ export default function FixIssuesPage({
 
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
 
-      // if (isGroupedSave) {
-      //   // Capture the INDEX of the next issue BEFORE rescan rebuilds filteredIssues
-      //   const currentActiveIndex = filteredIssues.findIndex(fi => fi.id === activeIssue?.id)
-      //   const nextIssueIndex = currentActiveIndex !== -1 ? currentActiveIndex : 0
-
-      //   // Store the index for the report useEffect to use
-      //   groupedSaveRef.current = {
-      //     inProgress: true,
-      //     nextIssueIndex: nextIssueIndex,
-      //   }
-
-      //   // Rescan - the removed elements will naturally be marked as resolved by the scanner
-      //   removeItemFromBeingScanned(issue.contentItemId)
-      //   const scanResponse = await api.scanContent(issue.contentItemId)
-      //   if (scanResponse.ok) {
-      //     const scanResponseJson = await scanResponse.json()
-      //     if (scanResponseJson.data) {
-      //       const tempReport = Object.assign({}, scanResponseJson.data)
-      //       processNewReport(tempReport)
-      //     }
-      //   }
-      //   return
-      // }
-
       if(!saveResponseJson?.data?.issue) {
         removeItemFromBeingScanned(issue.contentItemId)
         return
@@ -893,7 +688,56 @@ export default function FixIssuesPage({
   const handleActiveContentItem = (newContentItem) => {
     setTempActiveContentItem(newContentItem)
   }
-  
+
+  // When the issue data changes, we want to update the tempActiveIssue to match.
+  const handleTempActiveIssue = (newIssue) => {
+
+    if(!newIssue || !newIssue.issueData) {
+      return
+    }
+
+    let editedElement = Html.getIssueHtml(newIssue.issueData)
+
+    const specificClassName = `udoit-ignore-${newIssue.issueData.scanRuleId.replaceAll("_", "-")}`
+    if (markAsReviewed || FORM_CLASSIFICATIONS.AUTO_REVIEW_RELATED.includes(formNameFromRule(newIssue.issueData.scanRuleId))) {
+      editedElement = Html.addClass(editedElement, specificClassName)
+    }
+    else {
+      editedElement = Html.removeClass(editedElement, specificClassName)
+    }
+    newIssue.issueData.newHtml = Html.toString(editedElement)
+    setTempActiveIssue(newIssue)
+
+    if(!activeContentItem || !activeContentItem.body) {
+      return
+    }
+
+    let fullPageHtml = activeContentItem.body
+    const parser = new DOMParser()
+    let doc = parser.parseFromString(fullPageHtml, 'text/html')
+    let errorElement = null
+
+    errorElement = Html.findElementWithIssue(doc, newIssue?.issueData)
+
+    if(!errorElement) {
+      setIsErrorFoundInContent(false)
+    }
+    else {
+      if(activeOption === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+        errorElement.remove()
+      }
+      else if(editedElement) { 
+        errorElement.insertAdjacentElement('afterend', editedElement)
+        let tempElement = errorElement.nextSibling
+        errorElement.remove()
+        errorElement = tempElement
+      }
+      setIsErrorFoundInContent(true)
+    }
+    let newBody = doc.body.innerHTML
+    setTempActiveContentItem(Object.assign({}, tempActiveContentItem, { body: newBody }))
+  }
+
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -950,10 +794,6 @@ export default function FixIssuesPage({
     return keywords.join(' ')
   }
 
-  const triggerLiveUpdate = () => {
-    setLiveUpdateToggle(!liveUpdateToggle)
-  }
-
   const openDialog = () => {
     setWidgetState(WIDGET_STATE.FIXIT)
     setModalActive(true)
@@ -970,10 +810,7 @@ export default function FixIssuesPage({
       { widgetState === settings.WIDGET_STATE.LOADING ? (
         <></>
       ) : (
-        <div
-          inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
-          aria-hidden={widgetState === WIDGET_STATE.FIXIT}
-          >
+        <div inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}>
           <h1 className="pageTitle">{t('barriers.title')}</h1>
           <p className="pageSubtitle">{t('barriers.subtitle')}</p>
 
@@ -1035,35 +872,33 @@ export default function FixIssuesPage({
                       showLearnMore={showLearnMore}
                       hideLearnMore={() => setShowLearnMore(false)}
                     />
-                    
-                    <UfixitWidget
-                      t={t}
-                      settings={settings}
+                    {!showLearnMore && (
+                      <UfixitWidget
+                        t={t}
+                        settings={settings}
 
-                      activeContentItem={activeContentItem}
-                      handleActiveContentItem={handleActiveContentItem}
-                      activeOption={activeOption}
-                      setActiveOption={setActiveOption}
-                      addMessage={addMessage}
-                      handleIssueSave={handleIssueSave}
-                      isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
-                      isErrorFoundInContent={isErrorFoundInContent}
-                      sessionIssues={sessionIssues}
-                      setTempActiveIssue={setTempActiveIssue}
-                      severity={tempActiveIssue.severity}
-                      tempActiveIssue={tempActiveIssue}
-                      triggerLiveUpdate={triggerLiveUpdate}
-                      markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed}
-                      setFormInvalid={setFormInvalid}
-                      handleLearnMoreClick={() => setShowLearnMore(true)}
-                      showLearnMore={showLearnMore}
-                      clickedInfo={clickedInfo}
-                      setClickedInfo={setClickedInfo}
-                      handleContentIssueSave={handleContentIssueSave}
-                      setElementFocus={setElementFocus}
-                      setPreviewData={setPreviewData}
-                    />
+                        activeContentItem={activeContentItem}
+                        handleActiveContentItem={handleActiveContentItem}
+                        activeOption={activeOption}
+                        setActiveOption={setActiveOption}
+                        addMessage={addMessage}
+                        handleIssueSave={handleIssueSave}
+                        isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                        isErrorFoundInContent={isErrorFoundInContent}
+                        sessionIssues={sessionIssues}
+                        setTempActiveIssue={handleTempActiveIssue}
+                        severity={tempActiveIssue.severity}
+                        tempActiveIssue={tempActiveIssue}
+                        markAsReviewed={markAsReviewed}
+                        setMarkAsReviewed={setMarkAsReviewed}
+                        setFormInvalid={setFormInvalid}
+                        handleLearnMoreClick={() => setShowLearnMore(true)}
+                        clickedInfo={clickedInfo}
+                        setClickedInfo={setClickedInfo}
+                        setElementFocus={setElementFocus}
+                        setPreviewData={setPreviewData}
+                      />
+                    )}
                   </>
                 )}
               </section>
@@ -1077,7 +912,7 @@ export default function FixIssuesPage({
                     activeIssue={tempActiveIssue}
                     activeOption={activeOption}
                     contentItemsBeingScanned={contentItemsBeingScanned}
-                    liveUpdateToggle={liveUpdateToggle}
+                    isErrorFoundInContent={isErrorFoundInContent}
                     setIsErrorFoundInContent={setIsErrorFoundInContent}
                     clickedInfo={clickedInfo}
                     setClickedInfo={setClickedInfo}

@@ -138,7 +138,7 @@ export default function AnchorTextForm ({
             option={FORM_OPTIONS.ADD_TEXT}
             labelId = 'add-text-label'
             labelText = {t('form.anchor.link_text')}
-            />
+          />
 
           {activeOption === FORM_OPTIONS.ADD_TEXT && (
             <>
@@ -151,8 +151,12 @@ export default function AnchorTextForm ({
                 value={textInputValue}
                 onChange={handleInput}
                 tabIndex="0"
-                disabled={isDisabled} />
-              <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+                disabled={isDisabled}
+              />
+              <OptionFeedback
+                t={t}
+                feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+              />
             </>
           )}
         </div>
@@ -165,9 +169,12 @@ export default function AnchorTextForm ({
             setActiveOption={setActiveOption}
             option={FORM_OPTIONS.DELETE_ELEMENT}
             labelText = {t('form.anchor.delete_link')}
-            />
+          />
           {activeOption === FORM_OPTIONS.DELETE_ELEMENT && (
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_ELEMENT]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.DELETE_ELEMENT]}
+            />
           )}
         </div>
         
@@ -179,7 +186,7 @@ export default function AnchorTextForm ({
             setActiveOption={setActiveOption}
             option={FORM_OPTIONS.MARK_AS_REVIEWED}
             labelText = {t('fix.label.no_changes')}
-            />
+          />
         </div>
       </div>
 

@@ -136,7 +136,7 @@ export default function EmphasisForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.ADD_EMPHASIS}
           labelText = {t('form.emphasis.label.select_emphasis')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_EMPHASIS && (
           <>
             <div className="flex-row justify-content-start gap-1">
@@ -145,7 +145,8 @@ export default function EmphasisForm({
                 initialValue={useBold}
                 updateToggle={setUseBold}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="boldCheckbox" className="ufixit-instructions">{t('form.emphasis.label.bold')}</label>
             </div>
             <div className="flex-row justify-content-start gap-1 mt-2">
@@ -154,7 +155,8 @@ export default function EmphasisForm({
                 initialValue={useItalics}
                 updateToggle={setUseItalics}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="italicCheckbox" className="ufixit-instructions">{t('form.emphasis.label.italic')}</label>
             </div>
             <div className="flex-row justify-content-start gap-1 mt-2">
@@ -163,10 +165,14 @@ export default function EmphasisForm({
                 initialValue={removeColor}
                 updateToggle={setRemoveColor}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="removeColorCheckbox" className="ufixit-instructions">{t('form.emphasis.label.remove_color')}</label>
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_EMPHASIS]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_EMPHASIS]}
+            />
           </>
         )}
       </div>
@@ -179,7 +185,7 @@ export default function EmphasisForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

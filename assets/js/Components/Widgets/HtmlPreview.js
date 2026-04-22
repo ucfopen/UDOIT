@@ -11,7 +11,7 @@ export default function HtmlPreview({
   activeContentItem,
   activeIssue,
   activeOption,
-  liveUpdateToggle,
+  isErrorFoundInContent,
   setIsErrorFoundInContent,
   clickedInfo,
   setClickedInfo,
@@ -52,7 +52,7 @@ export default function HtmlPreview({
   }
 
   const addPreviewHelperElements = (doc, errorElement) => {
-    if(!activeIssue || !doc || !errorElement) {
+    if(!activeIssue || !doc) {
       return doc
     }
 
@@ -94,7 +94,7 @@ export default function HtmlPreview({
     }
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
-    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && errorElement) {
       let altText = Html.getAccessibleName(errorElement, doc)
       altText = Html.sanitizeString(altText)
       
@@ -223,8 +223,14 @@ export default function HtmlPreview({
       else {
         errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
         if(!errorElement) {
-          setShowMessage(true)
-          setIsErrorFoundInContent(false)
+          if(activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+            setShowMessage(true)
+            setIsErrorFoundInContent(false)
+          }
+          else {
+            setShowMessage(false)
+            setIsErrorFoundInContent(true)  
+          }
         }
         else {
           errorElement.classList.add('ufixit-error-highlight')
@@ -239,12 +245,15 @@ export default function HtmlPreview({
       errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
       let editedElement = Html.getIssueHtml(activeIssue?.issueData)
     
-      if(!errorElement) {
+      if(!errorElement && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
         setShowMessage(true)
         setIsErrorFoundInContent(false)
       }
       else {
-        if(editedElement) { 
+        if(activeOption === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+          // The element has already been deleted, so DON'T do anything else.
+        }
+        else if(editedElement) { 
           errorElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(editedElement)))
           let tempElement = errorElement.nextSibling
           errorElement.remove()
@@ -311,11 +320,15 @@ export default function HtmlPreview({
 
   useEffect(() => {
     checkTaggedContentUpdate()
-  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData, activeOption])
+  }, [activeIssue, activeContentItem, previewData, activeOption])
 
   useEffect(() => {
     checkTaggedContentUpdate()
   }, [])
+
+  useEffect(() => {
+    setShowMessage(!isErrorFoundInContent)
+  }, [isErrorFoundInContent])
 
   useEffect(() => {
     const element = document.getElementsByClassName('ufixit-error-highlight')[0]
