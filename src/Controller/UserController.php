@@ -62,7 +62,7 @@ class UserController extends AbstractController
                 'lang' => 'lang'
             ];
 
-            $newRoles = [];
+            $newRoles = $oldRoles;
             
             foreach($newPreferences as $roleKey => $roleValue)
             {
