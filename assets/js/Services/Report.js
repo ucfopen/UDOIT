@@ -321,6 +321,37 @@ export function analyzeReport(report, ISSUE_STATE) {
         }
       }
 
+      // Get all of the links to mediaFiles in the content item.
+      let mediaLinks = tempBody.getElementsByTagName("iframe");      
+      // /media_attachments_iframe/
+      // id 415 is an image that reads "Access Denied."
+      // The addition of (?!415\b) prevents 415 from being read and recorded as a file instance.
+      // This works for mp3 files as well since canvas stores mp3 in iFrame + src format
+      const mediaFileUrlPattern = /\/media_attachments_iframe\/(?!415\b)(\d+)/ 
+      for (let i = 0; i < vidLinks.length; i++) {
+        let mediaLink = mediaLinks[i];
+        let src = mediaLink.getAttribute('src');
+        if (src) {
+          let mediaMatch = src.match(mediaFileUrlPattern);
+          if (mediaMatch && mediaMatch[1]) {
+            let mediaId = mediaMatch[1];
+            if (!fileReferences[mediaId]) {
+              fileReferences[mediaId] = [];
+            }
+            fileReferences[mediaId].push({
+              contentItemId: contentItem.id,
+              contentItemBody: contentItem.body,
+              contentItemTitle: contentItem.title,
+              contentItemUrl: contentItem.url,
+              contentItemLmsId: contentItem.lmsContentId,
+              contentType: contentItem.contentType,
+            })
+          }
+        }
+      }
+      
+      
+
       parsedDocuments[contentItem.id] = tempBody
       usedContentItems[contentItem.id] = contentItem
     }
