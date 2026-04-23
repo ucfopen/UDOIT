@@ -9,6 +9,7 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use App\Services\InitialStateService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -82,7 +83,8 @@ class DashboardController extends AbstractController
     public function settingsApi(
         UtilityService $util,
         SessionService $sessionService,
-        LmsApiService $lmsApi): JsonResponse
+        LmsApiService $lmsApi,
+        InitialStateService $initialStateService,): JsonResponse
     {
         $this->util = $util;
         $this->session = $sessionService->getSession();
@@ -105,82 +107,21 @@ class DashboardController extends AbstractController
             $course = $this->createCourse($user->getInstitution(), $lmsCourseId);
         }
 
-        $preferences = $this->getPreferences();
+        $preferences = $initialStateService->getPreferences($user);
 
         return new JsonResponse([
-            'messages' => $this->util->getUnreadMessages(true),
-            'preferences' => $preferences,
-            'labels' => $this->getLabels($preferences),
-            'instanceInfo' => $this->getInstanceInfo($course),
-            'formOptions' => $this->getFormOptions(),
+            'messages'     => $this->util->getUnreadMessages(true),
+            'preferences'  => $preferences,
+            'labels'       => $initialStateService->getLabels($preferences),
+            'instanceInfo' => $initialStateService->getInstanceInfo($user, $course),
+            'formOptions'  => [
+                'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
+                'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
+            ],
         ]);
     }
 
-    protected function getPreferences(): array
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        $roles = $user->getRoles();
-
-
-        /** @var \App\Entity\Instiztution $institution */
-        $institution = $user->getInstitution();
-
-        $metadata = $institution->getMetadata();
-
-        /** $lang should be two letters, and match an available JSON file in the /translations folder. */
-        $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
-        $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
-        $lang = (array_key_exists("lang", $roles) ? $roles["lang"] : $lang);
-        
-
-        return [
-            'textSpacing' => isset($roles['text_spacing']) ? $roles['text_spacing'] : NULL,
-            'fontSize' => isset($roles['font_size']) ? $roles['font_size'] : NULL,
-            'fontFamily' => isset($roles['font_family']) ? $roles['font_family'] : NULL,
-            'darkMode' => isset($roles['dark_mode']) ? $roles['dark_mode'] : NULL,
-            'alertTimeout' => isset($roles['alert_timeout']) ? $roles['alert_timeout'] : NULL,
-            'dailyGoal' => isset($roles['daily_goal']) ? $roles['daily_goal'] : NULL,
-            'showFilters' => isset($roles['show_filters']) ? $roles['show_filters'] : NULL,
-            'viewOnlyPublished' => isset($roles['view_only_published']) ? $roles['view_only_published'] : NULL,
-            'lang' => $lang
-        ];
-    }
-
-    protected function getInstanceInfo(Course $course): array
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        /** @var \App\Entity\Institution $institution */
-        $institution = $user->getInstitution();
-
-        return [
-            'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
-            'course' => $course,
-            'institution' => $institution,
-            'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
-            'excludedRuleIds' => (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'],
-            'user' => [
-                'id'=> $user->getId(),
-                'username'=> $user->getUserIdentifier(),
-                'name'=> $user->getName(),
-            ],    
-        ];
-    }
-
-    protected function getLabels($preferences): array
-    {
-        return (array) $this->util->getTranslation($preferences['lang']);
-    }
-
-    protected function getFormOptions(): array
-    {
-        return [
-            'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
-            'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
-        ];
-    }
-
+    
     protected function createCourse(Institution $institution, $lmsCourseId)
     {
         $course = new Course();
