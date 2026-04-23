@@ -105,10 +105,15 @@ class DashboardController extends AbstractController
             $course = $this->createCourse($user->getInstitution(), $lmsCourseId);
         }
 
+        $preferences = $this->getPreferences();
+
         return new JsonResponse([
             'settings' => $this->getSettings($course),
             'messages' => $this->util->getUnreadMessages(true),
-            'preferences' => $this->getPreferences()
+            'preferences' => $preferences,
+            'labels' => $this->getLabels($preferences),
+            'instanceInfo' => $this->getInstanceInfo($course),
+            'formOptions' => $this->getFormOptions(),
         ]);
     }
 
@@ -152,7 +157,7 @@ class DashboardController extends AbstractController
         $roles = $user->getRoles();
 
 
-        /** @var \App\Entity\Institution $institution */
+        /** @var \App\Entity\Instiztution $institution */
         $institution = $user->getInstitution();
 
         $metadata = $institution->getMetadata();
@@ -173,6 +178,40 @@ class DashboardController extends AbstractController
             'showFilters' => isset($roles['show_filters']) ? $roles['show_filters'] : NULL,
             'viewOnlyPublished' => isset($roles['view_only_published']) ? $roles['view_only_published'] : NULL,
             'lang' => $lang
+        ];
+    }
+
+    protected function getInstanceInfo(Course $course): array
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        /** @var \App\Entity\Institution $institution */
+        $institution = $user->getInstitution();
+
+        return [
+            'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
+            'course' => $course,
+            'institution' => $institution,
+            'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
+            'excludedRuleIds' => (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'],
+            'user' => [
+                'id'=> $user->getId(),
+                'username'=> $user->getUserIdentifier(),
+                'name'=> $user->getName(),
+            ],    
+        ];
+    }
+
+    protected function getLabels($preferences): array
+    {
+        return (array) $this->util->getTranslation($preferences['lang']);
+    }
+
+    protected function getFormOptions(): array
+    {
+        return [
+            'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
+            'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
         ];
     }
 
