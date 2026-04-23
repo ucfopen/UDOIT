@@ -8,10 +8,9 @@ import { DEFAULT_USER_SETTINGS } from '../Services/Settings'
 
 export default function SettingsPage({
   t,
-  settings,
   instanceInfo,
   preferences,
-  updateUserSettings,
+  updateUserPreferences,
   textSpacing,
   setTextSpacing
 }) {
@@ -63,7 +62,7 @@ export default function SettingsPage({
 
   const handleDarkModeChange = (newValue) => {
     setDarkMode(newValue)
-    updateUserSettings({ "darkMode": newValue })
+    updateUserPreferences({ "darkMode": newValue })
     if (newValue) {
       document.getElementById('app-container').classList.add('dark-mode')
     } else {
@@ -78,7 +77,7 @@ export default function SettingsPage({
     if(preferences[id] === value) {
       return
     }
-    updateUserSettings({ [id]: value })
+    updateUserPreferences({ [id]: value })
   }
 
   const handleTextSpacingSlider = (e) => {
@@ -91,7 +90,7 @@ export default function SettingsPage({
       return
     }
     setTextSpacing(value)
-    updateUserSettings({ [id]: value })
+    updateUserPreferences({ [id]: value })
   }
 
   return (
@@ -111,7 +110,7 @@ export default function SettingsPage({
               id='fontSize'
               label=''
               options={fontSizeOptions}
-              settings={settings} />
+            />
           </div>
 
           <div className="settings-row">
@@ -121,7 +120,7 @@ export default function SettingsPage({
               id='fontFamily'
               label=''
               options={fontFamilyOptions}
-              settings={settings} />
+            />
           </div>
 
           <div className='settings-row'>
@@ -160,7 +159,7 @@ export default function SettingsPage({
               id='alertTimeout'
               label=''
               options={alertOptions}
-              settings={settings} />
+            />
           </div>
           
           <div className="settings-row">
@@ -170,7 +169,7 @@ export default function SettingsPage({
               id='lang'
               label=''
               options={languageOptions}
-              settings={settings} />
+            />
           </div>
         </div>
       </div>

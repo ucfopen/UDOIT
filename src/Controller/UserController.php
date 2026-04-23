@@ -25,7 +25,7 @@ class UserController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
-    #[Route('/api/users/{user}', name: 'user_put',  methods: ['PUT'])]
+    #[Route('/api/users/{user}/preferences', name: 'user_preferences_patch',  methods: ['PATCH'])]
     public function update(SessionService $sessionService, User $user, Request $request, UtilityService $util): JsonResponse
     {
         $apiResponse = new ApiResponse();
@@ -42,13 +42,14 @@ class UserController extends AbstractController
                 throw new \Exception("msg.no_permissions");
             }
 
-            $userVals = \json_decode($request->getContent(), true);
+            $newPreferences = \json_decode($request->getContent(), true);
 
             
             $oldRoles = $user->getRoles();
             $oldLang = $oldRoles['lang'] ?? 'en';
             
 
+            // Preference IDs on the client differ from DB column names, so we must translate
             $roleMap = [
                 'textSpacing' => 'text_spacing',
                 'fontSize' => 'font_size',
@@ -62,37 +63,27 @@ class UserController extends AbstractController
             ];
 
             $newRoles = [];
-
-            if ($userRoles = $userVals['roles'])
-            {
-                foreach($userRoles as $roleKey => $roleValue)
-                {
-                    if (!isset($roleMap[$roleKey])) continue;
-                    $newKey = $roleMap[$roleKey];
-                    $newRoles[$newKey] = $roleValue;
-                }
-            }
             
+            foreach($newPreferences as $roleKey => $roleValue)
+            {
+                if (!isset($roleMap[$roleKey])) continue;
+                $newKey = $roleMap[$roleKey];
+                $newRoles[$newKey] = $roleValue;
+            }
+        
 
-            $newLang = $newRoles['lang'] ?? 'en';
-
-            $changeLang = ($oldLang !== $newLang);
+            $changeLang = (!empty($newRoles['lang']) && $oldLang !== $newRoles['lang']);
 
             $user->setRoles($newRoles);
-            if (empty($userVals['hasApiKey'])) {
-            $user->setApiKey('');
-            $user->setRefreshToken('');
-            }
 
             $responseObject = [
                 'user' => $user,
-                'language' => $newLang,
-                'labels' => [],
+                'labels' => NULL,
             ];
 
             if ($changeLang) {
                 $this->util = $util;
-                $labels = $this->util->getTranslation($newLang);
+                $labels = $this->util->getTranslation($newRoles['lang']);
                 $responseObject['labels'] = $labels;
             }
 

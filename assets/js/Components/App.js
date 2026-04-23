@@ -83,33 +83,23 @@ export default function App(initialData) {
     }
   }, [untranslatedMessage])
 
-  const updateUserSettings = (newUserSetting) => {
-    let oldSettings = JSON.parse(JSON.stringify(settings))
-    let newRoles = Object.assign({}, preferences, newUserSetting)
-    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
-    let newSettings = Object.assign({}, settings, { user: newUser })
-    setSettings(newSettings)
-
-    setPreferences(old => ({...old, ...newUserSetting}));
+  const updateUserPreferences = (newUserPreferences) => {
+    const oldPreferences = structuredClone(preferences)
+    setPreferences(old => ({...old, ...newUserPreferences}))
 
     let api = new Api(instanceInfo)
-    api.updateUser(newUser)
+    api.updatePreferences(newUserPreferences)
       .then((response) => response.json())
       .then((data) => {
         if(data.user) {
-          newSettings.user = data.user
-          if(data?.labels?.lang) {
-            let newLanguageSettings = Object.assign({}, newSettings)
-            newLanguageSettings.lang = data?.language || newSettings.lang
-            newLanguageSettings.labels = data.labels
-            setSettings(newLanguageSettings)
-
-            setLabels(data.labels);
+          instanceInfo.user = data.user
+          if(data?.labels) {
+            setLabels(data.labels)
           }
           // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
-          setSettings(oldSettings)
+          setPreferences(oldPreferences)
           setUntranslatedMessage({ message: 'msg.settings.update_failed', severity: 'error', visible: true })
         }
     })
@@ -459,10 +449,9 @@ export default function App(initialData) {
               {('settings' === navigation) &&
                 <SettingsPage
                   t={t}
-                  settings={settings}
                   instanceInfo={instanceInfo}
                   preferences={preferences}
-                  updateUserSettings={updateUserSettings}
+                  updateUserPreferences={updateUserPreferences}
                   syncComplete={syncComplete}
                   handleFullCourseRescan={handleFullCourseRescan}
                   textSpacing={textSpacing}
