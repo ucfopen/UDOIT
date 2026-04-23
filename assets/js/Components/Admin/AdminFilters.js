@@ -5,7 +5,9 @@ import '../Widgets/FixIssuesFilters.css'
 
 export default function AdminFilters({
   t,
-  settings,
+  preferences,
+  accounts,
+  termInfo,
   filters,
   handleFilter,
   loadingContent,
@@ -19,7 +21,7 @@ export default function AdminFilters({
   // When the "settings" are loaded, create the Account and Term dropdown options
   useEffect(() => {
     let tempAccountOptions = []
-    for (const acct of Object.values(settings.accounts)) {
+    for (const acct of Object.values(accounts)) {
       tempAccountOptions.push({
         id: acct.id,
         name: acct.name
@@ -28,14 +30,14 @@ export default function AdminFilters({
     setAccountOptions(tempAccountOptions)
 
     let tempTermOptions = []
-    for (const [key, val] of Object.entries(settings.terms)) {
+    for (const [key, val] of Object.entries(termInfo.terms)) {
       tempTermOptions.push({
         id: key,
         name: val,
       })
     }
     setTermOptions(tempTermOptions)
-  }, [settings])
+  }, [termInfo, accounts])
 
   const handleAccountSelect = (newValue) => {
     handleFilter({ accountId: newValue })

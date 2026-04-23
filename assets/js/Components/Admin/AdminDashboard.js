@@ -4,7 +4,7 @@ import '../HomePage.css'
 
 export default function AdminDashboard({
   t,
-  settings,
+  preferences,
   courses
 }) {
   const [dashboardStats, setDashboardStats] = useState({
@@ -25,7 +25,7 @@ export default function AdminDashboard({
   })
 
   const progressMeterRadius = () => {
-    switch (settings?.user?.roles?.font_size) {
+    switch (preferences.fontSize) {
       case 'font-small':
         return 40;
       case 'font-normal':

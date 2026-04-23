@@ -5,7 +5,7 @@ import ProgressIcon from '../Icons/ProgressIcon'
 
 export default function UsersPage({
   t,
-  settings,
+  instanceInfo,
   accountId,
   searchTerm,
   termId
@@ -30,7 +30,7 @@ export default function UsersPage({
   })
 
   const getUsers = () => {
-    const api = new Api(settings)
+    const api = new Api(instanceInfo)
     api.getAdminUser()
       .then((responseStr) => responseStr.json())
       .then((response) => {
@@ -46,20 +46,20 @@ export default function UsersPage({
   }, [])
 
   const handleUserDeauthorize = (user) => {
-    const api = new Api(settings)
+    const api = new Api(instanceInfo)
 
     user.hasApiKey = false
 
-    api.updateUser(user)
-      .then((responseStr) => responseStr.json())
-      .then((response) => {
-        let tempUsers = Object.assign({}, users)
-        if (response && response.id) {
-          const ind = users.findIndex((el) => { el.id === response.id })
-          tempUsers[ind] = response
-          setUsers(tempUsers)
-        }
-      })
+    // api.updateUser(user)
+    //   .then((responseStr) => responseStr.json())
+    //   .then((response) => {
+    //     let tempUsers = Object.assign({}, users)
+    //     if (response && response.id) {
+    //       const ind = users.findIndex((el) => { el.id === response.id })
+    //       tempUsers[ind] = response
+    //       setUsers(tempUsers)
+    //     }
+    //   })
   }
 
   const handleTableSettings = (setting) => {

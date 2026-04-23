@@ -11,7 +11,7 @@ import { ISSUE_STATE } from '../../Services/Constants'
 
 export default function ReportsPage({
   t,
-  settings,
+  instanceInfo,
   filters,
   selectedCourse
 }) {
@@ -20,7 +20,7 @@ const [issues, setIssues] = useState(null)
 const [instructors, setInstructors] = useState([])
 
 const getReportHistory = () => {
-  const api = new Api(settings);
+  const api = new Api(instanceInfo);
     api.getAdminReportHistory(filters)
       .then((responseStr) => responseStr.json())
       .then((response) => {
