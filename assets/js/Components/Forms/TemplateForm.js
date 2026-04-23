@@ -113,7 +113,6 @@ export default function TemplateForm ({
   // We also must set a flag (isModified) so we know the issue has been changed.
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     // The easiest way to manipulate the HTML is to convert it to an element.
     // Always start with the initialHtml to avoid compounding changes on top of each other.

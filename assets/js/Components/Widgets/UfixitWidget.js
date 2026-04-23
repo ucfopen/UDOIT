@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import BarrierInformation from './BarrierInformation'
 import FileForm from '../Forms/FileForm'
 import StatusPill from './StatusPill'
-import { formFromIssue } from '../../Services/Ufixit'
+import { formFromIssue, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
 
 export default function UfixitWidget({
@@ -17,7 +17,7 @@ export default function UfixitWidget({
   handleIssueSave,
   isContentLoading,
   isErrorFoundInContent,
-  setTempActiveIssue,
+  handleTempActiveIssue,
   tempActiveIssue,
   markAsReviewed,
   setMarkAsReviewed,
@@ -51,11 +51,19 @@ export default function UfixitWidget({
     }
   }, [tempActiveIssue])
 
-  const handleActiveIssue = (newIssue) => {
-    const tempIssue = Object.create(tempActiveIssue)
+  const handleActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
+    const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
-    tempIssue.isModified = newIssue?.isModified || false
-    setTempActiveIssue(tempIssue)
+    tempIssue.isModified = true
+    handleTempActiveIssue(tempIssue, optionOverride, contentItem)
+  }
+
+  const doesIssueBelongToForm = (formName, issueData = tempActiveIssue?.issueData) => {
+    if(!issueData || !formName) {
+      return false
+    }
+    const issueForm = formNameFromRule(issueData.scanRuleId)
+    return issueForm === formName
   }
 
   useEffect(() => {
@@ -125,6 +133,7 @@ export default function UfixitWidget({
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT)}
+                doesIssueBelongToForm={doesIssueBelongToForm}
                 markAsReviewed={markAsReviewed}
                 setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}

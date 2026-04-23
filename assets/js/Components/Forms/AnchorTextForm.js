@@ -1,6 +1,7 @@
 import React, {useState, useEffect, act} from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
+import { formNames } from '../../Services/Ufixit'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
@@ -9,6 +10,7 @@ export default function AnchorTextForm ({
   settings,
   activeIssue,
   isDisabled,
+  doesIssueBelongToForm,
   handleActiveIssue,
   activeOption,
   setActiveOption,
@@ -55,27 +57,38 @@ export default function AnchorTextForm ({
         startingOption = FORM_OPTIONS.ADD_TEXT
       }
     }
-    setActiveOption(startingOption)
+    handleOptionChange(startingOption)
 
   }, [activeIssue])
 
   useEffect(() => {
+    if(!doesIssueBelongToForm(formNames.ANCHOR_TEXT, activeIssue?.issueData)) {
+      return
+    }
     updateHtmlContent()
     checkFormErrors()
-  }, [activeOption, textInputValue])
+  }, [textInputValue])
 
-  const updateHtmlContent = () => {
+  const handleOptionChange = (option) => {
+    if(!doesIssueBelongToForm(formNames.ANCHOR_TEXT, activeIssue?.issueData)) {
+      return
+    }
+    updateHtmlContent(option)
+    checkFormErrors(option)
+    setActiveOption(option)
+  }
+
+  const updateHtmlContent = (optionOverride = activeOption) => {
     let issue = activeIssue
-    issue.isModified = true
     
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
+    if (optionOverride === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
+      handleActiveIssue(issue, optionOverride)
       return
     }
 
     const html = Html.getIssueHtml(activeIssue)
-    const deleteLink = (activeOption === FORM_OPTIONS.DELETE_ELEMENT)
+    const deleteLink = (optionOverride === FORM_OPTIONS.DELETE_ELEMENT)
     let element = Html.toElement(html)
     let elementTag = Html.getTagName(element)?.toLowerCase() || ''
     
@@ -99,16 +112,16 @@ export default function AnchorTextForm ({
     }
     
     issue.newHtml = Html.toString(element)
-    handleActiveIssue(issue)
+    handleActiveIssue(issue, optionOverride)
   }
 
-  const checkFormErrors = () => {
+  const checkFormErrors = (optionOverride = activeOption) => {
     let tempErrors = {
       [FORM_OPTIONS.ADD_TEXT]: [],
       [FORM_OPTIONS.DELETE_ELEMENT]: [],
     }
     
-    if(activeOption === FORM_OPTIONS.ADD_TEXT) {
+    if(optionOverride === FORM_OPTIONS.ADD_TEXT) {
       if(!Text.isTextDescriptive(textInputValue)) {
         tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
       }
@@ -134,7 +147,7 @@ export default function AnchorTextForm ({
           <RadioSelector
             activeOption={activeOption}
             isDisabled={isDisabled}
-            setActiveOption={setActiveOption}
+            setActiveOption={handleOptionChange}
             option={FORM_OPTIONS.ADD_TEXT}
             labelId = 'add-text-label'
             labelText = {t('form.anchor.link_text')}
@@ -166,7 +179,7 @@ export default function AnchorTextForm ({
           <RadioSelector
             activeOption={activeOption}
             isDisabled={isDisabled}
-            setActiveOption={setActiveOption}
+            setActiveOption={handleOptionChange}
             option={FORM_OPTIONS.DELETE_ELEMENT}
             labelText = {t('form.anchor.delete_link')}
           />
@@ -183,7 +196,7 @@ export default function AnchorTextForm ({
           <RadioSelector
             activeOption={activeOption}
             isDisabled={isDisabled}
-            setActiveOption={setActiveOption}
+            setActiveOption={handleOptionChange}
             option={FORM_OPTIONS.MARK_AS_REVIEWED}
             labelText = {t('fix.label.no_changes')}
           />

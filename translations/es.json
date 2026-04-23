@@ -416,7 +416,7 @@
   "form.aria_role.msg.role_required": "Si existe un rol ARIA, debe ser compatible con el elemento HTML",
   "rule.desc.aria_role_allowed": "",
   "rule.desc.aria_role_valid": "",
-  "rule.info.aria_role_valid": "Este elemento HTML es un <{tagName}>, pero tiene un rol ARIA de &quot;{ariaRole}&quot;, que es incompatible.",
+  "rule.info.aria_role_valid": "Este elemento HTML es un <code>&lt;{tagName}&gt;</code>, pero tiene un rol ARIA de <code>{ariaRole}</code>, que es incompatible.",
 
   "form.blockquote.title": "Las Citas en Bloque Deben Tener una Fuente",
   "form.blockquote.summary": "Las citas en bloque se utilizan para indicar que una sección de texto es una cita de otra fuente. No las uses únicamente para aplicar sangría o estilos visuales.",

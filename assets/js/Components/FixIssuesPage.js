@@ -337,10 +337,10 @@ export default function FixIssuesPage({
       }
 
       if (newActiveIssue) {
-        setActiveIssue(newActiveIssue)
+        handleActiveIssue(newActiveIssue)
         setWidgetState(WIDGET_STATE.FIXIT)
       } else {
-        setActiveIssue(null)
+        handleActiveIssue(null)
         setWidgetState(WIDGET_STATE.LIST)
       }
 
@@ -388,15 +388,71 @@ export default function FixIssuesPage({
     setFilteredIssues(tempFilteredContent)
     setGroupedList(groupList(tempFilteredContent))
     if(holdoverActiveIssue) {
-      setActiveIssue(holdoverActiveIssue)
+      handleActiveIssue(holdoverActiveIssue)
     }
     
   }, [report])
 
+  // Based on the current option and the issueData, generate new HTML for the activeContentItem.
+  const updateTempContentItem = (
+    issue = tempActiveIssue,
+    option = activeOption,
+    contentItem = null
+  ) => {
+    
+    if(!issue || !issue.issueData) {
+      return
+    }
 
-  // When a new activeIssue is set, get the content for that issue
-  useEffect(() => {
-    if(activeIssue === null) {
+    if(contentItem && contentItem.body) {
+      setTempActiveContentItem(Object.assign({}, contentItem))
+      return
+    }
+    
+    let fullPageHtml = activeContentItem.body
+    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    let errorElement = Html.findElementWithIssue(fullPageDoc, issue.issueData)
+    let editedElement = Html.getIssueHtml(issue.issueData)
+
+    const specificClassName = `udoit-ignore-${issue.issueData.scanRuleId.replaceAll("_", "-")}`
+    if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED || FORM_CLASSIFICATIONS.AUTO_REVIEW_RELATED.includes(formNameFromRule(issue.issueData.scanRuleId))) {
+      editedElement = Html.addClass(editedElement, specificClassName)
+    }
+    else {
+      editedElement = Html.removeClass(editedElement, specificClassName)
+    }
+
+    if(!errorElement) {
+      setIsErrorFoundInContent(false)
+    }
+    else {
+      if(option === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+        errorElement.remove()
+      }
+      else if(editedElement) { 
+        errorElement.insertAdjacentElement('afterend', editedElement)
+        let tempElement = errorElement.nextSibling
+        errorElement.remove()
+        errorElement = tempElement
+      }
+      setIsErrorFoundInContent(true)
+    }
+
+    let updatedHtml = Html.toString(editedElement)
+    let newElement = Html.findElementWithError(fullPageDoc, updatedHtml)
+    let newXpath = Html.findXpathFromElement(newElement)
+
+    issue.issueData.newHtml = updatedHtml
+    issue.issueData.xpath = newXpath || ''
+    setTempActiveIssue(issue)
+
+    let newBody = fullPageDoc.body.innerHTML
+    setTempActiveContentItem(Object.assign({}, tempActiveContentItem, { body: newBody }))
+  }
+
+  const handleActiveIssue = (newIssue) => {
+    if(!newIssue) {
+      setActiveIssue(null)
       setActiveContentItem(null)
       setTempActiveIssue(null)
       setWidgetState(WIDGET_STATE.LIST)
@@ -404,20 +460,21 @@ export default function FixIssuesPage({
       closeDialog()
       return
     }
-  
-    setMostRecentIssueId(activeIssue.id)
+
+    setActiveIssue(newIssue)
+    setMostRecentIssueId(newIssue.id)
     
     // We ONLY want this to trigger events on a real change.
     if(widgetState !== WIDGET_STATE.FIXIT) {
       openDialog()
     }
 
-    const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
+    const activeIssueClone = JSON.parse(JSON.stringify(newIssue))
     activeIssueClone.issueData.initialHtml = Html.getIssueHtml(activeIssueClone.issueData)
     setTempActiveIssue(activeIssueClone)
     
     // If we already downloaded the content for this issue, use that
-    const contentItemId = activeIssue.issueData.contentItemId
+    const contentItemId = newIssue.issueData.contentItemId
     if(contentItemCache[contentItemId]) {
       setActiveContentItem(contentItemCache[contentItemId])
       setTempActiveContentItem(contentItemCache[contentItemId])
@@ -427,8 +484,7 @@ export default function FixIssuesPage({
       setTempActiveContentItem(null)
     }
     setShowLearnMore(false)
-
-  }, [activeIssue])
+  }
 
   useEffect(() => {
     let tempContentItem = null
@@ -575,7 +631,7 @@ export default function FixIssuesPage({
       let tempIssue = activeIssue
       if(tempIssue.id === issueId) {
         tempIssue.currentState = state
-        setActiveIssue(tempIssue)
+        handleActiveIssue(tempIssue)
       }
     }
   }
@@ -689,53 +745,10 @@ export default function FixIssuesPage({
     setTempActiveContentItem(newContentItem)
   }
 
-  // When the issue data changes, we want to update the tempActiveIssue to match.
-  const handleTempActiveIssue = (newIssue) => {
-
-    if(!newIssue || !newIssue.issueData) {
-      return
-    }
-
-    let editedElement = Html.getIssueHtml(newIssue.issueData)
-
-    const specificClassName = `udoit-ignore-${newIssue.issueData.scanRuleId.replaceAll("_", "-")}`
-    if (markAsReviewed || FORM_CLASSIFICATIONS.AUTO_REVIEW_RELATED.includes(formNameFromRule(newIssue.issueData.scanRuleId))) {
-      editedElement = Html.addClass(editedElement, specificClassName)
-    }
-    else {
-      editedElement = Html.removeClass(editedElement, specificClassName)
-    }
-    newIssue.issueData.newHtml = Html.toString(editedElement)
-    setTempActiveIssue(newIssue)
-
-    if(!activeContentItem || !activeContentItem.body) {
-      return
-    }
-
-    let fullPageHtml = activeContentItem.body
-    const parser = new DOMParser()
-    let doc = parser.parseFromString(fullPageHtml, 'text/html')
-    let errorElement = null
-
-    errorElement = Html.findElementWithIssue(doc, newIssue?.issueData)
-
-    if(!errorElement) {
-      setIsErrorFoundInContent(false)
-    }
-    else {
-      if(activeOption === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
-        errorElement.remove()
-      }
-      else if(editedElement) { 
-        errorElement.insertAdjacentElement('afterend', editedElement)
-        let tempElement = errorElement.nextSibling
-        errorElement.remove()
-        errorElement = tempElement
-      }
-      setIsErrorFoundInContent(true)
-    }
-    let newBody = doc.body.innerHTML
-    setTempActiveContentItem(Object.assign({}, tempActiveContentItem, { body: newBody }))
+  // When the issue data changes, this triggers the live preview update.
+  const handleTempActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
+    console.log('TempActiveIssue updated:', newIssue)
+    updateTempContentItem(newIssue, optionOverride, contentItem)
   }
 
   const updateActiveFilters = (filter, value) => {
@@ -765,7 +778,7 @@ export default function FixIssuesPage({
       newIndex = 0
     }
     const newIssueId = orderedIssueIds[newIndex]
-    setActiveIssue(filteredIssues.find((issue) => issue.id === newIssueId))
+    handleActiveIssue(filteredIssues.find((issue) => issue.id === newIssueId))
   }
 
   const getContentById = (contentId) => {
@@ -830,7 +843,7 @@ export default function FixIssuesPage({
             settings={settings}
 
             groupedList={groupedList}
-            setActiveIssue={setActiveIssue}
+            setActiveIssue={handleActiveIssue}
           />
         </div>
       ) }
@@ -886,7 +899,7 @@ export default function FixIssuesPage({
                         isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                         isErrorFoundInContent={isErrorFoundInContent}
                         sessionIssues={sessionIssues}
-                        setTempActiveIssue={handleTempActiveIssue}
+                        handleTempActiveIssue={handleTempActiveIssue}
                         severity={tempActiveIssue.severity}
                         tempActiveIssue={tempActiveIssue}
                         markAsReviewed={markAsReviewed}

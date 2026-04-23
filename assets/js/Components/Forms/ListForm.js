@@ -328,8 +328,7 @@ export default function ListForm({
       listGroupXpaths: tempListGroupXpaths
     }))
     tempActiveContentItem.body = doc.body.innerHTML
-    handleActiveContentItem(tempActiveContentItem)
-    handleActiveIssue(issue)
+    handleActiveIssue(issue, activeOption, tempActiveContentItem)
   }
 
   return (

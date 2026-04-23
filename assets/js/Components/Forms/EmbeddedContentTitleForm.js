@@ -53,7 +53,6 @@ export default function EmbeddedContentTitleForm({
   const updateHtmlContent = () => {
 
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml

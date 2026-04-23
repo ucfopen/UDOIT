@@ -62,7 +62,6 @@ export default function TableCaptionForm({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.ADD_TEXT) {
       const element = Html.toElement(Html.getIssueHtml(activeIssue))
