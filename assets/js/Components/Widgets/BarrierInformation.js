@@ -12,8 +12,6 @@ import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function BarrierInformation ({
   t,
-  settings,
-
   tempActiveIssue,
   handleLearnMoreClick
 }) {

@@ -3,7 +3,6 @@ import FormExternalLink from './FormExternalLink'
 
 export default function MediaCaptionsForm({
   t,
-  settings,
   instanceInfo,
   activeIssue,
   isDisabled

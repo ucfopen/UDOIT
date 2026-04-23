@@ -31,7 +31,6 @@ import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER as FILTER } from '../Services/C
 
 export default function FixIssuesPage({
   t,
-  settings,
   instanceInfo,
   formOptions,
   preferences,
@@ -885,7 +884,6 @@ export default function FixIssuesPage({
 
           <FixIssuesFilters
             t={t}
-            settings={settings}
             preferences={preferences}
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
@@ -896,8 +894,6 @@ export default function FixIssuesPage({
           <div className="mt-1 subtext align-self-end">{t('fix.label.barriers_shown_count', { shown: filteredIssues?.length || 0, total: unfilteredIssues?.length || 0 })}</div>
           <FixIssuesList
             t={t}
-            settings={settings}
-
             groupedList={groupedList}
             setActiveIssue={setActiveIssue}
           />
@@ -934,8 +930,6 @@ export default function FixIssuesPage({
                   <>
                     <LearnMore
                       t={t}
-                      settings={settings}
-
                       tempActiveIssue={tempActiveIssue}
                       showLearnMore={showLearnMore}
                       hideLearnMore={() => setShowLearnMore(false)}
@@ -943,7 +937,6 @@ export default function FixIssuesPage({
                     
                     <UfixitWidget
                       t={t}
-                      settings={settings}
                       formOptions={formOptions}
 
                       activeContentItem={activeContentItem}
@@ -974,8 +967,6 @@ export default function FixIssuesPage({
                 {filteredIssues.length > 0 && (
                   <FixIssuesContentPreview
                     t={t}
-                    settings={settings}
-
                     activeContentItem={activeContentItem}
                     activeIssue={tempActiveIssue}
                     contentItemsBeingScanned={contentItemsBeingScanned}

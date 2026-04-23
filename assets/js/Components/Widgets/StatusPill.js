@@ -8,7 +8,6 @@ import { FILE_FILTER, ISSUE_FILTER } from '../../Services/Constants'
 
 export default function StatusPill({
   t,
-  settings,
   issue,
 }) {
 

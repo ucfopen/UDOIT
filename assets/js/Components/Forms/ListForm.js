@@ -4,7 +4,6 @@ import FormReviewOnly from './FormReviewOnly'
 
 export default function ListForm({
   t,
-  settings, 
   instanceInfo,
   activeIssue,
   isContentLoading,

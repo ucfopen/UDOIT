@@ -30,7 +30,6 @@ export default function Combobox({
   id = '',
   label = '',
   options = [],
-  settings,
 }) {
 
   /* Ideally, the options array contains objects in the form of:

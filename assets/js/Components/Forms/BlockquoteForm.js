@@ -8,7 +8,6 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function BlockquoteForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,

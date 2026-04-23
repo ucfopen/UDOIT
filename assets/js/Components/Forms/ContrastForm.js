@@ -12,7 +12,6 @@ import * as Contrast from '../../Services/Contrast'
 
 export default function ContrastForm({
   t, 
-  settings,
   formOptions,
   activeIssue,
   isDisabled,

@@ -4,7 +4,6 @@ import SaveIcon from '../Icons/SaveIcon'
 
 export default function FormReviewOnly({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
   isContentLoading,

@@ -14,7 +14,6 @@ import SeverityIssueIconFilled from '../Icons/SeverityIssueIconFilled'
 
 export default function FixIssuesContentPreview({
   t,
-  settings,
   activeIssue,
   getReadableFileType,
   isDisabled

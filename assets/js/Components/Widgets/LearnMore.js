@@ -11,8 +11,6 @@ import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function LearnMore ({
   t,
-  settings,
-
   tempActiveIssue,
   showLearnMore,
   hideLearnMore

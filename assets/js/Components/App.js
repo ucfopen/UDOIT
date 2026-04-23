@@ -20,7 +20,6 @@ export default function App(initialData) {
   const [nextMessage, setNextMessage] = useState('')
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
-  const [settings, setSettings] = useState({...initialData.settings})
   const [labels, setLabels] = useState(initialData.labels ?? [])
   const [instanceInfo, setInstanceInfo] = useState(initialData.instanceInfo ?? {})
   const [preferences, setPreferences] = useState(initialData.preferences ?? {})
@@ -366,7 +365,6 @@ export default function App(initialData) {
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
-            settings={settings}
             instanceInfo={instanceInfo}
             preferences={preferences}
             syncComplete={syncComplete}
@@ -386,7 +384,6 @@ export default function App(initialData) {
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
-                  settings={settings}
                   preferences={preferences}
                   report={report}
                   hasNewReport={hasNewReport}
@@ -399,7 +396,6 @@ export default function App(initialData) {
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
                   t={t}
-                  settings={settings}
                   instanceInfo={instanceInfo}
                   preferences={preferences}
                   formOptions={formOptions}
@@ -421,7 +417,6 @@ export default function App(initialData) {
               {('reviewFiles' === navigation) &&
                 <ReviewFilesPage
                   t={t}
-                  settings={settings}
                   instanceInfo={instanceInfo}
                   preferences={preferences}
                   contentItemCache={contentItemCache}
@@ -440,7 +435,6 @@ export default function App(initialData) {
               {('reports' === navigation) &&
                 <ReportsPage
                   t={t}
-                  settings={settings}
                   instanceInfo={instanceInfo}
                   report={report}
                   quickSearchTerm={quickSearchTerm}
@@ -468,7 +462,6 @@ export default function App(initialData) {
       }
       <MessageTray
         t={t}
-        settings={settings}
         preferences={preferences}
         nextMessage={nextMessage}
       />

@@ -13,7 +13,6 @@ import { ISSUE_FILTER, ISSUE_STATE } from '../Services/Constants'
 
 export default function HomePage({
   t,
-  settings,
   preferences,
   report,
   hasNewReport,

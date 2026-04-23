@@ -17,7 +17,6 @@ import { ISSUE_FILTER } from '../Services/Constants'
 export default function ReportsPage({
   t, 
   report, 
-  settings, 
   instanceInfo, 
   quickSearchTerm
 }) {
@@ -119,11 +118,11 @@ export default function ReportsPage({
       if (!labels.includes(issue.label_display)) {
         labels.push(issue.label_display)
         if(issue.type === 'error' || issue.type === 'issue') {
-          issue.type = (<StatusPill t={t} settings={settings} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.ISSUE}} />)
+          issue.type = (<StatusPill t={t} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.ISSUE}} />)
           issue.type_display = t('filter.label.severity.issue')
         }
         else if(issue.type === 'potential' || issue.type === 'suggestion') {
-          issue.type = (<StatusPill t={t} settings={settings} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.POTENTIAL}} />)
+          issue.type = (<StatusPill t={t} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.POTENTIAL}} />)
           issue.type_display = t('filter.label.severity.potential')
         }
         issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
@@ -346,7 +345,6 @@ export default function ReportsPage({
             <div className="mt-4">
               <IssuesTable
                 t={t}
-                settings={settings}
                 quickSearchTerm={quickSearchTerm}
                 issues={issues}/>
             </div>

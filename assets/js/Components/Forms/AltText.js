@@ -7,7 +7,6 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function AltText ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,

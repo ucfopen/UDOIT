@@ -6,7 +6,6 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants';
 
 export default function TableHeadersForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,

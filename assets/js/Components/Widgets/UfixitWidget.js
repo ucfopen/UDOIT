@@ -10,7 +10,6 @@ import { ISSUE_FILTER, UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function UfixitWidget({
   t,
-  settings,
   formOptions,
 
   activeContentItem,
@@ -108,7 +107,6 @@ export default function UfixitWidget({
 
             <BarrierInformation
               t={t}
-              settings={settings}
               tempActiveIssue={tempActiveIssue}
               handleLearnMoreClick={handleLearnMoreClick}
             />
@@ -118,14 +116,12 @@ export default function UfixitWidget({
               <div className="align-self-start flex-shrink-0">
                 <StatusPill
                   t={t}
-                  settings={settings}
                   issue={tempActiveIssue} />
               </div>
             </div>
             <div className="flex-column gap-1 flex-grow-1">
               <UfixitForm
                 t={t}
-                settings={settings}
                 formOptions={formOptions}
 
                 activeIssue={tempActiveIssue.issueData}

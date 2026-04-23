@@ -9,8 +9,6 @@ import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function FixIssuesList({
   t,
-  settings,
-  
   groupedList,
   setActiveIssue
 }) {
@@ -130,7 +128,6 @@ export default function FixIssuesList({
                       <div className="flex-row" aria-hidden="true">
                         <StatusPill
                           t={t}
-                          settings={settings}
                           issue={issue}
                         />
                       </div>

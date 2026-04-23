@@ -7,7 +7,6 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function AnchorText({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,

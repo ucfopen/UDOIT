@@ -18,7 +18,6 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function TemplateSaveOrReviewForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -271,7 +270,6 @@ export default function TemplateSaveOrReviewForm ({
               id='language-select'
               label=''
               options={selectOptions} 
-              settings={settings}
             />
             <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
           </>

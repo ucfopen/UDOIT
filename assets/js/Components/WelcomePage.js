@@ -8,7 +8,6 @@ import './WelcomePage.css'
 
 export default function WelcomePage({
   t,
-  settings,
   instanceInfo,
   preferences,
   syncComplete,

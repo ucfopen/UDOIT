@@ -108,46 +108,12 @@ class DashboardController extends AbstractController
         $preferences = $this->getPreferences();
 
         return new JsonResponse([
-            'settings' => $this->getSettings($course),
             'messages' => $this->util->getUnreadMessages(true),
             'preferences' => $preferences,
             'labels' => $this->getLabels($preferences),
             'instanceInfo' => $this->getInstanceInfo($course),
             'formOptions' => $this->getFormOptions(),
         ]);
-    }
-
-    protected function getSettings(Course $course): array
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        /** @var \App\Entity\Institution $institution */
-        $institution = $user->getInstitution();
-
-        $metadata = $institution->getMetadata();
-
-        /** $lang should be two letters, and match an available JSON file in the /translations folder. */
-        $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
-        $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
-        $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
-        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'];
-
-        $lms = $this->lmsApi->getLms();
-
-        return [
-            'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
-            'user' => $user,
-            'course' => $course,
-            'institution' => $institution,
-            'roles' => $this->session->get('roles'),
-            'language' => $lang,
-            'labels' => (array) $this->util->getTranslation($lang),
-            'excludedRuleIds' => $excludedRuleIds,
-            'contentTypes' => $lms->getContentTypes(),
-            'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
-            'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
-            'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
-        ];
     }
 
     protected function getPreferences(): array

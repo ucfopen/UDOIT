@@ -8,7 +8,6 @@ import CloseIcon from '../Icons/CloseIcon'
 
 export default function Message ({
   t,
-  settings,
   preferences,
   messageObject,
   pauseTimer,

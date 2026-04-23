@@ -9,7 +9,6 @@ import { DEFAULT_USER_SETTINGS } from '../../Services/Settings'
 
 export default function ReviewFilesFilters({
   t,
-  settings,
   preferences,
   activeFilters,
   handleSearchTerm,
@@ -156,7 +155,6 @@ export default function ReviewFilesFilters({
                   id={detailedFilters[index].value}
                   label={detailedFilters[index].label}
                   options={detailedFilters[index].options}
-                  settings={settings}
                 />
               </div>
             )

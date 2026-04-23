@@ -9,7 +9,6 @@ import { DEFAULT_USER_SETTINGS } from '../../Services/Settings'
 
 export default function FixIssuesFilters({
   t,
-  settings,
   preferences,
   activeFilters,
   handleSearchTerm,
@@ -162,7 +161,6 @@ export default function FixIssuesFilters({
                   id={detailedFilters[index].value}
                   label={detailedFilters[index].label}
                   options={detailedFilters[index].options}
-                  settings={settings}
                 />
               </div>
             )

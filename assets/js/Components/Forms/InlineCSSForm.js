@@ -6,7 +6,6 @@ import { getIssueHtml } from '../../Services/Html'
 
 export default function InlineCSSForm ({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -180,7 +179,6 @@ export default function InlineCSSForm ({
       </div>
       <FormSaveOrReview
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}

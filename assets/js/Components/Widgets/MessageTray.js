@@ -5,7 +5,6 @@ import './MessageTray.css'
 
 export default function MessageTray ({
   t,
-  settings,
   preferences,
   nextMessage
 }) {
@@ -151,7 +150,6 @@ export default function MessageTray ({
           <Message
             key={msg.id}
             t={t}
-            settings={settings}
             preferences={preferences}
             messageObject={msg}
             pauseTimer={pauseTimer}

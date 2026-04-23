@@ -8,7 +8,6 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function LanguageForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -416,7 +415,6 @@ export default function LanguageForm ({
               id='language-select'
               label=''
               options={selectOptions} 
-              settings={settings}
             />
             <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
           </>

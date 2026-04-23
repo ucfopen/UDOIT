@@ -38,7 +38,6 @@ import { ISSUE_STATE, FILE_FILTER as FILTER } from '../Services/Constants'
 
 export default function ReviewFilesPage({
   t,
-  settings,
   instanceInfo,
   preferences,
   report,
@@ -424,7 +423,6 @@ export default function ReviewFilesPage({
     return (
       <StatusPill
         t={t}
-        settings={settings}
         issue={{ status: status, severity: ''}}
         />
     )
@@ -966,7 +964,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
           <ReviewFilesFilters
             t={t}
-            settings={settings}
             preferences={preferences}
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
@@ -1015,14 +1012,12 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                   <>
                   <LearnMore
                     t={t}
-                    settings={settings}
                     tempActiveIssue={tempActiveIssue}
                     showLearnMore={showLearnMore}
                     hideLearnMore={() => setShowLearnMore(false)}
                     />
                     <FileFixitWidget
                       t={t}
-                      settings={settings}
                       sessionFiles={sessionFiles}
                       tempActiveIssue={tempActiveIssue}
                       uploadedFile={uploadedFile}
@@ -1048,7 +1043,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 {filteredFiles.length > 0 && tempActiveIssue && (
                   <FileReviewPreview
                     t={t}
-                    settings={settings}
                     getReadableFileType={getReadableFileType}
                     activeIssue={tempActiveIssue}
                     isDisabled={isDisabled}
