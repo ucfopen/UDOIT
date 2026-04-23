@@ -4,7 +4,7 @@ import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 
 export default function FormExternalLink({
   t,
-  settings,
+  instanceInfo,
   activeIssue
 }) {
 
@@ -12,7 +12,7 @@ export default function FormExternalLink({
 
   useEffect(() => {
     if (activeIssue) {
-      setEditorLink(findEditURLWithIssue(activeIssue, settings))
+      setEditorLink(findEditURLWithIssue(activeIssue, instanceInfo))
     }
     else {
       setEditorLink('')

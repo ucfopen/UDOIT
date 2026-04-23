@@ -5,6 +5,7 @@ import FormReviewOnly from './FormReviewOnly'
 export default function ListForm({
   t,
   settings, 
+  instanceInfo,
   activeIssue,
   isContentLoading,
   markAsReviewed,
@@ -17,12 +18,11 @@ export default function ListForm({
       <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
       <FormExternalLink
         t={t}
-        settings={settings}
+        instanceInfo={instanceInfo}
         activeIssue={activeIssue}
       />
       <FormReviewOnly
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
         handleIssueSave={handleIssueSave}
         isContentLoading={isContentLoading}

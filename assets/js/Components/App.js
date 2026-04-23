@@ -20,8 +20,11 @@ export default function App(initialData) {
   const [nextMessage, setNextMessage] = useState('')
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
-  const [settings, setSettings] = useState({...initialData.settings});
-  const [preferences, setPreferences] = useState(initialData.preferences || null);
+  const [settings, setSettings] = useState({...initialData.settings})
+  const [labels, setLabels] = useState(initialData.labels ?? [])
+  const [instanceInfo, setInstanceInfo] = useState(initialData.instanceInfo ?? {})
+  const [preferences, setPreferences] = useState(initialData.preferences ?? {})
+  const [formOptions, setFormOptions] = useState(initialData.formOptions ?? {})
   const [textSpacing, setTextSpacing] = useState(preferences.textSpacing ?? DEFAULT_USER_SETTINGS.TEXT_SPACING) 
   const [sections, setSections] = useState([])
 
@@ -37,9 +40,9 @@ export default function App(initialData) {
   const [modalActive, setModalActive] = useState(false)
 
   // `t` is used for text/translation. It will return the translated string if it exists
-  // in the settings.labels object.
+  // in the labels object.
   const t = useCallback((key, values = {}) => {
-    let translatedText = (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+    let translatedText = (labels[key] && labels[key] !== '') ? labels[key] : key
     if (values && Object.keys(values).length > 0) {
       Object.keys(values).forEach((key) => {
         translatedText = translatedText.replace(`{${key}}`, values[key])
@@ -47,16 +50,16 @@ export default function App(initialData) {
     }
     return translatedText
 
-  }, [settings])
+  }, [labels])
 
   const scanCourse = useCallback(() => {
-    let api = new Api(settings)
-    return api.scanCourse(settings.course.id)
+    let api = new Api(instanceInfo)
+    return api.scanCourse(instanceInfo.course.id)
   }, [])
 
   const fullRescan = useCallback(() => {
-    let api = new Api(settings)
-    return api.fullRescan(settings.course.id)
+    let api = new Api(instanceInfo)
+    return api.fullRescan(instanceInfo.course.id)
   }, [])
 
   // When user settings are updated and the language changes, we need to send alerts, but also wait a tick for the settings to update.
@@ -89,7 +92,7 @@ export default function App(initialData) {
 
     setPreferences(old => ({...old, ...newUserSetting}));
 
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     api.updateUser(newUser)
       .then((response) => response.json())
       .then((data) => {
@@ -100,6 +103,8 @@ export default function App(initialData) {
             newLanguageSettings.lang = data?.language || newSettings.lang
             newLanguageSettings.labels = data.labels
             setSettings(newLanguageSettings)
+
+            setLabels(data.labels);
           }
           // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
@@ -154,7 +159,7 @@ export default function App(initialData) {
     const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
 
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts, 'scanRules': tempReport.scanRules})
       .then((response) => response.json())
       .then((data) => {
@@ -372,6 +377,7 @@ export default function App(initialData) {
         ( <WelcomePage
             t={t}
             settings={settings}
+            instanceInfo={instanceInfo}
             preferences={preferences}
             syncComplete={syncComplete}
             setWelcomeClosed={setWelcomeClosed} /> ) :
@@ -404,7 +410,9 @@ export default function App(initialData) {
                 <FixIssuesPage
                   t={t}
                   settings={settings}
+                  instanceInfo={instanceInfo}
                   preferences={preferences}
+                  formOptions={formOptions}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
                   contentItemCache={contentItemCache}
@@ -424,6 +432,7 @@ export default function App(initialData) {
                 <ReviewFilesPage
                   t={t}
                   settings={settings}
+                  instanceInfo={instanceInfo}
                   preferences={preferences}
                   contentItemCache={contentItemCache}
                   addContentItemToCache={addContentItemToCache}
@@ -442,6 +451,7 @@ export default function App(initialData) {
                 <ReportsPage
                   t={t}
                   settings={settings}
+                  instanceInfo={instanceInfo}
                   report={report}
                   quickSearchTerm={quickSearchTerm}
                 />
@@ -450,6 +460,7 @@ export default function App(initialData) {
                 <SettingsPage
                   t={t}
                   settings={settings}
+                  instanceInfo={instanceInfo}
                   preferences={preferences}
                   updateUserSettings={updateUserSettings}
                   syncComplete={syncComplete}

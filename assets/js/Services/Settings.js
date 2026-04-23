@@ -8,12 +8,12 @@ export const DEFAULT_USER_SETTINGS = {
   LANGUAGE: 'en',
 }
 
-export function findEditURLWithIssue(issue, settings) {
-  if (!issue || !settings || !settings.institution) {
+export function findEditURLWithIssue(issue, instanceInfo) {
+  if (!issue || !instanceInfo || !instanceInfo.institution) {
     return ''
   }
 
-  let lms = settings.institution.lmsId
+  let lms = instanceInfo.institution.lmsId
   if (lms === 'canvas') {
     return `${issue.contentUrl}/edit`
   } else {

@@ -32,6 +32,8 @@ import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER as FILTER } from '../Services/C
 export default function FixIssuesPage({
   t,
   settings,
+  instanceInfo,
+  formOptions,
   preferences,
   initialSeverity = '',
   initialSearchTerm = '',
@@ -624,7 +626,7 @@ export default function FixIssuesPage({
     activeContentItem.body = fullPageHtml
 
     // Save the updated issue using the LMS API
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     try {
       api.saveIssue(issue, fullPageHtml, markAsReviewed)
       .then((responseStr) => {
@@ -735,7 +737,7 @@ export default function FixIssuesPage({
     issue.xpath = newXpath || ''
     
     // Save the updated issue using the LMS API
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     try {
       const saveResponse = await api.saveIssue(issue, fullPageHtml, markAsReviewed)
       if(!saveResponse.ok){
@@ -942,6 +944,7 @@ export default function FixIssuesPage({
                     <UfixitWidget
                       t={t}
                       settings={settings}
+                      formOptions={formOptions}
 
                       activeContentItem={activeContentItem}
                       handleActiveContentItem={handleActiveContentItem}

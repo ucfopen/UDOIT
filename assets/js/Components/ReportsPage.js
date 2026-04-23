@@ -14,7 +14,13 @@ import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
 import { ISSUE_FILTER } from '../Services/Constants'
 
-export default function ReportsPage({t, report, settings, quickSearchTerm}) {
+export default function ReportsPage({
+  t, 
+  report, 
+  settings, 
+  instanceInfo, 
+  quickSearchTerm
+}) {
 
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
@@ -22,7 +28,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
-    const api = new Api(settings)
+    const api = new Api(instanceInfo)
     api.getReportHistory()
       .then((responseStr) => responseStr.json())
       .then((response) => {

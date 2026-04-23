@@ -39,6 +39,7 @@ import { ISSUE_STATE, FILE_FILTER as FILTER } from '../Services/Constants'
 export default function ReviewFilesPage({
   t,
   settings,
+  instanceInfo,
   preferences,
   report,
   sections,
@@ -596,7 +597,7 @@ export default function ReviewFilesPage({
   const handleFileDelete = async () => {
     setIsDisabled(true)
     try{
-      let api = new Api(settings)
+      let api = new Api(instanceInfo)
       const responseStr = await api.deleteFile(activeIssue.fileData)
       const response = await responseStr.json()
       if(response?.errors && response.errors.length > 0){
@@ -656,7 +657,7 @@ export default function ReviewFilesPage({
       position: position,
       itemid: itemId,
       indent: indent,
-      courseId: settings.course.lmsCourseId
+      courseId: instanceInfo.course.lmsCourseId
     }
     return sectionIdOption
   }
@@ -688,7 +689,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
   const updateAndScanContent = async (postContentItemOptions, postSectionItemOption, fileId) => {
     const responseStatus = []
     try{
-      let api = new Api(settings)
+      let api = new Api(instanceInfo)
       const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption, fileId)
       const response = await responseStr.json()
       if (response.errors && response.errors.length > 0) {
@@ -713,7 +714,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           }
         }
         if(isLastContent) {
-            const reportResponseStr = await api.updateAndGetReport(settings.course.id)
+            const reportResponseStr = await api.updateAndGetReport(instanceInfo.course.id)
             const reportResponse = await reportResponseStr.json()
             if(reportResponse){
               if(reportResponse.messages[0].severity == 'success'){
@@ -745,7 +746,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     updateActiveSessionFile(tempFile.id, ISSUE_STATE.SAVING)
     try{
       // File Upload to Canvas
-      let api = new Api(settings)
+      let api = new Api(instanceInfo)
       const responseStr = await api.postFile(tempFile, newFileData)
       const response = await responseStr.json()
       if(response.errors && response.errors.length > 0) {
@@ -816,7 +817,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         fileData.metadata.replacementFileId = -1
       }
     try{
-      let api = new Api(settings)
+      let api = new Api(instanceInfo)
       const responseStr = await api.reviewFile(fileData, replace)
       const response = await responseStr.json()
 

@@ -9,6 +9,7 @@ import { DEFAULT_USER_SETTINGS } from '../Services/Settings'
 export default function SettingsPage({
   t,
   settings,
+  instanceInfo,
   preferences,
   updateUserSettings,
   textSpacing,
@@ -54,7 +55,7 @@ export default function SettingsPage({
       { value: 'en', name: 'English', selected: currentLanguage === 'en' },
       { value: 'es', name: 'Español', selected: currentLanguage === 'es' }
     ])
-  }, [preferences])
+  }, [preferences, t])
 
   // For new users, the 'darkMode' attribute may not be set, so we need to check if it exists before using it
   // Because the values might be false, we need to differentiate between undefined and false
@@ -180,7 +181,7 @@ export default function SettingsPage({
             <h2 aria-label={t('udoit')}>
               <img src={preferences.darkMode ? UDOITLogoDark : UDOITLogo} aria-hidden="true" className="udoit-logo"/>
             </h2>
-            <div className="subtext version-number">{t('welcome.version')} {settings.versionNumber}</div>
+            <div className="subtext version-number">{t('welcome.version')} {instanceInfo.versionNumber}</div>
           </div>
           {/* <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.release_notes')}</a>
           <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.documentation')}</a> */}

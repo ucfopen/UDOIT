@@ -9,6 +9,7 @@ import './WelcomePage.css'
 export default function WelcomePage({
   t,
   settings,
+  instanceInfo,
   preferences,
   syncComplete,
   setWelcomeClosed
@@ -57,7 +58,7 @@ export default function WelcomePage({
         
         <div className="welcome-footer flex-row justify-content-between ps-3 pe-3 gap-3">
           <div className="flex-column justify-content-center tagline">
-            {t('welcome.version')} {settings.versionNumber}
+            {t('welcome.version')} {instanceInfo.versionNumber}
           </div>
           <a href="https://ucfopen.github.io/" target="_blank" tabIndex="0" rel="noreferrer" className="tagline ps-2">
             <div className="flex-row">

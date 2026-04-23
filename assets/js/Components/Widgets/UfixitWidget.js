@@ -11,6 +11,7 @@ import { ISSUE_FILTER, UFIXIT_OPTIONS } from '../../Services/Constants'
 export default function UfixitWidget({
   t,
   settings,
+  formOptions,
 
   activeContentItem,
   handleActiveContentItem,
@@ -125,6 +126,7 @@ export default function UfixitWidget({
               <UfixitForm
                 t={t}
                 settings={settings}
+                formOptions={formOptions}
 
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
