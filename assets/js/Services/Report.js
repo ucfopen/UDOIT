@@ -1,4 +1,5 @@
 import * as Html from './Html'
+import { MEDIA_FILE_TYPES } from './Settings'
 
 /** With all of the data inconsistency between the old and new issues, we need to double-check some things:
  *    1. If the issue is ACTIVE (found in the scan) but should be ignored, either because of the old 
@@ -288,6 +289,7 @@ export function analyzeReport(report, ISSUE_STATE) {
 
   const parser = new DOMParser()
   const fileReferences = {}
+  const mediaReferences = {}
 
   // Parse every document only once. Not every content item will have issues, but we need to parse each one anyway
   // so we can scan them for references to course files.
@@ -295,10 +297,11 @@ export function analyzeReport(report, ISSUE_STATE) {
     contentItem.sections = getSectionsFromContentItem(report.contentSections, contentItem)
     if(contentItem.body) {
       let tempBody = parser.parseFromString(contentItem.body, 'text/html')
- 
+
       // Get all of the links to files in the content item.
       let links = tempBody.getElementsByTagName('a')
       const fileUrlPattern = /\/files\/(\d+)/
+
       for(let i = 0; i < links.length; i++) {
         let link = links[i]
         let href = link.getAttribute('href')
@@ -321,24 +324,21 @@ export function analyzeReport(report, ISSUE_STATE) {
         }
       }
 
-      // Get all of the links to mediaFiles in the content item.
-      let mediaLinks = tempBody.getElementsByTagName("iframe");      
-      // /media_attachments_iframe/
-      // id 415 is an image that reads "Access Denied."
-      // The addition of (?!415\b) prevents 415 from being read and recorded as a file instance.
-      // This works for mp3 files as well since canvas stores mp3 in iFrame + src format
-      const mediaFileUrlPattern = /\/media_attachments_iframe\/(?!415\b)(\d+)/ 
-      for (let i = 0; i < vidLinks.length; i++) {
+      // Get all of the links to media files (audio, video) in the content item.
+      let mediaLinks = tempBody.getElementsByTagName("iframe");   
+      const mediaFileUrlPattern = /\/media_attachments_iframe\/(\d+)/   
+
+      for (let i = 0; i < mediaLinks.length; i++) {
         let mediaLink = mediaLinks[i];
         let src = mediaLink.getAttribute('src');
         if (src) {
           let mediaMatch = src.match(mediaFileUrlPattern);
           if (mediaMatch && mediaMatch[1]) {
             let mediaId = mediaMatch[1];
-            if (!fileReferences[mediaId]) {
-              fileReferences[mediaId] = [];
+            if (!mediaReferences[mediaId]) {
+              mediaReferences[mediaId] = [];
             }
-            fileReferences[mediaId].push({
+            mediaReferences[mediaId].push({
               contentItemId: contentItem.id,
               contentItemBody: contentItem.body,
               contentItemTitle: contentItem.title,
@@ -350,8 +350,6 @@ export function analyzeReport(report, ISSUE_STATE) {
         }
       }
       
-      
-
       parsedDocuments[contentItem.id] = tempBody
       usedContentItems[contentItem.id] = contentItem
     }
@@ -437,9 +435,17 @@ export function analyzeReport(report, ISSUE_STATE) {
   // references (like when the file is linked in the modules directly).
   const lmsIdToFileMap = {}
   report.files.forEach((file) => {
-    file.references = fileReferences[parseInt(file.lmsFileId)] || []
-    const sectionRefs =  getSectionsFromFile(report.contentSections, file)
-    file.sectionRefs = sectionRefs ? sectionRefs : []
+    // Check file type to assign proper reference
+    if (MEDIA_FILE_TYPES.includes(file.fileType)) {
+      file.references = mediaReferences[parseInt(file.lmsFileId)] || []
+      const sectionRefs = getSectionsFromFile(report.contentSections, file)
+      file.sectionRefs = sectionRefs ? sectionRefs: []
+    } 
+    else {
+      file.references = fileReferences[parseInt(file.lmsFileId)] || []
+      const sectionRefs =  getSectionsFromFile(report.contentSections, file)
+      file.sectionRefs = sectionRefs ? sectionRefs : []
+    }
   })
 
   let tempFilesReviewed = 0
