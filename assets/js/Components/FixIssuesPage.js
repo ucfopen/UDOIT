@@ -405,6 +405,7 @@ export default function FixIssuesPage({
     }
 
     if(contentItem && contentItem.body) {
+      setTempActiveIssue(issue)
       setTempActiveContentItem(Object.assign({}, contentItem))
       return
     }

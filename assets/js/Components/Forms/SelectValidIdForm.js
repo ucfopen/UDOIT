@@ -200,6 +200,8 @@ export default function SelectValidIdForm ({
         errorElement = Html.removeAttribute(errorElement, attribute.attribute)
       }
     })
+    let updatedHtml = Html.toString(errorElement)
+    issue.newHtml = updatedHtml
 
     tempActiveContentItem.body = Html.toString(doc.body)
     handleActiveIssue(issue, activeOption, tempActiveContentItem)
