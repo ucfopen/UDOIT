@@ -281,22 +281,22 @@ export default function HtmlPreview({
 
   const handleClickedElement = (e) => {
     if(!FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))){
-      console.log("Trying to click on a form where clicking is not allowed")
+      // console.log("Trying to click on a form where clicking is not allowed")
       return
     }
 
     if(e.target.classList.contains("ufixit-content-preview-main")){
-      console.log("Can't be click on anything other than main elements")
+      // console.log("Can't be click on anything other than main elements")
       return      
     }
 
     if(e.target.classList.contains('ufixit-error-highlight')){
-      console.log("Can't click on a active issue!")
+      // console.log("Can't click on a active issue!")
       return
     }
 
     if(e.target.id?.includes('ufixit-alt-text-preview')) {
-      console.log("Clicked on the alt text preview, not the actual content")
+      // console.log("Clicked on the alt text preview, not the actual content")
       return
     }
 

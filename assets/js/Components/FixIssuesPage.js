@@ -413,7 +413,9 @@ export default function FixIssuesPage({
     let fullPageHtml = activeContentItem.body
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let errorElement = Html.findElementWithIssue(fullPageDoc, issue.issueData)
-    let editedElement = Html.getIssueHtml(issue.issueData)
+    let editedElement = Html.toElement(Html.getIssueHtml(issue.issueData))
+    let errorElementTag = Html.getTagName(errorElement)
+    let editedElementTag = Html.getTagName(editedElement)
 
     const specificClassName = `udoit-ignore-${issue.issueData.scanRuleId.replaceAll("_", "-")}`
     if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED || FORM_CLASSIFICATIONS.AUTO_REVIEW_RELATED.includes(formNameFromRule(issue.issueData.scanRuleId))) {
@@ -441,10 +443,11 @@ export default function FixIssuesPage({
 
     let updatedHtml = Html.toString(editedElement)
     let newElement = Html.findElementWithError(fullPageDoc, updatedHtml)
-    let newXpath = Html.findXpathFromElement(newElement)
+    if (editedElementTag && editedElementTag !== errorElementTag) {
+      issue.issueData.xpath = Html.findXpathFromElement(newElement)
+    }
 
     issue.issueData.newHtml = updatedHtml
-    issue.issueData.xpath = newXpath || ''
     setTempActiveIssue(issue)
 
     let newBody = fullPageDoc.body.innerHTML
@@ -742,13 +745,8 @@ export default function FixIssuesPage({
     }
   }
 
-  const handleActiveContentItem = (newContentItem) => {
-    setTempActiveContentItem(newContentItem)
-  }
-
   // When the issue data changes, this triggers the live preview update.
   const handleTempActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
-    console.log('TempActiveIssue updated:', newIssue)
     updateTempContentItem(newIssue, optionOverride, contentItem)
   }
 
@@ -892,7 +890,6 @@ export default function FixIssuesPage({
                         settings={settings}
 
                         activeContentItem={activeContentItem}
-                        handleActiveContentItem={handleActiveContentItem}
                         activeOption={activeOption}
                         setActiveOption={setActiveOption}
                         addMessage={addMessage}

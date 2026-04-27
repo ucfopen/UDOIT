@@ -10,7 +10,6 @@ export default function UfixitWidget({
   settings,
 
   activeContentItem,
-  handleActiveContentItem,
   activeOption,
   setActiveOption,
   addMessage,
@@ -127,7 +126,6 @@ export default function UfixitWidget({
 
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
-                handleActiveContentItem={handleActiveContentItem}
                 addMessage={addMessage}
                 handleActiveIssue={handleActiveIssue}
                 handleIssueSave={handleIssueSave}

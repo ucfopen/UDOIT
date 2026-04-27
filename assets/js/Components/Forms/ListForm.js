@@ -9,7 +9,6 @@ export default function ListForm({
   settings,
   activeIssue,
   activeContentItem,
-  handleActiveContentItem,
   isDisabled,
   handleActiveIssue,
   isContentLoading,

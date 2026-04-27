@@ -14,7 +14,6 @@ export default function SelectValidIdForm ({
   settings,
   activeIssue,
   activeContentItem,
-  handleActiveContentItem,
   isDisabled,
   handleActiveIssue,
   clickedInfo,
