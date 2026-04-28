@@ -71,7 +71,7 @@ class AdminPanelRetrievalCommand extends Command
         $institutionId = (int) getenv('ADMIN_PANEL_INSTITUTION_ID');
         $institution = $this->em->getRepository(Institution::class)->find($institutionId);
 
-        $canvas = new CanvasApi(getenv('ADMIN_RETRIEVAL_LMS_URL'), getenv('ADMIN_RETRIEVAL_API_TOKEN'));
+        $canvas = new CanvasApi(getenv('ADMIN_RETRIEVAL_LMS_DOMAIN'), getenv('ADMIN_RETRIEVAL_API_TOKEN'));
 
         $accounts = $canvas->apiGet('accounts')->getContent();
         $rootAccount = null;
