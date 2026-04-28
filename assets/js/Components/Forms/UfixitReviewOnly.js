@@ -6,6 +6,7 @@ export default function UfixitReviewOnly({
   t,
   settings, 
   activeIssue,
+  handleActiveIssue,
   isDisabled,
   activeOption,
   setActiveOption,
@@ -37,13 +38,26 @@ export default function UfixitReviewOnly({
   }, [activeIssue])
 
   useEffect(() => {
-    if(activeOption === FORM_OPTIONS.FIX_IN_LMS) {
-      setFormErrors({ [FORM_OPTIONS.FIX_IN_LMS]: [{ text: t('form.review_only.link.edit'), type: 'error' }] })
-    }
-    else {
-      setFormErrors({})
-    }
+    updateHtmlContent()
+    checkFormErrors()
   }, [activeOption])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = {
+      [FORM_OPTIONS.FIX_IN_LMS]: []
+    }
+
+    if(activeOption === FORM_OPTIONS.FIX_IN_LMS) {
+      tempErrors[FORM_OPTIONS.FIX_IN_LMS].push({ text: t('form.review_only.link.edit'), type: 'error' })
+    }
+
+    setFormErrors(tempErrors)
+  }
 
   return (
     <>

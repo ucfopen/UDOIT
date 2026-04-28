@@ -80,12 +80,14 @@ export default function HtmlPreview({
         const attributeId = previewData.attributeId
 
         attributeId.forEach((attribute) => {
-          if(attribute?.selected && !attribute.deactivated){
+          if (attribute?.selected && !attribute.deactivated) {
             const idsPointedToByAttribute = attribute.idStorage?.length > 0 ? attribute.idStorage : []
             idsPointedToByAttribute?.forEach((id) => {
-              if(id){
+              if (id) {
                 const element = Html.findElementWithXpath(doc, idXpathMap[id].xpath)
-                element.classList.add("ufixit-temp-selected")
+                if (element) {
+                  element.classList.add("ufixit-temp-selected")
+                }
               }
             })
           }
@@ -242,7 +244,8 @@ export default function HtmlPreview({
 
     else {
       // Original single-issue logic
-      errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
+      let xpath = activeIssue?.issueData?.newXpath || activeIssue?.issueData?.xpath || ''
+      errorElement = Html.findElementWithXpath(doc, xpath)
       let editedElement = Html.getIssueHtml(activeIssue?.issueData)
     
       if(!errorElement && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
@@ -316,11 +319,12 @@ export default function HtmlPreview({
     if(tempTaggedContent !== taggedContent) {
       setTaggedContent(tempTaggedContent)
     }
+    handleScroll()
   }
 
   useEffect(() => {
     checkTaggedContentUpdate()
-  }, [activeIssue, activeContentItem, previewData, activeOption])
+  }, [activeIssue, activeContentItem, previewData])
 
   useEffect(() => {
     checkTaggedContentUpdate()

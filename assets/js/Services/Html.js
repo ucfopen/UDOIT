@@ -633,6 +633,10 @@ export const findElementWithError = (content, errorHtml) => {
 }
 
 export function findElementWithIssue(content, issue) {
+  if (!content || !issue || !issue.xpath) {
+    return null
+  }
+
   let xpath = issue.xpath
   if(xpath.startsWith('/html[1]/body[1]')) {
     return findElementWithXpath(content, xpath)

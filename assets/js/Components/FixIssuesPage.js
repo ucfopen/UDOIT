@@ -394,6 +394,8 @@ export default function FixIssuesPage({
   }, [report])
 
   // Based on the current option and the issueData, generate new HTML for the activeContentItem.
+  // If the contentItem is passed in, that means that the specific form has done all the work already. This is
+  // particularly true with the List form, where the form modifies the contentItem to group content.
   const updateTempContentItem = (
     issue = tempActiveIssue,
     option = activeOption,
@@ -409,13 +411,17 @@ export default function FixIssuesPage({
       setTempActiveContentItem(Object.assign({}, contentItem))
       return
     }
-    
+
+    // Always begin with the original activeContentItem, not a previously modified version, to prevent compounding
+    // changes and to ensure that all changes are based on the current issue state.
     let fullPageHtml = activeContentItem.body
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
-    let errorElement = Html.findElementWithIssue(fullPageDoc, issue.issueData)
+    
+    // Find the target element from the original page and also create a replacement element from the issue data.
+    let originalElement = Html.findElementWithIssue(fullPageDoc, issue.issueData)
     let editedElement = Html.toElement(Html.getIssueHtml(issue.issueData))
-    let errorElementTag = Html.getTagName(errorElement)
-    let editedElementTag = Html.getTagName(editedElement)
+    const originalElementTag = Html.getTagName(originalElement)
+    const editedElementTag = Html.getTagName(editedElement)
 
     const specificClassName = `udoit-ignore-${issue.issueData.scanRuleId.replaceAll("_", "-")}`
     if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED || FORM_CLASSIFICATIONS.AUTO_REVIEW_RELATED.includes(formNameFromRule(issue.issueData.scanRuleId))) {
@@ -425,26 +431,29 @@ export default function FixIssuesPage({
       editedElement = Html.removeClass(editedElement, specificClassName)
     }
 
-    if(!errorElement) {
+    if(!originalElement) {
       setIsErrorFoundInContent(false)
     }
     else {
       if(option === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
-        errorElement.remove()
+        originalElement.remove()
       }
       else if(editedElement) { 
-        errorElement.insertAdjacentElement('afterend', editedElement)
-        let tempElement = errorElement.nextSibling
-        errorElement.remove()
-        errorElement = tempElement
+        originalElement.insertAdjacentElement('afterend', editedElement)
+        let tempElement = originalElement.nextSibling
+        originalElement.remove()
+        originalElement = tempElement
       }
       setIsErrorFoundInContent(true)
     }
 
     let updatedHtml = Html.toString(editedElement)
     let newElement = Html.findElementWithError(fullPageDoc, updatedHtml)
-    if (editedElementTag && editedElementTag !== errorElementTag) {
-      issue.issueData.xpath = Html.findXpathFromElement(newElement)
+    if (editedElementTag && editedElementTag !== originalElementTag) {
+      issue.issueData.newXpath = Html.findXpathFromElement(newElement)
+    }
+    else {
+      issue.issueData.newXpath = undefined
     }
 
     issue.issueData.newHtml = updatedHtml
