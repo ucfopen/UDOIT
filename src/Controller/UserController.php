@@ -42,15 +42,15 @@ class UserController extends AbstractController
                 throw new \Exception("msg.no_permissions");
             }
 
-            $newPreferences = \json_decode($request->getContent(), true);
+            $userVals = \json_decode($request->getContent(), true);
 
             
-            $oldRoles = $user->getRoles();
-            $oldLang = $oldRoles['lang'] ?? 'en';
+            $oldPreferences = $user->getPreferences();
+            $oldLang = $oldPreferences['lang'] ?? 'en';
             
 
             // Preference IDs on the client differ from DB column names, so we must translate
-            $roleMap = [
+            $preferenceMap = [
                 'textSpacing' => 'text_spacing',
                 'fontSize' => 'font_size',
                 'fontFamily' => 'font_family',
@@ -62,19 +62,19 @@ class UserController extends AbstractController
                 'lang' => 'lang'
             ];
 
-            $newRoles = $oldRoles;
+            $newPreferences = $oldPreferences;
             
-            foreach($newPreferences as $roleKey => $roleValue)
+            foreach($userVals as $preferenceKey => $preferenceVal)
             {
-                if (!isset($roleMap[$roleKey])) continue;
-                $newKey = $roleMap[$roleKey];
-                $newRoles[$newKey] = $roleValue;
+                if (!isset($preferenceMap[$preferenceKey])) continue;
+                $newKey = $preferenceMap[$preferenceKey];
+                $newPreferences[$newKey] = $preferenceVal;
             }
         
 
-            $changeLang = (!empty($newRoles['lang']) && $oldLang !== $newRoles['lang']);
+            $changeLang = (!empty($newPreferences['lang']) && $oldLang !== $newPreferences['lang']);
 
-            $user->setRoles($newRoles);
+            $user->setPreferences($newPreferences);
 
             $responseObject = [
                 'user' => $user,
@@ -83,7 +83,7 @@ class UserController extends AbstractController
 
             if ($changeLang) {
                 $this->util = $util;
-                $labels = $this->util->getTranslation($newRoles['lang']);
+                $labels = $this->util->getTranslation($newPreferences['lang']);
                 $responseObject['labels'] = $labels;
             }
 
