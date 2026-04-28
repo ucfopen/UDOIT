@@ -20,23 +20,23 @@ class InitialStateService
 
     public function getPreferences(User $user): array
     {
-        $roles = $user->getRoles();
+        $preferences = $user->getPreferences();
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
         $lang = $_ENV['DEFAULT_LANG'] ?? 'en';
         $lang = !empty($metadata['lang']) ? $metadata['lang'] : $lang;
-        $lang = array_key_exists('lang', $roles) ? $roles['lang'] : $lang;
+        $lang = array_key_exists('lang', $preferences) ? $preferences['lang'] : $lang;
 
         return [
-            'textSpacing'       => $roles['text_spacing'] ?? null,
-            'fontSize'          => $roles['font_size'] ?? null,
-            'fontFamily'        => $roles['font_family'] ?? null,
-            'darkMode'          => $roles['dark_mode'] ?? null,
-            'alertTimeout'      => $roles['alert_timeout'] ?? null,
-            'dailyGoal'         => $roles['daily_goal'] ?? null,
-            'showFilters'       => $roles['show_filters'] ?? null,
-            'viewOnlyPublished' => $roles['view_only_published'] ?? null,
+            'textSpacing'       => $preferences['text_spacing'] ?? null,
+            'fontSize'          => $preferences['font_size'] ?? null,
+            'fontFamily'        => $preferences['font_family'] ?? null,
+            'darkMode'          => $preferences['dark_mode'] ?? null,
+            'alertTimeout'      => $preferences['alert_timeout'] ?? null,
+            'dailyGoal'         => $preferences['daily_goal'] ?? null,
+            'showFilters'       => $preferences['show_filters'] ?? null,
+            'viewOnlyPublished' => $preferences['view_only_published'] ?? null,
             'lang'              => $lang,
         ];
     }
