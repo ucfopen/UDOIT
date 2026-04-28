@@ -40,6 +40,11 @@ export default function App(initialData) {
       { UFIXIT_OPTIONS },
     ),
   );
+  const [textSpacing, setTextSpacing] = useState(
+    settings?.user?.roles && "text_spacing" in settings.user.roles
+      ? settings.user.roles.text_spacing
+      : settings.DEFAULT_USER_SETTINGS.TEXT_SPACING,
+  );
   const [sections, setSections] = useState([]);
 
   const [navigation, setNavigation] = useState("summary");
@@ -417,7 +422,7 @@ export default function App(initialData) {
   return (
     <div
       id="app-container"
-      style={{ '--text-spacing-percent': Number(textSpacing) }}
+      style={{ "--text-spacing-percent": Number(textSpacing) }}
       className={
         `flex-column flex-grow-1 ` +
         `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} ` +
@@ -510,6 +515,8 @@ export default function App(initialData) {
                 updateUserSettings={updateUserSettings}
                 syncComplete={syncComplete}
                 handleFullCourseRescan={handleFullCourseRescan}
+                textSpacing={textSpacing}
+                setTextSpacing={setTextSpacing}
               />
             )}
             {"modal" === navigation && <div className="modal">{modal}</div>}
