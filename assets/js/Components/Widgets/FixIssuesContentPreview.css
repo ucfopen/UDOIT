@@ -227,6 +227,15 @@
   font-size: 0.8em;
   overflow-x: auto;
 
+  
+  thead, tbody tr {
+      display: table;
+      width: 100%;
+      /* table-layout: fixed; */
+    }
+  
+  
+
   thead {
 
     tr {
@@ -260,7 +269,15 @@
     }
   }
 
+  
+
   tbody {
+    display: block;
+    overflow: scroll;
+    height: 200px;
+    min-height: 200px;
+    max-height: 500px;
+    width: 100%;
 
     tr {
       background-color: var(--white);
@@ -270,7 +287,12 @@
       }
 
       td {
+
+        /* this does not work as well as I thought it would
         padding: .5rem;
+        max-width: 15em;
+        min-width: 15em;
+        */ 
 
         &[textalign='end'] div {
           text-align: right;
