@@ -3,6 +3,7 @@ import SortableTable from "../Widgets/SortableTable";
 import Api from "../../Services/Api";
 import SummaryIcon from "../Icons/SummaryIcon";
 import ReportIcon from "../Icons/ReportIcon";
+import ProgressIcon from "../Icons/ProgressIcon";
 
 export default function CoursePage({
   t,
@@ -15,6 +16,7 @@ export default function CoursePage({
   addMessage,
 }) {
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [currentCourseScan, setCurrentCourseScan] = useState(-1)
   const [isAnyScanning, setIsAnyScanning] = useState(false);
   const [tableSettings, setTableSettings] = useState({
     sortBy: "lastUpdated",
@@ -154,7 +156,7 @@ export default function CoursePage({
               >
                 <ReportIcon className="icon-md" />
               </button>
-              <button
+              {course.id == currentCourseScan ? <ProgressIcon className="icon-lg udoit-suggestion spinner" /> : <button
                 key={`scanButton${course.id}`}
                 onClick={() => {
                   !course.loading && !isAnyScanning && handleScanClick(course);
@@ -166,7 +168,7 @@ export default function CoursePage({
                 aria-label={t("report.button.scan")}
               >
                 <SummaryIcon className="icon-md" />
-              </button>
+              </button>}
             </div>
           ),
         };
@@ -247,6 +249,7 @@ export default function CoursePage({
   const handleScanClick = (course) => {
     let api = new Api(settings);
     setIsAnyScanning(true);
+    setCurrentCourseScan(course.id)
 
     // For unscanned courses, course.id will be the LMS course ID (string/number)
     // and hasReport will be false. We need to create the course in UDOIT first.
@@ -306,6 +309,7 @@ export default function CoursePage({
               });
             }
           }
+          setCurrentCourseScan(-1)
         })
         .catch((error) => {
           console.error("Scan error:", error);
@@ -317,6 +321,7 @@ export default function CoursePage({
           course.loading = false;
           handleCourseUpdate(course);
           setIsAnyScanning(false);
+          setCurrentCourseScan(-1)
         });
     } else {
       // For already scanned courses, use the UDOIT database ID
@@ -339,6 +344,7 @@ export default function CoursePage({
               });
             }
           }
+          setCurrentCourseScan(-1)
         })
         .catch((error) => {
           console.error("Scan error:", error);
@@ -350,6 +356,7 @@ export default function CoursePage({
           course.loading = false;
           handleCourseUpdate(course);
           setIsAnyScanning(false);
+          setCurrentCourseScan(-1)
         });
     }
 
@@ -361,6 +368,7 @@ export default function CoursePage({
 
     course.loading = true;
     handleCourseUpdate(course);
+    
   };
 
   const checkForReport = (course) => {
