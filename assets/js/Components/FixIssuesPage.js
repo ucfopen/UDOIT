@@ -32,7 +32,6 @@ import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER as FILTER } from '../Services/C
 export default function FixIssuesPage({
   t,
   instanceInfo,
-  formOptions,
   preferences,
   initialSeverity = '',
   initialSearchTerm = '',
@@ -929,8 +928,7 @@ export default function FixIssuesPage({
                     
                     <UfixitWidget
                       t={t}
-                      formOptions={formOptions}
-
+                      instanceInfo={instanceInfo}
                       activeContentItem={activeContentItem}
                       handleActiveContentItem={handleActiveContentItem}
                       addMessage={addMessage}

@@ -11,8 +11,8 @@ import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
 export default function ContrastForm({
-  t, 
-  formOptions,
+  t,
+  instanceInfo, 
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -71,8 +71,8 @@ export default function ContrastForm({
     if (tempBackgroundColors.length === 0) {
       tempBackgroundColors.push({
         originalString: '',
-        originalColorString: formOptions.backgroundColor,
-        hsl: Contrast.toHSL(formOptions.backgroundColor)
+        originalColorString: instanceInfo.backgroundColor,
+        hsl: Contrast.toHSL(instanceInfo.backgroundColor)
       })
     }
     return tempBackgroundColors
@@ -93,7 +93,7 @@ export default function ContrastForm({
     if (colorEl && colorEl.style && colorEl.style.color) {
       return Contrast.toHSL(colorEl.style.color);
     }
-    return Contrast.toHSL(formOptions.textColor);
+    return Contrast.toHSL(instanceInfo.textColor);
   }
 
   // Heading tags for contrast threshold

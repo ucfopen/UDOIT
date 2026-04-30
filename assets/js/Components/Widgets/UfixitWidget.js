@@ -10,8 +10,7 @@ import { ISSUE_FILTER, UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function UfixitWidget({
   t,
-  formOptions,
-
+  instanceInfo,
   activeContentItem,
   handleActiveContentItem,
   addMessage,
@@ -122,8 +121,7 @@ export default function UfixitWidget({
             <div className="flex-column gap-1 flex-grow-1">
               <UfixitForm
                 t={t}
-                formOptions={formOptions}
-
+                instanceInfo={instanceInfo}
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
                 handleActiveContentItem={handleActiveContentItem}

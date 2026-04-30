@@ -20,9 +20,8 @@ export default function App(initialData) {
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
   const [labels, setLabels] = useState(initialData.labels ?? [])
-  const [instanceInfo, setInstanceInfo] = useState(initialData.instanceInfo ?? {})
+  const [instanceInfo, setInstanceInfo] = useState(initialData.instanceInfo)
   const [preferences, setPreferences] = useState(initialData.preferences)
-  const [formOptions, setFormOptions] = useState(initialData.formOptions ?? {})
   const [textSpacing, setTextSpacing] = useState(preferences.textSpacing) 
   const [sections, setSections] = useState([])
 
@@ -397,7 +396,6 @@ export default function App(initialData) {
                   t={t}
                   instanceInfo={instanceInfo}
                   preferences={preferences}
-                  formOptions={formOptions}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
                   contentItemCache={contentItemCache}

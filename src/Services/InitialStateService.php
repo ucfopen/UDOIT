@@ -15,6 +15,9 @@ class InitialStateService
     final protected $DEFAULT_DARK_MODE = false;
     final protected $DEFAULT_ALERT_TIMEOUT = '5000';
     final protected $DEFAULT_LANG = 'en';
+    final protected $DEFAULT_BACKGROUND_COLOR = '#ffffff';
+    final protected $DEFAULT_TEXT_COLOR = '#000000';
+
 
     /** @var UtilityService $util */
     protected $util;
@@ -35,7 +38,7 @@ class InitialStateService
         $lang = $_ENV['DEFAULT_LANG'] ?? $this->DEFAULT_LANG;
         $lang = !empty($metadata['lang']) ? $metadata['lang'] : $lang;
         $lang = array_key_exists('lang', $preferences) ? $preferences['lang'] : $lang;
-
+        
         return [
             'textSpacing'       => $preferences['textSpacing'] ?? $this->DEFAULT_TEXT_SPACING,
             'fontSize'          => $preferences['fontSize'] ?? $this->DEFAULT_FONT_SIZE,
@@ -51,6 +54,9 @@ class InitialStateService
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
+        $backgroundColor = $metadata['backgroundColor'] ?? $_ENV['BACKGROUND_COLOR'] ?? $this->$DEFAULT_BACKGROUND_COLOR;
+        $fontColor = $metadata['textColor'] ?? $_ENV['TEXT_COLOR'] ?? $this->$DEFAULT_TEXT_COLOR;
+
         return [
             'apiUrl'           => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
             'course'           => $course,
@@ -61,19 +67,13 @@ class InitialStateService
                 'username' => $user->getUserIdentifier(),
                 'name'     => $user->getName(),
             ],
+            'backgroundColor' => $backgroundColor,
+            'textColor'       => $fontColor,
         ];
     }
 
     public function getLabels(array $preferences): array
     {
         return (array) $this->util->getTranslation($preferences['lang']);
-    }
-
-    public function getFormOptions(): array
-    {
-        return [
-            'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
-            'textColor'       => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
-        ];
     }
 }
