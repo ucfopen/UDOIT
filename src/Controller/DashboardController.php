@@ -114,10 +114,6 @@ class DashboardController extends AbstractController
             'preferences'  => $preferences,
             'labels'       => $initialStateService->getLabels($preferences),
             'instanceInfo' => $initialStateService->getInstanceInfo($user, $course),
-            'formOptions'  => [
-                'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
-                'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
-            ],
         ]);
     }
 
