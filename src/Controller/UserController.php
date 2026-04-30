@@ -56,9 +56,6 @@ class UserController extends AbstractController
                 'fontFamily' => 'font_family',
                 'darkMode' => 'dark_mode',
                 'alertTimeout' => 'alert_timeout',
-                'dailyGoal' => 'daily_goal',
-                'showFilters' => 'show_filters',
-                'viewOnlyPublished' => 'view_only_published',
                 'lang' => 'lang'
             ];
 

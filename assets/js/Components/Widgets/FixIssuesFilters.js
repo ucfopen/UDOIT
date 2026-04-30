@@ -9,7 +9,6 @@ import { DEFAULT_USER_SETTINGS } from '../../Services/Settings'
 
 export default function FixIssuesFilters({
   t,
-  preferences,
   activeFilters,
   handleSearchTerm,
   searchTerm,
@@ -48,8 +47,7 @@ export default function FixIssuesFilters({
 
   const [usedFilters, setUsedFilters] = useState(null)
   const [detailedFilters, setDetailedFilters] = useState(null)
-  // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
-  const [showFilters, setShowFilters] = useState(preferences.showFilters ?? DEFAULT_USER_SETTINGS.SHOW_FILTERS);
+  const [showFilters, setShowFilters] = useState(true);
 
   // When the page loads, only show the "Modules" filter is there are modules to filter by...
   useEffect(() => {

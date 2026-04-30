@@ -32,9 +32,6 @@ final class Version20260424203914 extends AbstractMigration
                         OR JSON_EXTRACT(roles, '$.font_size') IS NOT NULL
                         OR JSON_EXTRACT(roles, '$.font_family') IS NOT NULL
                         OR JSON_EXTRACT(roles, '$.alert_timeout') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.daily_goal') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.show_filters') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.view_only_published') IS NOT NULL
                         OR JSON_EXTRACT(roles, '$.lang') IS NOT NULL
                     THEN JSON_REMOVE(
                         JSON_OBJECT(
@@ -43,9 +40,6 @@ final class Version20260424203914 extends AbstractMigration
                             'font_size', JSON_EXTRACT(roles, '$.font_size'),
                             'font_family', JSON_EXTRACT(roles, '$.font_family'),
                             'alert_timeout', JSON_EXTRACT(roles, '$.alert_timeout'),
-                            'daily_goal', JSON_EXTRACT(roles, '$.daily_goal'),
-                            'show_filters', JSON_EXTRACT(roles, '$.show_filters'),
-                            'view_only_published', JSON_EXTRACT(roles, '$.view_only_published'),
                             'lang', JSON_EXTRACT(roles, '$.lang')
                         ),
                         CASE WHEN JSON_EXTRACT(roles, '$.dark_mode') IS NULL THEN '$.dark_mode' ELSE '$.__nonexistent' END,
@@ -53,9 +47,6 @@ final class Version20260424203914 extends AbstractMigration
                         CASE WHEN JSON_EXTRACT(roles, '$.font_size') IS NULL THEN '$.font_size' ELSE '$.__nonexistent' END,
                         CASE WHEN JSON_EXTRACT(roles, '$.font_family') IS NULL THEN '$.font_family' ELSE '$.__nonexistent' END,
                         CASE WHEN JSON_EXTRACT(roles, '$.alert_timeout') IS NULL THEN '$.alert_timeout' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.daily_goal') IS NULL THEN '$.daily_goal' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.show_filters') IS NULL THEN '$.show_filters' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.view_only_published') IS NULL THEN '$.view_only_published' ELSE '$.__nonexistent' END,
                         CASE WHEN JSON_EXTRACT(roles, '$.lang') IS NULL THEN '$.lang' ELSE '$.__nonexistent' END
                     )
                     ELSE NULL

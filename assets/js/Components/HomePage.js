@@ -32,7 +32,6 @@ export default function HomePage({
   const [potentialCount, setPotentialCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [fileCount, setFileCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [combinedCount, setCombinedCount] = useState({"fixed": 0, "total": 0, "percent": 0})
-  const [dailyCount, setDailyCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [emphasis, setEmphasis] = useState('')
   
   const progressMeterRadius = () => {
@@ -56,31 +55,6 @@ export default function HomePage({
     { step: 3, type: BARRIERS.FILE, translationKey: 'files', counter: fileCount }
   ]
 
-  useEffect(() => {
-    let totalIssuesFixed = 0
-    let dailyGoal = preferences.dailyGoal || 10
-    let percentComplete = 0
-    if(sessionIssues && Object.keys(sessionIssues).length > 0) {
-      for (const issueState of Object.values(sessionIssues)) {
-        if(issueState === ISSUE_STATE.SAVED || issueState === ISSUE_STATE.RESOLVED) {
-          totalIssuesFixed += 1
-        }
-      }
-    }
-
-    if(totalIssuesFixed >= dailyGoal) {
-      percentComplete = 100
-    }
-    else {
-      percentComplete = (totalIssuesFixed / dailyGoal) * 100
-    }
-
-    setDailyCount({
-      fixed: totalIssuesFixed,
-      total: dailyGoal,
-      percent: percentComplete
-    })
-  }, [preferences.dailyGoal])
 
   useEffect(() => {
     if (!hasNewReport) return

@@ -495,14 +495,6 @@ export default function FixIssuesPage({
         }
       }
 
-      // Check to see if the user ONLY wants to see issues from published content
-      if(preferences.viewOnlyPublished && issue.issueData) {
-        let tempContentItem = getContentById(issue.issueData.contentItemId)
-        if(tempContentItem && tempContentItem.published === false) {
-          continue
-        }
-      }
-
       // If the issue passes all filters, add it to the list!
       filteredList.push(issue)
     }

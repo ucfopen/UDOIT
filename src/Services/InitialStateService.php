@@ -34,9 +34,6 @@ class InitialStateService
             'fontFamily'        => $preferences['font_family'] ?? null,
             'darkMode'          => $preferences['dark_mode'] ?? null,
             'alertTimeout'      => $preferences['alert_timeout'] ?? null,
-            'dailyGoal'         => $preferences['daily_goal'] ?? null,
-            'showFilters'       => $preferences['show_filters'] ?? null,
-            'viewOnlyPublished' => $preferences['view_only_published'] ?? null,
             'lang'              => $lang,
         ];
     }
