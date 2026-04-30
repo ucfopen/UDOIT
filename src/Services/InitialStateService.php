@@ -5,19 +5,10 @@ namespace App\Services;
 use App\Entity\Course;
 use App\Entity\User;
 use App\Services\UtilityService;
+use App\Constants\PreferenceConstants;
 
 class InitialStateService
 {
-
-    protected const DEFAULT_TEXT_SPACING = '0';
-    protected const DEFAULT_FONT_SIZE = 'font-medium';
-    protected const DEFAULT_FONT_FAMILY = 'sans-serif';
-    protected const DEFAULT_DARK_MODE = false;
-    protected const DEFAULT_ALERT_TIMEOUT = '5000';
-    protected const DEFAULT_LANG = 'en';
-    protected const DEFAULT_BACKGROUND_COLOR = '#ffffff';
-    protected const DEFAULT_TEXT_COLOR = '#000000';
-
 
     /** @var UtilityService $util */
     protected $util;
@@ -35,16 +26,16 @@ class InitialStateService
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
-        $lang = $_ENV['DEFAULT_LANG'] ?? self::DEFAULT_LANG;
+        $lang = $_ENV['DEFAULT_LANG'] ?? PreferenceConstants::DEFAULT_LANG;
         $lang = !empty($metadata['lang']) ? $metadata['lang'] : $lang;
         $lang = array_key_exists('lang', $preferences) ? $preferences['lang'] : $lang;
         
         return [
-            'textSpacing'       => $preferences['textSpacing'] ?? self::DEFAULT_TEXT_SPACING,
-            'fontSize'          => $preferences['fontSize'] ?? self::DEFAULT_FONT_SIZE,
-            'fontFamily'        => $preferences['fontFamily'] ?? self::DEFAULT_FONT_FAMILY,
-            'darkMode'          => $preferences['darkMode'] ?? self::DEFAULT_DARK_MODE,
-            'alertTimeout'      => $preferences['alertTimeout'] ?? self::DEFAULT_ALERT_TIMEOUT,
+            'textSpacing'       => $preferences['textSpacing'] ?? PreferenceConstants::DEFAULT_TEXT_SPACING,
+            'fontSize'          => $preferences['fontSize'] ?? PreferenceConstants::DEFAULT_FONT_SIZE,
+            'fontFamily'        => $preferences['fontFamily'] ?? PreferenceConstants::DEFAULT_FONT_FAMILY,
+            'darkMode'          => $preferences['darkMode'] ?? PreferenceConstants::DEFAULT_DARK_MODE,
+            'alertTimeout'      => $preferences['alertTimeout'] ?? PreferenceConstants::DEFAULT_ALERT_TIMEOUT,
             'lang'              => $lang,
         ];
     }
@@ -54,8 +45,8 @@ class InitialStateService
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
-        $backgroundColor = $metadata['backgroundColor'] ?? self::DEFAULT_BACKGROUND_COLOR;
-        $fontColor = $metadata['textColor'] ?? self::DEFAULT_TEXT_COLOR;
+        $backgroundColor = $metadata['backgroundColor'] ?? PreferenceConstants::DEFAULT_BACKGROUND_COLOR;
+        $fontColor = $metadata['textColor'] ?? PreferenceConstants::DEFAULT_TEXT_COLOR;
 
         return [
             'apiUrl'           => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
