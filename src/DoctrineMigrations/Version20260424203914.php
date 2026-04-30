@@ -49,9 +49,8 @@ final class Version20260424203914 extends AbstractMigration
                         CASE WHEN JSON_EXTRACT(roles, '$.alertTimeout') IS NULL THEN '$.alertTimeout' ELSE '$.__nonexistent' END,
                         CASE WHEN JSON_EXTRACT(roles, '$.lang') IS NULL THEN '$.lang' ELSE '$.__nonexistent' END
                     )
-                    ELSE NULL
+                    ELSE JSON_OBJECT()
                 END
-            WHERE roles IS NOT NULL
         SQL);
         $this->addSql('UPDATE users SET roles = \'["ROLE_USER"]\'');
     }
