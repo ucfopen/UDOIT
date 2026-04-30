@@ -9,14 +9,14 @@ use App\Services\UtilityService;
 class InitialStateService
 {
 
-    final protected $DEFAULT_TEXT_SPACING = '0';
-    final protected $DEFAULT_FONT_SIZE = 'font-medium';
-    final protected $DEFAULT_FONT_FAMILY = 'sans-serif';
-    final protected $DEFAULT_DARK_MODE = false;
-    final protected $DEFAULT_ALERT_TIMEOUT = '5000';
-    final protected $DEFAULT_LANG = 'en';
-    final protected $DEFAULT_BACKGROUND_COLOR = '#ffffff';
-    final protected $DEFAULT_TEXT_COLOR = '#000000';
+    protected const DEFAULT_TEXT_SPACING = '0';
+    protected const DEFAULT_FONT_SIZE = 'font-medium';
+    protected const DEFAULT_FONT_FAMILY = 'sans-serif';
+    protected const DEFAULT_DARK_MODE = false;
+    protected const DEFAULT_ALERT_TIMEOUT = '5000';
+    protected const DEFAULT_LANG = 'en';
+    protected const DEFAULT_BACKGROUND_COLOR = '#ffffff';
+    protected const DEFAULT_TEXT_COLOR = '#000000';
 
 
     /** @var UtilityService $util */
@@ -35,16 +35,16 @@ class InitialStateService
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
-        $lang = $_ENV['DEFAULT_LANG'] ?? $this->DEFAULT_LANG;
+        $lang = $_ENV['DEFAULT_LANG'] ?? self::DEFAULT_LANG;
         $lang = !empty($metadata['lang']) ? $metadata['lang'] : $lang;
         $lang = array_key_exists('lang', $preferences) ? $preferences['lang'] : $lang;
         
         return [
-            'textSpacing'       => $preferences['textSpacing'] ?? $this->DEFAULT_TEXT_SPACING,
-            'fontSize'          => $preferences['fontSize'] ?? $this->DEFAULT_FONT_SIZE,
-            'fontFamily'        => $preferences['fontFamily'] ?? $this->DEFAULT_FONT_FAMILY,
-            'darkMode'          => $preferences['darkMode'] ?? $this->DEFAULT_DARK_MODE,
-            'alertTimeout'      => $preferences['alertTimeout'] ?? $this->DEFAULT_ALERT_TIMEOUT,
+            'textSpacing'       => $preferences['textSpacing'] ?? self::DEFAULT_TEXT_SPACING,
+            'fontSize'          => $preferences['fontSize'] ?? self::DEFAULT_FONT_SIZE,
+            'fontFamily'        => $preferences['fontFamily'] ?? self::DEFAULT_FONT_FAMILY,
+            'darkMode'          => $preferences['darkMode'] ?? self::DEFAULT_DARK_MODE,
+            'alertTimeout'      => $preferences['alertTimeout'] ?? self::DEFAULT_ALERT_TIMEOUT,
             'lang'              => $lang,
         ];
     }
