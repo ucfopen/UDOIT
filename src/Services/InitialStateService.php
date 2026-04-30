@@ -51,9 +51,6 @@ class InitialStateService
             'course'           => $course,
             'institution'      => $institution,
             'versionNumber'    => $_ENV['VERSION_NUMBER'] ?? '',
-            'excludedRuleIds'  => !empty($metadata['excludedRuleIds'])
-                                    ? $metadata['excludedRuleIds']
-                                    : $_ENV['PHPALLY_EXCLUDED_RULES'],
             'user' => [
                 'id'       => $user->getId(),
                 'username' => $user->getUserIdentifier(),
