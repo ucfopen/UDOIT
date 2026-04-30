@@ -29,11 +29,11 @@ class InitialStateService
         $lang = array_key_exists('lang', $preferences) ? $preferences['lang'] : $lang;
 
         return [
-            'textSpacing'       => $preferences['text_spacing'] ?? null,
-            'fontSize'          => $preferences['font_size'] ?? null,
-            'fontFamily'        => $preferences['font_family'] ?? null,
-            'darkMode'          => $preferences['dark_mode'] ?? null,
-            'alertTimeout'      => $preferences['alert_timeout'] ?? null,
+            'textSpacing'       => $preferences['textSpacing'] ?? null,
+            'fontSize'          => $preferences['fontSize'] ?? null,
+            'fontFamily'        => $preferences['fontFamily'] ?? null,
+            'darkMode'          => $preferences['darkMode'] ?? null,
+            'alertTimeout'      => $preferences['alertTimeout'] ?? null,
             'lang'              => $lang,
         ];
     }

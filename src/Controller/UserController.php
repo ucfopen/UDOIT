@@ -49,26 +49,23 @@ class UserController extends AbstractController
             $oldLang = $oldPreferences['lang'] ?? 'en';
             
 
-            // Preference IDs on the client differ from DB column names, so we must translate
-            $preferenceMap = [
-                'textSpacing' => 'text_spacing',
-                'fontSize' => 'font_size',
-                'fontFamily' => 'font_family',
-                'darkMode' => 'dark_mode',
-                'alertTimeout' => 'alert_timeout',
-                'lang' => 'lang'
+            $allowedPreferences = [
+                'textSpacing',
+                'fontSize',
+                'fontFamily',
+                'darkMode',
+                'alertTimeout',
+                'lang'
             ];
 
             $newPreferences = $oldPreferences;
             
             foreach($userVals as $preferenceKey => $preferenceVal)
             {
-                if (!isset($preferenceMap[$preferenceKey])) continue;
-                $newKey = $preferenceMap[$preferenceKey];
-                $newPreferences[$newKey] = $preferenceVal;
+                if (!in_array($preferenceKey, $allowedPreferences)) continue;
+                $newPreferences[$preferenceKey] = $preferenceVal;
             }
-        
-
+            
             $changeLang = (!empty($newPreferences['lang']) && $oldLang !== $newPreferences['lang']);
 
             $user->setPreferences($newPreferences);

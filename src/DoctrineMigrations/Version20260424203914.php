@@ -27,26 +27,26 @@ final class Version20260424203914 extends AbstractMigration
         UPDATE users
             SET
                 preferences = CASE
-                    WHEN JSON_EXTRACT(roles, '$.dark_mode') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.text_spacing') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.font_size') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.font_family') IS NOT NULL
-                        OR JSON_EXTRACT(roles, '$.alert_timeout') IS NOT NULL
+                    WHEN JSON_EXTRACT(roles, '$.darkMode') IS NOT NULL
+                        OR JSON_EXTRACT(roles, '$.textSpacing') IS NOT NULL
+                        OR JSON_EXTRACT(roles, '$.fontSize') IS NOT NULL
+                        OR JSON_EXTRACT(roles, '$.fontFamily') IS NOT NULL
+                        OR JSON_EXTRACT(roles, '$.alertTimeout') IS NOT NULL
                         OR JSON_EXTRACT(roles, '$.lang') IS NOT NULL
                     THEN JSON_REMOVE(
                         JSON_OBJECT(
-                            'dark_mode', JSON_EXTRACT(roles, '$.dark_mode'),
-                            'text_spacing', JSON_EXTRACT(roles, '$.text_spacing'),
-                            'font_size', JSON_EXTRACT(roles, '$.font_size'),
-                            'font_family', JSON_EXTRACT(roles, '$.font_family'),
-                            'alert_timeout', JSON_EXTRACT(roles, '$.alert_timeout'),
+                            'darkMode', JSON_EXTRACT(roles, '$.darkMode'),
+                            'textSpacing', JSON_EXTRACT(roles, '$.textSpacing'),
+                            'fontSize', JSON_EXTRACT(roles, '$.fontSize'),
+                            'fontFamily', JSON_EXTRACT(roles, '$.fontFamily'),
+                            'alertTimeout', JSON_EXTRACT(roles, '$.alertTimeout'),
                             'lang', JSON_EXTRACT(roles, '$.lang')
                         ),
-                        CASE WHEN JSON_EXTRACT(roles, '$.dark_mode') IS NULL THEN '$.dark_mode' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.text_spacing') IS NULL THEN '$.text_spacing' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.font_size') IS NULL THEN '$.font_size' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.font_family') IS NULL THEN '$.font_family' ELSE '$.__nonexistent' END,
-                        CASE WHEN JSON_EXTRACT(roles, '$.alert_timeout') IS NULL THEN '$.alert_timeout' ELSE '$.__nonexistent' END,
+                        CASE WHEN JSON_EXTRACT(roles, '$.darkMode') IS NULL THEN '$.darkMode' ELSE '$.__nonexistent' END,
+                        CASE WHEN JSON_EXTRACT(roles, '$.textSpacing') IS NULL THEN '$.textSpacing' ELSE '$.__nonexistent' END,
+                        CASE WHEN JSON_EXTRACT(roles, '$.fontSize') IS NULL THEN '$.fontSize' ELSE '$.__nonexistent' END,
+                        CASE WHEN JSON_EXTRACT(roles, '$.fontFamily') IS NULL THEN '$.fontFamily' ELSE '$.__nonexistent' END,
+                        CASE WHEN JSON_EXTRACT(roles, '$.alertTimeout') IS NULL THEN '$.alertTimeout' ELSE '$.__nonexistent' END,
                         CASE WHEN JSON_EXTRACT(roles, '$.lang') IS NULL THEN '$.lang' ELSE '$.__nonexistent' END
                     )
                     ELSE NULL
