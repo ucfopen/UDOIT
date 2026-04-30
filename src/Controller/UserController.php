@@ -71,7 +71,11 @@ class UserController extends AbstractController
             $user->setPreferences($newPreferences);
 
             $responseObject = [
-                'user' => $user,
+                'user' => [
+                    'id'       => $user->getId(),
+                    'username' => $user->getUserIdentifier(),
+                    'name'     => $user->getName(),
+                ],
                 'labels' => NULL,
             ];
 
