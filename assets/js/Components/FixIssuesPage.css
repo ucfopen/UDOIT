@@ -31,7 +31,7 @@
 
     box-sizing: border-box;
     width: 50%;
-    overflow-y: hidden;
+    overflow-y: auto;
     overflow-x: hidden;
 
     background-color: var(--background-color);
