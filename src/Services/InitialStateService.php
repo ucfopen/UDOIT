@@ -8,6 +8,14 @@ use App\Services\UtilityService;
 
 class InitialStateService
 {
+
+    final protected $DEFAULT_TEXT_SPACING = '0';
+    final protected $DEFAULT_FONT_SIZE = 'font-medium';
+    final protected $DEFAULT_FONT_FAMILY = 'sans-serif';
+    final protected $DEFAULT_DARK_MODE = false;
+    final protected $DEFAULT_ALERT_TIMEOUT = '5000';
+    final protected $DEFAULT_LANG = 'en';
+
     /** @var UtilityService $util */
     protected $util;
 
@@ -24,16 +32,16 @@ class InitialStateService
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
-        $lang = $_ENV['DEFAULT_LANG'] ?? 'en';
+        $lang = $_ENV['DEFAULT_LANG'] ?? $this->DEFAULT_LANG;
         $lang = !empty($metadata['lang']) ? $metadata['lang'] : $lang;
         $lang = array_key_exists('lang', $preferences) ? $preferences['lang'] : $lang;
 
         return [
-            'textSpacing'       => $preferences['textSpacing'] ?? null,
-            'fontSize'          => $preferences['fontSize'] ?? null,
-            'fontFamily'        => $preferences['fontFamily'] ?? null,
-            'darkMode'          => $preferences['darkMode'] ?? null,
-            'alertTimeout'      => $preferences['alertTimeout'] ?? null,
+            'textSpacing'       => $preferences['textSpacing'] ?? $this->DEFAULT_TEXT_SPACING,
+            'fontSize'          => $preferences['fontSize'] ?? $this->DEFAULT_FONT_SIZE,
+            'fontFamily'        => $preferences['fontFamily'] ?? $this->DEFAULT_FONT_FAMILY,
+            'darkMode'          => $preferences['darkMode'] ?? $this->DEFAULT_DARK_MODE,
+            'alertTimeout'      => $preferences['alertTimeout'] ?? $this->DEFAULT_ALERT_TIMEOUT,
             'lang'              => $lang,
         ];
     }

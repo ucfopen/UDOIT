@@ -11,7 +11,6 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { DEFAULT_USER_SETTINGS } from '../Services/Settings'
 import { ISSUE_STATE } from '../Services/Constants'
 
 
@@ -22,9 +21,9 @@ export default function App(initialData) {
   const [report, setReport] = useState(initialData.report || null)  
   const [labels, setLabels] = useState(initialData.labels ?? [])
   const [instanceInfo, setInstanceInfo] = useState(initialData.instanceInfo ?? {})
-  const [preferences, setPreferences] = useState(initialData.preferences ?? {})
+  const [preferences, setPreferences] = useState(initialData.preferences)
   const [formOptions, setFormOptions] = useState(initialData.formOptions ?? {})
-  const [textSpacing, setTextSpacing] = useState(preferences.textSpacing ?? DEFAULT_USER_SETTINGS.TEXT_SPACING) 
+  const [textSpacing, setTextSpacing] = useState(preferences.textSpacing) 
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -358,10 +357,10 @@ export default function App(initialData) {
     <div id="app-container"
          style={{ '--text-spacing-percent': Number(textSpacing) }}
          className={`flex-column flex-grow-1 `
-          + `${preferences.fontSize || DEFAULT_USER_SETTINGS.FONT_SIZE} `
-          + `${preferences.fontFamily || DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+          + `${preferences.fontSize} `
+          + `${preferences.fontFamily} `
           + `${preferences.darkMode ? 'dark-mode' : ''}`}
-          lang={preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE}>
+          lang={preferences.lang}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}

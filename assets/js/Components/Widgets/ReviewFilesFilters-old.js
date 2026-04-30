@@ -7,7 +7,6 @@ import Combobox from './Combobox'
 import { FILE_FILTER as FILTER} from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
-import { DEFAULT_USER_SETTINGS } from '../../Services/Settings'
 
 export default function ReviewFilesFilters({
   t,

@@ -4,7 +4,6 @@ import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
 import Combobox from './Widgets/Combobox'
 import ToggleSwitch from './Widgets/ToggleSwitch'
 import './SettingsPage.css'
-import { DEFAULT_USER_SETTINGS } from '../Services/Settings'
 
 export default function SettingsPage({
   t,
@@ -22,7 +21,7 @@ export default function SettingsPage({
 
   useEffect(() => {
     // Set up alert options
-    let currentAlertTimeout = preferences.alertTimeout || DEFAULT_USER_SETTINGS.ALERT_TIMEOUT
+    let currentAlertTimeout = preferences.alertTimeout
     setAlertOptions([
       { value: '5000', name: t('settings.option.alert_timeout.5s'), selected: currentAlertTimeout === '5000' },
       { value: '10000', name: t('settings.option.alert_timeout.10s'), selected: currentAlertTimeout === '10000' },
@@ -31,7 +30,7 @@ export default function SettingsPage({
     ])
 
     // Set up font size options
-    let currentFontSize = preferences.fontSize || DEFAULT_USER_SETTINGS.FONT_SIZE
+    let currentFontSize = preferences.fontSize
     setFontSizeOptions([
       { value: 'font-small', name: t('settings.label.font_size.small'), selected: currentFontSize === 'font-small' },
       { value: 'font-medium', name: t('settings.label.font_size.medium'), selected: currentFontSize === 'font-medium' },
@@ -40,7 +39,7 @@ export default function SettingsPage({
     ])
 
     // Set up font family options
-    let currentFontFamily = preferences.fontFamily || DEFAULT_USER_SETTINGS.FONT_FAMILY
+    let currentFontFamily = preferences.fontFamily
     setFontFamilyOptions([
       { value: 'sans-serif', name: t('settings.label.font_family.sans_serif'), selected: currentFontFamily === 'sans-serif' },
       { value: 'serif', name: t('settings.label.font_family.serif'), selected: currentFontFamily === 'serif' },
@@ -49,16 +48,14 @@ export default function SettingsPage({
     ])
 
     // Set up language options
-    let currentLanguage = preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE
+    let currentLanguage = preferences.lang
     setLanguageOptions([
       { value: 'en', name: 'English', selected: currentLanguage === 'en' },
       { value: 'es', name: 'Español', selected: currentLanguage === 'es' }
     ])
   }, [preferences, t])
 
-  // For new users, the 'darkMode' attribute may not be set, so we need to check if it exists before using it
-  // Because the values might be false, we need to differentiate between undefined and false
-  const [darkMode, setDarkMode] = useState(preferences.darkMode ?? DEFAULT_USER_SETTINGS.DARK_MODE)
+  const [darkMode, setDarkMode] = useState(preferences.darkMode)
 
   const handleDarkModeChange = (newValue) => {
     setDarkMode(newValue)

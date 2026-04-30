@@ -5,7 +5,6 @@ import ToggleSwitch from './ToggleSwitch'
 import { ISSUE_FILTER as FILTER } from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
-import { DEFAULT_USER_SETTINGS } from '../../Services/Settings'
 
 export default function FixIssuesFilters({
   t,
