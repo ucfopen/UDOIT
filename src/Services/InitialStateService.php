@@ -54,8 +54,8 @@ class InitialStateService
         $institution = $user->getInstitution();
         $metadata = $institution->getMetadata();
 
-        $backgroundColor = $metadata['backgroundColor'] ?? $_ENV['BACKGROUND_COLOR'] ?? $this->$DEFAULT_BACKGROUND_COLOR;
-        $fontColor = $metadata['textColor'] ?? $_ENV['TEXT_COLOR'] ?? $this->$DEFAULT_TEXT_COLOR;
+        $backgroundColor = $metadata['backgroundColor'] ?? self::DEFAULT_BACKGROUND_COLOR;
+        $fontColor = $metadata['textColor'] ?? self::DEFAULT_TEXT_COLOR;
 
         return [
             'apiUrl'           => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
