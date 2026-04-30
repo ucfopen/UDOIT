@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
 import LearnMore from './Widgets/LearnMore.js'
+import MediaCaptionsEditor from './Captions/MediaCaptionsEditor.js'
 import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
 import SortableTable from './Widgets/SortableTable'
 import StatusPill from './Widgets/StatusPill'
@@ -992,54 +993,62 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
             <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-md" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
-           <div className="dialog-content">
-            <div className="dialog-content-row-wrap">
-              <section className='ufixit-widget-container'>
-                { tempActiveIssue ? ( 
-                  <>
-                    <LearnMore
-                      t={t}
-                      settings={settings}
-                      tempActiveIssue={tempActiveIssue}
-                      showLearnMore={showLearnMore}
-                      hideLearnMore={() => setShowLearnMore(false)}
+          <div className="dialog-content">
+            {activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio' ? (
+              <MediaCaptionsEditor
+                t={t}
+                lmsFileData={activeIssue?.fileData}
+              />
+            ) : (
+
+              <div className="dialog-content-row-wrap">
+                <section className='ufixit-widget-container'>
+                  { tempActiveIssue ? ( 
+                    <>
+                      <LearnMore
+                        t={t}
+                        settings={settings}
+                        tempActiveIssue={tempActiveIssue}
+                        showLearnMore={showLearnMore}
+                        hideLearnMore={() => setShowLearnMore(false)}
+                        />
+                      <FileFixitWidget
+                        t={t}
+                        settings={settings}
+                        sessionFiles={sessionFiles}
+                        tempActiveIssue={tempActiveIssue}
+                        uploadedFile={uploadedFile}
+                        setUploadedFile={setUploadedFile}
+                        isDisabled={isDisabled}
+                        setIsDisabled={setIsDisabled}
+                        markAsReviewed={markAsReviewed}
+                        setMarkAsReviewed={setMarkAsReviewed}
+                        setFormInvalid={setFormInvalid}
+                        getReadableFileType={getReadableFileType}
+                        handleFileResolveWrapper={handleFileResolveWrapper}
+                        setMarkDelete={setMarkDelete}
+                        setMarkRevert={setMarkRevert}
+                        markDelete={markDelete}
+                        markRevert={markRevert}
+                        handleLearnMoreClick={() => setShowLearnMore(true)}
+                        showLearnMore={showLearnMore}
                       />
-                    <FileFixitWidget
+                    </>
+                  ) : ''}
+                </section>
+                <section className="ufixit-content-container">
+                  {filteredFiles.length > 0 && tempActiveIssue && (
+                    <FileReviewPreview
                       t={t}
                       settings={settings}
-                      sessionFiles={sessionFiles}
-                      tempActiveIssue={tempActiveIssue}
-                      uploadedFile={uploadedFile}
-                      setUploadedFile={setUploadedFile}
-                      isDisabled={isDisabled}
-                      setIsDisabled={setIsDisabled}
-                      markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed}
-                      setFormInvalid={setFormInvalid}
                       getReadableFileType={getReadableFileType}
-                      handleFileResolveWrapper={handleFileResolveWrapper}
-                      setMarkDelete={setMarkDelete}
-                      setMarkRevert={setMarkRevert}
-                      markDelete={markDelete}
-                      markRevert={markRevert}
-                      handleLearnMoreClick={() => setShowLearnMore(true)}
-                      showLearnMore={showLearnMore}
+                      activeIssue={tempActiveIssue}
+                      isDisabled={isDisabled}
                     />
-                  </>
-                ) : ''}
-              </section>
-              <section className="ufixit-content-container">
-                {filteredFiles.length > 0 && tempActiveIssue && (
-                  <FileReviewPreview
-                    t={t}
-                    settings={settings}
-                    getReadableFileType={getReadableFileType}
-                    activeIssue={tempActiveIssue}
-                    isDisabled={isDisabled}
-                  />
-                )}
-              </section>
-            </div>
+                  )}
+                </section>
+              </div>
+            )}
           </div>
           <div className='dialog-footer'>
             <div className="flex-row gap-2">

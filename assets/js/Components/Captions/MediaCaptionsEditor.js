@@ -3,6 +3,7 @@ import WavesurferPlayer from "@wavesurfer/react";
 import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 import CaptionEditDialog from "./CaptionEditDialog";
+import ProgressIcon from "../Icons/ProgressIcon";
 import './MediaCaptions.css';
 import {
   parseVTT,
@@ -26,6 +27,7 @@ import useWaveformKeyboard from "./useWaveformKeyboard";
  */
 export default function MediaCaptionsEditor({
   t,
+  lmsFileData,
   initialVideoUrl,
   initialVttText,
   onSaveVtt,
@@ -34,6 +36,7 @@ export default function MediaCaptionsEditor({
   const [videoFile, setVideoFile] = useState(null);
   const [vttFile, setVttFile] = useState(null);
 
+  const [isLoading, setIsLoading] = useState(true);
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl || null);
   const [cues, setCues] = useState(() => (initialVttText ? parseVTT(initialVttText) : []));
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -59,6 +62,19 @@ export default function MediaCaptionsEditor({
       setCueIdCounter(parsed.length + 1);
     }
   }, [initialVttText]);
+
+  useEffect(() => {
+    if(!lmsFileData) return;
+    setIsLoading(true);
+
+    if (lmsFileData?.downloadUrl) {
+      setVideoUrl(lmsFileData.downloadUrl)
+    }
+
+    if (lmsFileData?.metadata?.media_entry_id) {
+      console.log("Found media_entry_id in LMS file data metadata:", lmsFileData.metadata.media_entry_id);
+    }
+  }, [lmsFileData])
 
   // ---- object URL handling for uploaded video file
   useEffect(() => {
@@ -155,6 +171,8 @@ export default function MediaCaptionsEditor({
         video.removeEventListener("pause", onPause);
         video.removeEventListener("play", onPlay);
       });
+
+      setIsLoading(false);
     },
     []
   );
@@ -551,178 +569,178 @@ export default function MediaCaptionsEditor({
   }, [selectedIndex, cues, videoElRef, wavesurferRef]);
 
   return (
-    <div className="media-captions-editor" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-        <label>
-          Load Video{" "}
-          <input
-            type="file"
-            accept="video/*"
-            disabled={isDisabled}
-            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-          />
-        </label>
-        <label>
-          Load Subtitles (VTT){" "}
-          <input
-            type="file"
-            accept=".vtt"
-            disabled={isDisabled}
-            onChange={(e) => setVttFile(e.target.files?.[0] || null)}
-          />
-        </label>
+    <>
+      { isLoading &&
+        <div id="captionsLoadingOverlay">
+          <div className="mt-1 mb-4 flex-row justify-content-center align-items-center flex-grow-1 gap-3">
+            <ProgressIcon className="icon-lg udoit-progress spinner" />
+            <h2>{t('fix.label.loading_content')}</h2>
+          </div>
+        </div>
+      }
+      <div inert={isLoading ? 'true' : undefined} id="media-captions-editor">
+        <div className="flex-row flex-wrap gap-3 align-items-center">
+          <label>
+            Load Video{" "}
+            <input
+              type="file"
+              accept="video/*"
+              disabled={isDisabled}
+              onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+            />
+          </label>
+          <label>
+            Load Subtitles (VTT){" "}
+            <input
+              type="file"
+              accept=".vtt"
+              disabled={isDisabled}
+              onChange={(e) => setVttFile(e.target.files?.[0] || null)}
+            />
+          </label>
 
-        <button type="button" className="btn-secondary" disabled={isDisabled || cues.length === 0} onClick={onSave}>
-          Save VTT
-        </button>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "60% 40%", gap: 12, minHeight: 0 }}>
-        {/* Left: table without custom focus rules */}
-        <div
-          id="table-focus-layer"
-          aria-label="Captions List"
-          style={{
-            overflow: "auto",
-            border: "1px solid #ddd",
-            borderRadius: 6,
-            padding: 8,
-            maxHeight: "59vh",
-            display: "flex",
-            flexDirection: "column"
-          }}
-        >
-          <ul aria-label="Caption list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {cues.map((cue, i) => {
-              const active = i === selectedIndex;
-              return (
-                <li
-                  key={cue.id || i}
-                  id={`cue-row-${i}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: 8,
-                    background: active ? "#3296ff59" : undefined,
-                    borderRadius: 4,
-                    padding: 4,
-                  }}
-                  onClick={() => {
-                    setSelectedIndex(i);
-                    selectCue(i, vttToMS(cue.start) / 1000);
-                  }}
-                  role="group"
-                  aria-label={`Caption ${i + 1}`}
-                >
-                  <input
-                    id={`cue-field-${i}-0`}
-                    type="text"
-                    defaultValue={cue.text}
-                    disabled={isDisabled}
-                    style={{ flex: 2, minWidth: 0 }}
-                    aria-label={`Caption ${i + 1} text`}
-                    onBlur={(e) => updateCueText(i, e.target.value)}
-                    onFocus={() => setSelectedIndex(i)}
-                  />
-                  <button
-                    type="button"
-                    aria-label={`Edit details for caption ${i + 1}`}
-                    disabled={isDisabled}
-                    style={{ marginLeft: 8 }}
-                    ref={el => (editButtonRefs.current[i] = el)}
-                    onClick={() => {
-                      setDialogOpen(true);
-                      setDialogCueIndex(i);
+          <button type="button" className="btn-secondary" disabled={isDisabled || cues.length === 0} onClick={onSave}>
+            Save VTT
+          </button>
+        </div>
+        <div id="captions-editor-main-row">
+          {/* Left: table without custom focus rules */}
+          <div
+            id="table-focus-layer"
+            aria-label="Captions List"
+          >
+            <ul aria-label="Caption list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              {cues.map((cue, i) => {
+                const active = i === selectedIndex;
+                return (
+                  <li
+                    key={cue.id || i}
+                    id={`cue-row-${i}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 8,
+                      background: active ? "#3296ff59" : undefined,
+                      borderRadius: 4,
+                      padding: 4,
                     }}
-                    onFocus={() => setSelectedIndex(i)}
+                    onClick={() => {
+                      setSelectedIndex(i);
+                      selectCue(i, vttToMS(cue.start) / 1000);
+                    }}
+                    role="group"
+                    aria-label={`Caption ${i + 1}`}
                   >
-                    Edit
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          <div style={{ color: "red", minHeight: 18, marginTop: 6 }}>{error}</div>
-        </div>
-
-        {/* Right: video + controls */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
-          <div style={{ background: "#000", borderRadius: 6, overflow: "hidden", aspectRatio: "16/9", width: "100%", maxWidth: "100%" }}>
-            <video
-              ref={videoElRef}
-              src={videoUrl || undefined}
-              style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
-              controls={false}
-            />
+                    <input
+                      id={`cue-field-${i}-0`}
+                      type="text"
+                      defaultValue={cue.text}
+                      disabled={isDisabled}
+                      style={{ flex: 2, minWidth: 0 }}
+                      aria-label={`Caption ${i + 1} text`}
+                      onBlur={(e) => updateCueText(i, e.target.value)}
+                      onFocus={() => setSelectedIndex(i)}
+                    />
+                    <button
+                      type="button"
+                      aria-label={`Edit details for caption ${i + 1}`}
+                      disabled={isDisabled}
+                      style={{ marginLeft: 8 }}
+                      ref={el => (editButtonRefs.current[i] = el)}
+                      onClick={() => {
+                        setDialogOpen(true);
+                        setDialogCueIndex(i);
+                      }}
+                      onFocus={() => setSelectedIndex(i)}
+                    >
+                      Edit
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            <div style={{ color: "red", minHeight: 18, marginTop: 6 }}>{error}</div>
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(-1)}>
-              ◀◀ 1s
-            </button>
-            <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playPause}>
-              Play/Pause
-            </button>
-            <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(1)}>
-              1s ▶▶
-            </button>
+          {/* Right: video + controls */}
+          <div id="video-focus-layer">
+            <div id="video-container">
+              <video
+                ref={videoElRef}
+                src={videoUrl || undefined}
+                style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+                controls={false}
+              />
+            </div>
 
-            <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playCurrent}>
-              Play Current
-            </button>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(-1)}>
+                ◀◀ 1s
+              </button>
+              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playPause}>
+                Play/Pause
+              </button>
+              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(1)}>
+                1s ▶▶
+              </button>
 
-            <button type="button" className="btn-secondary" disabled={isDisabled} onClick={insertCue}>
-              Insert
-            </button>
-            <button type="button" className="btn-secondary" disabled={isDisabled} onClick={deleteCue}>
-              Delete
-            </button>
+              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playCurrent}>
+                Play Current
+              </button>
+
+              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={insertCue}>
+                Insert
+              </button>
+              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={deleteCue}>
+                Delete
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Waveform focus container */}
+        <div id="waveform-container">
+          <div
+            id="waveform"
+            ref={waveformFocusRef}
+            tabIndex={0}
+            aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
+            onKeyDown={onWaveformKeyDown}
+            onFocus={() => setWaveformFocused(true)}
+            onBlur={() => setWaveformFocused(false)}
+            style={{
+              outline: waveformFocused && waveKbLayer === 'wave' ? '3px solid #1976d2' : 'none',
+              boxShadow: waveformFocused && waveKbLayer === 'wave' ? '0 0 0 4px #90caf9' : 'none'
+            }}
+          >
+            <div onWheel={onWaveWheel}>
+              <WavesurferPlayer
+                key={videoUrl || "no-url"}
+                url={videoUrl || undefined}
+                height={120}
+                normalize
+                hideScrollbar
+                minPxPerSec={100}
+                interact={false}
+                waveColor="#595656ff"
+                progressColor="#1976d2"
+                plugins={plugins}
+                onReady={onWsReady}
+              />
+            </div>
+            <div ref={timelineRef} />
+          </div>
+        </div>
+
+        <CaptionEditDialog
+          open={dialogOpen}
+          cue={cues[dialogCueIndex]}
+          onClose={handleDialogClose}
+          onSave={handleDialogSave}
+          isDisabled={isDisabled}
+        />
       </div>
-
-      {/* Waveform focus container */}
-      <div style={{ border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
-        <div
-          id="waveform"
-          ref={waveformFocusRef}
-          tabIndex={0}
-          aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
-          onKeyDown={onWaveformKeyDown}
-          onFocus={() => setWaveformFocused(true)}
-          onBlur={() => setWaveformFocused(false)}
-          style={{
-            outline: waveformFocused && waveKbLayer === 'wave' ? '3px solid #1976d2' : 'none',
-            boxShadow: waveformFocused && waveKbLayer === 'wave' ? '0 0 0 4px #90caf9' : 'none'
-          }}
-        >
-          <div onWheel={onWaveWheel}>
-            <WavesurferPlayer
-              key={videoUrl || "no-url"}
-              url={videoUrl || undefined}
-              height={120}
-              normalize
-              hideScrollbar
-              minPxPerSec={100}
-              interact={false}
-              waveColor="#595656ff"
-              progressColor="#1976d2"
-              plugins={plugins}
-              onReady={onWsReady}
-            />
-          </div>
-          <div ref={timelineRef} />
-        </div>
-      </div>
-
-      <CaptionEditDialog
-        open={dialogOpen}
-        cue={cues[dialogCueIndex]}
-        onClose={handleDialogClose}
-        onSave={handleDialogSave}
-        isDisabled={isDisabled}
-      />
-    </div>
+    </>
   );
 }
