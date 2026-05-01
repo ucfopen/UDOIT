@@ -387,8 +387,8 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-      className="flex-column flex-grow-1"
       style={{ '--text-spacing-percent': Number(textSpacing) }}
+      className={"flex-column flex-grow-1"
       + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
       + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
       + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
