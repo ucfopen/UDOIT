@@ -14,7 +14,7 @@ const FIVE_MINUTES = 300;
 class SessionService {
     protected UserSessionRepository $sessionRepo;
     protected Request $request;
-    protected UserSession $userSession;
+    protected ?UserSession $userSession = null;
     protected ManagerRegistry $doctrine;
 
     public function __construct(

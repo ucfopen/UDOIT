@@ -219,6 +219,12 @@
       --help-color-background: var(--container-color); /* #324e6c; */
       --help-color-text: var(--text-secondary-color);
     }
+
+    --text-spacing-percent: 0;
+    --app-letter-spacing: calc(var(--text-spacing-percent) * 0.0018em);
+    --app-word-spacing: calc(var(--text-spacing-percent) * 0.0042em);
+    letter-spacing: var(--app-letter-spacing);
+    word-spacing: var(--app-word-spacing);
   }
 
   #app-container {

@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\IssueRepository")]
+#[ORM\Table(name: 'issue')]
 class Issue implements \JsonSerializable
 {
     static $issueError = 'error';
