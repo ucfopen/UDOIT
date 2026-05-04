@@ -670,7 +670,6 @@ class AdminController extends ApiController
         $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
         $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
-        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'];
 
         if (!($accountId = $this->session->get('lms_account_id'))) {
             $this->util->exitWithMessage('Account ID not found.');
@@ -694,7 +693,6 @@ class AdminController extends ApiController
             'roles' => $this->session->get('roles'),
             'language' => $lang,
             'labels' => $this->util->getTranslation($lang),
-            'excludedRuleIds' => $excludedRuleIds,
             'accounts' => $accounts,
             'terms' => $simpleTerms,
             'defaultTerm' => $defaultTerm,

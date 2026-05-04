@@ -275,6 +275,7 @@
   "fix.label.disability.motor": "Discapacidad Motriz",
   "fix.label.barriers_shown_count": "TODO: {shown} of {total} Barriers Shown",
   "fix.label.files_shown_count": "TODO: {shown} of {total} Files Shown",
+  "fix.label.live_preview": "TODO: Live Preview",
   "fix.msg.no_error_preview": "Esta barrera de accesibilidad no fue encontrada, probablemente porque el contenido ha sido cambiado. Ninguna área va a ser resaltada y ningún cambio puede hacerse adentro de UDOIT.",
   "fix.button.download_file": "Descargar Archivo",
   "fix.button.view_in_lms": "Ver en el LMS",
@@ -665,6 +666,12 @@
   "rule.desc.list_markup_review": "",
   "rule.desc.list_structure_proper": "",
   "rule.info.list_markup_review": "Este texto parecer ser parte de una lista, pero no está marcado como tal. Si lo es, modifícalo en tu LMS usando las herramientas de listas. Si no lo es, puedes marcarlo como revisado.",
+
+  "form.file.title_media": "Los Archivos de Video y Audio Deben Tener Subtítulos",
+  "form.media.label.captions": "Subtítulos",
+  "form.media.label.video": "Vista Previa en Vivo",
+  "form.media.button.edit": "Editar Subtítulo",
+  "form.media.button.delete": "Eliminar Subtítulo",
 
   "form.media_captions.title": "El Contenido Multimedia Debe Tener Subtítulos y Transcripciones",
   "form.media_captions.summary": "Los archivos de video y audio deben tener subtítulos o transcripciones para asegurar que todos los usuarios puedan acceder al contenido, incluyendo a quienes tienen discapacidades auditivas o hablan diferentes idiomas.",

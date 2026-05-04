@@ -3,7 +3,11 @@ import WavesurferPlayer from "@wavesurfer/react";
 import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 import CaptionEditDialog from "./CaptionEditDialog";
+import AddIcon from "../Icons/AddIcon";
+import CaptionIcon from "../Icons/CaptionIcon";
+import DeleteIcon from "../Icons/DeleteIcon";
 import ProgressIcon from "../Icons/ProgressIcon";
+import SettingsIcon from "../Icons/SettingsIcon";
 import './MediaCaptions.css';
 import {
   parseVTT,
@@ -27,6 +31,7 @@ import useWaveformKeyboard from "./useWaveformKeyboard";
  */
 export default function MediaCaptionsEditor({
   t,
+  addMessage,
   lmsFileData,
   initialVideoUrl,
   initialVttText,
@@ -42,6 +47,7 @@ export default function MediaCaptionsEditor({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [error, setError] = useState("");
   const [activeRegion, setActiveRegion] = useState(-1);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const videoElRef = useRef(null);
   const wavesurferRef = useRef(null);
@@ -177,6 +183,20 @@ export default function MediaCaptionsEditor({
     []
   );
 
+  const sortCues = (tempCues = cues, activeId = cues[selectedIndex]?.id) => {
+    tempCues = Object.values(tempCues).sort((a, b) => vttToMS(a.start) - vttToMS(b.start));
+    setCues(tempCues);
+
+    let newIndex = tempCues.findIndex(c => c.id === activeId);
+    setSelectedIndex(newIndex);
+  }
+
+  const setVideoTime = (seconds) => {
+    const video = videoElRef.current;
+    if (!video) return;
+    video.currentTime = seconds;
+  };
+
   // ---- render regions whenever cues or selection changes
   useEffect(() => {
     const ws = wavesurferRef.current;
@@ -273,17 +293,20 @@ export default function MediaCaptionsEditor({
       if (typeof idx !== "number") return;
       if (!cues[idx]) return;
 
+      const activeCueId = cues[idx].id;
+
       const start = formatTimeVTT(region.start);
       const end = formatTimeVTT(region.end);
 
       // validate before applying
       if (vttToMS(start) >= vttToMS(end)) return;
 
-      setCues((prev) =>
-        prev.map((c, i) =>
-          i !== idx ? c : { ...c, start, end, duration: computeVTTDuration(start, end) }
-        )
-      );
+      let tempCues = cues.map((c, i) => {
+        if (i !== idx) return c;
+        return { ...c, start, end, duration: computeVTTDuration(start, end) };
+      })
+      sortCues(tempCues, activeCueId);
+      setVideoTime(region.start);
     };
 
     regionsPlugin.on("region-updated", handler);
@@ -304,6 +327,7 @@ export default function MediaCaptionsEditor({
       if (!video) return;
 
       const wasPlaying = !video.paused;
+      setCurrentTime(seekSeconds);
       video.currentTime = seekSeconds;
 
       const ws = wavesurferRef.current;
@@ -337,17 +361,23 @@ export default function MediaCaptionsEditor({
     const ws = wavesurferRef.current;
     if (ws && video.duration) ws.seekTo(next / video.duration);
 
-    if (video.paused) {
-      video.play();
-      setTimeout(() => video.pause(), 50);
-    }
+    // if (video.paused) {
+    //   video.play();
+    //   setTimeout(() => video.pause(), 50);
+    // }
   }, []);
 
   const playPause = useCallback(() => {
     const video = videoElRef.current;
     if (!video) return;
-    if (video.paused) video.play();
-    else video.pause();
+    if (video.paused) {
+      video.currentTime = currentTime;
+      video.play();
+    }
+    else {
+      setCurrentTime(video.currentTime);
+      video.pause();
+    }
   }, []);
 
   const playCurrent = useCallback(() => {
@@ -378,89 +408,92 @@ export default function MediaCaptionsEditor({
     return () => raf && cancelAnimationFrame(raf);
   }, [cues, selectedIndex]);
 
-  const insertCue = useCallback(() => {
+  const insertCue = useCallback((cueId, before = true, fromPlayer = false) => {
     const video = videoElRef.current;
     if (!video) return;
-    if (!video.duration) return;
 
     const currentTime = video.currentTime;
-    const defaultDuration = 1.0;
+    const defaultDuration = 2.0;
+    const defaultGap = 0;
 
     let insertAt = 0;
     let newStart = 0;
+    let newEnd = 0;
 
-    if (selectedIndex !== -1 && cues[selectedIndex]) {
-      const cue = cues[selectedIndex];
-      newStart = vttToMS(cue.end) / 1000;
-      insertAt = selectedIndex + 1;
-    } else {
-      const insideIndex = cues.findIndex((cue) => {
-        const s = vttToMS(cue.start) / 1000;
-        const e = vttToMS(cue.end) / 1000;
-        return currentTime >= s && currentTime <= e;
-      });
-
-      if (insideIndex !== -1) {
-        const cue = cues[insideIndex];
-        newStart = vttToMS(cue.end) / 1000;
-        insertAt = insideIndex + 1;
-      } else {
+    // Special case: the first caption added OR inserting from the player without a cueId.
+    if (cueId === -1) {
+      if(fromPlayer) {
         newStart = currentTime;
-        insertAt = cues.findIndex((cue) => vttToMS(cue.start) / 1000 > currentTime);
-        if (insertAt === -1) insertAt = cues.length;
+        newEnd = currentTime + defaultDuration;
+      }
+      else {
+        newStart = 0;
+        newEnd = defaultDuration;
       }
     }
 
-    const newEnd = Math.min(newStart + defaultDuration, video.duration);
-
-    setCues((prev) => {
-      const next = prev.slice();
-      // Don't mutate nextCue in place!
-      const nextCue = next[insertAt];
-      if (nextCue) {
-        const nextStart = vttToMS(nextCue.start) / 1000;
-        const nextEnd = vttToMS(nextCue.end) / 1000;
-        if (nextStart < newEnd) {
-          const trimmedStart = newEnd;
-          if (trimmedStart >= nextEnd) {
-            next.splice(insertAt, 1);
-          } else {
-            next[insertAt] = {
-              ...nextCue,
-              start: formatVTTTime(trimmedStart),
-              duration: (nextEnd - trimmedStart).toFixed(3),
-            };
-          }
+    // If inserting near an existing cue, use that as a reference for start/end times
+    else if (cues[cueId]) {
+      if (before) {
+        newEnd = vttToMS(cues[cueId].start) / 1000 - defaultGap;
+        newStart = Math.max(0, newEnd - defaultDuration);
+        if (cues[cueId - 1]) {
+          let previousEnd = vttToMS(cues[cueId - 1].end) / 1000;
+          newStart = Math.max(newStart, previousEnd + defaultGap);
         }
       }
-      const newCue = {
-        index: insertAt + 1,
-        id: `cue-${Date.now()}-${cueIdCounter}`,
-        start: formatVTTTime(newStart),
-        end: formatVTTTime(newEnd),
-        duration: (newEnd - newStart).toFixed(3),
-        text: "",
-        position: 50,
-        align: "center",
-      };
-      next.splice(insertAt, 0, newCue);
-      // Re-index
-      return next.map((cue, i) => ({ ...cue, index: i + 1 }));
-    });
+      else {
+        newStart = vttToMS(cues[cueId].end) / 1000 + defaultGap;
+        newEnd = newStart + defaultDuration;
+        if (cues[cueId + 1]) {
+          let nextStart = vttToMS(cues[cueId + 1].start) / 1000;
+          newEnd = Math.min(newEnd, nextStart - defaultGap);
+        }
+      }
+    }
+
+    else {
+      console.warn("Cue ID not found:", cueId);
+      return;
+    }
+
+    let duration = newEnd - newStart;
+    if (duration <= 0) {
+      addMessage({ message: "No room to insert caption.", severity: "alert", visible: true });
+      return;
+    }
+
+    const insertedCueId = `cue-${Date.now()}-${cueIdCounter}`;
     setCueIdCounter((c) => c + 1);
-    setSelectedIndex(insertAt);
+
+    const newCue = {
+      id: insertedCueId,
+      start: formatVTTTime(newStart),
+      end: formatVTTTime(newEnd),
+      duration: (newEnd - newStart).toFixed(3),
+      text: "",
+      position: 50,
+      align: "center",
+    }
+
+    let tempCues = Object.assign({}, cues, { [cues.length]: newCue });
+    sortCues(tempCues, insertedCueId);
+
+    return;
   }, [cues, selectedIndex, cueIdCounter]);
 
-  const deleteCue = useCallback(() => {
-    if (selectedIndex < 0 || !cues[selectedIndex]) return;
+  const deleteCue = useCallback((cueId) => {
+    let tempCues = cues.filter((c, i) => i !== cueId);
+    
+    if(tempCues[cueId - 1]) {
+      setSelectedIndex(cueId - 1);
+    }
+    else {
+      setSelectedIndex(-1);
+    }
 
-    setCues((prev) => {
-      const next = prev.slice();
-      next.splice(selectedIndex, 1);
-      return next.map((cue, i) => ({ ...cue, index: i + 1 }));
-    });
-    setSelectedIndex(-1);
-  }, [cues, selectedIndex]);
+    setCues(tempCues);
+  }, [cues]);
 
   const onSave = useCallback(() => {
     const vttText = buildVttText(cues);
@@ -483,17 +516,17 @@ export default function MediaCaptionsEditor({
   }, [cues, onSaveVtt]);
 
   const onWaveWheel = useCallback((e) => {
-    e.preventDefault();
-    const video = videoElRef.current;
-    if (!video?.duration) return;
+    // e.preventDefault();
+    // const video = videoElRef.current;
+    // if (!video?.duration) return;
 
-    const delta = e.deltaY < 0 ? 1 : -1;
-    let newTime = video.currentTime + delta * 0.2;
-    newTime = Math.max(0, Math.min(video.duration, newTime));
-    video.currentTime = newTime;
+    // const delta = e.deltaY < 0 ? 1 : -1;
+    // let newTime = video.currentTime + delta * 0.2;
+    // newTime = Math.max(0, Math.min(video.duration, newTime));
+    // video.currentTime = newTime;
 
-    const ws = wavesurferRef.current;
-    if (ws && video.duration) ws.seekTo(newTime / video.duration);
+    // const ws = wavesurferRef.current;
+    // if (ws && video.duration) ws.seekTo(newTime / video.duration);
   }, []);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -578,8 +611,9 @@ export default function MediaCaptionsEditor({
           </div>
         </div>
       }
-      <div inert={isLoading ? 'true' : undefined} id="media-captions-editor">
-        <div className="flex-row flex-wrap gap-3 align-items-center">
+      <div inert={isLoading ? true : undefined} id="media-captions-editor">
+
+        <div id="captions-editor-info-row">
           <label>
             Load Video{" "}
             <input
@@ -604,58 +638,111 @@ export default function MediaCaptionsEditor({
           </button>
         </div>
         <div id="captions-editor-main-row">
-          {/* Left: table without custom focus rules */}
+
           <div
             id="table-focus-layer"
-            aria-label="Captions List"
           >
-            <ul aria-label="Caption list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            <h3 id="captions-list-label" className="m-0">{t("form.media.label.captions")}</h3>
+            {cues.length === 0 && (
+              <div className="insert-button-container">
+                <button
+                  className="btn-icon-left btn-secondary btn-small"
+                  onClick={() => insertCue(-1)}
+                  aria-label={t('form.media.button.add')}
+                  title={t('form.media.button.add')}
+                >
+                  <AddIcon aria-hidden="true" className="icon-md" />
+                  Insert New Caption    
+                </button>
+              </div>
+            )}
+            <ul aria-labelledby="captions-list-label">
               {cues.map((cue, i) => {
-                const active = i === selectedIndex;
+
+                const firstCaption = i === 0;
+                const lastCaption = i === cues.length - 1;
+                const active = selectedIndex === i;
+
                 return (
                   <li
                     key={cue.id || i}
-                    id={`cue-row-${i}`}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      marginBottom: 8,
-                      background: active ? "#3296ff59" : undefined,
-                      borderRadius: 4,
-                      padding: 4,
-                    }}
-                    onClick={() => {
-                      setSelectedIndex(i);
-                      selectCue(i, vttToMS(cue.start) / 1000);
-                    }}
-                    role="group"
-                    aria-label={`Caption ${i + 1}`}
-                  >
-                    <input
-                      id={`cue-field-${i}-0`}
-                      type="text"
-                      defaultValue={cue.text}
-                      disabled={isDisabled}
-                      style={{ flex: 2, minWidth: 0 }}
-                      aria-label={`Caption ${i + 1} text`}
-                      onBlur={(e) => updateCueText(i, e.target.value)}
-                      onFocus={() => setSelectedIndex(i)}
-                    />
-                    <button
-                      type="button"
-                      aria-label={`Edit details for caption ${i + 1}`}
-                      disabled={isDisabled}
-                      style={{ marginLeft: 8 }}
-                      ref={el => (editButtonRefs.current[i] = el)}
-                      onClick={() => {
-                        setDialogOpen(true);
-                        setDialogCueIndex(i);
-                      }}
-                      onFocus={() => setSelectedIndex(i)}
                     >
-                      Edit
-                    </button>
+                    {(active || firstCaption) && (
+                      <div className={"insert-button-container mb-2" + (!firstCaption ? " mt-3" : "")}>
+                        <button
+                          className="btn-icon-only btn-secondary btn-small"
+                          onClick={() => insertCue(i)}
+                          aria-label={t('form.media.button.add')}
+                          title={t('form.media.button.add')}
+                        >
+                          <AddIcon aria-hidden="true" className="icon-md" />
+                        </button>
+                      </div>
+                    )}
+                    <div
+                      id={`cue-row-${i}`}
+                      className={`cue-row${active ? " active" : ""}`}
+                      onClick={(e) => {
+                        setSelectedIndex(i);
+                        selectCue(i, vttToMS(cue.start) / 1000);
+                      }}
+                      role="group"
+                      aria-label={`Caption ${i + 1}`}
+                    >
+                      <input
+                        id={`cue-field-${i}-0`}
+                        type="text"
+                        defaultValue={cue.text}
+                        disabled={isDisabled}
+                        style={{ flex: 2, minWidth: 0 }}
+                        aria-label={`Caption ${i + 1} text`}
+                        onBlur={(e) => updateCueText(i, e.target.value)}
+                        onFocus={() => setSelectedIndex(i)}
+                      />
+                      {/* <button
+                        type="button"
+                        aria-label={`Edit details for caption ${i + 1}`}
+                        disabled={isDisabled}
+                        style={{ marginLeft: 8 }}
+                        ref={el => (editButtonRefs.current[i] = el)}
+                        onClick={() => {
+                          setDialogOpen(true);
+                          setDialogCueIndex(i);
+                        }}
+                        onFocus={() => setSelectedIndex(i)}
+                      >
+                        Edit
+                      </button> */}
+                      <button
+                        className="btn-small btn-icon-only btn-link"
+                        aria-label={t('form.media.button.edit')}
+                        title={t('form.media.button.edit')}
+                        onFocus={() => setSelectedIndex(i)}
+                      >
+                        <SettingsIcon aria-hidden="true" className="icon-md" />
+                      </button>
+                      <button
+                        className="btn-small btn-icon-only btn-link"
+                        aria-label={t('form.media.button.delete')}
+                        title={t('form.media.button.delete')}
+                        onFocus={() => setSelectedIndex(i)}
+                        onClick={() => deleteCue(i)}
+                      >
+                        <DeleteIcon aria-hidden="true" className="icon-md" />
+                      </button>
+                    </div>
+                    {(active || lastCaption) && (
+                      <div className="insert-button-container mb-3">
+                        <button
+                          className="btn-icon-only btn-secondary btn-small"
+                          onClick={() => insertCue(i, false)}
+                          aria-label={t('form.media.button.add')}
+                          title={t('form.media.button.add')}
+                        >
+                          <AddIcon aria-hidden="true" className="icon-md" />
+                        </button>
+                      </div>
+                    )}
                   </li>
                 );
               })}
@@ -665,6 +752,7 @@ export default function MediaCaptionsEditor({
 
           {/* Right: video + controls */}
           <div id="video-focus-layer">
+            <h3 className="m-0">{t("fix.label.live_preview")}</h3>
             <div id="video-container">
               <video
                 ref={videoElRef}
@@ -674,7 +762,7 @@ export default function MediaCaptionsEditor({
               />
             </div>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <div id="video-controls-container">
               <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(-1)}>
                 ◀◀ 1s
               </button>

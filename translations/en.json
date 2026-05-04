@@ -275,6 +275,7 @@
   "fix.label.disability.motor": "Motor Impaired",
   "fix.label.barriers_shown_count": "{shown} of {total} Barriers Shown",
   "fix.label.files_shown_count": "{shown} of {total} Files Shown",
+  "fix.label.live_preview": "Live Preview",
   "fix.msg.no_error_preview": "This accessibility barrier cannot be found, likely because the content has been changed. No areas will be highlighted and no changes can be made inside of UDOIT.",
   "fix.button.download_file": "Download File",
   "fix.button.view_in_lms": "View In LMS",
@@ -667,6 +668,12 @@
   "rule.desc.list_markup_review": "",
   "rule.desc.list_structure_proper": "",
   "rule.info.list_markup_review": "",
+
+  "form.media.title": "Video and Audio Files Must Have Captions",
+  "form.media.label.captions": "Captions",
+  "form.media.button.add": "Add Caption",
+  "form.media.button.edit": "Edit Caption",
+  "form.media.button.delete": "Delete Caption",
 
   "form.media_captions.title": "Media Should Have Captions and Transcripts",
   "form.media_captions.summary": "Videos and audio files should have captions or transcripts to ensure that all users can access the content, including those with hearing disabilities or those who speak different languages.",

@@ -6,6 +6,7 @@ export default function MediaCaptionsForm({
   t,
   settings,
   activeIssue,
+  addMessage,
   isDisabled
 }) {
   const [showModal, setShowModal] = useState(false)
@@ -79,6 +80,7 @@ export default function MediaCaptionsForm({
             </button>
             <MediaCaptionsEditor
               t={t}
+              addMessage={addMessage}
               initialVideoUrl={initialVideoUrl}
               initialMatch={initialMatch}
             />

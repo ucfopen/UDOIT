@@ -81,7 +81,7 @@ export default function ReviewFilesPage({
   const [markDelete, setMarkDelete] = useState(false)
   const [markRevert, setMarkRevert] = useState(false)
 
-
+  const [modalTitle, setModalTitle] = useState('')
   const [formInvalid, setFormInvalid] = useState(true)
   const [uploadedFile, setUploadedFile] = useState(null)
 
@@ -296,7 +296,7 @@ export default function ReviewFilesPage({
 
       setFileContentReferences(tempContentReferences)
       setFileSectionReferences(tempSectionRefereces)
-
+      setModalTitle(getModalTitle(activeIssue.fileData?.fileType))
     }
 
     setTempActiveIssue(activeIssueClone)
@@ -363,12 +363,6 @@ useEffect(() => {
     }
   }, [widgetState])
 
-  const isDialogOpen = () => {
-    const dialog = document.getElementById(dialogId)
-    return dialog && dialog.open
-  }
-
-
   const openDialog = () => {
     setWidgetState(WIDGET_STATE.FIXIT)
     setModalActive(true)
@@ -378,6 +372,14 @@ useEffect(() => {
     setWidgetState(WIDGET_STATE.LIST)
     setModalActive(false)
     setActiveIssue(null)
+  }
+
+  const getModalTitle = (fileType) => {
+    if(fileType === 'video' || fileType === 'audio') {
+      return t('form.media.title')
+    }
+    
+    return t('form.file.title')
   }
 
   const getFileTypeDisplay = (fileType) => {
@@ -990,13 +992,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         >
         <div className='flex-column h-100'>
           <div className='dialog-header'>
-            <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
+            <h2 id="ufixit-dialog-title" tabIndex="-1">{modalTitle}</h2>
             <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-md" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
           <div className="dialog-content">
             {activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio' ? (
               <MediaCaptionsEditor
                 t={t}
+                addMessage={addMessage}
                 lmsFileData={activeIssue?.fileData}
               />
             ) : (
