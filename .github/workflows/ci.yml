@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - quickfix-dockerfile-image-build
       - 'stable/*'
 
 env:
