@@ -12,10 +12,10 @@ use App\Services\UtilityService;
 use App\Services\InitialStateService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Asset\Packages;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
 {

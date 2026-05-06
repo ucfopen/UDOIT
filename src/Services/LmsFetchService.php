@@ -8,11 +8,9 @@ use App\Entity\FileItem;
 use App\Entity\Issue;
 use App\Entity\Report;
 use App\Entity\User;
-use App\Services\LmsApiService;
-use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
+use App\Services\LmsApiService;
 use App\Services\ScannerService;
-use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -22,9 +20,6 @@ class LmsFetchService {
     protected $lmsApi;
 
     protected $lmsUser;
-
-    /** @var PhpAllyService $phpAllyService */
-    private $phpAlly;
 
     /** @var ScannerService $scannerService */
     private $scanner;
@@ -44,7 +39,6 @@ class LmsFetchService {
     public function __construct(
         LmsApiService $lmsApi,
         LmsUserService $lmsUser,
-        PhpAllyService $phpAlly,
         EqualAccessService $equalAccess,
         ScannerService $scanner,
         ManagerRegistry $doctrine,
@@ -53,7 +47,6 @@ class LmsFetchService {
     {
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
-        $this->phpAlly = $phpAlly;
         $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
         $this->scanner = $scanner;
@@ -109,7 +102,7 @@ class LmsFetchService {
             $this->deleteContentItemIssues($contentItems);
 
             $output->writeln("Scanning ". count($contentItems) . " content items now...");
-            /* Step 4: Process the updated content with PhpAlly and link to report */
+            /* Step 4: Process the updated content and link to report */
             $this->scanContentItems($contentItems);
 
             $output->writeln("Updating report now...");
@@ -225,7 +218,7 @@ class LmsFetchService {
     }
 
 
-    // Performs PHPAlly scan on each Content Item.
+    // Performs scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
@@ -254,15 +247,15 @@ class LmsFetchService {
 
                 if ($report) {
                     // TODO: Do something with report errors
-                    if (count($report->getErrors())) {
-                        foreach ($report->getErrors() as $error) {
+                    if (count($report->errors)) {
+                        foreach ($report->errors as $error) {
                             $msg = $error . ', item = #' . $contentItem->getId();
                             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
                         }
                     }
 
                     // Add Issues to report
-                    foreach ($report->getIssues() as $issue) {
+                    foreach ($report->issues as $issue) {
                         if(isset($issue->isGeneric)) {
                           $this->createGenericIssue($issue, $contentItem);
                         }
@@ -280,22 +273,10 @@ class LmsFetchService {
         $this->doctrine->getManager()->flush();
     }
 
-    public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
+    public function createIssue($issue, ContentItem $contentItem)
     {
         $issueEntity = new Issue();
-        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
         $issueType = self::ISSUE_TYPE_ERROR;
-
-        if (isset($meta['SUGGESTION_RULES'])) {
-            if (isset($meta['SUGGESTION_RULES'][$issue->getRuleId()])) {
-                $issueType = self::ISSUE_TYPE_SUGGESTION;
-            }
-        }
-        if (isset($_ENV['PHPALLY_SUGGESTION_RULES'])) {
-            if (strpos($_ENV['PHPALLY_SUGGESTION_RULES'], $issue->getRuleId()) !== false) {
-                $issueType = self::ISSUE_TYPE_SUGGESTION;
-            }
-        }
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess') {

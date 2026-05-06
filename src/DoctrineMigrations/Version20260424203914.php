@@ -20,7 +20,7 @@ final class Version20260424203914 extends AbstractMigration
     public function up(Schema $schema): void
     {
         
-        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE users ADD preferences JSON DEFAULT NULL');
         $this->addSql(<<<SQL
@@ -57,7 +57,7 @@ final class Version20260424203914 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql(<<<SQL
             UPDATE users

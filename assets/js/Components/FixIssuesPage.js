@@ -103,11 +103,9 @@ export default function FixIssuesPage({
   const formatIssueData = (issue) => {
 
     let issueSeverity = FILTER.ISSUE
-    // PHPAlly returns a type of 'error' or 'suggestion'
-    if(issue.type === 'suggestion' || issue.type === 'SUGGESTION') {
-      issueSeverity = FILTER.SUGGESTION
-    }
-    else if(issue.type === 'potential' || issue.type === 'POTENTIAL' || issue.type === 'MANUAL') {
+    let issueType = issue.type.toLowerCase()
+
+    if(issueType === 'suggestion' || issueType === 'potential' || issueType === 'manual') {
       issueSeverity = FILTER.POTENTIAL
     }
     
@@ -115,10 +113,9 @@ export default function FixIssuesPage({
     let issueSectionIds = []
     let issueSectionNames = []
     let published = true
-
-    // PHPAlly returns a contentItemId that we can use to get the content type
-    let tempContentItem = getContentById(issue.contentItemId)
     let parentLmsId = null
+    let tempContentItem = getContentById(issue.contentItemId)
+
     if(tempContentItem) {
       let tempContentType = tempContentItem.contentType
 
@@ -156,8 +153,9 @@ export default function FixIssuesPage({
       }
     }
 
+    // A status of 0 in the database means "active" (unresolved barriers and unreviewed files).
     let issueResolution = FILTER.ACTIVE
-    // PHPAlly returns a status of 1 for fixed issues and 2 for resolved issues
+    
     if(issue.status == 1) {
       issueResolution = FILTER.FIXED
     }
@@ -426,12 +424,7 @@ export default function FixIssuesPage({
   const getFilteredContent = (allIssues, includedIssueId = null) => {
     let filteredList = []
     const tempFilters = Object.assign({}, activeFilters)
-
-    // PHPAlly Issues have a 'type' of 'error' or 'suggestion'
-    // // Check for easy issues filter
-    // if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
-    //   tempFilters.issueTitles = easyRules
-    // }
+    
     // Loop through the issues
 
     for (const issue of allIssues) {
