@@ -65,15 +65,6 @@ class EqualAccessService {
 
             // Check if the rule is one we skip.
             if (!in_array($equalAccessRule, $skipRules)) {
-              // Populate the issue counts field with how many total issues
-              // with the specific rule are found
-              if (array_key_exists($equalAccessRule, $issueCounts)) {
-                  $issueCounts[$equalAccessRule]++;
-              }
-              else {
-                  $issueCounts[$equalAccessRule] = 1;
-              }
-
               $reasonId = $results["reasonId"];
               $message = $results["message"];
               $messageArgs = $results["messageArgs"];
@@ -81,16 +72,13 @@ class EqualAccessService {
 
               $metadata = $this->createMetadata($reasonId, $message, $messageArgs, $value);
               
-              // $issue = new PhpAllyIssue($equalAccessRule, $issueHtml, $parentIssueHtml, $metadata);
               $issue = (object) [
                 'isGeneric' => true,
                 'scanRuleId' => $equalAccessRule,
                 'xpath' => $xpathQuery,
                 'metadata' => $metadata,
               ];
-              $report->setIssueCounts($equalAccessRule, $issueCounts[$equalAccessRule], -1);
               array_push($issues, $issue);
-              $report->setErrors([]);
             }
           }
         }
