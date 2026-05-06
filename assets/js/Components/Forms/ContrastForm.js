@@ -22,6 +22,10 @@ export default function ContrastForm({
   setFormErrors
 }) {
 
+  const FORM_OPTIONS = {
+    SET_COLOR: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE
+  }
+
   const GRADIENT_KEYWORDS = new Set([
     'linear', 'radial', 'repeating-linear', 'repeating-radial', 'gradient',
     'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'

@@ -56,7 +56,9 @@ class EqualAccessService {
         $issues = array();
         $skipRules = $this->getSkipRules();
         
-        foreach ($json["results"] as $results) {
+        if (array_key_exists("results", $json)) {
+            
+          foreach ($json["results"] as $results) {
             $equalAccessRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
             $metadata = null;
