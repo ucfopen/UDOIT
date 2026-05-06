@@ -31,10 +31,6 @@ export default function ContrastForm({
     'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'
   ]);
 
-  const FORM_OPTIONS = {
-    SET_COLOR: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE
-  }
-
   // Extract color strings from a CSS background value, handling nested color functions
   const extractColors = (str) => {
     const COLOR_FUNCTIONS = new Set([
