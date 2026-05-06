@@ -22,7 +22,7 @@ down:
 	docker compose -f docker-compose.nginx.yml down
 
 # rebuild the containers from the ground up
-build:
+rebuild:
 	docker compose -f docker-compose.nginx.yml up --build
 
 # clear the Symfony cache
