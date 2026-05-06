@@ -294,6 +294,8 @@
       }
 
       td {
+        padding: .5rem;
+
         &[textalign='end'] div {
           text-align: right;
         }
