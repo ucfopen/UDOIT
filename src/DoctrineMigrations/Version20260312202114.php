@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20260312202114 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform), 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql("DELETE FROM issue WHERE content_item_id IN (
             SELECT ci.id FROM content_item ci
@@ -70,7 +71,7 @@ final class Version20260312202114 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+        $this->skipIf(!($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform), 'Migration can only be executed safely on \'mysql\'.');
         $this->addSql('ALTER TABLE course DROP FOREIGN KEY FK_169E6FB9FE3F90C9');
         $this->addSql('ALTER TABLE course DROP FOREIGN KEY FK_169E6FB9C338CE2B');
         $this->addSql('DROP INDEX unique_course_id_institution_id_combination ON course');
