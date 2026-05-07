@@ -3,17 +3,13 @@
 namespace App\Services;
 
 use App\Entity\ContentItem;
-
-use App\Services\PhpAllyService;
+use App\Response\ApiResponse;
 use App\Services\EqualAccessService;
-
 use App\Services\HtmlService;
+use App\Services\LocalApiAccessibilityService;
 use App\Services\UtilityService;
 
-use App\Response\ApiResponse;
-use App\Services\LocalApiAccessibilityService;
-
-// Main scanner class, expects a phpAlly-styled JSON report from whichever scanner is run
+// Main scanner class, expects a JSON report from whichever scanner is run
 
 class ScannerService {
 
@@ -45,15 +41,8 @@ class ScannerService {
         $response = new ApiResponse();
 
         try {
-            if ($scanner == 'phpally') {
-                // TODO: implement flow for phpally scanning
-                $htmlService = new HtmlService();
-                $phpAlly = new PhpAllyService($htmlService, $util);
-                $report = $phpAlly->scanContentItem($contentItem);
-            }
-            else if ($scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda' || $scanner == 'equalaccess') {
+            if ($scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda' || $scanner == 'equalaccess') {
                 $equalAccess = new EqualAccessService();
-
                 $localService = new LocalApiAccessibilityService();
                 $json = $localService->scanContentItem($contentItem);
                 $report = $equalAccess->generateReport($json);

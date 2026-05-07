@@ -14,6 +14,8 @@ export default function ContrastForm({
   activeIssue,
   isDisabled,
   handleActiveIssue,
+  handleIssueSave,
+  markAsReviewed,
   activeOption,
   setActiveOption,
   formErrors,
@@ -27,7 +29,7 @@ export default function ContrastForm({
   const GRADIENT_KEYWORDS = new Set([
     'linear', 'radial', 'repeating-linear', 'repeating-radial', 'gradient',
     'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'
-  ])
+  ]);
 
   // Extract color strings from a CSS background value, handling nested color functions
   const extractColors = (str) => {

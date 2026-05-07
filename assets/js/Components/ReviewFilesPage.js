@@ -418,13 +418,6 @@ useEffect(() => {
     let filteredList = []
     const tempFilters = Object.assign({}, activeFilters)
 
-    // PHPAlly Issues have a 'type' of 'error' or 'suggestion'
-    // // Check for easy issues filter
-    // if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
-    //   tempFilters.issueTitles = easyRules
-    // }
-    // Loop through the issues
-
     for (const issue of allIssues) {
 
       // When we have just saved or resolved an issue, we want to keep that one in the list

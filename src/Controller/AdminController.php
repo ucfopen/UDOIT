@@ -16,9 +16,9 @@ use App\Services\UtilityService;
 use App\Repository\CourseUserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Asset\Packages;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -670,7 +670,7 @@ class AdminController extends ApiController
         $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
         $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
-        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'];
+        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : '';
 
         if (!($accountId = $this->session->get('lms_account_id'))) {
             $this->util->exitWithMessage('Account ID not found.');
@@ -698,7 +698,6 @@ class AdminController extends ApiController
             'accounts' => $accounts,
             'terms' => $simpleTerms,
             'defaultTerm' => $defaultTerm,
-            'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
         ];
     }
 
