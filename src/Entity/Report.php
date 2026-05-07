@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: "App\Repository\ReportRepository")]
+#[ORM\Table(name: 'report')]
 class Report implements \JsonSerializable
 {
     // Private Members

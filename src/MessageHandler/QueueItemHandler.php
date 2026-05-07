@@ -7,9 +7,10 @@ use App\Entity\User;
 use App\Message\QueueItemInterface;
 use App\Services\LmsFetchService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class QueueItemHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class QueueItemHandler
 {
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;

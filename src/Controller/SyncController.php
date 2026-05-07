@@ -6,22 +6,20 @@ use App\Entity\Course;
 use App\Entity\ContentItem;
 use App\Entity\User;
 use App\Repository\CourseRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use App\Repository\CourseUserRepository;
 use App\Repository\UserRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsFetchService;
-use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
 use App\Services\ScannerService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SyncController extends ApiController
 {
@@ -122,7 +120,6 @@ class SyncController extends ApiController
         $response = new ApiResponse();
         $course = $contentItem->getCourse();
         $user = $this->getUser();
-        $output = new ConsoleOutput();
 
         try {
             // Check if user has access to course
@@ -139,11 +136,9 @@ class SyncController extends ApiController
             $report = $scanner->scanContentItem($contentItem, null, $this->util);
 
             // Add rescanned Issues to database
-            foreach ($report->getIssues() as $issue) {
-                if (isset($issue->isGeneric)) {
-                    $lmsFetch->createGenericIssue($issue, $contentItem);
-                } else {
-                    $lmsFetch->createIssue($issue, $contentItem);
+            foreach ($report->issues as $issue) {
+                if(isset($issue->isGeneric)) {
+                  $lmsFetch->createGenericIssue($issue, $contentItem);
                 }
             }
 

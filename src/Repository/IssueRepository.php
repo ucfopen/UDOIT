@@ -24,8 +24,9 @@ class IssueRepository extends ServiceEntityRepository
     {
         $this->getEntityManager()->createQueryBuilder()
             ->delete(Issue::class, 'i')
-            ->where('i.contentItem = ?1 AND i.status = ?2')
-            ->setParameters([1 => $contentItem, 2 => Issue::$issueStatusActive])
+            ->where('i.contentItem = :contentItem AND i.status = :status')
+            ->setParameter('contentItem', $contentItem)
+            ->setParameter('status', Issue::$issueStatusActive)
             ->getQuery()
             ->getResult();
     }
