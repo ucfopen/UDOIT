@@ -9,6 +9,7 @@ import SeverityIcon from './Icons/SeverityIcon'
 import SummaryIcon from './Icons/SummaryIcon'
 import * as Html from '../Services/Html'
 import './HomePage.css'
+import CheckIcon from './Icons/CheckIcon'
 
 export default function HomePage({
   t,
@@ -189,9 +190,17 @@ export default function HomePage({
           <div className={`resolution-container flex-column type-` + `${panel.type.toLowerCase()}` + `${emphasis === panel.type ? ' emphasis' : ''}`} key={"panel-" + panel.type}>
             
             <div className="flex-row gap-3 w-100">
-              <div className='summary-icon-container' aria-hidden="true">
-                <SeverityIcon type={panel.type} className='icon-lg' />
-              </div>
+              {panel.counter.percent === 100 ? (
+                <div className='summary-icon-container completed' aria-hidden="true">
+                  <CheckIcon className="icon-lg color-success"/>
+                  {console.log(`This section, ${panel.type} is complete (${panel.counter.percent}%, displaying check icon)`)}
+                </div>
+                ) : 
+                <div className='summary-icon-container' aria-hidden="true">
+                  <SeverityIcon type={panel.type} className='icon-lg' />
+                  {console.log(`This section, ${panel.type} is not complete (${panel.counter.percent}%, displaying severity icon`)} 
+                </div>
+              }
               <div className="summary-text-container">
                 <h2 className="mt-0">{t('summary.label.' + panel.translationKey)}</h2>
                 <div aria-label={Html.getTextContent('<p>' + t('summary.' + panel.translationKey + '.description', {count: panel.counter.total}) + '</p>')}>
@@ -208,8 +217,9 @@ export default function HomePage({
                 </div>
 
                 <div className="progress-bar-container mt-1">
-                  <div className="progress-bar-fill" style={{width: `${panel.counter.percent}%`}}></div>
+                  <div className={`progress-bar-fill ${panel.counter.percent === 100 ? `completed` : ``}`} style={{width: `${panel.counter.percent}%`}}></div>
                 </div>
+                {/* {console.log(`Progress Bar percentage for ${panel.type} is ${panel.counter.percent}%`)} */}
 
                 <button className="btn-secondary btn-icon-right justify-content-center mt-2"
                   aria-label={t('summary.label.' + panel.translationKey)}
