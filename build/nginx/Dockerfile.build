@@ -1,4 +1,4 @@
-FROM php:8.4.2-fpm
+FROM php:8.5-fpm
 
 RUN apt-get update -y \
     && apt-get install -y nginx libpng-dev zlib1g-dev git unzip
@@ -7,7 +7,6 @@ RUN apt-get update -y \
 ENV PHP_CPPFLAGS="$PHP_CPPFLAGS -std=c++17"
 
 RUN docker-php-ext-install pdo_mysql gd pdo \
-    && docker-php-ext-install opcache \
     && apt-get install libicu-dev -y \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \

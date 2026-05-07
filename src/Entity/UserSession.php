@@ -8,6 +8,7 @@ use Symfony\Component\Uid\Uuid;
 
 
 #[ORM\Entity(repositoryClass: UserSessionRepository::class)]
+#[ORM\Table(name: 'user_session')]
 class UserSession implements JsonSerializable
 {
 

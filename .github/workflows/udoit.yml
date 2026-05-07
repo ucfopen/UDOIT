@@ -5,18 +5,26 @@ jobs:
   symfony:
     name: UDOIT (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
     runs-on: ${{ matrix.operating-system }}
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.4']
-        node-version: [20.19.0]
+        php-versions: ['8.5']
+        node-version: [24.14.0]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set Yarn version to 4.x
+        run: corepack prepare yarn@4.x --activate
 
         # This step now handles yarn caching as well
       - name: Use Node.js ${{ matrix.node-version }}
@@ -57,23 +65,23 @@ jobs:
       # - name: Yarn test
       #   run: yarn test
 
-      - name: Start and initialize Postgres
-        env:
-          DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
-        run: |
-          sudo systemctl start postgresql.service
-          sudo -u postgres psql -c "CREATE DATABASE udoit;"
-          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';"
-          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;"
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;"
-          php bin/console doctrine:migrations:migrate
+      # - name: Start and initialize Postgres
+      #   env:
+      #     DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
+      #   run: |
+      #     sudo systemctl start postgresql.service
+      #     sudo -u postgres psql -c "CREATE DATABASE udoit;"
+      #     sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';"
+      #     sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;"
+      #     sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;"
+      #     php bin/console doctrine:migrations:migrate
 
       - name: Create and populate MySQL database
         env:
           DATABASE_URL: mysql://root:root@localhost/udoit
         run: |
           sudo systemctl start mysql.service
-          php bin/console doctrine:database:create
+          mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS udoit;"
           php bin/console doctrine:migrations:migrate
 
       # Fix permissions before cleanup that may be used during 'Use Node' job
