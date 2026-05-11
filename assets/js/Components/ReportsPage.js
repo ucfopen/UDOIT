@@ -124,14 +124,14 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.POTENTIAL}} />)
           issue.type_display = t('filter.label.severity.potential')
         }
-        issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
+        issue.handled = issue.total - issue.active
         mergedIssues.push(issue)
       }
       else {
         let index = mergedIssues.findIndex((i) => i.label_display === issue.label_display)
         mergedIssues[index].total += issue.total
         mergedIssues[index].active += issue.active
-        mergedIssues[index].handled += (issue.fixed + issue.resolved > 0 ? 1 : 0)
+        mergedIssues[index].handled = (mergedIssues[index].total - mergedIssues[index].active)
       }
     })
 
