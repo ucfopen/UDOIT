@@ -285,6 +285,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   let sessionFiles = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
+  let tempContentResolved = 0
 
   const parser = new DOMParser()
   const fileReferences = {}
@@ -376,25 +377,30 @@ export function analyzeReport(report, ISSUE_STATE) {
     if(!issueIgnored) {
       activeIssues.push(issue)
 
-      if(issue.type === 'error') {
-        scanCounts.errors += 1
+      if(issue.status === 0) {
+        if(issue.type === 'error') {
+          scanCounts.errors += 1
+        }
+        else if(issue.type === 'potential') {
+          scanCounts.potentials += 1
+        }
+        else if(issue.type === 'suggestion') {
+          scanCounts.suggestions += 1
+        }
+
+        if(!(issue.scanRuleId in scanRules)) {
+          scanRules[issue.scanRuleId] = 1
+        }
+        else {
+          scanRules[issue.scanRuleId] += 1
+        }
       }
-      else if(issue.type === 'potential') {
-        scanCounts.potentials += 1
-      }
-      else if(issue.type === 'suggestion') {
-        scanCounts.suggestions += 1
+      else {
+        tempContentResolved += 1
       }
 
       if(!usedContentItems[issue.contentItemId] && report.contentItems[issue.contentItemId]) {
         usedContentItems[issue.contentItemId] = report.contentItems[issue.contentItemId]
-      }
-
-      if(!(issue.scanRuleId in scanRules)) {
-        scanRules[issue.scanRuleId] = 1
-      }
-      else {
-        scanRules[issue.scanRuleId] += 1
       }
     }
   })
@@ -439,7 +445,8 @@ export function analyzeReport(report, ISSUE_STATE) {
       }
     }
   })
-  
+  scanCounts.resolved = tempContentResolved
+
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
@@ -448,6 +455,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.sessionIssues = sessionIssues
   tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
+  tempReport.contentHandled = tempContentResolved
 
   return tempReport
 }
