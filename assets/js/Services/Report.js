@@ -285,6 +285,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   let sessionFiles = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
+  let tempContentResolved = 0
 
   const parser = new DOMParser()
   const fileReferences = {}
@@ -394,10 +395,13 @@ export function analyzeReport(report, ISSUE_STATE) {
           scanRules[issue.scanRuleId] += 1
         }
       }
+      else {
+        tempContentResolved += 1
+      }
 
       if(!usedContentItems[issue.contentItemId] && report.contentItems[issue.contentItemId]) {
         usedContentItems[issue.contentItemId] = report.contentItems[issue.contentItemId]
-      } 
+      }
     }
   })
 
@@ -441,7 +445,8 @@ export function analyzeReport(report, ISSUE_STATE) {
       }
     }
   })
-  
+  scanCounts.resolved = tempContentResolved
+
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
@@ -450,6 +455,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.sessionIssues = sessionIssues
   tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
+  tempReport.contentHandled = tempContentResolved
 
   return tempReport
 }
