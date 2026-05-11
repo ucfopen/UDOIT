@@ -246,6 +246,7 @@
   "fix.label.found_in": "Found in:",
   "fix.label.no_references": "Not found in any module",
   "fix.label.loading_content": "Loading Content",
+  "fix.label.error_media": "Unable to load media",
   "fix.label.feedback_error": "Error: {message}",
   "fix.label.feedback_caution": "Caution: {message}",
   "fix.label.file_name": "Name",

@@ -18,6 +18,7 @@ import {
   computeVTTDuration,
 } from "../../Services/Captions";
 import useWaveformKeyboard from "./useWaveformKeyboard";
+import SeverityIssueIcon from "../Icons/SeverityIssueIcon";
 
 /**
  * MediaCaptionsEditor
@@ -196,6 +197,12 @@ export default function MediaCaptionsEditor({
     if (!video) return;
     video.currentTime = seconds;
   };
+
+  const handleLoadError = (e) => {
+    console.error("Error loading media: ", e);
+    setError("Unable to load media.");
+    setIsLoading(false);
+  }
 
   // ---- render regions whenever cues or selection changes
   useEffect(() => {
@@ -611,6 +618,14 @@ export default function MediaCaptionsEditor({
           </div>
         </div>
       }
+      { error !== "" && (
+        <div id="captionsLoadingOverlay">
+          <div className="mt-1 mb-4 flex-row justify-content-center align-items-center flex-grow-1 gap-2">
+            <SeverityIssueIcon className="icon-lg udoit-issue" />
+            <h2>{t('fix.label.error_media')}</h2>
+          </div>
+        </div>
+      )}
       <div inert={isLoading ? true : undefined} id="media-captions-editor">
 
         <div id="captions-editor-info-row">
@@ -650,6 +665,7 @@ export default function MediaCaptionsEditor({
                   onClick={() => insertCue(-1)}
                   aria-label={t('form.media.button.add')}
                   title={t('form.media.button.add')}
+                  disabled={isDisabled || error !== ""}
                 >
                   <AddIcon aria-hidden="true" className="icon-md" />
                   Insert New Caption    
@@ -674,6 +690,7 @@ export default function MediaCaptionsEditor({
                           onClick={() => insertCue(i)}
                           aria-label={t('form.media.button.add')}
                           title={t('form.media.button.add')}
+                          disabled={isDisabled || error !== ""}
                         >
                           <AddIcon aria-hidden="true" className="icon-md" />
                         </button>
@@ -693,7 +710,7 @@ export default function MediaCaptionsEditor({
                         id={`cue-field-${i}-0`}
                         type="text"
                         defaultValue={cue.text}
-                        disabled={isDisabled}
+                        disabled={isDisabled || error !== ""}
                         style={{ flex: 2, minWidth: 0 }}
                         aria-label={`Caption ${i + 1} text`}
                         onBlur={(e) => updateCueText(i, e.target.value)}
@@ -718,6 +735,7 @@ export default function MediaCaptionsEditor({
                         aria-label={t('form.media.button.edit')}
                         title={t('form.media.button.edit')}
                         onFocus={() => setSelectedIndex(i)}
+                        disabled={isDisabled || error !== ""}
                       >
                         <SettingsIcon aria-hidden="true" className="icon-md" />
                       </button>
@@ -727,6 +745,7 @@ export default function MediaCaptionsEditor({
                         title={t('form.media.button.delete')}
                         onFocus={() => setSelectedIndex(i)}
                         onClick={() => deleteCue(i)}
+                        disabled={isDisabled || error !== ""}
                       >
                         <DeleteIcon aria-hidden="true" className="icon-md" />
                       </button>
@@ -738,6 +757,7 @@ export default function MediaCaptionsEditor({
                           onClick={() => insertCue(i, false)}
                           aria-label={t('form.media.button.add')}
                           title={t('form.media.button.add')}
+                          disabled={isDisabled || error !== ""}
                         >
                           <AddIcon aria-hidden="true" className="icon-md" />
                         </button>
@@ -759,67 +779,73 @@ export default function MediaCaptionsEditor({
                 src={videoUrl || undefined}
                 style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
                 controls={false}
+                onError={(e) => handleLoadError(e)}
               />
             </div>
 
-            <div id="video-controls-container">
-              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(-1)}>
-                ◀◀ 1s
-              </button>
-              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playPause}>
-                Play/Pause
-              </button>
-              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(1)}>
-                1s ▶▶
-              </button>
+            {error === "" && (
+              <div id="video-controls-container">
+                <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(-1)}>
+                  ◀◀ 1s
+                </button>
+                <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playPause}>
+                  Play/Pause
+                </button>
+                <button type="button" className="btn-secondary" disabled={isDisabled} onClick={() => seekBy(1)}>
+                  1s ▶▶
+                </button>
 
-              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playCurrent}>
-                Play Current
-              </button>
+                <button type="button" className="btn-secondary" disabled={isDisabled} onClick={playCurrent}>
+                  Play Current
+                </button>
 
-              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={insertCue}>
-                Insert
-              </button>
-              <button type="button" className="btn-secondary" disabled={isDisabled} onClick={deleteCue}>
-                Delete
-              </button>
-            </div>
+                <button type="button" className="btn-secondary" disabled={isDisabled} onClick={insertCue}>
+                  Insert
+                </button>
+                <button type="button" className="btn-secondary" disabled={isDisabled} onClick={deleteCue}>
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Waveform focus container */}
-        <div id="waveform-container">
-          <div
-            id="waveform"
-            ref={waveformFocusRef}
-            tabIndex={0}
-            aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
-            onKeyDown={onWaveformKeyDown}
-            onFocus={() => setWaveformFocused(true)}
-            onBlur={() => setWaveformFocused(false)}
-            style={{
-              outline: waveformFocused && waveKbLayer === 'wave' ? '3px solid #1976d2' : 'none',
-              boxShadow: waveformFocused && waveKbLayer === 'wave' ? '0 0 0 4px #90caf9' : 'none'
-            }}
-          >
-            <div onWheel={onWaveWheel}>
-              <WavesurferPlayer
-                key={videoUrl || "no-url"}
-                url={videoUrl || undefined}
-                height={120}
-                normalize
-                hideScrollbar
-                minPxPerSec={100}
-                interact={false}
-                waveColor="#595656ff"
-                progressColor="#1976d2"
-                plugins={plugins}
-                onReady={onWsReady}
-              />
+        { error === "" && (
+          <div id="waveform-container">
+            <div
+              id="waveform"
+              ref={waveformFocusRef}
+              tabIndex={0}
+              aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
+              onKeyDown={onWaveformKeyDown}
+              onFocus={() => setWaveformFocused(true)}
+              onBlur={() => setWaveformFocused(false)}
+              style={{
+                outline: waveformFocused && waveKbLayer === 'wave' ? '3px solid #1976d2' : 'none',
+                boxShadow: waveformFocused && waveKbLayer === 'wave' ? '0 0 0 4px #90caf9' : 'none'
+              }}
+            >
+              <div onWheel={onWaveWheel}>
+                <WavesurferPlayer
+                  key={videoUrl || "no-url"}
+                  url={videoUrl || undefined}
+                  height={120}
+                  normalize
+                  hideScrollbar
+                  minPxPerSec={100}
+                  interact={false}
+                  waveColor="#595656ff"
+                  progressColor="#1976d2"
+                  plugins={plugins}
+                  onReady={onWsReady}
+                  onError={(e) => handleLoadError(e)}
+                />
+              </div>
+              <div ref={timelineRef} />
             </div>
-            <div ref={timelineRef} />
           </div>
-        </div>
+        )}
 
         <CaptionEditDialog
           open={dialogOpen}
