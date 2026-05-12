@@ -5,7 +5,9 @@ import '../Widgets/FixIssuesFilters.css'
 
 export default function AdminFilters({
   t,
-  settings,
+  preferences,
+  accounts,
+  termInfo,
   filters,
   handleFilter,
   loadingContent,
@@ -16,26 +18,33 @@ export default function AdminFilters({
   const [accountOptions, setAccountOptions] = useState([])
   const [termOptions, setTermOptions] = useState([])
   
-  // When the "settings" are loaded, create the Account and Term dropdown options
+  // When "termInfo" and "accounts" are loaded, create the Account and Term dropdown options
   useEffect(() => {
-    let tempAccountOptions = []
-    for (const acct of Object.values(settings.accounts)) {
-      tempAccountOptions.push({
-        id: acct.id,
-        name: acct.name
-      })
-    }
-    setAccountOptions(tempAccountOptions)
+    if (accounts) {
+      let tempAccountOptions = []
+      const accountsArr = Object.values(accounts)
+      for (const acct of accountsArr) {
+        tempAccountOptions.push({
+          id: acct.id,
+          name: acct.name
+        })
+      }
 
-    let tempTermOptions = []
-    for (const [key, val] of Object.entries(settings.terms)) {
-      tempTermOptions.push({
-        id: key,
-        name: val,
-      })
+      setAccountOptions(tempAccountOptions)
     }
-    setTermOptions(tempTermOptions)
-  }, [settings])
+
+    if (termInfo) {
+      let tempTermOptions = []
+      const termsArr = Object.entries(termInfo.terms)
+      for (const [key, val] of termsArr) {
+        tempTermOptions.push({
+          id: key,
+          name: val,
+        })
+      }
+      setTermOptions(tempTermOptions)
+    }
+  }, [termInfo, accounts])
 
   const handleAccountSelect = (newValue) => {
     handleFilter({ accountId: newValue })

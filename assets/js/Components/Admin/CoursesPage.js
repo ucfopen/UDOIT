@@ -6,7 +6,7 @@ import ReportIcon from '../Icons/ReportIcon'
 
 export default function CoursePage({
   t,
-  settings,
+  instanceInfo,
   courses,
   searchTerm,
   handleCourseUpdate,
@@ -163,7 +163,7 @@ export default function CoursePage({
   }
 
   const handleScanClick = (course) => {
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     setIsAnyScanning(true)
     
     // For unscanned courses, course.id will be the LMS course ID (string/number)
@@ -283,7 +283,7 @@ export default function CoursePage({
 
   const checkForReport = (course) => {
     const newReportInterval = 5000
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     const courseId = course.udoitId || course.id
     const originalId = course.originalId  // Save the original ID for removal
 

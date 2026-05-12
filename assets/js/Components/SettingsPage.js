@@ -7,8 +7,9 @@ import './SettingsPage.css'
 
 export default function SettingsPage({
   t,
-  settings,
-  updateUserSettings,
+  instanceInfo,
+  preferences,
+  updateUserPreferences,
   textSpacing,
   setTextSpacing
 }) {
@@ -20,7 +21,7 @@ export default function SettingsPage({
 
   useEffect(() => {
     // Set up alert options
-    let currentAlertTimeout = settings?.user?.roles?.alert_timeout || settings.DEFAULT_USER_SETTINGS.ALERT_TIMEOUT
+    let currentAlertTimeout = preferences.alertTimeout
     setAlertOptions([
       { value: '5000', name: t('settings.option.alert_timeout.5s'), selected: currentAlertTimeout === '5000' },
       { value: '10000', name: t('settings.option.alert_timeout.10s'), selected: currentAlertTimeout === '10000' },
@@ -29,7 +30,7 @@ export default function SettingsPage({
     ])
 
     // Set up font size options
-    let currentFontSize = settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE
+    let currentFontSize = preferences.fontSize
     setFontSizeOptions([
       { value: 'font-small', name: t('settings.label.font_size.small'), selected: currentFontSize === 'font-small' },
       { value: 'font-medium', name: t('settings.label.font_size.medium'), selected: currentFontSize === 'font-medium' },
@@ -38,7 +39,7 @@ export default function SettingsPage({
     ])
 
     // Set up font family options
-    let currentFontFamily = settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY
+    let currentFontFamily = preferences.fontFamily
     setFontFamilyOptions([
       { value: 'sans-serif', name: t('settings.label.font_family.sans_serif'), selected: currentFontFamily === 'sans-serif' },
       { value: 'serif', name: t('settings.label.font_family.serif'), selected: currentFontFamily === 'serif' },
@@ -47,20 +48,18 @@ export default function SettingsPage({
     ])
 
     // Set up language options
-    let currentLanguage = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE
+    let currentLanguage = preferences.lang
     setLanguageOptions([
       { value: 'en', name: 'English', selected: currentLanguage === 'en' },
       { value: 'es', name: 'Español', selected: currentLanguage === 'es' }
     ])
-  }, [settings])
+  }, [preferences, t])
 
-  // For new users, the 'dark_mode' attribute may not be set, so we need to check if it exists before using it
-  // Because the values might be false, we need to differentiate between undefined and false
-  const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
+  const [darkMode, setDarkMode] = useState(preferences.darkMode)
 
   const handleDarkModeChange = (newValue) => {
     setDarkMode(newValue)
-    updateUserSettings({ "dark_mode": newValue })
+    updateUserPreferences({ "darkMode": newValue })
     if (newValue) {
       document.getElementById('app-container').classList.add('dark-mode')
     } else {
@@ -72,10 +71,10 @@ export default function SettingsPage({
     if(!id || !value) {
       return
     }
-    if(settings?.user?.roles[id] === value) {
+    if(preferences[id] === value) {
       return
     }
-    updateUserSettings({ [id]: value })
+    updateUserPreferences({ [id]: value })
   }
 
   const handleTextSpacingSlider = (e) => {
@@ -84,11 +83,11 @@ export default function SettingsPage({
     if(!id || !value) {
       return
     }
-    if(settings?.user?.roles[id] === value) {
+    if(preferences[id] === value) {
       return
     }
     setTextSpacing(value)
-    updateUserSettings({ [id]: value })
+    updateUserPreferences({ [id]: value })
   }
 
   return (
@@ -105,26 +104,26 @@ export default function SettingsPage({
             <label id='combo-label-font_size'>{t('settings.label.font_size')}</label>
             <Combobox
               handleChange={handleComboboxChange}
-              id='font_size'
+              id='fontSize'
               label=''
               options={fontSizeOptions}
-              settings={settings} />
+            />
           </div>
 
           <div className="settings-row">
             <label id='combo-label-font_family'>{t('settings.label.font_family')}</label>
             <Combobox
               handleChange={handleComboboxChange}
-              id='font_family'
+              id='fontFamily'
               label=''
               options={fontFamilyOptions}
-              settings={settings} />
+            />
           </div>
 
           <div className='settings-row'>
             <label id='slider-label-text_spacing'>Text Spacing</label>
             <input
-              id='text_spacing'
+              id='textSpacing'
               type='range'
               min='0'
               max='100'
@@ -154,10 +153,10 @@ export default function SettingsPage({
             <label id='combo-label-alert_timeout'>{t('settings.label.alert_timeout')}</label>
             <Combobox
               handleChange={handleComboboxChange}
-              id='alert_timeout'
+              id='alertTimeout'
               label=''
               options={alertOptions}
-              settings={settings} />
+            />
           </div>
           
           <div className="settings-row">
@@ -167,7 +166,7 @@ export default function SettingsPage({
               id='lang'
               label=''
               options={languageOptions}
-              settings={settings} />
+            />
           </div>
         </div>
       </div>
@@ -176,9 +175,9 @@ export default function SettingsPage({
         <div className="callout-container flex-column gap-2">
           <div>
             <h2 aria-label={t('udoit')}>
-              <img src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo} aria-hidden="true" className="udoit-logo"/>
+              <img src={preferences.darkMode ? UDOITLogoDark : UDOITLogo} aria-hidden="true" className="udoit-logo"/>
             </h2>
-            <div className="subtext version-number">{t('welcome.version')} {settings.versionNumber}</div>
+            <div className="subtext version-number">{t('welcome.version')} {instanceInfo.versionNumber}</div>
           </div>
           {/* <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.release_notes')}</a>
           <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.documentation')}</a> */}

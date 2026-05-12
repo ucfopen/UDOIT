@@ -8,7 +8,8 @@ import './WelcomePage.css'
 
 export default function WelcomePage({
   t,
-  settings,
+  instanceInfo,
+  preferences,
   syncComplete,
   setWelcomeClosed
 }) {
@@ -21,7 +22,7 @@ export default function WelcomePage({
         <div className="callout-container welcome-container">
           <h1 className="m-0 pt-3 pb-4 flex-row justify-content-center">
             <img
-              src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}
+              src={preferences.darkMode ? UDOITLogoDark : UDOITLogo}
               alt={t('udoit')}
               aria-label={t('udoit')}
               title={t('alt.UDOIT')}
@@ -56,7 +57,7 @@ export default function WelcomePage({
         
         <div className="welcome-footer flex-row justify-content-between ps-3 pe-3 gap-3">
           <div className="flex-column justify-content-center tagline">
-            {t('welcome.version')} {settings.versionNumber}
+            {t('welcome.version')} {instanceInfo.versionNumber}
           </div>
           <a href="https://ucfopen.github.io/" target="_blank" tabIndex="0" rel="noreferrer" className="tagline ps-2">
             <div className="flex-row">
@@ -64,7 +65,7 @@ export default function WelcomePage({
                 {t('welcome.product_tagline')}
               </div>
               <div className="flex-column justify-content-center ms-2">
-                <img src={settings?.user?.roles?.dark_mode ? UCFOpenLogoDark : UCFOpenLogo} alt={t('alt.UCF_Open')} className="logo-small"/>
+                <img src={preferences.darkMode ? UCFOpenLogoDark : UCFOpenLogo} alt={t('alt.UCF_Open')} className="logo-small"/>
               </div>
             </div>
           </a>

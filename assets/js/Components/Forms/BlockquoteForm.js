@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function BlockquoteForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -18,9 +18,9 @@ export default function BlockquoteForm({
  }) {
   
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    REMOVE_BLOCKQUOTE: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    REMOVE_BLOCKQUOTE: UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [textInputValue, setTextInputValue] = useState("")

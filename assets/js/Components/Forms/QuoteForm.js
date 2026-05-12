@@ -4,7 +4,6 @@ import * as Html from '../../Services/Html'
 
 export default function QuoteForm({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -197,7 +196,6 @@ export default function QuoteForm({
       )}
       <FormSaveOrReview
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}

@@ -4,7 +4,6 @@ import FormReviewOnly from './FormReviewOnly'
 
 export default function TemplateReviewOnlyForm({
   t,
-  settings, 
   activeIssue,
   isContentLoading,
   markAsReviewed,
@@ -17,12 +16,10 @@ export default function TemplateReviewOnlyForm({
       <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
       <FormExternalLink
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
       />
       <FormReviewOnly
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
         handleIssueSave={handleIssueSave}
         isContentLoading={isContentLoading}

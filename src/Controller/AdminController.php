@@ -13,6 +13,7 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use App\Services\InitialStateService;
 use App\Repository\CourseUserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,7 +90,8 @@ class AdminController extends ApiController
         UtilityService $util,
         SessionService $sessionService,
         LmsApiService $lmsApi,
-        CourseRepository $courseRepo): JsonResponse
+        CourseRepository $courseRepo,
+        InitialStateService $initialStateService): JsonResponse
     {
         $this->util = $util;
         $this->session = $sessionService->getSession();
@@ -101,9 +103,23 @@ class AdminController extends ApiController
             return new JsonResponse(['error' => 'Unauthenticated'], 401);
         }
 
+        $preferences = $initialStateService->getPreferences($user);
+
+        $lms = $lmsApi->getLms();
+
+        if (!($accountId = $this->session->get('lms_account_id'))) {
+            $this->util->exitWithMessage('Account ID not found.');
+        }
+ 
+        $accounts = $lms->getAccountData($user, $accountId);
+
         return new JsonResponse([
-            'settings' => $this->getSettings(),
-            'messages' => $this->util->getUnreadMessages(true),
+            'messages'     => $util->getUnreadMessages(true),
+            'preferences'  => $preferences,
+            'instanceInfo' => $initialStateService->getInstanceInfo($user),
+            'labels'       => $initialStateService->getLabels($preferences),
+            'accounts'     => $accounts,
+            'termInfo'     => $this->getTermInfo($accounts),
         ]);
     }
 
@@ -657,26 +673,11 @@ class AdminController extends ApiController
 
     /** PROTECTED FUNCTIONS **/
 
-    protected function getSettings(): array
+    protected function getTermInfo($accounts): array
     {
         $lms = $this->lmsApi->getLms();
-
-        /** @var User $user */
         $user = $this->getUser();
-        /** @var \App\Entity\Institution $institution */
-        $institution = $user->getInstitution();
-        $metadata = $institution->getMetadata();
-        /** $lang should be two letters, and match an available JSON file in the /translations folder. */
-        $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
-        $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
-        $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
-        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : '';
-
-        if (!($accountId = $this->session->get('lms_account_id'))) {
-            $this->util->exitWithMessage('Account ID not found.');
-        }
-
-        $accounts = $lms->getAccountData($user, $accountId);
+        
         $terms = $lms->getAccountTerms($user);
         $terms = $this->filterTermsByAccount($terms, $accounts);
         $defaultTerm = $this->getDefaultTerm($terms);
@@ -688,14 +689,6 @@ class AdminController extends ApiController
         }
 
         return [
-            'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
-            'user' => $user,
-            'institution' => $institution,
-            'roles' => $this->session->get('roles'),
-            'language' => $lang,
-            'labels' => $this->util->getTranslation($lang),
-            'excludedRuleIds' => $excludedRuleIds,
-            'accounts' => $accounts,
             'terms' => $simpleTerms,
             'defaultTerm' => $defaultTerm,
         ];
@@ -725,6 +718,7 @@ class AdminController extends ApiController
             'canScan' => true,
         ];
     }
+    
 
     protected function filterTermsByAccount($terms, $accounts) 
     {

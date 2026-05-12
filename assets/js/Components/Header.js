@@ -12,7 +12,7 @@ import './Header.css'
 
 export default function Header({
   t,
-  settings,
+  preferences,
   modalActive,
   navigation,
   handleNavigation,
@@ -79,7 +79,7 @@ export default function Header({
   return (
     <header role="banner" inert={modalActive ? "inert" : undefined} aria-hidden={!modalActive}>
       <a className="skip-link" href="#main-content">{t('menu.nav.skip_to_main')}</a>
-      <img alt={t('alt.UDOIT')} src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}></img>
+      <img alt={t('alt.UDOIT')} src={preferences.darkMode ? UDOITLogoDark : UDOITLogo}></img>
       <input
         id="nav-menu-toggle"
         tabIndex="-1"

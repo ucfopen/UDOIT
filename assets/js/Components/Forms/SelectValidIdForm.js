@@ -7,7 +7,6 @@ import './SelectValidIdForm.css'
 const SelectValidIdForm = (
 {
   t,
-  settings,
   activeIssue,
   handleIssueSave,
   activeContentItem,
@@ -309,7 +308,6 @@ const SelectValidIdForm = (
       
        <FormSaveOrReview
               t={t}
-              settings={settings}
               activeIssue={activeIssue}
               isDisabled={isDisabled}
               handleSubmit={handleLocalSave}

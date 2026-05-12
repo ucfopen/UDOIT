@@ -5,11 +5,10 @@ import StatusPill from './StatusPill'
 import SortIcon from '../Icons/SortIcon'
 
 import './FixIssuesList.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function FixIssuesList({
   t,
-  settings,
-  
   groupedList,
   setActiveIssue
 }) {
@@ -33,13 +32,13 @@ export default function FixIssuesList({
      "Known Barrier, Page, 'Welcome to the course', found in: 'Introduction Module' */
   const getIssueLabel = (issue) => {
     let label = ''
-    if(issue.status === settings.ISSUE_FILTER.ACTIVE) {
+    if(issue.status === ISSUE_FILTER.ACTIVE) {
       label += t(`filter.label.severity.${issue.severity.toLowerCase()}_single`) + ', '
     }
-    else if (issue.status === settings.ISSUE_FILTER.FIXED || issue.status == settings.ISSUE_FILTER.FIXEDANDRESOLVED) {
+    else if (issue.status === ISSUE_FILTER.FIXED || issue.status == ISSUE_FILTER.FIXEDANDRESOLVED) {
       label += t('filter.label.resolution.fixed_single') + ', '
     }
-    else if (issue.status === settings.ISSUE_FILTER.RESOLVED) {
+    else if (issue.status === ISSUE_FILTER.RESOLVED) {
       label += t('filter.label.resolution.resolved_single') + ', '
     }
 
@@ -129,7 +128,6 @@ export default function FixIssuesList({
                       <div className="flex-row" aria-hidden="true">
                         <StatusPill
                           t={t}
-                          settings={settings}
                           issue={issue}
                         />
                       </div>

@@ -12,8 +12,14 @@ import PrintIcon from './Icons/PrintIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
+import { ISSUE_FILTER } from '../Services/Constants'
 
-export default function ReportsPage({t, report, settings, quickSearchTerm}) {
+export default function ReportsPage({
+  t, 
+  report, 
+  instanceInfo, 
+  quickSearchTerm
+}) {
 
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
@@ -21,7 +27,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
-    const api = new Api(settings)
+    const api = new Api(instanceInfo)
     api.getReportHistory()
       .then((responseStr) => responseStr.json())
       .then((response) => {
@@ -112,11 +118,11 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
       if (!labels.includes(issue.label_display)) {
         labels.push(issue.label_display)
         if(issue.type === 'error' || issue.type === 'issue') {
-          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.ISSUE}} />)
+          issue.type = (<StatusPill t={t} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.ISSUE}} />)
           issue.type_display = t('filter.label.severity.issue')
         }
         else if(issue.type === 'potential' || issue.type === 'suggestion') {
-          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.POTENTIAL}} />)
+          issue.type = (<StatusPill t={t} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.POTENTIAL}} />)
           issue.type_display = t('filter.label.severity.potential')
         }
         issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
@@ -339,7 +345,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
             <div className="mt-4">
               <IssuesTable
                 t={t}
-                settings={settings}
                 quickSearchTerm={quickSearchTerm}
                 issues={issues}/>
             </div>

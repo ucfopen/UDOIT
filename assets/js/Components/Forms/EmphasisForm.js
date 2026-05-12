@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function EmphasisForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -18,8 +18,8 @@ export default function EmphasisForm({
 }) {
 
   const FORM_OPTIONS = {
-    ADD_EMPHASIS: settings.UFIXIT_OPTIONS.ADD_EMPHASIS,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_EMPHASIS: UFIXIT_OPTIONS.ADD_EMPHASIS,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [useBold, setUseBold] = useState(false)

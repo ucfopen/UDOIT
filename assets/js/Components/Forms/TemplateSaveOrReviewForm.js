@@ -5,6 +5,7 @@ import Combobox from '../Widgets/Combobox'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 // This template is built with the same structure as the LanguageForm if you want to see it in action.
 // It allows three major types of fixes: selecting an option from a list, adding text, or using a checkbox.
@@ -17,7 +18,6 @@ import * as Text from '../../Services/Text'
 
 export default function TemplateSaveOrReviewForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -29,10 +29,10 @@ export default function TemplateSaveOrReviewForm ({
   
   // Define the major radio button level options for the form using settings constants. 
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    SELECT_LANGUAGE: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    DELETE_ATTRIBUTE: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    SELECT_LANGUAGE: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    DELETE_ATTRIBUTE: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   // If you have any arbitrary limits or rules for tests, put them here at the top.
@@ -270,7 +270,6 @@ export default function TemplateSaveOrReviewForm ({
               id='language-select'
               label=''
               options={selectOptions} 
-              settings={settings}
             />
             <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
           </>

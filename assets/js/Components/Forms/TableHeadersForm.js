@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import RadioSelector from '../Widgets/RadioSelector';
 import OptionFeedback from '../Widgets/OptionFeedback';
 import * as Html from '../../Services/Html';
+import { UFIXIT_OPTIONS } from '../../Services/Constants';
 
 export default function TableHeadersForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -16,9 +16,9 @@ export default function TableHeadersForm({
  }) {
 
   const FORM_OPTIONS = {
-    SELECT_DIRECTION: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    MARK_DECORATIVE: settings.UFIXIT_OPTIONS.MARK_DECORATIVE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    SELECT_DIRECTION: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const radioOptions = [

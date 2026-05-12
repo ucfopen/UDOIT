@@ -9,7 +9,6 @@ import SeverityIssueIconFilled from '../Icons/SeverityIssueIconFilled'
 
 export default function FileFixitWidget({
   t,
-  settings,
   sessionFiles,
   tempActiveIssue,
   uploadedFile,
@@ -36,7 +35,6 @@ export default function FileFixitWidget({
        <div className="flex-column gap-1">
         <BarrierInformation
           t={t}
-          settings={settings}
           tempActiveIssue={tempActiveIssue}
           handleLearnMoreClick={handleLearnMoreClick}
         />
@@ -50,7 +48,6 @@ export default function FileFixitWidget({
         </div>
           <FileForm
             t={t}
-            settings={settings}
             activeFile={tempActiveIssue.fileData}
             sessionFiles={sessionFiles}
             uploadedFile={uploadedFile}

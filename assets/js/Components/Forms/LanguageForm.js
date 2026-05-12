@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import Combobox from '../Widgets/Combobox'
 import { validPrimaryLangs } from '../../Services/Lang'
 import * as Html from '../../Services/Html'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function LanguageForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -18,10 +18,10 @@ export default function LanguageForm ({
 }) {
 
   const FORM_OPTIONS = {
-    SELECT_LANGUAGE: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    ENTER_BCP47: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    REMOVE_LANGUAGE: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    SELECT_LANGUAGE: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    ENTER_BCP47: UFIXIT_OPTIONS.ADD_TEXT,
+    REMOVE_LANGUAGE: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   const [language, setLanguage] = useState("")
   const [textInputBCP47, setTextInputBCP47] = useState('')
@@ -415,7 +415,6 @@ export default function LanguageForm ({
               id='language-select'
               label=''
               options={selectOptions} 
-              settings={settings}
             />
             <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
           </>

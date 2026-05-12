@@ -4,13 +4,13 @@ import FileForm from '../Forms/FileForm'
 import StatusPill from './StatusPill'
 import { formFromIssue } from '../../Services/Ufixit'
 import './UfixitWidget.css'
+import { ISSUE_FILTER, UFIXIT_OPTIONS } from '../../Services/Constants'
 
 
 
 export default function UfixitWidget({
   t,
-  settings,
-
+  instanceInfo,
   activeContentItem,
   handleActiveContentItem,
   addMessage,
@@ -43,10 +43,10 @@ export default function UfixitWidget({
     }
 
     if(tempActiveIssue.isModified === undefined) {
-      setMarkAsReviewed(tempActiveIssue.status === settings.ISSUE_FILTER.RESOLVED || tempActiveIssue.status === settings.ISSUE_FILTER.FIXEDANDRESOLVED)
+      setMarkAsReviewed(tempActiveIssue.status === ISSUE_FILTER.RESOLVED || tempActiveIssue.status === ISSUE_FILTER.FIXEDANDRESOLVED)
     }
 
-    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
       setUfixitForm(() => { return FileForm })
     }
     else {
@@ -86,7 +86,7 @@ export default function UfixitWidget({
   const handleOptionChange = (option) => {
     setActiveOption(option)
 
-    if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
+    if (option === UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
       setMarkAsReviewed(true)
     }
     else {
@@ -106,7 +106,6 @@ export default function UfixitWidget({
 
             <BarrierInformation
               t={t}
-              settings={settings}
               tempActiveIssue={tempActiveIssue}
               handleLearnMoreClick={handleLearnMoreClick}
             />
@@ -116,15 +115,13 @@ export default function UfixitWidget({
               <div className="align-self-start flex-shrink-0">
                 <StatusPill
                   t={t}
-                  settings={settings}
                   issue={tempActiveIssue} />
               </div>
             </div>
             <div className="flex-column gap-1 flex-grow-1">
               <UfixitForm
                 t={t}
-                settings={settings}
-
+                instanceInfo={instanceInfo}
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
                 handleActiveContentItem={handleActiveContentItem}

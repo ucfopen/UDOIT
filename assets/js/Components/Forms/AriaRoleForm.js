@@ -3,10 +3,10 @@ import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from "../Widgets/OptionFeedback"
 import Combobox from "../Widgets/Combobox"
 import * as Html from "../../Services/Html"
+import { UFIXIT_OPTIONS } from "../../Services/Constants"
 
 export default function AriaRoleForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -17,9 +17,9 @@ export default function AriaRoleForm({
  }) {
 
   const FORM_OPTIONS = {
-    SELECT_ROLE: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    DELETE_ROLE: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    SELECT_ROLE: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    DELETE_ROLE: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const ariaRoleMap = {
@@ -316,7 +316,6 @@ export default function AriaRoleForm({
                 isDisabled={isDisabled}
                 label=''
                 options={selectOptions}
-                settings={settings}
               />
               <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_ROLE]} />
             </>

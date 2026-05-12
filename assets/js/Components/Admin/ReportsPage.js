@@ -7,10 +7,11 @@ import IssuesTable from '../Reports/IssuesTable'
 import ProgressIcon from '../Icons/ProgressIcon'
 import '../ReportsPage.css'
 import { analyzeReport } from '../../Services/Report'
+import { ISSUE_STATE } from '../../Services/Constants'
 
 export default function ReportsPage({
   t,
-  settings,
+  instanceInfo,
   filters,
   selectedCourse
 }) {
@@ -18,17 +19,8 @@ const [groupedReports, setGroupedReports] = useState(null)
 const [issues, setIssues] = useState(null)
 const [instructors, setInstructors] = useState([])
 
-const ISSUE_STATE = {
-  UNCHANGED: 0,
-  SAVING: 1,
-  RESOLVING: 2,
-  SAVED: 3,
-  RESOLVED: 4,
-  ERROR: 5,
-}
-
 const getReportHistory = () => {
-  const api = new Api(settings);
+  const api = new Api(instanceInfo);
     api.getAdminReportHistory(filters)
       .then((responseStr) => responseStr.json())
       .then((response) => {

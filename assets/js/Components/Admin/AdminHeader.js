@@ -7,7 +7,6 @@ import '../Header.css'
 
 export default function AdminHeader({
   t,
-  settings,
   navigation,
   handleNavigation
 }) {

@@ -11,7 +11,7 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS} from '../Services/Settings'
+import { ISSUE_STATE } from '../Services/Constants'
 
 
 export default function App(initialData) {
@@ -19,18 +19,10 @@ export default function App(initialData) {
   const [nextMessage, setNextMessage] = useState('')
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
-  const [settings, setSettings] = useState(Object.assign({},
-    initialData?.settings || {}, 
-    { ISSUE_STATE }, 
-    { WIDGET_STATE }, 
-    { ISSUE_FILTER }, 
-    { FILE_FILTER },
-    { FILE_TYPES },
-    { FILE_TYPE_MAP },
-    { DEFAULT_USER_SETTINGS },
-    { UFIXIT_OPTIONS },
-  ))
-  const [textSpacing, setTextSpacing] = useState(settings?.user?.roles && ('text_spacing' in settings.user.roles) ? settings.user.roles.text_spacing: settings.DEFAULT_USER_SETTINGS.TEXT_SPACING) 
+  const [labels, setLabels] = useState(initialData.labels ?? [])
+  const [instanceInfo, setInstanceInfo] = useState(initialData.instanceInfo)
+  const [preferences, setPreferences] = useState(initialData.preferences)
+  const [textSpacing, setTextSpacing] = useState(preferences.textSpacing) 
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -45,9 +37,9 @@ export default function App(initialData) {
   const [modalActive, setModalActive] = useState(false)
 
   // `t` is used for text/translation. It will return the translated string if it exists
-  // in the settings.labels object.
+  // in the labels object.
   const t = useCallback((key, values = {}) => {
-    let translatedText = (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+    let translatedText = (labels[key] && labels[key] !== '') ? labels[key] : key
     if (values && Object.keys(values).length > 0) {
       Object.keys(values).forEach((key) => {
         translatedText = translatedText.replace(`{${key}}`, values[key])
@@ -55,16 +47,16 @@ export default function App(initialData) {
     }
     return translatedText
 
-  }, [settings])
+  }, [labels])
 
   const scanCourse = useCallback(() => {
-    let api = new Api(settings)
-    return api.scanCourse(settings.course.id)
+    let api = new Api(instanceInfo)
+    return api.scanCourse(instanceInfo.course.id)
   }, [])
 
   const fullRescan = useCallback(() => {
-    let api = new Api(settings)
-    return api.fullRescan(settings.course.id)
+    let api = new Api(instanceInfo)
+    return api.fullRescan(instanceInfo.course.id)
   }, [])
 
   // When user settings are updated and the language changes, we need to send alerts, but also wait a tick for the settings to update.
@@ -88,29 +80,22 @@ export default function App(initialData) {
     }
   }, [untranslatedMessage])
 
-  const updateUserSettings = (newUserSetting) => {
-    let oldSettings = JSON.parse(JSON.stringify(settings))
-    let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
-    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
-    let newSettings = Object.assign({}, settings, { user: newUser })
-    setSettings(newSettings)
+  const updateUserPreferences = (newUserPreferences) => {
+    const oldPreferences = structuredClone(preferences)
+    setPreferences(old => ({...old, ...newUserPreferences}))
 
-    let api = new Api(settings)
-    api.updateUser(newUser)
+    let api = new Api(instanceInfo)
+    api.updatePreferences(newUserPreferences)
       .then((response) => response.json())
       .then((data) => {
         if(data.user) {
-          newSettings.user = data.user
-          if(data?.labels?.lang) {
-            let newLanguageSettings = Object.assign({}, newSettings)
-            newLanguageSettings.lang = data?.language || newSettings.lang
-            newLanguageSettings.labels = data.labels
-            setSettings(newLanguageSettings)
+          instanceInfo.user = data.user
+          if(data?.labels) {
+            setLabels(data.labels)
           }
-          // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
-          setSettings(oldSettings)
+          setPreferences(oldPreferences)
           setUntranslatedMessage({ message: 'msg.settings.update_failed', severity: 'error', visible: true })
         }
     })
@@ -121,7 +106,7 @@ export default function App(initialData) {
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
   const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
-    if(issueState === null || issueState === settings.ISSUE_STATE.UNCHANGED) {
+    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
       if(newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
@@ -139,7 +124,7 @@ export default function App(initialData) {
   }
 
     const updateSessionFiles = (fileId, fileState = null, contentItemId = null) => {
-    if(fileState === null || fileState === settings.ISSUE_STATE.UNCHANGED) {
+    if(fileState === null || fileState === ISSUE_STATE.UNCHANGED) {
       let newSessionFiles = Object.assign({}, sessionFiles)
       if(newSessionFiles[fileId]) {
         delete newSessionFiles[fileId]
@@ -157,10 +142,10 @@ export default function App(initialData) {
   }
 
   const processNewReport = (rawReport) => {
-    const tempReport = analyzeReport(rawReport, settings.ISSUE_STATE)
+    const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
 
-    let api = new Api(settings)
+    let api = new Api(instanceInfo)
     api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts, 'scanRules': tempReport.scanRules})
       .then((response) => response.json())
       .then((data) => {
@@ -370,21 +355,22 @@ export default function App(initialData) {
     <div id="app-container"
          style={{ '--text-spacing-percent': Number(textSpacing) }}
          className={`flex-column flex-grow-1 `
-          + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
-          + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
-          lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
+          + `${preferences.fontSize} `
+          + `${preferences.fontFamily} `
+          + `${preferences.darkMode ? 'dark-mode' : ''}`}
+          lang={preferences.lang}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
-            settings={settings}
+            instanceInfo={instanceInfo}
+            preferences={preferences}
             syncComplete={syncComplete}
             setWelcomeClosed={setWelcomeClosed} /> ) :
         (
           <>
             <Header
               t={t}
-              settings={settings}
+              preferences={preferences}
               modalActive={modalActive}
               navigation={navigation}
               handleNavigation={handleNavigation}
@@ -395,7 +381,7 @@ export default function App(initialData) {
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
-                  settings={settings}
+                  preferences={preferences}
                   report={report}
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
@@ -407,7 +393,8 @@ export default function App(initialData) {
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
                   t={t}
-                  settings={settings}
+                  instanceInfo={instanceInfo}
+                  preferences={preferences}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
                   contentItemCache={contentItemCache}
@@ -426,7 +413,8 @@ export default function App(initialData) {
               {('reviewFiles' === navigation) &&
                 <ReviewFilesPage
                   t={t}
-                  settings={settings}
+                  instanceInfo={instanceInfo}
+                  preferences={preferences}
                   contentItemCache={contentItemCache}
                   addContentItemToCache={addContentItemToCache}
                   report={report}
@@ -443,7 +431,7 @@ export default function App(initialData) {
               {('reports' === navigation) &&
                 <ReportsPage
                   t={t}
-                  settings={settings}
+                  instanceInfo={instanceInfo}
                   report={report}
                   quickSearchTerm={quickSearchTerm}
                 />
@@ -451,8 +439,9 @@ export default function App(initialData) {
               {('settings' === navigation) &&
                 <SettingsPage
                   t={t}
-                  settings={settings}
-                  updateUserSettings={updateUserSettings}
+                  instanceInfo={instanceInfo}
+                  preferences={preferences}
+                  updateUserPreferences={updateUserPreferences}
                   syncComplete={syncComplete}
                   handleFullCourseRescan={handleFullCourseRescan}
                   textSpacing={textSpacing}
@@ -469,7 +458,7 @@ export default function App(initialData) {
       }
       <MessageTray
         t={t}
-        settings={settings}
+        preferences={preferences}
         nextMessage={nextMessage}
       />
     </div>

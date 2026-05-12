@@ -7,7 +7,6 @@ import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
   t, 
-  settings, 
   activeIssue, 
   handleIssueSave, 
   addMessage,
@@ -245,7 +244,6 @@ export default function SensoryMisuseForm({
 
       <FormSaveOrReview
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
