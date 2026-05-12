@@ -49,17 +49,7 @@ export default function UsersPage({
     const api = new Api(instanceInfo)
 
     user.hasApiKey = false
-
-    // api.updateUser(user)
-    //   .then((responseStr) => responseStr.json())
-    //   .then((response) => {
-    //     let tempUsers = Object.assign({}, users)
-    //     if (response && response.id) {
-    //       const ind = users.findIndex((el) => { el.id === response.id })
-    //       tempUsers[ind] = response
-    //       setUsers(tempUsers)
-    //     }
-    //   })
+    // TODO: correctly implement deauthorization
   }
 
   const handleTableSettings = (setting) => {

@@ -93,7 +93,6 @@ export default function App(initialData) {
           if(data?.labels) {
             setLabels(data.labels)
           }
-          // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
           setPreferences(oldPreferences)

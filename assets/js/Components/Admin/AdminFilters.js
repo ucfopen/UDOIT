@@ -22,7 +22,8 @@ export default function AdminFilters({
   useEffect(() => {
     if (accounts) {
       let tempAccountOptions = []
-      for (const acct of Object.values(accounts)) {
+      const accountsArr = Object.values(accounts)
+      for (const acct of accountsArr) {
         tempAccountOptions.push({
           id: acct.id,
           name: acct.name
@@ -34,7 +35,8 @@ export default function AdminFilters({
 
     if (termInfo) {
       let tempTermOptions = []
-      for (const [key, val] of Object.entries(termInfo.terms)) {
+      const termsArr = Object.entries(termInfo.terms)
+      for (const [key, val] of termsArr) {
         tempTermOptions.push({
           id: key,
           name: val,
