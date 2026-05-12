@@ -82,6 +82,11 @@ export const FILE_TYPES = [
   'video',
 ]
 
+export const MEDIA_FILE_TYPES = [
+  'audio',
+  'video',
+]
+
 export const FILE_TYPE_MAP = {
   'pdf': FILE_FILTER.FILE_PDF,
   'doc': FILE_FILTER.FILE_WORD,
