@@ -449,5 +449,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
 
+  console.log(report)
+
   return tempReport
 }
