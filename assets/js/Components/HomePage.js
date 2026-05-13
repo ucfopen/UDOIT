@@ -7,9 +7,9 @@ import ProgressIcon from './Icons/ProgressIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import SeverityIcon from './Icons/SeverityIcon'
 import SummaryIcon from './Icons/SummaryIcon'
+import CheckIcon from './Icons/CheckIcon'
 import * as Html from '../Services/Html'
 import './HomePage.css'
-import CheckIcon from './Icons/CheckIcon'
 
 export default function HomePage({
   t,
@@ -193,12 +193,12 @@ export default function HomePage({
               {panel.counter.percent === 100 ? (
                 <div className='summary-icon-container completed' aria-hidden="true">
                   <CheckIcon className="icon-lg color-success"/>
-                  {console.log(`This section, ${panel.type} is complete (${panel.counter.percent}%, displaying check icon)`)}
+                 
                 </div>
                 ) : 
                 <div className='summary-icon-container' aria-hidden="true">
                   <SeverityIcon type={panel.type} className='icon-lg' />
-                  {console.log(`This section, ${panel.type} is not complete (${panel.counter.percent}%, displaying severity icon`)} 
+                   
                 </div>
               }
               <div className="summary-text-container">
