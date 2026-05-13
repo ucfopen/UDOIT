@@ -875,11 +875,9 @@ export default function FixIssuesPage({
           >
           <h1 className="pageTitle">{t('barriers.title')}</h1>
           <p className="pageSubtitle">{t('barriers.subtitle')}</p>
-
           <FixIssuesFilters
             t={t}
             settings={settings}
-
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
             searchTerm={searchTerm}
@@ -890,7 +888,8 @@ export default function FixIssuesPage({
           <FixIssuesList
             t={t}
             settings={settings}
-
+            unfilteredIssues={unfilteredIssues}
+            initialSeverity={initialSeverity}
             groupedList={groupedList}
             setActiveIssue={setActiveIssue}
           />
