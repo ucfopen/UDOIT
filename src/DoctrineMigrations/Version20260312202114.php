@@ -57,7 +57,7 @@ final class Version20260312202114 extends AbstractMigration
             WHERE NOT EXISTS (
                 SELECT 1
                 FROM term t
-                WHERE t.lms_term_id = t.lms_term_id
+                WHERE t.lms_term_id = c.lms_term_id
             )
         ");
         $this->addSql('ALTER TABLE course ADD course_professors JSON DEFAULT NULL, CHANGE lms_term_id lms_term_id VARCHAR(255) DEFAULT NULL');
