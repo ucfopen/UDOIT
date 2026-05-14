@@ -946,17 +946,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
-  console.log("Unfiltered");
-  console.log(unfilteredFiles);
-
+  // This outputs 'true' initially because the unfilteredFiles array is initially empty, but 
+  // the widget state check (WIDGET_STATE.LOADING ?) prevents this false-positive from causing unexpected behavior
   const filesResolved = unfilteredFiles.every(issue => 
     issue.status === "REVIEWED"
   );
-
-  // This produces 'true' initially because the unfilteredFiles array is initially empty, but 
-  // the widget state check (WIDGET_STATE.LOADING ?) prevents this false-positive from causing issues
-  console.log(filesResolved);
-
 
   return (
     <>

@@ -64,40 +64,30 @@ export default function FixIssuesList({
     setOpenList(updatedList)
   }
   
-  const solvedStatus = [
+  
+
+  const checkBarriersResolved = (initialSeverity, unfilteredIssues) => {
+
+    const solvedStatus = [
     settings.ISSUE_FILTER.FIXED,
     settings.ISSUE_FILTER.RESOLVED,
     settings.ISSUE_FILTER.FIXEDANDRESOLVED,
-  ]
+    ]
 
-  let barriersResolved = false;
+    // Get specified section (Known, Potential) if it exists
+    if (initialSeverity) {
+      const severityIssues = unfilteredIssues.filter(issue => 
+        issue.severity === initialSeverity
+      );
 
-  if (initialSeverity) {
-    const severityIssues = unfilteredIssues.filter(issue => 
-      issue.severity === initialSeverity
-    );
+      return severityIssues.every(issue => solvedStatus.includes(issue.status));
+    } 
+    else {
+      return unfilteredIssues.every(issue => solvedStatus.includes(issue.status))
+    };
+  }
 
-    console.log("Severity issues (new array filtering unfiltered by severity");
-    console.log(severityIssues);
-    
-    // Determines if barriers for specified section (Known, Potential) have been solved
-    barriersResolved = severityIssues.every(issue => 
-      solvedStatus.includes(issue.status)
-    );
-
-    console.log("Barriers resolved state given initialSeverity");
-    console.log(barriersResolved);
-  } 
-  else {
-    barriersResolved = unfilteredIssues.every(issue =>
-      solvedStatus.includes(issue.status)
-    )
-
-    console.log("Barriers resolved state given no initialSeverity");
-
-    console.log("This would refer to the 'barriers' screen");
-    console.log(barriersResolved);
-  };
+  const barriersResolved = checkBarriersResolved(initialSeverity, unfilteredIssues);
 
   return (
     <div className="ufixit-list-container flex-column">
