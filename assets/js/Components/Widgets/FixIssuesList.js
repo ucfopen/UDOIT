@@ -70,18 +70,34 @@ export default function FixIssuesList({
     settings.ISSUE_FILTER.FIXEDANDRESOLVED,
   ]
 
-  const severityIssues = unfilteredIssues.filter(issue => 
-    issue.severity === initialSeverity
-  );
+  let barriersResolved = false;
 
-  console.log(severityIssues);
-  
-  // Determines if barriers for specified section (Known, Potential) have been solved
-  const barriersResolved = severityIssues.every(issue => 
-    solvedStatus.includes(issue.status)
-  );
-  
-  console.log(barriersResolved);
+  if (initialSeverity) {
+    const severityIssues = unfilteredIssues.filter(issue => 
+      issue.severity === initialSeverity
+    );
+
+    console.log("Severity issues (new array filtering unfiltered by severity");
+    console.log(severityIssues);
+    
+    // Determines if barriers for specified section (Known, Potential) have been solved
+    barriersResolved = severityIssues.every(issue => 
+      solvedStatus.includes(issue.status)
+    );
+
+    console.log("Barriers resolved state given initialSeverity");
+    console.log(barriersResolved);
+  } 
+  else {
+    barriersResolved = unfilteredIssues.every(issue =>
+      solvedStatus.includes(issue.status)
+    )
+
+    console.log("Barriers resolved state given no initialSeverity");
+
+    console.log("This would refer to the 'barriers' screen");
+    console.log(barriersResolved);
+  };
 
   return (
     <div className="ufixit-list-container flex-column">
