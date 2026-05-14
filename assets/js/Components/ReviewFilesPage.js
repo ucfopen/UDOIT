@@ -946,11 +946,23 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
+  console.log("Unfiltered");
+  console.log(unfilteredFiles);
+
+  const filesResolved = unfilteredFiles.every(issue => 
+    issue.status === "REVIEWED"
+  );
+
+  // This produces 'true' initially because the unfilteredFiles array is initially empty, but 
+  // the widget state check (WIDGET_STATE.LOADING ?) prevents this false-positive from causing issues
+  console.log(filesResolved);
+
+
   return (
     <>
       { widgetState === WIDGET_STATE.LOADING ? (
         <></>
-      ) : (
+        ) : (
         <div
           inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
           aria-hidden={widgetState === WIDGET_STATE.FIXIT}
@@ -970,7 +982,16 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           />
           <div className="mt-1 subtext align-self-end">{t('fix.label.files_shown_count', { shown: filteredFiles?.length || 0, total: unfilteredFiles?.length || 0 })}</div>
           <div className="mt-1">
-            {(rows.length > 0) ? <SortableTable
+            { (filesResolved && rows.length === 0 ) ? (
+              <div className="flex-column gap-3 mt-3">
+                <div className="flex-row align-self-center ms-3 me-3">
+                  <h2 className="mt-0 mb-0 primary-dark">Congratulations!</h2>
+                </div>
+                <div className="flex-row align-self-center ms-3 me-3">
+                  No File Issues!
+                </div>
+              </div>
+              ) : (rows.length > 0) ? <SortableTable
               t={t}
               headers={headers}
               rows={rows}
