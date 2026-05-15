@@ -15,7 +15,7 @@ import * as Text from '../../Services/Text'
 // You can remove any parts that you don't need for your specific form. For a simplified example, see the
 // HeadingEmptyForm.js component.
 
-export default function TemplateSaveOrReviewForm ({
+export default function TemplateForm ({
   t,
   settings,
   activeIssue,
@@ -73,29 +73,30 @@ export default function TemplateSaveOrReviewForm ({
     const hasAttribute = Html.hasAttribute(element, attributeName)
     const attributeValue = Html.getAttribute(element, attributeName) || ''
     const selectOptions = computeSelectOptions(attributeValue)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-    
-    // Determine which option should be selected based on the issue's current state.
-    if (!hasAttribute) {
-      setActiveOption(FORM_OPTIONS.DELETE_ATTRIBUTE)
-    }
-    else if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (attributeValue in primaryLanguages) {
-      setActiveOption(FORM_OPTIONS.SELECT_LANGUAGE)
-    }
-    else if (attributeValue !== '') {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    }
-    else {
-      setActiveOption('')
-    }
-
     setSelectedValue(attributeValue)
     setSelectOptions(selectOptions)
     setTextInputValue(attributeValue)
     setIsToggleChecked(attributeValue === 'en-US') // Example logic for the toggle
+    
+    // Determine which option should be selected based on the issue's current state.
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (!hasAttribute) {
+        setActiveOption(FORM_OPTIONS.DELETE_ATTRIBUTE)
+      }
+      else if (attributeValue in primaryLanguages) {
+        setActiveOption(FORM_OPTIONS.SELECT_LANGUAGE)
+      }
+      else if (attributeValue !== '') {
+        setActiveOption(FORM_OPTIONS.ADD_TEXT)
+      }
+    }
   }, [activeIssue])
 
 

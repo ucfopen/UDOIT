@@ -278,29 +278,30 @@ export default function LanguageForm ({
     const langOption = (rawLanguage in primaryLanguages) ? rawLanguage : '' 
     let tempOptions = computeSelectOptions(langOption)
     let tempIsHtml = (activeIssue.scanRuleId !== "element_lang_valid" || tagName === "HTML")
-    
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (langOption !== '') {
-      setActiveOption(FORM_OPTIONS.SELECT_LANGUAGE)
-    }
-    else if (activeIssue.status !== 0 && rawLanguage !== '') {
-      setActiveOption(FORM_OPTIONS.ENTER_BCP47)
-    }
-    else if (!hasLangAttr && !tempIsHtml) {
-      setActiveOption(FORM_OPTIONS.REMOVE_LANGUAGE)
-    }
-    else {
-      setActiveOption('')
-    }
-
     setSelectOptions(tempOptions)
     setLanguage(langOption)
     setTextInputBCP47(rawLanguage)
     setIsHtml(tempIsHtml)
+    
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (langOption !== '') {
+        startingOption = FORM_OPTIONS.SELECT_LANGUAGE
+      }
+      else if (rawLanguage !== '') {
+        startingOption = FORM_OPTIONS.ENTER_BCP47
+      }
+      else if (!hasLangAttr && !tempIsHtml) {
+        startingOption = FORM_OPTIONS.REMOVE_LANGUAGE
+      }
+    }
+    setActiveOption(startingOption)
 
   }, [activeIssue])
 

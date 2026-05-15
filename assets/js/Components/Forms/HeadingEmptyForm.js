@@ -30,23 +30,26 @@ export default function HeadingEmptyForm({
       const element = Html.toElement(html)
 
       const initialText = (element ? element.innerText : '')
-      const deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
-      const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-      if (deleted) {
-        setActiveOption(FORM_OPTIONS.DELETE_HEADING)
-      }
-      else if (reviewed) {
-        setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-      }
-      else if (initialText !== '') {
-        setActiveOption(FORM_OPTIONS.ADD_TEXT)
-      }
-      else {
-        setActiveOption('')
-      }
-
       setTextInputValue(initialText)
+
+      const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+      const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+      const deleted = !activeIssue.newHtml
+      let startingOption = ''
+
+      if (reviewed) {
+        startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+      }
+      if (fixed) {
+        if (deleted) {
+          startingOption = FORM_OPTIONS.DELETE_HEADING
+        }
+        else if (initialText !== '') {
+          startingOption = FORM_OPTIONS.ADD_TEXT
+        }
+      }
+      setActiveOption(startingOption)
+      
     }
     setFormErrors([])
   }, [activeIssue])

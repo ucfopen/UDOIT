@@ -120,6 +120,7 @@ const getReportHistory = () => {
                 <div id="resolutionsReport" className="graph-container">
                   <ResolutionsReport 
                     t={t} 
+                    settings={settings}
                     reports={groupedReports}
                     selectedCourse={selectedCourse}
                   />

@@ -321,6 +321,20 @@ export default function App(initialData) {
     }
   }
 
+  const addSettingsClasses = () => {
+    let body = document.getElementsByTagName('body')[0]
+    if (body) {
+      let classes = ''
+      classes += settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE
+      classes += ' '
+      classes += settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY
+      if (settings?.user?.roles?.dark_mode) {
+        classes += ' dark-mode'
+      }
+      body.className = classes
+    }
+  }
+
   // Every time the translation function changes, we need to recompute the page visibility listener.
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -345,7 +359,12 @@ export default function App(initialData) {
     script.src = '../udoit3/build/static/tinymce/tinymce.min.js'
     script.async = true
     document.body.appendChild(script)
+    addSettingsClasses()
   }, [])
+
+  useEffect(() => {
+    addSettingsClasses()
+  }, [settings])
 
   useEffect(() => {
     
@@ -368,12 +387,12 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-         style={{ '--text-spacing-percent': Number(textSpacing) }}
-         className={`flex-column flex-grow-1 `
-          + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
-          + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
-          lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
+      style={{ '--text-spacing-percent': Number(textSpacing) }}
+      className={"flex-column flex-grow-1"
+      + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
+      + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+      + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
+      lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}

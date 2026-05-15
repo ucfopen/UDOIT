@@ -164,9 +164,6 @@ export default function AriaRoleForm({
     if (!currentRole) {
       currentRole = ''
     }    
-    
-    const deleted = (!element && activeIssue.status === 1)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
     const tagName = Html.getTagName(html)
     const validRoles = ariaRoleMap[tagName] || []
@@ -181,21 +178,26 @@ export default function AriaRoleForm({
       setDetectedTag("")
       setValidRoles([])
     }
-
-    if (deleted) {
-      setActiveOption(FORM_OPTIONS.DELETE_ROLE)
-    }
-    else if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (hasValidRole) {
-      setActiveOption(FORM_OPTIONS.SELECT_ROLE)
-    }
-    else {
-      setActiveOption('')
-    }
-
     setSelectValue(currentRole)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const deleted = !element
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (deleted) {
+        startingOption = FORM_OPTIONS.DELETE_ROLE
+      }
+      else if (hasValidRole) {
+        startingOption = FORM_OPTIONS.SELECT_ROLE
+      }
+    }
+    setActiveOption(startingOption)
+    
   }, [activeIssue])
 
   const computeSelectOptions = (tagName, currentSelection) => {

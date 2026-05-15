@@ -464,7 +464,7 @@ export default function Combobox({
       {label !== '' && (
         <label        // labelEl
           id={'combo-label-' + id}
-          className="subtext align-self-center pe-2 text-end"
+          className="align-self-center pe-2 text-end subtext"
           onClick={() => onLabelClick()}>
             {label}
         </label>

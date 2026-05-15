@@ -56,28 +56,31 @@ class EqualAccessService {
         $issues = array();
         $skipRules = $this->getSkipRules();
         
-        foreach ($json["results"] as $results) {
+        if (array_key_exists("results", $json)) {
+            
+          foreach ($json["results"] as $results) {
             $equalAccessRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
             $metadata = null;
 
             // Check if the rule is one we skip.
             if (!in_array($equalAccessRule, $skipRules)) {
-                $reasonId = $results["reasonId"];
-                $message = $results["message"];
-                $messageArgs = $results["messageArgs"];
-                $value = $results["value"];
+              $reasonId = $results["reasonId"];
+              $message = $results["message"];
+              $messageArgs = $results["messageArgs"];
+              $value = $results["value"];
 
-                $metadata = $this->createMetadata($reasonId, $message, $messageArgs, $value);
-                
-                $issue = (object) [
-                  'isGeneric' => true,
-                  'scanRuleId' => $equalAccessRule,
-                  'xpath' => $xpathQuery,
-                  'metadata' => $metadata,
-                ];
-                array_push($issues, $issue);        
+              $metadata = $this->createMetadata($reasonId, $message, $messageArgs, $value);
+              
+              $issue = (object) [
+                'isGeneric' => true,
+                'scanRuleId' => $equalAccessRule,
+                'xpath' => $xpathQuery,
+                'metadata' => $metadata,
+              ];
+              array_push($issues, $issue);
             }
+          }
         }
         $report = (object) [
           'errors' => [],

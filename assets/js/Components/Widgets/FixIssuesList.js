@@ -114,9 +114,7 @@ export default function FixIssuesList({
                       role="link"
                       tabIndex={openList[group.formLabel] ? '0' : '-1'}>
                         <div className="flex-row gap-2" aria-hidden="true">
-                          <div className="ufixit-list-content-type-icon-container">
-                            <ContentTypeIcon type={issue.contentType} className="gray icon-md"/>
-                          </div>
+                          <ContentTypeIcon type={issue.contentType} className="icon-block icon-md"/>
                           <div className="flex-column justify-content-center">
                             <div className="list-item-title">
                               {issue.contentTitle}

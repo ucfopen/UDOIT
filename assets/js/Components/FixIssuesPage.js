@@ -69,6 +69,7 @@ export default function FixIssuesPage({
   const dialogId = "udoit-issue-dialog"
 
   const [activeIssue, setActiveIssue] = useState(null)
+  const [activeOption, setActiveOption] = useState('')
   const [mostRecentIssueId, setMostRecentIssueId] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
@@ -86,6 +87,7 @@ export default function FixIssuesPage({
   const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
   const [clickedInfo, setClickedInfo] = useState({})
+  const [previewData, setPreviewData] = useState(null)
 
   const [elementFocus, setElementFocus] = useState(true)
 
@@ -397,9 +399,11 @@ export default function FixIssuesPage({
     const contentItemId = activeIssue.issueData.contentItemId
     if(contentItemCache[contentItemId]) {
       setActiveContentItem(contentItemCache[contentItemId])
+      setTempActiveContentItem(contentItemCache[contentItemId])
     }
     else {
       setActiveContentItem(null)
+      setTempActiveContentItem(null)
     }
     setShowLearnMore(false)
 
@@ -578,12 +582,10 @@ export default function FixIssuesPage({
   }
 
   const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
-    console.log("Coming into main function")
     if(!contentItem || !contentItem?.body || !issue) {
       return
     }
 
-    console.log("Test")
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
 
@@ -695,7 +697,7 @@ export default function FixIssuesPage({
 
   const handleIssueSave = async () => {
 
-    if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
+    if(!tempActiveContentItem || !tempActiveContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
     }
 
@@ -723,7 +725,7 @@ export default function FixIssuesPage({
       }
     }
 
-    let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
+    let fullPageHtml = getNewFullPageHtml(tempActiveContentItem, issue)
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
@@ -808,19 +810,28 @@ export default function FixIssuesPage({
 
   const nextIssue = (previous = false) => {
     if (!activeIssue || filteredIssues.length < 2) { return }
-    let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id)
 
-    if(activeIndex === -1) { return }
+    let orderedIssueIds = []
+    groupedList.forEach((group) => {
+      group.issues.forEach((issue) => {
+        orderedIssueIds.push(issue.id)
+      })
+    })
+
+    let activeIssueIndex = orderedIssueIds.findIndex((id) => id === activeIssue.id)
+
+    if(activeIssueIndex === -1) { return }
 
     // If we've reached the first or last issue, loop around
-    let newIndex = activeIndex + (previous ? -1 : 1)
+    let newIndex = activeIssueIndex + (previous ? -1 : 1)
     if (newIndex < 0) {
-      newIndex = filteredIssues.length - 1
+      newIndex = orderedIssueIds.length - 1
     }
-    else if (newIndex >= filteredIssues.length) {
+    else if (newIndex >= orderedIssueIds.length) {
       newIndex = 0
     }
-    setActiveIssue(filteredIssues[newIndex])
+    const newIssueId = orderedIssueIds[newIndex]
+    setActiveIssue(filteredIssues.find((issue) => issue.id === newIssueId))
   }
 
   const getContentById = (contentId) => {
@@ -896,6 +907,7 @@ export default function FixIssuesPage({
           />
         </div>
       ) }
+      <div className={`dialog-backdrop ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`} />
       <div
         id={dialogId}
         role="dialog"
@@ -921,7 +933,7 @@ export default function FixIssuesPage({
               title={t('fix.button.close')} />
           </div>
           <div className="dialog-content">
-            <div className="flex-row w-100 h-100">
+            <div className="dialog-content-row-wrap">
               <section className='ufixit-widget-container'>
                 { tempActiveIssue && (
                   <>
@@ -940,6 +952,8 @@ export default function FixIssuesPage({
 
                       activeContentItem={activeContentItem}
                       handleActiveContentItem={handleActiveContentItem}
+                      activeOption={activeOption}
+                      setActiveOption={setActiveOption}
                       addMessage={addMessage}
                       handleIssueSave={handleIssueSave}
                       isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
@@ -958,6 +972,7 @@ export default function FixIssuesPage({
                       setClickedInfo={setClickedInfo}
                       handleContentIssueSave={handleContentIssueSave}
                       setElementFocus={setElementFocus}
+                      setPreviewData={setPreviewData}
                     />
                   </>
                 )}
@@ -968,13 +983,15 @@ export default function FixIssuesPage({
                     t={t}
                     settings={settings}
 
-                    activeContentItem={activeContentItem}
+                    activeContentItem={tempActiveContentItem}
                     activeIssue={tempActiveIssue}
+                    activeOption={activeOption}
                     contentItemsBeingScanned={contentItemsBeingScanned}
                     liveUpdateToggle={liveUpdateToggle}
                     setIsErrorFoundInContent={setIsErrorFoundInContent}
                     clickedInfo={clickedInfo}
                     setClickedInfo={setClickedInfo}
+                    previewData={previewData}
                     elementFocus={elementFocus}
                   />
                 )}

@@ -24,36 +24,9 @@ for (let i = 1; i <= 100; i++) {
   };
 }
 
-// Colors for multi course line graph
-const LINE_STYLES = [
-  { color: "rgba(89, 161, 35, 1)", dash: [] },
-  { color: "rgba(149, 11, 149, 1)", dash: [5, 5] },
-  { color: "rgb(0, 128, 128)", dash: [10, 5, 2, 5] },
-  { color: "rgb(139, 69, 19)", dash: [2, 2] },
-  { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  
-];
-
-// Display config for errors, potentials, and files on line graphs
-const METRIC_CONFIG = {
-  errors: {
-    label: (t) => t("report.header.issues"),
-    color: "rgb(231, 0, 11)",
-    dash: [],
-  },
-  potentials: {
-    label: (t) => t("report.header.potential"),
-    color: "rgb(245, 73, 0)",
-    dash: [5, 5],
-  },
-  files: {
-    label: (t) => t("filter.label.review.unreviewed"),
-    color: "rgb(21, 93, 252)",
-    dash: [2, 2],
-  },
-};
-
 export default function ResolutionsReport({
   t,
+  settings,
   reports = null,
   selectedCourse = null,
   visibility = { issues: true, potentialIssues: true, files: true },
@@ -67,7 +40,100 @@ export default function ResolutionsReport({
   const [dateStart, setDateStart] = useState(null);
   const [dateEnd, setDateEnd] = useState(null);
   const [selectedPreset, setSelectedPreset] = useState('all');
+  const darkMode = (settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
   const courseLimit = 5;
+
+  // Colors for multi course line graph
+  const LINE_STYLES = [
+    { color: "rgba(89, 161, 35, 1)", dash: [] },
+    { color: "rgba(149, 11, 149, 1)", dash: [5, 5] },
+    { color: "rgb(0, 128, 128)", dash: [10, 5, 2, 5] },
+    { color: "rgb(139, 69, 19)", dash: [2, 2] },
+    { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  
+  ];
+
+  // Display config for errors, potentials, and files on line graphs
+  const METRIC_CONFIG = {
+    errors: {
+      label: (t) => t("report.header.issues"),
+      color: darkMode ? "#e7000b" : "#e7000b",
+      dash: [],
+    },
+    potentials: {
+      label: (t) => t("report.header.potential"),
+      color: darkMode ? "#FF8904" : "#FF824D",
+      dash: [5, 5],
+    },
+    files: {
+      label: (t) => t("filter.label.review.unreviewed"),
+      color: darkMode ? "#5BA1FF" : "#155dfc",
+      dash: [2, 2],
+    },
+  };
+
+  /** ---------- Helper Functions ---------- */
+
+  /*
+    The following logic tries to give each course a preferred color based on its name hash,
+    then fills in any gaps with unused colors to minimize color reuse.
+    It serves to prevent confusion by maintaining consistent color assignments
+    when unselecting and selecting courses,
+    making it easier to track courses visually in the report.
+  */ 
+
+  function assignColors(courseNames, palette) {
+    const assigned = {};
+    const used = new Set();
+
+    // First pass: try to assign preferred color
+    courseNames.forEach((name) => {
+      const idx = hashString(name) % palette.length;
+      if (!used.has(idx)) {
+        assigned[name] = idx;
+        used.add(idx);
+      }
+    });
+
+    // Second pass: assign unused colors to remaining courses
+    let paletteIdx = 0;
+    courseNames.forEach((name) => {
+      if (assigned[name] === undefined) {
+        // Find next unused color
+        while (used.has(paletteIdx) && paletteIdx < palette.length) paletteIdx++;
+        if (paletteIdx < palette.length) {
+          assigned[name] = paletteIdx;
+          used.add(paletteIdx);
+        } else {
+          // Fallback: reuse colors if more courses than palette
+          assigned[name] = hashString(name) % palette.length;
+        }
+      }
+    });
+
+    return assigned;
+  }
+
+  function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash);
+  }
+
+  function makeMetricDataset({ key, data, t }) {
+    const config = METRIC_CONFIG[key];
+    return {
+      label: config.label(t),
+      data,
+      borderColor: config.color,
+      backgroundColor: config.color,
+      borderWidth: 3.5,
+      borderDash: config.dash,
+      tension: 0.4,
+    };
+  }
+
 
   /** ---------- Use memoization to avoid compute on re-render ---------- */
   const dataReports = useMemo(() => reports || mockReports, [reports]);
@@ -269,6 +335,7 @@ export default function ResolutionsReport({
           position: "top",
           labels: {
             font: {
+              color: darkMode ? "#D9D9D9" : "#434D5B",
               size: 15,
               weight: "normal",
               lineHeight: 1.5,
@@ -305,6 +372,8 @@ export default function ResolutionsReport({
     const current = chartRef.current;
     if (!current || current.config.type !== chartType) {
       current?.destroy();
+      Chart.defaults.color = darkMode ? "#D9D9D9" : "#434D5B";
+      Chart.defaults.borderColor = darkMode ? "#505975" : "#C5C9D3";
       chartRef.current = new Chart(ctx, { type: chartType, data: { labels, datasets }, options });
       chartRef.current.resize();
     } else {
@@ -373,65 +442,3 @@ export default function ResolutionsReport({
   );
 }
 
-/** ---------- Helper Functions ---------- */
-
-/*
-  The following logic tries to give each course a preferred color based on its name hash,
-  then fills in any gaps with unused colors to minimize color reuse.
-  It serves to prevent confusion by maintaining consistent color assignments
-  when unselecting and selecting courses,
-  making it easier to track courses visually in the report.
-*/ 
-
-function assignColors(courseNames, palette) {
-  const assigned = {};
-  const used = new Set();
-
-  // First pass: try to assign preferred color
-  courseNames.forEach((name) => {
-    const idx = hashString(name) % palette.length;
-    if (!used.has(idx)) {
-      assigned[name] = idx;
-      used.add(idx);
-    }
-  });
-
-  // Second pass: assign unused colors to remaining courses
-  let paletteIdx = 0;
-  courseNames.forEach((name) => {
-    if (assigned[name] === undefined) {
-      // Find next unused color
-      while (used.has(paletteIdx) && paletteIdx < palette.length) paletteIdx++;
-      if (paletteIdx < palette.length) {
-        assigned[name] = paletteIdx;
-        used.add(paletteIdx);
-      } else {
-        // Fallback: reuse colors if more courses than palette
-        assigned[name] = hashString(name) % palette.length;
-      }
-    }
-  });
-
-  return assigned;
-}
-
-function hashString(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash);
-}
-
-function makeMetricDataset({ key, data, t }) {
-  const config = METRIC_CONFIG[key];
-  return {
-    label: config.label(t),
-    data,
-    borderColor: config.color,
-    backgroundColor: config.color,
-    borderWidth: 3.5,
-    borderDash: config.dash,
-    tension: 0.4,
-  };
-}

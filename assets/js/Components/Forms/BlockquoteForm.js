@@ -37,7 +37,7 @@ export default function BlockquoteForm({
     let inlineCite = ""
     let elementCite = null
     let tempElement = Html.toElement(html)
-    const isBlockquote = tempElement && tempElement.tagName.toLowerCase() === 'blockquote'
+    const isBlockquote = tempElement && tempElement?.tagName?.toLowerCase() === 'blockquote'
     if(isBlockquote) {
       tempElement = embedTextOnlyInParagraph(tempElement)
       inlineCite = tempElement ? Html.getAttribute(tempElement, "cite") : ""
@@ -49,23 +49,27 @@ export default function BlockquoteForm({
         tempCitationText = tempCitationText.trim()
       }
     }
-    const removeBlockquote = (activeIssue.status === 1 || activeIssue.status === 3) && !isBlockquote
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (removeBlockquote) {
-      setActiveOption(FORM_OPTIONS.REMOVE_BLOCKQUOTE)
-    }
-    else if (tempCitationText && tempCitationText.length > 0) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    } else {
-      setActiveOption('')
-    }
 
     setTextInputValue(tempCitationText || "")
     setHideCitation(inlineCite && !elementCite)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (!isBlockquote) {
+        startingOption = FORM_OPTIONS.REMOVE_BLOCKQUOTE
+      }
+      else if (tempCitationText && tempCitationText.length > 0) {
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
+    }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {
@@ -102,7 +106,6 @@ export default function BlockquoteForm({
     setFormErrors(tempErrors)
   }
 
-  // If the blockquote only contains text, we return that text wrapped in a <p> tag
   const embedTextOnlyInParagraph = (element) => {
     const filteredNodes = Array.from(element.childNodes).filter(node => {
       // Filter out empty text nodes (happens with line breaks))
@@ -127,7 +130,7 @@ export default function BlockquoteForm({
       return ''
     }
 
-    const isBlockquote = updatedElement && updatedElement.tagName.toLowerCase() === 'blockquote'
+    const isBlockquote = updatedElement && updatedElement?.tagName?.toLowerCase() === 'blockquote'
     if (!isBlockquote && !(activeOption === FORM_OPTIONS.REMOVE_BLOCKQUOTE)) {
       // We need to wrap the content in a blockquote tag
       const newBlockquote = document.createElement('blockquote')

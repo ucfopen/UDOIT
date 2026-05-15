@@ -41,12 +41,28 @@ export function toElement(htmlString) {
   if (SPECIAL_CASES[tagName]) {
       return tempDoc.querySelector(tagName)
   } else {
+    if(tempDoc.body.childNodes.length === 1) {
       return tempDoc.body.firstElementChild
+    }
+    else {
+      // If there are multiple top-level nodes, we return a DocumentFragment containing all of them
+      // This is the equivalent of empty tags (<> and </>) in React. HOWEVER, it then means we need to
+      // verify later that we're not dealing with a DocumentFragment, becaute they are missing a lot
+      // of the properties and methods of a normal element (like tagName and innerText).
+
+      // Why do it this way? We don't want to lose any nodes AND we don't want to arbitraribly wrap content
+      // in a div, which could cause other issues with the HTML structure and styling.
+      const fragment = document.createDocumentFragment()
+      Array.from(tempDoc.body.childNodes).forEach(node => {
+        fragment.appendChild(node)
+      })
+      return fragment
+    }
   }
 }
 
 export function toString(element) {
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return ''
   }
   return element.outerHTML
@@ -57,7 +73,7 @@ export function getInnerText(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return ''
   }
 
@@ -99,7 +115,7 @@ export function hasAttribute(element, name) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return false
   }
 
@@ -111,7 +127,7 @@ export function getAttribute(element, name) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -123,7 +139,7 @@ export function setAttribute(element, name, value) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -137,7 +153,7 @@ export function removeAttribute(element, name) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -151,7 +167,7 @@ export function getClasses(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return []
   }
 
@@ -165,7 +181,7 @@ export function addClass(element, className) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -183,7 +199,7 @@ export function removeClass(element, className) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -200,7 +216,7 @@ export function getTagName(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -212,7 +228,7 @@ export function removeTag(element, tagName) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -230,7 +246,7 @@ export function getChild(element, tagName) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -269,7 +285,8 @@ export function getTextContent(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  // Note that we don't reject Node.TEXT_NODE here because they DO have a .textContent property.
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
     return ''
   }
 
@@ -281,7 +298,7 @@ export function renameElement(element, newName) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -305,7 +322,7 @@ export function prepareLink(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -353,25 +370,25 @@ export function getIssueHtml(issue) {
   return issue.newHtml ? issue.newHtml : issue.sourceHtml
 }
 
-export function getAccessibleName(element) {
+export function getAccessibleName(element, tempDocument = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return ''
   }
 
   /* Accessible Names for different elements can be computed differently, as described here:
     https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
 
-  // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  // 1. If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
   let ariaLabelledby = getAttribute(element, "aria-labelledby")
   if(ariaLabelledby){
     let displayText = []
     const ariaLabelledByIDs = ariaLabelledby.split(" ")
     ariaLabelledByIDs.forEach((id) => {
-       const element = document.getElementById(id)
+       const element = tempDocument ? tempDocument.getElementById(id) : document.getElementById(id)
        if(element){
          displayText.push(getInnerText(element))
        }
@@ -484,6 +501,17 @@ export const elementOrChildrenHasStyleAttributes = (
   return false
 }
 
+export const sanitizeString = (str) => {
+  if (!str || typeof str !== 'string') {
+    return ''
+  }
+
+  let tempElement = document.createElement('div')
+  tempElement.textContent = str
+
+  return tempElement.innerHTML
+}
+
 export const removeStyleAttributesFromElementAndChildren = (
   element,
   styles = ['color:', 'background:', 'background-color:'],
@@ -520,7 +548,7 @@ export const removeStyleAttributesFromElementAndChildren = (
 }
 
 export const findXpathFromElement = (element, id = null) => {
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -613,22 +641,8 @@ export function generateElementID(element){
       return element.id
     }
 
-    let generated_id = ""
-
-    if(element.tagName == "img"){
-      const altText= getAttribute(element, 'alt')
-      if(altText){
-        generated_id = altText + "-udoit-clickable-id"
-      }
-      else{
-        generated_id = "image-udoit-clickable-id"
-      }
-    }
-    else{
-      const textContent = getInnerText(element).trim()
-      const firstWord = textContent.split(/\s+/)[0]
-      generated_id = firstWord + "-udoit-clickable-id"
-    }
+    const tagName = element?.tagName?.toLowerCase() || 'element'
+    let generated_id = tagName + "-udoit-clickable-id"
 
     let i = 1
     while(document.getElementById(generated_id)){
@@ -641,7 +655,7 @@ export function generateElementID(element){
 
 export function getAriaAttributes(element){
    const ariaAttributes = []
-   if(!element){
+   if(!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return ariaAttributes
    }
 
