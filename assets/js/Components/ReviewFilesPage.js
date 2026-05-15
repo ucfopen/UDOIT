@@ -979,10 +979,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             { (filesResolved && rows.length === 0 ) ? (
               <div className="flex-column gap-3 mt-3">
                 <div className="flex-row align-self-center ms-3 me-3">
-                  <h2 className="mt-0 mb-0 primary-dark">Congratulations!</h2>
+                  <h2 className="mt-0 mb-0 primary-dark">{t('report.label.barriers_resolved')}</h2>
                 </div>
                 <div className="flex-row align-self-center ms-3 me-3">
-                  No File Issues!
+                  {t('report.msg.files_reviewed')}
                 </div>
               </div>
               ) : (rows.length > 0) ? <SortableTable

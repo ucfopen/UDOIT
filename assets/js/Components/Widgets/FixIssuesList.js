@@ -63,8 +63,6 @@ export default function FixIssuesList({
     const updatedList = {...openList, [groupLabel]: !openList[groupLabel]}
     setOpenList(updatedList)
   }
-  
-  
 
   const checkBarriersResolved = (initialSeverity, unfilteredIssues) => {
 
@@ -95,10 +93,10 @@ export default function FixIssuesList({
         { (barriersResolved && groupedList.length === 0) ? (
           <div className="flex-column gap-3 mt-3">
             <div className="flex-row align-self-center ms-3 me-3">
-              <h2 className="mt-0 mb-0 primary-dark">Congratulations!</h2>
+              <h2 className="mt-0 mb-0 primary-dark">{t('report.label.barriers_resolved')}</h2>
             </div>
             <div className="flex-row align-self-center ms-3 me-3">
-              No Issues!
+              {t('report.msg.barriers_resolved', {initialSeverity : initialSeverity === "ISSUE" ? t('filter.label.severity.issue').toLowerCase() : initialSeverity === "POTENTIAL" ? t('filter.label.severity.potential').toLowerCase() : t('report.label.issue').toLowerCase()})}
             </div>
           </div>
           ) : groupedList.length > 0 ? groupedList.map((group, i) => {
