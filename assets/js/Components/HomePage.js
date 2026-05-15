@@ -219,8 +219,7 @@ export default function HomePage({
                 <div className="progress-bar-container mt-1">
                   <div className={`progress-bar-fill ${panel.counter.percent === 100 ? `completed` : ``}`} style={{width: `${panel.counter.percent}%`}}></div>
                 </div>
-                {/* {console.log(`Progress Bar percentage for ${panel.type} is ${panel.counter.percent}%`)} */}
-
+                      
                 <button className="btn-secondary btn-icon-right justify-content-center mt-2"
                   aria-label={t('summary.label.' + panel.translationKey)}
                   disabled={!syncComplete}
