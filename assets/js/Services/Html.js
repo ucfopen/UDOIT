@@ -597,6 +597,13 @@ export const findElementWithXpath = (content, xpath) => {
     return null
   }
 
+  if(!content.querySelector('html') && !content.querySelector('body')) {
+    // If the content doesn't have html and body tags, remove that part from the xpath, if present.
+    if(xpath.startsWith('html[1]/body[1]/')) {
+      xpath = xpath.replace('html[1]/body[1]/', '')
+    }
+  }
+
   if(xpath.length > 0) {
     let pathParts = xpath.split('/').map(part => {
       let match = part.match(/(\w+)\[(\d+)\]/)

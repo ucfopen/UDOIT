@@ -264,6 +264,26 @@ export default function HtmlPreview({
         } else {
           errorElement.replaceWith(convertErrorHtmlElement(errorElement))
         }
+
+        // For the contrast issue, we heed to highlight both the text AND the background when they are
+        // separate elements.
+        if (FORM_CLASSIFICATIONS.CONTRAST_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+          if (activeIssue?.issueData?.metadata) {
+            try {
+              const metadata = JSON.parse(activeIssue.issueData.metadata)
+              if(metadata.textColorXpath) {
+                let textElement = Html.findElementWithXpath(errorElement, metadata.textColorXpath)
+                if(textElement) {
+                  textElement.classList.add('ufixit-error-highlight');
+                  errorElement.classList.remove('ufixit-error-highlight');
+                  errorElement.classList.add('ufixit-error-highlight-background');
+                }
+              }
+            }
+            catch (e) { }
+          }
+        }
+
         setShowMessage(false)
         setIsErrorFoundInContent(true)
       }
