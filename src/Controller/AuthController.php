@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Services\Encryption\InstitutionEncryptionService;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
@@ -25,11 +26,14 @@ class AuthController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
+    private InstitutionEncryptionService $institutionEncryptionService;
+
     private $session;
 
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine, InstitutionEncryptionService $institutionEncryptionService)
     {
         $this->doctrine = $doctrine;
+        $this->institutionEncryptionService = $institutionEncryptionService;
     }
 
     #[Route('/authorize', name: 'authorize')]
@@ -129,13 +133,13 @@ class AuthController extends AbstractController
         $user = $this->getUser();
         $institution = $user->getInstitution();
         $code = $this->request->query->get('code');
-        $clientSecret = $institution->getApiClientSecret();
+        $clientSecret = $this->institutionEncryptionService->getClientSecret($institution);
         $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($clientSecret)) {
             $institution->encryptDeveloperKey();
             $this->doctrine->getManager()->flush();
-            $clientSecret = $institution->getApiClientSecret();
+            $clientSecret = $this->institutionEncryptionService->getClientSecret($institution);
         }
 
         $options = [
@@ -143,7 +147,7 @@ class AuthController extends AbstractController
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $institution->getApiClientId(),
                 'redirect_uri'  => LmsUserService::getOauthRedirectUri(),
-                'client_secret' => $institution->getApiClientSecret(),
+                'client_secret' => $this->institutionEncryptionService->getClientSecret($institution),
                 'code'          => $code,
             ],
             'headers' => [

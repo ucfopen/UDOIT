@@ -56,7 +56,7 @@ class Institution implements JsonSerializable
     private $apiClientId;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $apiClientSecret;
+    private string $apiClientSecretEncrypted;
 
 
     // Constructor
@@ -271,14 +271,14 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    public function getApiClientSecret(): ?string
+    public function getApiClientSecretEncrypted(): ?string
     {
-        return $this->decryptData($this->apiClientSecret);
+        return $this->apiClientSecretEncrypted;
     }
 
-    public function setApiClientSecret(?string $apiClientSecret): self
+    public function setApiClientSecretEncrypted(?string $apiClientSecretEncrypted): self
     {
-        $this->apiClientSecret = $this->encryptData($apiClientSecret);
+        $this->apiClientSecretEncrypted = $apiClientSecretEncrypted;
 
         return $this;
     }

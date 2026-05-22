@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use App\Entity\User;
+use App\Services\Encryption\InstitutionEncryptionService;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpClient\Exception\TimeoutException;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
+use Symfony\Component\HttpClient\HttpClient;
 
 
 class LmsUserService {
@@ -21,11 +22,18 @@ class LmsUserService {
     /** @var UtilityService $util */
     protected $util;
 
-    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util)
-    {
+    protected InstitutionEncryptionService $institutionEncryptionService;
+
+    public function __construct(
+        LmsApiService $lmsApi,
+        ManagerRegistry $doctrine,
+        UtilityService $util,
+        InstitutionEncryptionService $institutionEncryptionService
+    ) {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
         $this->util = $util;
+        $this->institutionEncryptionService = $institutionEncryptionService;
     }
 
     public static function getOauthRedirectUri()
@@ -84,7 +92,7 @@ class LmsUserService {
                 'grant_type'    => 'refresh_token',
                 'client_id'     => $institution->getApiClientId(),
                 'redirect_uri'  => self::getOauthRedirectUri(),
-                'client_secret' => $institution->getApiClientSecret(),
+                'client_secret' => $this->institutionEncryptionService->getClientSecret($institution),
                 'refresh_token' => $refreshToken,
             ],
             'headers' => [
