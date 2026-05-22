@@ -87,7 +87,6 @@ export default function FixIssuesPage({
   const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
   const [clickedInfo, setClickedInfo] = useState({})
   const [previewData, setPreviewData] = useState(null)
-
   const [elementFocus, setElementFocus] = useState(true)
 
   // Ref to track grouped save in progress - prevents report useEffect from closing dialog
@@ -819,6 +818,8 @@ export default function FixIssuesPage({
     setActiveIssue(null)
   }
 
+  const noChanges = tempActiveIssue?.issueData?.initialHtml && tempActiveIssue?.issueData?.newHtml && tempActiveIssue.issueData.initialHtml === tempActiveIssue.issueData.newHtml
+
   return (
     <>
       { widgetState === settings.WIDGET_STATE.LOADING ? (
@@ -956,11 +957,14 @@ export default function FixIssuesPage({
                 <RightArrowIcon className='icon-sm' />
               </button>
             </div>
-            <div className="align-self-center">
+            <div className="flex-row flex-end flex-grow-1 gap-2 align-items-center">
+              { noChanges && (
+                <div className="subtext">{t('fix.label.no_changes_to_save')}</div>
+              )}
               <button
                 onClick={handleIssueSave}
                 className="btn btn-primary btn-icon-left"
-                disabled={formInvalid || !isErrorFoundInContent || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                disabled={formInvalid || !isErrorFoundInContent || noChanges || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                 tabIndex="0">
                 {t('form.submit')}
               </button>
