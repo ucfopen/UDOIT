@@ -138,35 +138,35 @@ export default function EmphasisForm({
         />
         {activeOption === FORM_OPTIONS.ADD_EMPHASIS && (
           <>
-            <div className="flex-row justify-content-start gap-1">
+            <div className="flex-row justify-content-start gap-2">
               <ToggleSwitch
                 labelId="boldCheckbox"
                 initialValue={useBold}
                 updateToggle={setUseBold}
                 disabled={isDisabled}
-                small={true}
+                small={false}
               />
-              <label htmlFor="boldCheckbox" className="ufixit-instructions">{t('form.emphasis.label.bold')}</label>
+              <label id="boldCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.bold')}</label>
             </div>
-            <div className="flex-row justify-content-start gap-1 mt-2">
+            <div className="flex-row justify-content-start gap-2 mt-2">
               <ToggleSwitch
                 labelId="italicCheckbox"
                 initialValue={useItalics}
                 updateToggle={setUseItalics}
                 disabled={isDisabled}
-                small={true}
+                small={false}
               />
-              <label htmlFor="italicCheckbox" className="ufixit-instructions">{t('form.emphasis.label.italic')}</label>
+              <label id="italicCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.italic')}</label>
             </div>
-            <div className="flex-row justify-content-start gap-1 mt-2">
+            <div className="flex-row justify-content-start gap-2 mt-2">
               <ToggleSwitch
                 labelId="removeColorCheckbox"
                 initialValue={removeColor}
                 updateToggle={setRemoveColor}
                 disabled={isDisabled}
-                small={true}
+                small={false}
               />
-              <label htmlFor="removeColorCheckbox" className="ufixit-instructions">{t('form.emphasis.label.remove_color')}</label>
+              <label id="removeColorCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.remove_color')}</label>
             </div>
             <OptionFeedback
               t={t}

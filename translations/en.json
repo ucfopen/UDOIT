@@ -158,6 +158,7 @@
   "settings.label.font_family.serif": "Enhanced Readability: Serif",
   "settings.label.font_family.hyperlegible": "Enhanced Readability: Hyperlegible",
   "settings.label.show_filters_default": "Show Filters by Default",
+  "settings.label.text_spacing": "Text Spacing",
   "settings.label.dark_mode": "Dark Mode",
   "settings.label.language": "Language",
   "settings.label.release_notes": "Release Notes",

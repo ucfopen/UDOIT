@@ -328,6 +328,8 @@ export default function App(initialData) {
         classes += ' dark-mode'
       }
       body.className = classes
+      body.lang = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE
+      body.style.setProperty('--text-spacing-percent', Number(textSpacing))
     }
   }
 
@@ -360,7 +362,7 @@ export default function App(initialData) {
 
   useEffect(() => {
     addSettingsClasses()
-  }, [settings])
+  }, [settings, textSpacing])
 
   useEffect(() => {
     
@@ -383,8 +385,7 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-      className="flex-column flex-grow-1"
-      lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
+      className="flex-column flex-grow-1">
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}

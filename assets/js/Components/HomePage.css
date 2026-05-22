@@ -77,6 +77,7 @@
     height: .5rem;
     border-radius: 1rem;
     position: relative;
+    justify-self: center;
 
     .progress-bar-fill {
       position: absolute;
@@ -92,6 +93,7 @@
   button {
     width: var(--progress-bar-width);
     max-width: 100%;
+    justify-self: center;
   }
 
   &.type-issue {

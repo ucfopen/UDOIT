@@ -114,7 +114,7 @@ export default function FixIssuesList({
                       role="link"
                       tabIndex={openList[group.formLabel] ? '0' : '-1'}>
                         <div className="flex-row gap-2" aria-hidden="true">
-                          <ContentTypeIcon type={issue.contentType} className="icon-block icon-md"/>
+                          <ContentTypeIcon type={issue.contentType} className="icon-block icon-md align-self-center"/>
                           <div className="flex-column justify-content-center">
                             <div className="list-item-title">
                               {issue.contentTitle}

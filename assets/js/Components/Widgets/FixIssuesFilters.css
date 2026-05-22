@@ -11,7 +11,7 @@
       width: 15em;
       min-width: 200px;
       max-width: 250px;
-      padding-inline-start: 2em;
+      padding-inline-start: calc(2em + (.0075em * var(--text-spacing-percent)));
 
       &:focus {
         outline: 2px solid var(--focus-color);
@@ -21,7 +21,7 @@
 
     .search-icon {
       position: absolute;
-      left: 0.4em;
+      left: calc(0.4em + (var(--text-spacing-percent) * .0025em));
       fill: var(--gray);
       align-self: center;
     }
