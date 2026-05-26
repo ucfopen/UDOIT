@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: "App\Repository\CourseRepository")]
+#[ORM\Table(name: 'course')]
 class Course implements \JsonSerializable
 {
     // Private Members
@@ -299,10 +300,9 @@ class Course implements \JsonSerializable
         $files = [];
 
         foreach ($this->fileItems as $file) {
-            if ($activeOnly && !$file->isActive()) {
-                continue;
+            if (!$activeOnly || $file->isActive()) {
+                $files[] = $file;
             }
-            $files[$file->getId()] = $file;
         }
 
         return $files;

@@ -1,0 +1,17 @@
+.file-icon{
+    background-color: var(--gray-lighter);
+    border-radius: 0.5em;
+}
+
+.file-icon-new{
+    background-color: var(--primary-color-light);
+    border-radius: 0.5em;
+}
+
+.file-details{
+    font-size: 0.65em;
+}
+
+.font-title{
+    font-size: 0.75em;
+}

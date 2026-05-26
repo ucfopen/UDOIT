@@ -8,11 +8,9 @@ use App\Entity\FileItem;
 use App\Entity\Issue;
 use App\Entity\Report;
 use App\Entity\User;
-use App\Services\LmsApiService;
-use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
+use App\Services\LmsApiService;
 use App\Services\ScannerService;
-use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -23,17 +21,11 @@ class LmsFetchService {
 
     protected $lmsUser;
 
-    /** @var PhpAllyService $phpAllyService */
-    private $phpAlly;
-
     /** @var ScannerService $scannerService */
     private $scanner;
 
     /** @var EqualAccessService $equalAccessService */
     private $equalAccess;
-
-    /** @var AsyncEqualAccessReport $asyncEqualAccessReport */
-    private $asyncReport;
 
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
@@ -47,9 +39,7 @@ class LmsFetchService {
     public function __construct(
         LmsApiService $lmsApi,
         LmsUserService $lmsUser,
-        PhpAllyService $phpAlly,
         EqualAccessService $equalAccess,
-        AsyncEqualAccessReport $asyncReport,
         ScannerService $scanner,
         ManagerRegistry $doctrine,
         UtilityService $util
@@ -57,10 +47,8 @@ class LmsFetchService {
     {
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
-        $this->phpAlly = $phpAlly;
         $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
-        $this->asyncReport = $asyncReport;
         $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
@@ -80,7 +68,10 @@ class LmsFetchService {
             $output = new ConsoleOutput();
             $lms = $this->lmsApi->getLms($user);
 
-            $this->lmsUser->validateApiKey($user);
+            $apiStatus = $this->lmsUser->validateApiKey($user);
+            if(!$apiStatus['success']){
+                $this->util->exitWithMessage($apiStatus['message']);
+            }
 
             /** @var \App\Repository\ContentItemRepository $contentItemRepo */
             $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
@@ -88,8 +79,7 @@ class LmsFetchService {
             /** @var \App\Repository\FileItemRepository $fileItemRepo */
             $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
 
-            /* Step 1: Update content
-            /* Update course status */
+            /* Step 1: Update overall course data, like name and account id */
             $lms->updateCourseData($course, $user);
 
             /* Step 2: Get list of updated content items */
@@ -111,8 +101,8 @@ class LmsFetchService {
             /* Step 3: Delete issues for updated content items */
             $this->deleteContentItemIssues($contentItems);
 
-            $output->writeln("Scanning content items now...");
-            /* Step 4: Process the updated content with PhpAlly and link to report */
+            $output->writeln("Scanning ". count($contentItems) . " content items now...");
+            /* Step 4: Process the updated content and link to report */
             $this->scanContentItems($contentItems);
 
             $output->writeln("Updating report now...");
@@ -174,20 +164,27 @@ class LmsFetchService {
             }
         }
 
-        $scanCounts = (object) [
-          'errors' => $errors,
-          'potentials' => $potentials,
-          'suggestions' => $suggestions,
-        ];
-
         /** @var \App\Entity\FileItem[] $fileItems */
         $fileItems = $course->getFileItems();
+        $unreviewedFiles = 0;
         foreach ($fileItems as $file) {
             if ($file->getReviewed()) {
                 $filesReviewed++;
             }
+            else {
+                $unreviewedFiles++;
+            }
         }
 
+        $scanCounts = (object) [
+          'errors' => $errors,
+          'potentials' => $potentials,
+          'suggestions' => $suggestions,
+          'files' => $unreviewedFiles
+        ];
+
+        $output = new ConsoleOutput();
+        $output->writeln(json_encode($scanCounts));
         $latestReport = $course->getLatestReport();
         $now = $this->util->getCurrentTime();
 
@@ -221,7 +218,7 @@ class LmsFetchService {
     }
 
 
-    // Performs PHPAlly scan on each Content Item.
+    // Performs scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
@@ -231,9 +228,9 @@ class LmsFetchService {
 
         // If we're using Equal Access Lambda, send all the requests to Lambda for the
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
-        if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
-            $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
-        }
+        // if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+        //     $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
+        // }
 
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
@@ -250,15 +247,15 @@ class LmsFetchService {
 
                 if ($report) {
                     // TODO: Do something with report errors
-                    if (count($report->getErrors())) {
-                        foreach ($report->getErrors() as $error) {
+                    if (count($report->errors)) {
+                        foreach ($report->errors as $error) {
                             $msg = $error . ', item = #' . $contentItem->getId();
                             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
                         }
                     }
 
                     // Add Issues to report
-                    foreach ($report->getIssues() as $issue) {
+                    foreach ($report->issues as $issue) {
                         if(isset($issue->isGeneric)) {
                           $this->createGenericIssue($issue, $contentItem);
                         }
@@ -276,25 +273,13 @@ class LmsFetchService {
         $this->doctrine->getManager()->flush();
     }
 
-    public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
+    public function createIssue($issue, ContentItem $contentItem)
     {
         $issueEntity = new Issue();
-        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
         $issueType = self::ISSUE_TYPE_ERROR;
 
-        if (isset($meta['SUGGESTION_RULES'])) {
-            if (isset($meta['SUGGESTION_RULES'][$issue->getRuleId()])) {
-                $issueType = self::ISSUE_TYPE_SUGGESTION;
-            }
-        }
-        if (isset($_ENV['PHPALLY_SUGGESTION_RULES'])) {
-            if (strpos($_ENV['PHPALLY_SUGGESTION_RULES'], $issue->getRuleId()) !== false) {
-                $issueType = self::ISSUE_TYPE_SUGGESTION;
-            }
-        }
-
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess') {
           $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
           if($issueType == 'pass') {
             // If the issue is a pass, we don't create an issue for it
@@ -324,7 +309,7 @@ class LmsFetchService {
         $issueType = self::ISSUE_TYPE_ERROR;
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess') {
           $issueType = $this->equalAccess->getIssueType($issue->metadata);
         }
 
@@ -351,5 +336,12 @@ class LmsFetchService {
         foreach ($contentItems as $contentItem) {
             $issueRepo->deleteContentItemIssues($contentItem);
         }
+    }
+
+    public function updateFileItem($course, $user, $file)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->updateFileItem($course, $file);
+
     }
 }

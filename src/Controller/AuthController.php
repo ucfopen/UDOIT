@@ -9,9 +9,10 @@ use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class AuthController extends AbstractController
 {
@@ -23,6 +24,8 @@ class AuthController extends AbstractController
     private $lmsApi;
 
     private ManagerRegistry $doctrine;
+
+    private $session;
 
     public function __construct(ManagerRegistry $doctrine)
     {
@@ -94,9 +97,17 @@ class AuthController extends AbstractController
 
         $destination = $this->session->get('destination', 'dashboard');
 
-        return $this->redirectToRoute(
-            $destination,
-            ['auth_token' => $this->session->getUuid()]);
+        $response = $this->redirectToRoute($destination);
+        $response->headers->setCookie(
+            Cookie::create('AUTH_TOKEN')
+                ->withValue($this->session->getUuid())
+                ->withExpires(0)
+                ->withPath('/')
+                ->withSecure(true)
+                ->withHttpOnly(true)
+                ->withSameSite('none')
+        );
+        return $response;
     }
 
     // Pass in the institution ID and this will encrypt the developer key.
@@ -119,6 +130,7 @@ class AuthController extends AbstractController
         $institution = $user->getInstitution();
         $code = $this->request->query->get('code');
         $clientSecret = $institution->getApiClientSecret();
+        $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($clientSecret)) {
             $institution->encryptDeveloperKey();
@@ -133,6 +145,9 @@ class AuthController extends AbstractController
                 'redirect_uri'  => LmsUserService::getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'code'          => $code,
+            ],
+            'headers' => [
+                'User-Agent' => $userAgent,
             ],
             'verify_host' => false,
             'verify_peer' => false,

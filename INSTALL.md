@@ -52,16 +52,23 @@ This command copies the `.env.example` into `.env`, creating the `.env` file in 
 ### Option 1: Docker
 We provide a fast and simple way of setting up a local UDOIT instance through Docker.
 
-1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system.
-	> Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
+#### 1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system.
+> Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
 
-2. Build the Containers
+#### 2. (Optional) Install the Necessary PHP Dependencies for Dev Environment
+
+UDOIT uses Composer to install PHP dependencies. Running the following command will handle installing the dependencies for you.
+
+#### 3. Build the Containers
 
 ```
     make start
 ```
 
-3. Once the containers are initialized, run the following command:
+*Note: This may take a while to fully initiate. This is normal.*
+
+#### 4. Create the encryption key
+Once the containers are initialized, run the following command:
 
 ```
     make create-key
@@ -70,11 +77,12 @@ This will generate an encryption key that is used during encryption and decrypti
 
 You **must** generate a key, otherwise UDOIT will not start correctly.
 
-4. Finally, with the containers still running, run the following command:
+#### 5. Set Up Database
+
+The following command applies migrations necessary to set up the database to store all UDOIT data. Please make sure the containers have fully spun up before running this command.
 ```
     make migrate
 ```
-This applies migrations necessary to set up the database to store all UDOIT data.
 
 Running this will give the following warning:
 
@@ -86,13 +94,15 @@ Type `yes` and proceed. The warning is expected and is a non issue.
 
 UDOIT should be installed and running as Docker containers.
 
-5. After generating an encryption key and applying migrations, run the following command to stop UDOIT:
+#### After generating an encryption key and applying migrations, run the following command to stop the UDOIT containers:
 ```
     make down
 ```
 You will need to stop UDOIT before loading it for the first time in order to allow the new encryption key to reload.
 
-> Please be sure to review the `Makefile` for more information on what these commands do.
+Please be sure to review the `Makefile` for more information on what these commands do.
+
+If UDOIT is running without errors, you can move on to [installing it for your LMS](#connecting-udoit-to-an-lms)! If you're encountering errors, please check out the [wiki](https://github.com/ucfopen/UDOIT/wiki).
 
 ### Option 2: Manual Installation
 If you prefer not to use Docker, the process is more complicated:
@@ -173,3 +183,6 @@ For example, if you are setting this up on your local computer via Docker, it ma
 To configure it fully within your LMS, follow the installation instructions below that apply to you.
 - To install it on Canvas, follow [INSTALL_CANVAS.md](INSTALL_CANVAS.md)
 - or for D2l Brightspace, follow [INSTALL_D2L.md](INSTALL_D2L.md)
+
+## Encountering Errors
+Please resort to the [wiki page](https://github.com/ucfopen/UDOIT/wiki) for some commonly found errors when setting up UDOIT.

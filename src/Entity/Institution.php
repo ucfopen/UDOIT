@@ -9,6 +9,7 @@ use JsonSerializable;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\InstitutionRepository")]
+#[ORM\Table(name: 'institution')]
 
 class Institution implements JsonSerializable
 {
@@ -186,7 +187,11 @@ class Institution implements JsonSerializable
 
     public function getMetadata(): ?array
     {
-        return \json_decode($this->metadata, true);
+        if ($this->metadata !== null) {
+            return json_decode($this->metadata, true);
+        }
+
+        return null;
     }
 
     public function setMetadata(array $metadata): self

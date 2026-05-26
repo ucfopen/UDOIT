@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector'
+import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -7,24 +8,45 @@ export default function TableCaptionForm({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
-}) {
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
+ }) {
+  
+  const FORM_OPTIONS = {
+    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
+    DELETE_CAPTION: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
 
   const [textInputValue, setTextInputValue] = useState('')
-  const [deleteCaption, setDeleteCaption] = useState(false)
-  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     if (activeIssue) {
       const html = Html.getIssueHtml(activeIssue)
       const element = Html.toElement(html)
+      const initialText = (element ? element.innerText : '')
+      
+      const deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
+      const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
-      setTextInputValue(element ? element.innerText : '')
-      setDeleteCaption(!element && activeIssue.status.toString() === '1')
+      if (deleted) {
+        setActiveOption(FORM_OPTIONS.DELETE_CAPTION)
+      }
+      else if (reviewed) {
+        setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+      }
+      else if (initialText !== '') {
+        setActiveOption(FORM_OPTIONS.ADD_TEXT)
+      }
+      else {
+        setActiveOption('')
+      }
+
+      setTextInputValue(initialText)
     }
     setFormErrors([])
   }, [activeIssue])
@@ -32,87 +54,97 @@ export default function TableCaptionForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, deleteCaption, markAsReviewed])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
+    if (activeOption === FORM_OPTIONS.ADD_TEXT) {
+      const element = Html.toElement(Html.getIssueHtml(activeIssue))
+      issue.newHtml = Html.toString(Html.setInnerText(element, textInputValue))
     }
-    issue.newHtml = processHtml()
+    else if(activeOption === FORM_OPTIONS.DELETE_CAPTION) {
+      issue.newHtml = ''
+    }
+    else if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      issue.newHtml = issue.initialHtml
+    }
+
     handleActiveIssue(issue)
   }
 
   const checkFormErrors = () => {
-    let tempErrors = []
-    if(!deleteCaption) {
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_TEXT]: [],
+      [FORM_OPTIONS.DELETE_ELEMENT]: [],
+    }
+
+    if(activeOption === FORM_OPTIONS.ADD_TEXT) {
       if(Text.isTextEmpty(textInputValue)) {
-        tempErrors.push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
       }
     }
+
     setFormErrors(tempErrors)
   }
 
-  const processHtml = () => {
-    if (deleteCaption) {
-      return '';
-    }
-
-    const html = Html.getIssueHtml(activeIssue)
-    return Html.toString(Html.setInnerText(html, textInputValue))
-  }
-
-  const handleCheckbox = () => {
-    setDeleteCaption(!deleteCaption)
-  }
-
-  const handleInput = (newValue) => {
-    setTextInputValue(newValue)
-  }
-
-  const handleSubmit = () => {
-    handleIssueSave(activeIssue)
+  const handleInput = (event) => {
+    const value = event.target.value
+    setTextInputValue(value)
   }
 
   return (
     <>
-      <label className="instructions" htmlFor="captionTextInput">{t('form.table_caption.label.text')}</label>
-      <div className="w-100 mt-2">
-        <input
-          type="text" 
-          id="captionTextInput"
-          name="captionTextInput"
-          className="w-100"
-          value={textInputValue}
-          disabled={isDisabled || deleteCaption}
-          tabIndex="0"
-          onChange={(e) => handleInput(e.target.value)} />
+      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_TEXT}
+          labelId = 'add-text-label'
+          labelText = {t('form.table_caption.label.text')}
+          />
+
+        {activeOption === FORM_OPTIONS.ADD_TEXT && (
+          <>
+            <input
+              aria-labelledby="add-text-label"
+              name="linkTextInput"
+              id="linkTextInput"
+              className="w-100"
+              type="text"
+              value={textInputValue}
+              onChange={handleInput}
+              tabIndex="0"
+              disabled={isDisabled} />
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+          </>
+        )}
       </div>
-      <div className="separator mt-2">{t('fix.label.or')}</div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="deleteCaptionCheckbox"
-          name="deleteCaptionCheckbox"
-          checked={deleteCaption}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleCheckbox} />
-        <label className="instructions" htmlFor="deleteCaptionCheckbox">{t('form.table_caption.label.remove_caption')}</label>
+
+      {/* OPTION 2: Delete Link. ID: "DELETE_CAPTION" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_CAPTION ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.DELETE_CAPTION}
+          labelText = {t('form.table_caption.label.remove_caption')}
+          />
       </div>
-      <div className="instructions-helper">{t('form.table_caption.label.remove_caption_desc')}</div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
+      </div>
     </>
   )
 }

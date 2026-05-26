@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector'
+import OptionFeedback from '../Widgets/OptionFeedback'
+import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
@@ -7,28 +9,31 @@ export default function BlockquoteForm({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
-}) {
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
+ }) {
+  
+  const FORM_OPTIONS = {
+    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
+    REMOVE_BLOCKQUOTE: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
 
-  const [citationText, setCitationText] = useState("")
+  const [textInputValue, setTextInputValue] = useState("")
   const [hideCitation, setHideCitation] = useState(false)
-  const [removeBlockquote, setRemoveBlockquote] = useState(false)
-  const [formErrors, setFormErrors] = useState([])
-  const [triggerCheck, setTriggerCheck] = useState(false)
 
   // Re-init form when activeIssue changes
   useEffect(() => {
-
     if (!activeIssue) {
       return
     }
 
     const html = Html.getIssueHtml(activeIssue)
-    let newCite = ""
+    let tempCitationText = ""
     let inlineCite = ""
     let elementCite = null
     let tempElement = Html.toElement(html)
@@ -37,47 +42,64 @@ export default function BlockquoteForm({
       tempElement = embedTextOnlyInParagraph(tempElement)
       inlineCite = tempElement ? Html.getAttribute(tempElement, "cite") : ""
       elementCite = Html.getChild(tempElement, "cite")
-      newCite = elementCite ? elementCite.textContent : inlineCite
+      tempCitationText = elementCite ? elementCite.textContent : inlineCite
+      if(!tempCitationText) {
+        tempCitationText = ""
+      } else {
+        tempCitationText = tempCitationText.trim()
+      }
+    }
+    const removeBlockquote = (activeIssue.status === 1 || activeIssue.status === 3) && !isBlockquote
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+
+    if (reviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else if (removeBlockquote) {
+      setActiveOption(FORM_OPTIONS.REMOVE_BLOCKQUOTE)
+    }
+    else if (tempCitationText && tempCitationText.length > 0) {
+      setActiveOption(FORM_OPTIONS.ADD_TEXT)
+    } else {
+      setActiveOption('')
     }
 
-    setCitationText(newCite || "")
+    setTextInputValue(tempCitationText || "")
     setHideCitation(inlineCite && !elementCite)
-    setRemoveBlockquote(!isBlockquote)
-    setFormErrors([])
-    setTriggerCheck(!triggerCheck) // Trigger a check (below) to ensure the form updates correctly
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [citationText, hideCitation, removeBlockquote, triggerCheck, markAsReviewed])
+  }, [activeOption, textInputValue, hideCitation])
 
   const updateHtmlContent = () => {
-
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
     }
     
-    const html = Html.getIssueHtml(activeIssue)
-    issue.newHtml = processHtml(html)
+    issue.newHtml = processHtml(issue.initialHtml)
     handleActiveIssue(issue)
   }
 
   const checkFormErrors = () => {
-    const tempFormErrors = []
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_TEXT]: [],
+      [FORM_OPTIONS.REMOVE_BLOCKQUOTE]: [],
+    }
 
-    if (!removeBlockquote) {
-      if(Text.isTextEmpty(citationText)) {
-        tempFormErrors.push({text: t('form.blockquote.msg.text_empty'), type: 'error'})
+    if (activeOption === FORM_OPTIONS.ADD_TEXT) {
+      if (Text.isTextEmpty(textInputValue)) {
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({text: t('form.blockquote.msg.text_empty'), type: 'error'})
       }
     }
 
-    setFormErrors(tempFormErrors)
+    setFormErrors(tempErrors)
   }
 
   // If the blockquote only contains text, we return that text wrapped in a <p> tag
@@ -99,23 +121,14 @@ export default function BlockquoteForm({
   }
 
 
-
-
   const processHtml = (html) => {
     let updatedElement = Html.toElement(html)
-    if(!updatedElement) {
+    if(!html || !updatedElement) {
       return ''
     }
 
     const isBlockquote = updatedElement && updatedElement.tagName.toLowerCase() === 'blockquote'
-
-    // Case 1: Element is NOT a blockquote any more ("fixed" by the user), but they haven't unchecked the "remove blockquote" checkbox...
-    if(!isBlockquote && removeBlockquote) {
-      return Html.toString(updatedElement)
-    }
-
-    // Case 2: Element is NOT a blockquote, but the user has unchecked the "remove blockquote" checkbox... Make it a blockquote again and continue.
-    if(!isBlockquote && !removeBlockquote) {
+    if (!isBlockquote && !(activeOption === FORM_OPTIONS.REMOVE_BLOCKQUOTE)) {
       // We need to wrap the content in a blockquote tag
       const newBlockquote = document.createElement('blockquote')
       updatedElement.childNodes.forEach(node => {
@@ -126,9 +139,31 @@ export default function BlockquoteForm({
 
     updatedElement = embedTextOnlyInParagraph(updatedElement)
 
-    // If the blockquote is to be removed...
-    if (removeBlockquote) {
+    if (activeOption === FORM_OPTIONS.ADD_TEXT) {
+      if (hideCitation) {
+        updatedElement = Html.setAttribute(updatedElement, 'cite', textInputValue)
+        // Remove any existing cite tag, as it will not be used
+        const existingCite = updatedElement.querySelector('cite')
+        if (existingCite) {
+          existingCite.remove()
+        }
+      }
+      else {
+        // If the blockquote already has a cite tag, update it
+        const existingCite = updatedElement.querySelector('cite')
+        if (existingCite) {
+          existingCite.textContent = textInputValue
+        } else {
+          // Otherwise, create a new cite element and append it
+          const citeElement = document.createElement('cite')
+          citeElement.textContent = textInputValue
+          updatedElement.appendChild(citeElement)
+        }
+        updatedElement.removeAttribute('cite')
+      }
+    }
 
+    if (activeOption === FORM_OPTIONS.REMOVE_BLOCKQUOTE) {
       const filteredNodes = Array.from(updatedElement.childNodes).filter(node => {
         // Filter out empty text nodes and non-block level elements
         return node.nodeType !== Node.TEXT_NODE || node.textContent.trim() !== ''
@@ -151,106 +186,75 @@ export default function BlockquoteForm({
       }
     }
 
-    // If the citation is present but needs to be visually hidden, add it as the cite attribute
-    if (hideCitation && citationText.length > 0) {
-      updatedElement = Html.setAttribute(updatedElement, 'cite', citationText)
-      // Remove any existing cite tag, as it will not be used
-      const existingCite = updatedElement.querySelector('cite')
-      if (existingCite) {
-        existingCite.remove()
-      }
-    }
-
-    // If the citation is not hidden, we want to update or add the cite tag inside the blockquote
-    if (!hideCitation && citationText.length > 0) {
-      if (citationText.length > 0) {
-        // If the blockquote already has a cite tag, update it
-        const existingCite = updatedElement.querySelector('cite')
-        if (existingCite) {
-          existingCite.textContent = citationText
-        } else {
-          // Otherwise, create a new cite element and append it
-          const citeElement = document.createElement('cite')
-          citeElement.textContent = citationText
-          updatedElement.appendChild(citeElement)
-        }
-      }
-      // Remove the cite attribute if it exists
-      updatedElement.removeAttribute('cite')
-    }
-
     const newHtmlString = Html.toString(updatedElement)
     return newHtmlString
   }
 
-  const handleInput = (newValue) => {
-    setCitationText(newValue)
-  }
-
-  const handleHideToggle = () => {
-    setHideCitation(!hideCitation)
-  }
-
-  const handleRemoveToggle = () => {
-    setRemoveBlockquote(!removeBlockquote)
-  }
-
-  const handleSubmit = () => {
-    if(markAsReviewed || formErrors.length === 0) {
-      handleIssueSave({ ...activeIssue, newHtml: activeIssue.newHtml })
-    }
+  const handleInput = (event) => {
+    setTextInputValue(event.target.value)
   }
 
   return (
     <>
-      <label className="instructions" htmlFor="blockquoteCiteInput">{t('form.blockquote.label.text')}</label>
-      <div className="w-100 mt-2">
-        <input
-          type="text" 
-          id="blockquoteCiteInput"
-          name="blockquoteCiteInput"
-          className="w-100"
-          value={citationText}
-          disabled={isDisabled || removeBlockquote}
-          placeholder={t('form.blockquote.text.placeholder')}
-          tabIndex="0"
-          onChange={(e) => handleInput(e.target.value)} />
+      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_TEXT}
+          labelId = 'add-text-label'
+          labelText = {t('form.blockquote.label.text')}
+          />
+
+        {activeOption === FORM_OPTIONS.ADD_TEXT && (
+          <>
+            <input
+              aria-labelledby="add-text-label"
+              type="text"
+              tabIndex="0"
+              id="altTextInput"
+              name="altTextInput"
+              className="w-100"
+              value={textInputValue}
+              disabled={isDisabled}
+              onChange={handleInput} />
+            <div className="flex-row justify-content-start gap-1 mt-3">
+              <ToggleSwitch
+                labelId="hideCitationToggle"
+                initialValue={hideCitation}
+                updateToggle={setHideCitation}
+                disabled={isDisabled}
+                small={true} />
+              <label htmlFor="hideCitationToggle" className="ufixit-instructions">{t('form.blockquote.label.hide_citation')}</label>
+            </div>
+            <div className="subtext">{t('form.blockquote.label.hide_citation_desc')}</div>
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+          </>
+        )}
       </div>
 
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="hideCheckbox"
-          name="hideCheckbox"
-          checked={hideCitation}
-          tabIndex="0"
-          disabled={isDisabled || removeBlockquote}
-          onChange={handleHideToggle} />
-        <label className="instructions" htmlFor="hideCheckbox">{t('form.blockquote.label.hide_citation')}</label>
+      {/* OPTION 2: Mark as Decorative. ID: "REMOVE_BLOCKQUOTE" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.REMOVE_BLOCKQUOTE ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.REMOVE_BLOCKQUOTE}
+          labelText = {t('form.blockquote.label.remove_blockquote')}
+          />
       </div>
-      <div className="instructions-helper">{t('form.blockquote.label.hide_citation_desc')}</div>
 
-      <div className="separator mt-2">{t('fix.label.or')}</div>
-
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="removeCheckbox"
-          name="removeCheckbox"
-          checked={removeBlockquote}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleRemoveToggle} />
-        <label className="instructions" htmlFor="removeCheckbox">{t('form.blockquote.label.remove_blockquote')}</label>
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
       </div>
-      
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

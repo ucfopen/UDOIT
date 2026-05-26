@@ -1,0 +1,99 @@
+@layer udoit-component {
+  .slider-select {
+    display: flex;
+    position: relative;
+    background-color: var(--container-color);
+    border-radius:  var(--element-radius);
+    overflow: hidden;
+    width: max-content;
+    height: fit-content;
+    isolation: isolate;
+    padding: .4rem;
+    gap: .5rem;
+
+    &:has(input[type="radio"]:checked){
+      --slider-select-opacity: 1;
+    }
+
+    &:has(.slider-option-container:nth-child(1).active){
+      --slider-select-width: var(--tab-1-width);
+      --slider-select-left: .4rem;
+    }
+    &:has(.slider-option-container:nth-child(2).active){
+      --slider-select-width: var(--tab-2-width);
+      --slider-select-left: calc(var(--tab-1-width) + .9rem);
+    }
+    &:has(.slider-option-container:nth-child(3).active){
+      --slider-select-width: var(--tab-3-width);
+      --slider-select-left: calc(var(--tab-1-width) + var(--tab-2-width) + 1.4rem);
+    }
+    &:has(.slider-option-container:nth-child(4).active){
+      --slider-select-width: var(--tab-4-width);
+      --slider-select-left: calc(var(--tab-1-width) + var(--tab-2-width) + var(--tab-3-width) + 1.9rem);
+    }
+    &:has(.slider-option-container:nth-child(5).active){
+      --slider-select-width: var(--tab-5-width);
+      --slider-select-left: calc(var(--tab-1-width) + var(--tab-2-width) + var(--tab-3-width) + var(--tab-4-width) + 2.4rem);
+    }
+
+    &::after{
+      content : '';
+      position:absolute;
+      inset:0px;
+      background-color: var(--white);
+      box-shadow: 0px 2px 3px var(--shadow-color);
+      border-radius: var(--element-radius);
+      z-index:-1;
+      opacity:var(--slider-select-opacity);
+      width:var(--slider-select-width);
+      left:var(--slider-select-left);
+      transition : opacity var(--transition-time) , width var(--transition-time) , left var(--transition-time); 
+      top: .4rem;
+      height: calc(100% - .8rem);
+    }
+  }
+
+  .slider-select.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .slider-select input[type="radio"] {
+    display: none;
+  }
+
+  .slider-select label {
+    display: flex;
+    flex-shrink: 0;
+    padding: .4em 1.25em;
+    cursor: pointer;
+    user-select: none;
+    font-size: .8em;
+    text-transform: uppercase;
+    font-weight: 400;
+    border-radius: var(--element-radius);
+  }
+
+  .slider-select input[type="radio"]:checked + label {
+    color: var(--text-color);
+  }
+
+  .slider-option-container {
+    border-radius: var(--element-radius);
+    color: var(--text-secondary-color);
+
+    &:hover,
+    &:focus,
+    &.active {
+      color: var(--text-color);
+    }
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 2px;
+    }
+  }
+
+   
+
+}

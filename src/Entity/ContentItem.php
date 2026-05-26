@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: "App\Repository\ContentItemRepository")]
+#[ORM\Table(name: 'content_item')]
 class ContentItem implements \JsonSerializable
 {
     // Private Members
@@ -153,6 +154,27 @@ class ContentItem implements \JsonSerializable
         return $this;
     }
 
+    public function getParentLmsId(): ?string
+    {
+        $metadata = json_decode($this->getMetadata(), true);
+        if (isset($metadata['parentLmsId'])) {
+            return $metadata['parentLmsId'];
+        }
+        return null;
+    }
+
+    public function setParentLmsId(?string $parentLmsId): self
+    {
+        $metadata = json_decode($this->getMetadata(), true);
+        if (!is_array($metadata)) {
+            $metadata = [];
+        }
+        $metadata['parentLmsId'] = $parentLmsId;
+        $this->setMetadata(json_encode($metadata));
+
+        return $this;
+    }
+
     public function getBody(): ?string
     {
         return $this->body;
@@ -233,7 +255,6 @@ class ContentItem implements \JsonSerializable
 
     public function update($lmsContent): self
     {
-        // try {
         $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
 
         $this->setUpdated($updatedDate);
@@ -243,10 +264,9 @@ class ContentItem implements \JsonSerializable
         $this->setBody($lmsContent['body']);
         $this->setUrl($lmsContent['url']);
 
-        // }
-        // catch (\Exception $e) {
-
-        // }
+        if(isset($lmsContent['parentLmsId'])) {
+            $this->setParentLmsId($lmsContent['parentLmsId']);
+        }
 
         return $this;
     }

@@ -1,48 +1,46 @@
-@import '../../css/udoit4-theme.css';
+@layer udoit-component {
+    
+  .ufixit-nav-container {
+    background-color: var(--background-color);
+    padding: .5rem 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+  }
 
-.ufixit-nav-container {
-  background-color: var(--background-color);
-  padding: .5rem 1rem;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-}
+  .ufixit-widget-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1 1 auto;
 
-.ufixit-content-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  flex-shrink: 1;
+    box-sizing:border-box;
+    width: 50%;
+    min-width: 30em;
+    max-width: 38em;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
 
-  box-sizing: border-box;
-  width: 50%;
-  overflow-y: hidden;
-  overflow-x: hidden;
+  .ufixit-content-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 1;
 
-  /* This is so the highlighted error outlines don't get cut off */
-  padding: 5px;
-  margin: -5px;
-}
+    box-sizing: border-box;
+    width: 50%;
+    overflow-y: hidden;
+    overflow-x: hidden;
 
-.ufixit-widget-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1 1 auto;
+    background-color: var(--background-color);
+    border-left: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+  }
 
-  box-sizing:border-box;
-  width: 50%;
-  min-width: 30em;
-  max-width: 38em;
-  overflow-y: hidden;
-  overflow-x: hidden;
-
-  padding: 5px;
-  margin: -5px;
-}
-
-.ufixit-content-progress {
-  flex-shrink: 0;
-  flex-grow: 0;
+  .ufixit-content-progress {
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
 }

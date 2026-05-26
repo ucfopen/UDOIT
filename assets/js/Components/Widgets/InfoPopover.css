@@ -1,0 +1,103 @@
+.info-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-popover-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  border-radius: 50%;
+  padding: .2em;
+  border: 1px solid transparent;
+  box-shadow: none;
+  fill: var(--text-disabled-color);
+}
+
+.info-popover-btn:hover,
+.info-popover-btn:focus {
+  fill: var(--selection-color);
+  background: var(--pill-success-background);
+}
+
+.info-popover-btn:hover {
+  border-color: var(--pill-success-border);
+}
+
+.info-popover-btn:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 1px;
+}
+
+/* The popover dialog itself */
+.info-popover-dialog {
+  position: fixed;
+  inset: unset;
+  z-index: 1000;
+  background: var(--white);
+  border-radius: var(--window-radius);
+  min-width: 20em;
+  max-width: 25em;
+  border: none;
+  outline: none;
+}
+
+.info-popover-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: .5em;
+  padding: .75em 1em;
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  text-decoration: none !important;
+
+  h2 {
+    margin: 0;
+    font-size: 1.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  [role="button"] {
+    cursor: pointer;
+    border-radius: 50%;
+    padding: .2em;
+    border: 1px solid transparent;
+    box-shadow: none;
+    fill: var(--text-disabled-color);
+
+    &:hover, &:focus {
+      fill: var(--text-color);
+      background-color: var(--gray-lighter);
+    }
+
+    &:focus {
+      outline-offset: -2px;
+      outline: 2px solid var(--focus-color);
+    }
+  }
+}
+
+.info-popover-content {
+  padding: 1em;
+  text-decoration: none !important;
+  font-size: 1.1em;
+  color: var(--text-secondary-color);
+  font-weight: 300;
+}
+
+.info-popover-action {
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 1rem;
+  padding: .75rem 1rem;
+}

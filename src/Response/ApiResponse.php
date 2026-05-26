@@ -32,6 +32,10 @@ class ApiResponse implements \JsonSerializable
             'timeout' => $timeout,
             'visible' => $visible,
         ];
+
+        if($severity === 'error') {
+            $this->addError($msg);
+        }
     }
 
     // Undocumented function

@@ -18,7 +18,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 class SessionAuthenticator extends AbstractAuthenticator
@@ -26,7 +25,12 @@ class SessionAuthenticator extends AbstractAuthenticator
     private $request;
     private $router;
     private $em;
+
+    /** @var SessionService $sessionService */
     private $sessionService;
+
+    /** @var UtilityService $util */
+    private $util;
 
     public function __construct(
         RequestStack $requestStack,

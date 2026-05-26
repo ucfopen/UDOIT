@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\ReportRepository")]
+#[ORM\Table(name: 'report')]
 class Report implements \JsonSerializable
 {
     // Private Members
@@ -50,10 +51,13 @@ class Report implements \JsonSerializable
 
     private $filesReviewed;
 
+    private $queueItems;
+
+    private $issues;
+
     // Constructor
     public function __construct()
     {
-        $this->queue_items = new ArrayCollection();
         $this->queueItems = new ArrayCollection();
         $this->issues = new ArrayCollection();
     }

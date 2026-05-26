@@ -69,6 +69,7 @@ export default function AdminFilters({
             <select
               id="inputAccount"
               disabled={loadingContent}
+              value={filters.accountId.toString()}
               onChange={(e) => handleAccountSelect(e.target.value)}
             >
               {accountOptions.map((acct, i) => {
@@ -76,8 +77,7 @@ export default function AdminFilters({
                   <option
                     key={`acct-${i}`}
                     value={acct.id}
-                    selected={filters.accountId.toString() === acct.id.toString()}
-                    >
+                  >
                     {acct.name}
                   </option>
                 )
@@ -93,6 +93,7 @@ export default function AdminFilters({
             <select
               id="inputTerm"
               disabled={loadingContent}
+              value={filters.accountId.toString()}
               onChange={(e) => handleTermSelect(e.target.value)}
             >
               {termOptions.map((term, i) => {
@@ -100,8 +101,7 @@ export default function AdminFilters({
                   <option
                     key={`term-${i}`}
                     value={term.id}
-                    selected={filters.termId.toString() === term.id.toString()}
-                    >
+                  >
                     {term.name}
                   </option>
                 )

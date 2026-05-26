@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector'
+import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -7,19 +8,23 @@ export default function AltText ({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
  }) {
   
+  const FORM_OPTIONS = {
+    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_DECORATIVE: settings.UFIXIT_OPTIONS.MARK_DECORATIVE,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
   const maxLength = 150
 
   const [textInputValue, setTextInputValue] = useState('')
-  const [isDecorative, setIsDecorative] = useState(false)
   const [characterCount, setCharacterCount] = useState(0)
-  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     if (!activeIssue) {
@@ -29,22 +34,34 @@ export default function AltText ({
     let altText = Html.getAttribute(html, 'alt')
     altText = (typeof altText === 'string') ? altText : ''
 
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+
     setTextInputValue(altText)
-    setIsDecorative((elementIsDecorative(html) === 'true'))
     setCharacterCount(altText.length)
     setFormErrors([])
+
+    if (reviewed){
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else if (altText && altText.length > 0) {
+      setActiveOption(FORM_OPTIONS.ADD_TEXT)
+    } else if (elementIsDecorative(html)) {
+      setActiveOption(FORM_OPTIONS.MARK_DECORATIVE)
+    } else {
+      setActiveOption('')
+    }
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, isDecorative, markAsReviewed])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
@@ -53,12 +70,18 @@ export default function AltText ({
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
     
-    if (isDecorative) {
-      element = Html.setAttribute(element, "role", "presentation")
+    if (activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
+      // <canvas> elements may have special roles, like "img", and we don't want to overwrite or remove those.
+      // <input> elements with type="image" also need to keep their role.
+      if(issue.scanRuleId !== 'canvas_content_described' && issue.scanRuleId !== 'imagebutton_alt_exists') {
+        element = Html.setAttribute(element, "role", "presentation")
+      }
       element = Html.setAttribute(element, 'alt', '')
       element = Html.setAttribute(element, 'title', '')
     } else {
-      element = Html.removeAttribute(element, "role")
+      if(issue.scanRuleId !== 'canvas_content_described' && issue.scanRuleId !== 'imagebutton_alt_exists') {
+        element = Html.removeAttribute(element, "role")
+      }
       element = Html.setAttribute(element, "alt", textInputValue)
       element = Html.setAttribute(element, "title", textInputValue)
     }
@@ -68,44 +91,31 @@ export default function AltText ({
   }
 
   const checkFormErrors = () => {
-    let tempErrors = []
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_TEXT]: [],
+      [FORM_OPTIONS.MARK_DECORATIVE]: [],
+    }
     
-    // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
-    if (!isDecorative && !markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.ADD_TEXT) {
       if(Text.isTextEmpty(textInputValue)){
-        tempErrors.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
       }
       if(Text.isTextTooLong(textInputValue, maxLength)){
-        tempErrors.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
       }
       if(hasFileExtensions()) {
-        tempErrors.push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
       }
       if(hasFileName()) {
-        tempErrors.push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
       }
     }
 
     setFormErrors(tempErrors)
   }
 
-  const handleSubmit = () => {
-    if (markAsReviewed || formErrors.length === 0) {
-      handleIssueSave(activeIssue)
-    }
-  }
-
-  const handleInput = (event) => {
-    setTextInputValue(event.target.value)
-    setCharacterCount(event.target.value.length)
-  }
-
-  const handleCheckbox = () => {
-    setIsDecorative(!isDecorative)
-  }
-
   const hasFileExtensions = () => {
-    let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif)$/i
+    let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif|.bmp)$/i
 
     if (textInputValue.match(fileRegex) != null) {
       return true
@@ -135,46 +145,63 @@ export default function AltText ({
     return (decorativeAttribute === 'true' || roleAttribute === 'presentation' || (classes.includes('phpally-ignore')))
   }
 
+  const handleInput = (event) => {
+    setTextInputValue(event.target.value)
+    setCharacterCount(event.target.value.length)
+  }
+
   return (
     <>
-      <label htmlFor="altTextInput" className="instructions">{t('form.alt_text.label.text')}</label>
-      <div className="w-100 mt-2">
-        <input
-          type="text"
-          tabIndex="0"
-          id="altTextInput"
-          name="altTextInput"
-          className="w-100"
-          value={textInputValue}
-          disabled={isDisabled || isDecorative}
-          onChange={handleInput} />
+      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_TEXT}
+          labelId = 'add-text-label'
+          labelText = {t('form.alt_text.label.text')}
+          />
+
+        {activeOption === FORM_OPTIONS.ADD_TEXT && (
+          <>
+            <input
+              aria-labelledby="add-text-label"
+              type="text"
+              tabIndex="0"
+              id="altTextInput"
+              name="altTextInput"
+              className="w-100"
+              value={textInputValue}
+              disabled={isDisabled}
+              onChange={handleInput} />
+            <div className="subtext">{t("form.alt_text.feedback.characters", { current: characterCount, total: maxLength })}</div>
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+          </>
+        )}
       </div>
-      <div className="flex-row justify-content-end mt-1">
-        <div className="text-muted">
-          {t('form.alt_text.feedback.characters', {current: characterCount, total: maxLength})}
-        </div>
+
+      {/* OPTION 2: Mark as Decorative. ID: "MARK_DECORATIVE" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DECORATIVE ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_DECORATIVE}
+          labelText = {t('form.alt_text.label.mark_decorative')}
+          />
       </div>
-      <div className="separator mt-2">{t('fix.label.or')}</div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input
-          type="checkbox"
-          id="decorativeCheckbox"
-          name="decorativeCheckbox"
-          tabIndex="0"
-          disabled={isDisabled}
-          checked={isDecorative}
-          onChange={handleCheckbox} />
-        <label htmlFor="decorativeCheckbox" className="instructions">{t('form.alt_text.label.mark_decorative')}</label>
+
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
       </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

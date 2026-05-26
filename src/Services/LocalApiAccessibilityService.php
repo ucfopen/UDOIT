@@ -7,9 +7,7 @@ use App\Entity\ContentItem;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Exception\RequestException;
-use DOMDocument;
 use Symfony\Component\Console\Output\ConsoleOutput;
-
 
 /*
     Sends a POST request to a local accessibility-checker server (at port 3000)
@@ -66,14 +64,10 @@ class LocalApiAccessibilityService {
                 continue;
             }
 
-            // Get DOM document for scanning
-            // $document = $this->getDomDocument($html);
-            // $htmlOutput = $document->saveHTML();
-
             // Create promise for this content item
             $promises[$id] = $client->postAsync('/scan', [
                 'json' => [
-                    'html' => $html, // $htmlOutput,
+                    'html' => $html,
                     'guidelineIds' => 'WCAG_2_1',
                     'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
                 ],
@@ -183,22 +177,6 @@ class LocalApiAccessibilityService {
     }
 
     public function checkMany($content, $ruleIds = [], $options = []) {
-        // Get DOM document
-        // $document = $this->getDomDocument($content);
-
-        // Create proper debugging for document state
-        $output = new ConsoleOutput();
-        // $output->writeln("DOM document state:");
-        // $output->writeln("- Has HTML element: " . ($document->getElementsByTagName('html')->length > 0 ? 'Yes' : 'No'));
-
-        // Check attribute preservation
-        // $htmlElement = $document->getElementsByTagName('html')->item(0);
-
-        // Get serialized HTML, using saveHTML on the document not an element to preserve DOCTYPE
-        // $htmlOutput = $document->saveHTML();
-
-        // Debug the output
-        // $output->writeln("First 200 chars of serialized HTML: " . substr($htmlOutput, 0, 200));
 
         // Send to accessibility checker
         $response = $this->postData("http://host.docker.internal:3000/scan", $content);  // $htmlOutput
@@ -206,13 +184,10 @@ class LocalApiAccessibilityService {
         try {
             $json = json_decode($response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                // $output->writeln("JSON decode error: " . json_last_error_msg());
-                // $output->writeln("Response preview: " . substr($response, 0, 100));
                 return null;
             }
             return $json;
         } catch (\Exception $e) {
-            // $output->writeln("Error processing response: " . $e->getMessage());
             return null;
         }
     }
@@ -222,48 +197,4 @@ class LocalApiAccessibilityService {
 
         return $this->checkMany($html, [], []);
     }
-
-    public function getDomDocument($html) {
-        // Create a clean DOM document
-        $dom = new DOMDocument('1.0', 'utf-8');
-        $dom->formatOutput = false; // Prevent extra whitespace
-
-        // Suppress libxml errors but store them for debugging
-        libxml_use_internal_errors(true);
-
-        // Create a proper HTML5 document with a single wrapper
-        $templateHtml = "<!DOCTYPE html>
-        <html lang=\"en\">
-        <head>
-            <meta charset=\"UTF-8\">
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-            <title>Placeholder Page Title</title>
-        </head>
-        <body>
-            <main>
-                <!-- CONTENT_PLACEHOLDER -->
-            </main>
-        </body>
-        </html>";
-
-        // Insert content properly
-        $templateHtml = str_replace('<!-- CONTENT_PLACEHOLDER -->', $html, $templateHtml);
-
-        // Load without flags that might strip attributes
-        $dom->loadHTML($templateHtml);
-
-        // Log any parsing errors for debugging
-        $errors = libxml_get_errors();
-        if (!empty($errors)) {
-            $output = new ConsoleOutput();
-            $output->writeln("DOM parsing errors: " . count($errors));
-            foreach ($errors as $error) {
-                $output->writeln("Line {$error->line}: {$error->message}");
-            }
-        }
-        libxml_clear_errors();
-
-        return $dom;
-    }
-
 }
