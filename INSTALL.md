@@ -77,6 +77,8 @@ This will generate an encryption key that is used during encryption and decrypti
 
 You **must** generate a key, otherwise UDOIT will not start correctly.
 
+If you're an existing user of UDOIT and you need to rotate your keys (such as in cases where you believe your keys may have been compromised), please visit the [Rotating Keys](https://github.com/ucfopen/UDOIT/wiki/Rotating-Keys) page in the UDOIT wiki for more information.
+
 #### 5. Set Up Database
 
 The following command applies migrations necessary to set up the database to store all UDOIT data. Please make sure the containers have fully spun up before running this command.
