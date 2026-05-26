@@ -19,7 +19,7 @@ export default function BlockquoteForm({
   
   const FORM_OPTIONS = {
     ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    REMOVE_BLOCKQUOTE: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
+    REMOVE_BLOCKQUOTE: settings.UFIXIT_OPTIONS.EDIT_TAG,
     MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
@@ -79,7 +79,6 @@ export default function BlockquoteForm({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -208,7 +207,7 @@ export default function BlockquoteForm({
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.blockquote.label.text')}
-          />
+        />
 
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
@@ -221,18 +220,23 @@ export default function BlockquoteForm({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleInput} />
+              onChange={handleInput}
+            />
             <div className="flex-row justify-content-start gap-1 mt-3">
               <ToggleSwitch
                 labelId="hideCitationToggle"
                 initialValue={hideCitation}
                 updateToggle={setHideCitation}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="hideCitationToggle" className="ufixit-instructions">{t('form.blockquote.label.hide_citation')}</label>
             </div>
             <div className="subtext">{t('form.blockquote.label.hide_citation_desc')}</div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -245,7 +249,7 @@ export default function BlockquoteForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.REMOVE_BLOCKQUOTE}
           labelText = {t('form.blockquote.label.remove_blockquote')}
-          />
+        />
       </div>
 
       {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
@@ -256,7 +260,7 @@ export default function BlockquoteForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

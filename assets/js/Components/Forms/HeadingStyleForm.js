@@ -40,7 +40,7 @@ export default function HeadingStyleForm ({
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
     const hasStyle = Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
-    const tagName = Html.getTagName(element).toUpperCase()
+    const tagName = Html.getTagName(element)?.toUpperCase()
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     
     const tagSelection = tagOptions.includes(tagName) ? tagName : ''
@@ -69,7 +69,6 @@ export default function HeadingStyleForm ({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -156,7 +155,7 @@ export default function HeadingStyleForm ({
           option={FORM_OPTIONS.SELECT_LEVEL}
           labelId = 'combo-label-heading-select'
           labelText = {t('form.heading_style.label.select')}
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_LEVEL && (
           <>
             <Combobox
@@ -174,11 +173,15 @@ export default function HeadingStyleForm ({
                   initialValue={removeStyling}
                   updateToggle={setRemoveStyling}
                   disabled={isDisabled}
-                  small={true} />
+                  small={true}
+                />
                 <label htmlFor="removeStylingCheckbox" className="ufixit-instructions">{t('form.heading_style.label.remove_styling')}</label>
               </div>
             )}
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LEVEL]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_LEVEL]}
+            />
           </>
         )}
       </div>
@@ -191,7 +194,7 @@ export default function HeadingStyleForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

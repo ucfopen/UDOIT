@@ -2,34 +2,28 @@ import React, { useState, useEffect } from 'react'
 import BarrierInformation from './BarrierInformation'
 import FileForm from '../Forms/FileForm'
 import StatusPill from './StatusPill'
-import { formFromIssue } from '../../Services/Ufixit'
+import { formFromIssue, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
-
-
 
 export default function UfixitWidget({
   t,
   settings,
 
   activeContentItem,
-  handleActiveContentItem,
   activeOption,
   setActiveOption,
   addMessage,
   handleIssueSave,
   isContentLoading,
   isErrorFoundInContent,
-  setTempActiveIssue,
+  handleTempActiveIssue,
   tempActiveIssue,
-  triggerLiveUpdate,
   markAsReviewed,
   setMarkAsReviewed,
   setFormInvalid,
   handleLearnMoreClick,
-  showLearnMore,
   clickedInfo,
   setClickedInfo,
-  handleContentIssueSave,
   setElementFocus,
   setPreviewData
 }) {
@@ -56,12 +50,19 @@ export default function UfixitWidget({
     }
   }, [tempActiveIssue])
 
-  const handleActiveIssue = (newIssue) => {
-    const tempIssue = Object.create(tempActiveIssue)
+  const handleActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
+    const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
-    tempIssue.isModified = newIssue?.isModified || false
-    setTempActiveIssue(tempIssue)
-    //triggerLiveUpdate()
+    tempIssue.isModified = true
+    handleTempActiveIssue(tempIssue, optionOverride, contentItem)
+  }
+
+  const doesIssueBelongToForm = (formName, issueData = tempActiveIssue?.issueData) => {
+    if(!issueData || !formName) {
+      return false
+    }
+    const issueForm = formNameFromRule(issueData.scanRuleId)
+    return issueForm === formName
   }
 
   useEffect(() => {
@@ -96,15 +97,11 @@ export default function UfixitWidget({
     }
   }
 
-  const fullHtml = activeContentItem?.body
-
   return (
     <>
       {UfixitForm && tempActiveIssue ? (
         <>
-          <div className="ufixit-widget flex-column flex-grow-1"
-            aria-hidden={showLearnMore ? "false" : "true"}
-            style={{ display: showLearnMore ? "none" : "flex" }}>
+          <div className="ufixit-widget flex-column flex-grow-1">
 
             <BarrierInformation
               t={t}
@@ -129,12 +126,12 @@ export default function UfixitWidget({
 
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
-                handleActiveContentItem={handleActiveContentItem}
                 addMessage={addMessage}
                 handleActiveIssue={handleActiveIssue}
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
-                isDisabled={isContentLoading || !isErrorFoundInContent}
+                isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT)}
+                doesIssueBelongToForm={doesIssueBelongToForm}
                 markAsReviewed={markAsReviewed}
                 setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}
@@ -143,7 +140,6 @@ export default function UfixitWidget({
                 setFormErrors={setFormErrors}
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
-                handleContentIssueSave={handleContentIssueSave}
                 setElementFocus={setElementFocus}
                 setPreviewData={setPreviewData} />
             </div>

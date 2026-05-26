@@ -20,7 +20,6 @@ export default function SensoryMisuseForm({
     EDIT_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT
   }
 
-  const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
   const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
 
   // equal access checks for these words - we can check for them while in tinymce
@@ -62,7 +61,6 @@ export default function SensoryMisuseForm({
     }
     
     let html = Html.getIssueHtml(activeIssue)
-    setHtml(html)
     setEditorHtml(html)
     setActiveOption(FORM_OPTIONS.EDIT_TEXT)
     setFormErrors([])
@@ -86,6 +84,9 @@ export default function SensoryMisuseForm({
           editorRef.current = editor
         })
         editor.on('input', () => {
+          handleEditorChange(editor.getContent())
+        })
+        editor.on('SetContent', () => {
           handleEditorChange(editor.getContent())
         })
 

@@ -113,7 +113,6 @@ export default function TemplateForm ({
   // We also must set a flag (isModified) so we know the issue has been changed.
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     // The easiest way to manipulate the HTML is to convert it to an element.
     // Always start with the initialHtml to avoid compounding changes on top of each other.
@@ -146,7 +145,8 @@ export default function TemplateForm ({
 
 
   // Whenever the input changes, and on initial load, we need to check for errors.
-  // These errors are sent to the FormSaveOrReview component to be displayed to the user.
+  // When an error of a specific type is present, it gets shown in the OptionFeedback component.
+  // FormErrors of type: "error" also prevent saving. To not prevent saving, use type: "warning".
   const checkFormErrors = () => {
     let tempErrors = {
       [FORM_OPTIONS.SELECT_LANGUAGE]: [],
@@ -236,7 +236,8 @@ export default function TemplateForm ({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleTextInput} />
+              onChange={handleTextInput}
+            />
             
             {/* Example checkbox using the custom Toggle switch component */}
             <div className="flex-row justify-content-start gap-1">
@@ -245,10 +246,14 @@ export default function TemplateForm ({
                 initialValue={isToggleChecked}
                 updateToggle={setIsToggleChecked}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="exampleCheckbox" className="ufixit-instructions">Ignore what I wrote and mark the language as English</label>
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -262,7 +267,7 @@ export default function TemplateForm ({
           option={FORM_OPTIONS.SELECT_LANGUAGE}
           labelId = 'combo-label-language-select'
           labelText = {t(`form.language.label.select_language`)} 
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (
           <>
             <Combobox 
@@ -273,7 +278,10 @@ export default function TemplateForm ({
               options={selectOptions} 
               settings={settings}
             />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]}
+            />
           </>
         )}
       </div>
@@ -286,7 +294,7 @@ export default function TemplateForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DELETE_ATTRIBUTE}
           labelText = 'Remove the lang attribute'
-          />
+        />
       </div>
 
       {/* OPTION 4: Mark as Reviewed. ID: "mark-as-reviewed" */}
@@ -297,7 +305,7 @@ export default function TemplateForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

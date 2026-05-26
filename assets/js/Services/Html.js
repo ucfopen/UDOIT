@@ -62,9 +62,19 @@ export function toElement(htmlString) {
 }
 
 export function toString(element) {
-  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+  if (!element) {
     return ''
   }
+  else if (element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+    let html = ''
+    element.childNodes.forEach(node => {
+      html += node.outerHTML || node.textContent
+    })
+    return html
+  } else if (element?.nodeType === Node.TEXT_NODE) {
+    return element.textContent
+  }
+
   return element.outerHTML
 }
 
@@ -206,8 +216,13 @@ export function removeClass(element, className) {
   let classes = getClasses(element)
   classes = classes.filter(item => item !== className)
 
-  element.setAttribute('class', classes.join(' '))
-
+  if(classes.length === 0) {
+    element.removeAttribute('class')
+  }
+  else {
+    element.setAttribute('class', classes.join(' '))
+  }
+  
   return element;
 }
 
@@ -403,7 +418,7 @@ export function getAccessibleName(element, tempDocument = null) {
   }
 
   // 3. Run a BUNCH of tag-specific and role-specific logic.
-  let tagName = getTagName(element).toLowerCase()
+  let tagName = getTagName(element)?.toLowerCase()
   let type = getAttribute(element, 'type')?.toLowerCase()
   
   let value = getAttribute(element, 'value')
@@ -582,6 +597,13 @@ export const findElementWithXpath = (content, xpath) => {
     return null
   }
 
+  if(!content.querySelector('html') && !content.querySelector('body')) {
+    // If the content doesn't have html and body tags, remove that part from the xpath, if present.
+    if(xpath.startsWith('html[1]/body[1]/')) {
+      xpath = xpath.replace('html[1]/body[1]/', '')
+    }
+  }
+
   if(xpath.length > 0) {
     let pathParts = xpath.split('/').map(part => {
       let match = part.match(/(\w+)\[(\d+)\]/)
@@ -618,13 +640,17 @@ export const findElementWithError = (content, errorHtml) => {
 }
 
 export function findElementWithIssue(content, issue) {
+  if (!content || !issue || !issue.xpath) {
+    return null
+  }
+
   let xpath = issue.xpath
   if(xpath.startsWith('/html[1]/body[1]')) {
     return findElementWithXpath(content, xpath)
   }
   else {
     let errorHtml = issue?.sourceHtml || undefined
-    if(issue.status.toString() === '1') {
+    if(issue.status.toString() === '1' || issue.status.toString() === '3') {
       errorHtml = issue?.newHtml || undefined
     }
 
@@ -632,7 +658,7 @@ export function findElementWithIssue(content, issue) {
       return null
     }
 
-    return findElementWithError(content, issue.sourceHtml)
+    return findElementWithError(content, errorHtml)
   }
 }
 
@@ -654,14 +680,14 @@ export function generateElementID(element){
 }
 
 export function getAriaAttributes(element){
-   const ariaAttributes = []
-   if(!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
-    return ariaAttributes
-   }
+  if(typeof element == "string"){
+    element = toElement(element)
+  }
 
-   if(typeof element == "string"){
-      element = toElement(element)
-   }
+  const ariaAttributes = []
+  if(!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return ariaAttributes
+  }
 
   for(const attr of element.attributes){
     if(attr.name.startsWith("aria-")){

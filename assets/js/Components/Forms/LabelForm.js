@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
+import { formNames, formNameFromRule } from '../../Services/Ufixit'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -8,6 +9,7 @@ export default function LabelForm({
   t,
   settings,
   activeIssue,
+  activeContentItem,
   isDisabled,
   handleActiveIssue,
   activeOption,
@@ -21,13 +23,45 @@ export default function LabelForm({
     MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   const [textInputValue, setTextInputValue] = useState('')
+  const [usedLabels, setUsedLabels] = useState([])
 
   useEffect(() => {
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
     const initialText = Html.getAccessibleName(element)
     setTextInputValue(initialText)
-
+  
+    let tempUsedLabels = []
+    let mustBeUnique = formNameFromRule(activeIssue?.scanRuleId) === formNames.LABEL_UNIQUE
+    if(mustBeUnique && activeContentItem?.body) {
+      // Get all of the landmark regions that require unique labels, and get their accesible names.
+      // Query Selector list from Equal Access: https://github.com/IBMa/equal-access/blob/main-4.x/accessibility-checker-engine/src/v4/util/AriaUtil.ts#L1438C29-L1440C10
+      const contentItemDoc = new DOMParser().parseFromString(activeContentItem?.body, 'text/html')
+      const landmarkElements = contentItemDoc.querySelectorAll(
+        'aside, [role="complementary"], ' +
+        'footer, [role="contentinfo"], ' +
+        'header, [role="banner"], ' +
+        'main, [role="main"], ' +
+        'nav, [role="navigation"], ' + 
+        'form, [role="form"], ' +
+        'section, [role="region"], ' +
+        'article, [role="article"], ' +
+        '[role="application"], [role="document"], [role="search"]'
+      )
+      
+      // Add labels UNLESS they are from the current active element's path.
+      for(let i = 0; i < landmarkElements.length; i++) {
+        let tempXpath = Html.findXpathFromElement(landmarkElements[i])
+        if (tempXpath !== activeIssue?.xpath) {
+          let tempLabel = Html.getAccessibleName(landmarkElements[i], contentItemDoc)
+          if (tempLabel) {
+            tempUsedLabels.push(tempLabel.trim().toLowerCase())
+          }
+        }
+      }
+    }
+    setUsedLabels(tempUsedLabels)
+    
     const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     let startingOption = ''
@@ -52,7 +86,6 @@ export default function LabelForm({
   const updateHtmlContent = () => {
 
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -91,15 +124,9 @@ export default function LabelForm({
   }
 
   const isLabelDuplicate = () => {
-    // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
-    // i guess we could get it from the aria-label itself as well...
-    const issue = activeIssue
-    const metadata = issue.metadata ? JSON.parse(issue.metadata) : {}
-    const labelFromMessageArgs = metadata.messageArgs ? metadata.messageArgs[0] : null
     const text = textInputValue.trim().toLowerCase()
-
-    if (labelFromMessageArgs) {
-      if (text == labelFromMessageArgs) {
+    for(let i = 0; i < usedLabels.length; i++) {
+      if(text === usedLabels[i]) {
         return true
       }
     }
@@ -117,7 +144,7 @@ export default function LabelForm({
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.label.label.text')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
             <input
@@ -129,8 +156,12 @@ export default function LabelForm({
               value={textInputValue}
               onChange={handleInput}
               tabIndex="0"
-              disabled={isDisabled} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+              disabled={isDisabled}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -143,7 +174,7 @@ export default function LabelForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

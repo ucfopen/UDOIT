@@ -120,17 +120,13 @@ export default function App(initialData) {
   // and can allow the activeIssue to change without losing information about the previous issue.
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
-  const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
+  const updateSessionIssue = (issueId, issueState = null) => {
     if(issueState === null || issueState === settings.ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
       if(newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
       }
       setSessionIssues(newSessionIssues)
-
-      if(contentItemId) {
-        removeContentItemFromCache(contentItemId)
-      }
 
       return
     }
@@ -332,6 +328,8 @@ export default function App(initialData) {
         classes += ' dark-mode'
       }
       body.className = classes
+      body.lang = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE
+      body.style.setProperty('--text-spacing-percent', Number(textSpacing))
     }
   }
 
@@ -364,7 +362,7 @@ export default function App(initialData) {
 
   useEffect(() => {
     addSettingsClasses()
-  }, [settings])
+  }, [settings, textSpacing])
 
   useEffect(() => {
     
@@ -387,12 +385,7 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-      style={{ '--text-spacing-percent': Number(textSpacing) }}
-      className={"flex-column flex-grow-1"
-      + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
-      + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-      + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}
-      lang={settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE}>
+      className="flex-column flex-grow-1">
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}

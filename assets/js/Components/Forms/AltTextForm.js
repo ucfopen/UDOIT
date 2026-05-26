@@ -64,7 +64,6 @@ export default function AltTextForm ({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -166,7 +165,7 @@ export default function AltTextForm ({
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.alt_text.label.text')}
-          />
+        />
 
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
@@ -179,9 +178,13 @@ export default function AltTextForm ({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleInput} />
+              onChange={handleInput}
+            />
             <div className="subtext">{t("form.alt_text.feedback.characters", { current: characterCount, total: maxLength })}</div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -194,7 +197,7 @@ export default function AltTextForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_DECORATIVE}
           labelText = {t('form.alt_text.label.mark_decorative')}
-          />
+        />
       </div>
 
       {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
@@ -205,7 +208,7 @@ export default function AltTextForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

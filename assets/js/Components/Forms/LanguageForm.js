@@ -312,7 +312,6 @@ export default function LanguageForm ({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -407,7 +406,7 @@ export default function LanguageForm ({
           option={FORM_OPTIONS.SELECT_LANGUAGE}
           labelId = 'combo-label-language-select'
           labelText = {t(`form.language.label.select_language`)} 
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (
           <>
             <Combobox 
@@ -418,7 +417,10 @@ export default function LanguageForm ({
               options={selectOptions} 
               settings={settings}
             />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]}
+            />
           </>
         )}
       </div>
@@ -432,7 +434,7 @@ export default function LanguageForm ({
           option={FORM_OPTIONS.ENTER_BCP47}
           labelId = 'add-text-label'
           labelText = {t(`form.language.label.useBCP`)}
-          />
+        />
 
         {activeOption === FORM_OPTIONS.ENTER_BCP47 && (
           <>
@@ -445,8 +447,12 @@ export default function LanguageForm ({
               className="w-100"
               value={textInputBCP47}
               disabled={isDisabled}
-              onChange={handleInput} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ENTER_BCP47]} />
+              onChange={handleInput}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ENTER_BCP47]}
+            />
           </>
         )}
       </div>
@@ -460,7 +466,7 @@ export default function LanguageForm ({
             setActiveOption={setActiveOption}
             option={FORM_OPTIONS.REMOVE_LANGUAGE}
             labelText = {t(`form.language.label.remove`)}
-            />
+          />
         </div>
       )}
 
@@ -472,7 +478,7 @@ export default function LanguageForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

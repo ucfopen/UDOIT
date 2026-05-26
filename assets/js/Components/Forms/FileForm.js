@@ -3,7 +3,6 @@ import UploadIcon from '../Icons/UploadIcon'
 import './FileForm.css'
 import FileInformation from '../Widgets/FileInformation'
 import * as Text from '../../Services/Text'
-import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
 import CloseIcon from '../Icons/CloseIcon'
 
 export default function FileForm ({
@@ -43,7 +42,6 @@ export default function FileForm ({
     const [nonReferenced, setNonReferenced] = useState(false)
 
     useEffect(() => { 
-      console.log("Active File: ", activeFile)
       setUploadedFile(null)
       setNonReferenced(false)
       setActiveOption('')

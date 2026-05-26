@@ -1,4 +1,5 @@
 import * as Html from './Html'
+import { groupListIssues } from './Lists' 
 
 /** With all of the data inconsistency between the old and new issues, we need to double-check some things:
  *    1. If the issue is ACTIVE (found in the scan) but should be ignored, either because of the old 
@@ -77,22 +78,9 @@ const checkTextContrastSufficient = (issue, element, parsedDocument) => {
     return null;
   }
 
-  // Helper to walk up and find the first ancestor with a non-inherited text color
-  function findTextAncestor(el) {
-    let current = el;
-    while (current && current.nodeType === 1) {
-      const color = getInlineStyle(current, 'color');
-      if (color && color !== 'inherit') {
-        return current;
-      }
-      current = current.parentElement;
-    }
-    return null;
-  }
-
   // Find ancestors
   const bgAncestor = findBgAncestor(element);
-  const textAncestor = findTextAncestor(element);
+  const textAncestor = element;
 
   // Set the issue's xpath and sourceHtml to the background color element
   if (bgAncestor) {
@@ -103,20 +91,15 @@ const checkTextContrastSufficient = (issue, element, parsedDocument) => {
   // Store the text color element's xpath in metadata
   if (textAncestor && bgAncestor) {
     // Compute relative xpath from bgAncestor to textAncestor
-    function getRelativeXpath(from, to) {
-      let path = [];
-      let current = to;
-      while (current && current !== from) {
-        let tagName = current.tagName.toLowerCase();
-        let siblings = Array.from(current.parentNode.children).filter(
-          sibling => sibling.tagName.toLowerCase() === tagName
-        );
-        let index = siblings.indexOf(current) + 1;
-        path.unshift(`${tagName}[${index}]`);
-        current = current.parentNode;
-      }
-      return path.length ? path.join('/') : '';
+    let textColorXpath = Html.findXpathFromElement(textAncestor) || '';
+
+    if(textColorXpath.startsWith(issue.xpath)) {
+      textColorXpath = textColorXpath.slice(issue.xpath.length);
     }
+    else {
+      textColorXpath = '';
+    }
+
     // Parse metadata if it's a string
     if (typeof issue.metadata === 'string') {
       try {
@@ -126,7 +109,7 @@ const checkTextContrastSufficient = (issue, element, parsedDocument) => {
       }
     }
     issue.metadata = issue.metadata || {};
-    issue.metadata.textColorXpath = getRelativeXpath(bgAncestor, textAncestor);
+    issue.metadata.textColorXpath = textColorXpath; // getRelativeXpath(bgAncestor, textAncestor);
     issue.metadata.focusXpath = Html.findXpathFromElement(element);
     issue.metadata = JSON.stringify(issue.metadata);
   }
@@ -439,6 +422,8 @@ export function analyzeReport(report, ISSUE_STATE) {
       }
     }
   })
+  
+  activeIssues = groupListIssues(activeIssues, parsedDocuments)
   
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts

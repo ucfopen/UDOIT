@@ -11,7 +11,7 @@ export default function HtmlPreview({
   activeContentItem,
   activeIssue,
   activeOption,
-  liveUpdateToggle,
+  isErrorFoundInContent,
   setIsErrorFoundInContent,
   clickedInfo,
   setClickedInfo,
@@ -52,7 +52,7 @@ export default function HtmlPreview({
   }
 
   const addPreviewHelperElements = (doc, errorElement) => {
-    if(!activeIssue || !doc || !errorElement) {
+    if(!activeIssue || !doc) {
       return doc
     }
 
@@ -80,12 +80,14 @@ export default function HtmlPreview({
         const attributeId = previewData.attributeId
 
         attributeId.forEach((attribute) => {
-          if(attribute?.selected && !attribute.deactivated){
+          if (attribute?.selected && !attribute.deactivated) {
             const idsPointedToByAttribute = attribute.idStorage?.length > 0 ? attribute.idStorage : []
             idsPointedToByAttribute?.forEach((id) => {
-              if(id){
+              if (id) {
                 const element = Html.findElementWithXpath(doc, idXpathMap[id].xpath)
-                element.classList.add("ufixit-temp-selected")
+                if (element) {
+                  element.classList.add("ufixit-temp-selected")
+                }
               }
             })
           }
@@ -94,7 +96,7 @@ export default function HtmlPreview({
     }
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
-    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && errorElement) {
       let altText = Html.getAccessibleName(errorElement, doc)
       altText = Html.sanitizeString(altText)
       
@@ -125,7 +127,7 @@ export default function HtmlPreview({
           
           let elementTag = Html.getTagName(errorElement)
           // If the element is an <area>, find its parent <map> element
-          if (elementTag.toLowerCase() === 'area') {
+          if (elementTag?.toLowerCase() === 'area') {
             const mapElement = errorElement.closest('map')
             if (mapElement && mapElement.parentNode) {
               mapElement.insertAdjacentHTML('afterend', altTextPreviewCode)
@@ -176,27 +178,117 @@ export default function HtmlPreview({
     let fullPageHtml = activeContentItem.body
     const parser = new DOMParser()
     let doc = parser.parseFromString(fullPageHtml, 'text/html')
+    let errorElement = null
 
-    let errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
-    let editedElement = Html.getIssueHtml(activeIssue?.issueData)
-  
-    if(!errorElement) {
-      setShowMessage(true)
-      setIsErrorFoundInContent(false)
-    }
-    else {
-      if(editedElement) { 
-        errorElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(editedElement)))
-        let tempElement = errorElement.nextSibling
-        errorElement.remove()
-        errorElement = tempElement
-      } else {
-        errorElement.replaceWith(convertErrorHtmlElement(errorElement))
+    if(FORM_CLASSIFICATIONS.LIST_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+
+      if (previewData?.listGroupXpaths?.length > 0) {
+        
+        // Handle grouped list issues
+        const groupElements = []
+        
+        previewData.listGroupXpaths.forEach((xpath) => {
+          const element = Html.findElementWithXpath(doc, xpath)
+          if (element) {
+            groupElements.push(element)
+          }
+        })
+
+        if (groupElements.length === 0) {
+          setShowMessage(true)
+          setIsErrorFoundInContent(false)
+          return null
+        }
+
+        let parentElement = groupElements[0].parentElement
+        let allSameParent = groupElements.every(el => el.parentElement === parentElement)
+        if (allSameParent) {
+          const wrapper = doc.createElement('div')
+          wrapper.classList.add('ufixit-error-highlight')
+          wrapper.setAttribute('data-list-group', 'true')
+          
+          parentElement.insertBefore(wrapper, groupElements[0])
+          
+          groupElements.forEach(element => {
+            wrapper.appendChild(element)
+          })
+        } else {
+          groupElements.forEach(element => {
+            element.classList.add('ufixit-error-highlight')
+          })
+        }
+
+        setShowMessage(false)
+        setIsErrorFoundInContent(true)
       }
-      setShowMessage(false)
-      setIsErrorFoundInContent(true)
+
+      else {
+        errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
+        if(!errorElement) {
+          if(activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+            setShowMessage(true)
+            setIsErrorFoundInContent(false)
+          }
+          else {
+            setShowMessage(false)
+            setIsErrorFoundInContent(true)  
+          }
+        }
+        else {
+          errorElement.classList.add('ufixit-error-highlight')
+          setShowMessage(false)
+          setIsErrorFoundInContent(true)
+        }
+      }
     }
+
+    else {
+      // Original single-issue logic
+      let xpath = activeIssue?.issueData?.newXpath || activeIssue?.issueData?.xpath || ''
+      errorElement = Html.findElementWithXpath(doc, xpath)
+      let editedElement = Html.getIssueHtml(activeIssue?.issueData)
     
+      if(!errorElement && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+        setShowMessage(true)
+        setIsErrorFoundInContent(false)
+      }
+      else {
+        if(activeOption === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+          // The element has already been deleted, so DON'T do anything else.
+        }
+        else if(editedElement) { 
+          errorElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(editedElement)))
+          let tempElement = errorElement.nextSibling
+          errorElement.remove()
+          errorElement = tempElement
+        } else {
+          errorElement.replaceWith(convertErrorHtmlElement(errorElement))
+        }
+
+        // For the contrast issue, we heed to highlight both the text AND the background when they are
+        // separate elements.
+        if (FORM_CLASSIFICATIONS.CONTRAST_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+          if (activeIssue?.issueData?.metadata) {
+            try {
+              const metadata = JSON.parse(activeIssue.issueData.metadata)
+              if(metadata.textColorXpath) {
+                let textElement = Html.findElementWithXpath(errorElement, metadata.textColorXpath)
+                if(textElement) {
+                  textElement.classList.add('ufixit-error-highlight');
+                  errorElement.classList.remove('ufixit-error-highlight');
+                  errorElement.classList.add('ufixit-error-highlight-background');
+                }
+              }
+            }
+            catch (e) { }
+          }
+        }
+
+        setShowMessage(false)
+        setIsErrorFoundInContent(true)
+      }
+    }
+
     // Find all of the <details> elements in the document (if present).
     const detailsElements = Array.from(doc.body.querySelectorAll('details'))
     detailsElements.forEach((detailsElement) => {
@@ -212,22 +304,22 @@ export default function HtmlPreview({
 
   const handleClickedElement = (e) => {
     if(!FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))){
-      console.log("Trying to click on a form where clicking is not allowed")
+      // console.log("Trying to click on a form where clicking is not allowed")
       return
     }
 
     if(e.target.classList.contains("ufixit-content-preview-main")){
-      console.log("Can't be click on anything other than main elements")
+      // console.log("Can't be click on anything other than main elements")
       return      
     }
 
     if(e.target.classList.contains('ufixit-error-highlight')){
-      console.log("Can't click on a active issue!")
+      // console.log("Can't click on a active issue!")
       return
     }
 
     if(e.target.id?.includes('ufixit-alt-text-preview')) {
-      console.log("Clicked on the alt text preview, not the actual content")
+      // console.log("Clicked on the alt text preview, not the actual content")
       return
     }
 
@@ -247,15 +339,20 @@ export default function HtmlPreview({
     if(tempTaggedContent !== taggedContent) {
       setTaggedContent(tempTaggedContent)
     }
+    handleScroll()
   }
 
   useEffect(() => {
     checkTaggedContentUpdate()
-  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData, activeOption])
+  }, [activeIssue, activeContentItem, previewData])
 
   useEffect(() => {
     checkTaggedContentUpdate()
   }, [])
+
+  useEffect(() => {
+    setShowMessage(!isErrorFoundInContent)
+  }, [isErrorFoundInContent])
 
   useEffect(() => {
     const element = document.getElementsByClassName('ufixit-error-highlight')[0]

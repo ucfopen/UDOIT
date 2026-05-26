@@ -14,7 +14,7 @@
     padding: 0 1rem 1rem 1rem;
 
     .ufixit-list-section-container {
-      margin-bottom: .75rem;
+      margin-bottom: calc(.75 * var(--spacer));
       border-radius: var(--list-heading-border-radius);
       border: 1px solid var(--border-color);
 
@@ -32,7 +32,7 @@
       position: sticky;
       top: 0;
       background-color: var(--table-header-background-color);
-      padding: .75rem 1rem;
+      padding: calc(.75 * var(--spacer)) var(--spacer);
       cursor: pointer;
       border-radius: var(--list-heading-border-radius);
       transition: border-radius var(--transition-time) ease-in-out;
@@ -97,7 +97,7 @@
 
     .ufixit-list-item {
       cursor: pointer;
-      padding: 1rem 1rem;
+      padding: calc(.75 * var(--spacer)) var(--spacer);
       border-top: 1px solid var(--border-color);
       font-size: 1em;
       font-weight: 400;
@@ -114,7 +114,6 @@
       .list-item-subtitle {
         font-size: .85em;
         font-weight: 200;
-        line-height: normal;
         color: var(--text-secondary-color);
       }
     

@@ -97,6 +97,7 @@ export const UFIXIT_OPTIONS = {
   DELETE_ATTRIBUTE: 'delete-attribute',
   DELETE_ELEMENT: 'delete-element',
   EDIT_ATTRIBUTE: 'edit-attribute',
+  EDIT_TAG: 'edit-tag',
   FIX_IN_LMS: 'fix-in-lms',
   MARK_AS_REVIEWED: 'mark-as-reviewed',
   MARK_DECORATIVE: 'mark-decorative',

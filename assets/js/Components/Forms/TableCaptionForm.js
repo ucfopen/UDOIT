@@ -62,7 +62,6 @@ export default function TableCaptionForm({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.ADD_TEXT) {
       const element = Html.toElement(Html.getIssueHtml(activeIssue))
@@ -122,8 +121,12 @@ export default function TableCaptionForm({
               value={textInputValue}
               onChange={handleInput}
               tabIndex="0"
-              disabled={isDisabled} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+              disabled={isDisabled}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -136,7 +139,7 @@ export default function TableCaptionForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DELETE_CAPTION}
           labelText = {t('form.table_caption.label.remove_caption')}
-          />
+        />
       </div>
 
       {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
@@ -147,7 +150,7 @@ export default function TableCaptionForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

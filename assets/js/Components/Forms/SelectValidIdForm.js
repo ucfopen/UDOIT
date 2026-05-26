@@ -14,7 +14,6 @@ export default function SelectValidIdForm ({
   settings,
   activeIssue,
   activeContentItem,
-  handleActiveContentItem,
   isDisabled,
   handleActiveIssue,
   clickedInfo,
@@ -43,7 +42,6 @@ export default function SelectValidIdForm ({
   */
   const [attributeId, setAttributeId] = useState([]) // add typescript pleaseeeeeeeeee
   const [idXpathMap, setIdXpathMap] = useState({}) // This will map each id to its each xpath AND the inner text {xpath, innerText}
-  const [originalContentItem, setOriginalContentItem] = useState(null)
 
   useEffect(() => {
     if(!activeIssue){
@@ -79,7 +77,6 @@ export default function SelectValidIdForm ({
       attributeId: tempAttributeId,
       idXpathMap: tempIDXpathMap
     })
-    setOriginalContentItem(activeContentItem)
     setFormErrors([])
 
     const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
@@ -123,7 +120,7 @@ export default function SelectValidIdForm ({
   }, [clickedInfo])
 
   useEffect(() => {
-    handleActiveContentItem(addIdsToContent())
+    addIdsToContent()
     checkFormErrors()
   }, [activeOption, attributeId])
 
@@ -166,18 +163,18 @@ export default function SelectValidIdForm ({
 
   const addIdsToContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
-      return originalContentItem
+      return
     }
 
     let tempActiveContentItem = JSON.parse(JSON.stringify(activeContentItem))
     let fullPageHtml = tempActiveContentItem?.body
     if(!fullPageHtml){
-      return originalContentItem
+      handleActiveIssue(issue)
+      return
     }
 
     const parser = new DOMParser()
@@ -202,10 +199,11 @@ export default function SelectValidIdForm ({
         errorElement = Html.removeAttribute(errorElement, attribute.attribute)
       }
     })
+    let updatedHtml = Html.toString(errorElement)
+    issue.newHtml = updatedHtml
 
     tempActiveContentItem.body = Html.toString(doc.body)
-    issue.newHtml = Html.toString(errorElement)
-    return tempActiveContentItem
+    handleActiveIssue(issue, activeOption, tempActiveContentItem)
   }
 
   const handleAttributeSelect = (selectedVal) => {
@@ -276,7 +274,7 @@ export default function SelectValidIdForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.EDIT_ATTRIBUTE}
           labelText = {t('form.select_valid_id.label.assign')}
-          />
+        />
 
         { activeOption === FORM_OPTIONS.EDIT_ATTRIBUTE && (
           <>
@@ -358,7 +356,10 @@ export default function SelectValidIdForm ({
                 </div>
               ))}
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.EDIT_ATTRIBUTE]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.EDIT_ATTRIBUTE]}
+            />
           </>
         )}
       </div>
@@ -371,7 +372,7 @@ export default function SelectValidIdForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

@@ -1,4 +1,5 @@
 import chroma from "chroma-js";
+import { toElement, findElementWithXpath } from "./Html";
 
 export function toHSL(color) {
   try {
@@ -6,7 +7,6 @@ export function toHSL(color) {
     const [h, s, l] = chromaColor.hsl()
     return { h, s, l }
   } catch {
-    console.error('Error converting color to HSL:', color)
     const tempDiv = document.createElement('div')
     tempDiv.style.color = color
     document.body.appendChild(tempDiv)
@@ -26,7 +26,6 @@ export function hslToHex(hsl) {
   try {
     return chroma.hsl(hsl.h, hsl.s, hsl.l).hex();
   } catch {
-    console.error('Error converting HSL to hex:', hsl);
     return null;
   }
 }
@@ -63,4 +62,37 @@ export function convertHtmlRgb2Hex(html) {
       .map(str => parseInt(str, 10).toString(16).padStart(2, '0'))
       .join('')
   })
+}
+
+export function getComputedStyle(html, relativeXpath = '') {
+  if ( !html ) return null;
+
+  const tempElementId = 'udoit-temp-contrast-element'
+
+  let elementInDOM = document.getElementById(tempElementId)
+  if(!elementInDOM) {
+    // If the element isn't already in the DOM, we need to add it so that we can compute styles
+    elementInDOM = document.createElement('div')
+    elementInDOM.id = tempElementId
+    document.body.appendChild(elementInDOM)
+  }
+
+  elementInDOM.innerHTML = html;
+  let styles = null;
+
+  if (relativeXpath) {
+    let relativeElement = findElementWithXpath(elementInDOM, relativeXpath);
+    if (relativeElement) {
+      styles = window.getComputedStyle(relativeElement);
+    }
+  }
+  if (!styles) {
+    styles = window.getComputedStyle(elementInDOM);
+  }
+  // For some reason, the styles object gets cleared when we remove the element from the DOM,
+  // so we need to make a copy of it before removing the element
+  let deepCopy = Object.assign({}, styles);
+  elementInDOM.remove();
+
+  return deepCopy;
 }
