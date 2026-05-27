@@ -26,12 +26,13 @@ class Registration
 
     #[ORM\Column(type: "string", length: 2048)]
     private string $loginAuthEndpoint;
-    
-    #[ORM\Column(type: "string", length: 2048)]
-    private string $serviceAuthEndpoint;
 
     #[ORM\Column(type: "string", length: 2048)]
     private string $jwksEndpoint;
+
+    #[ORM\OneToOne(targetEntity: Institution::class, inversedBy: 'registration')]
+    #[ORM\JoinColumn(nullable: false, unique: true)]
+    private Institution $institution;
 
     #[ORM\ManyToOne(
         targetEntity: SigningKeySet::class,
@@ -51,17 +52,17 @@ class Registration
       string $issuer,
       string $clientId,
       string $loginAuthEndpoint,
-      string $serviceAuthEndpoint,
       string $jwksEndpoint,
       SigningKeySet $signingKeySet,
+      Institution $institution
     )
     {
       $this->issuer = $issuer;
       $this->clientId = $clientId;
       $this->loginAuthEndpoint = $loginAuthEndpoint;
-      $this->serviceAuthEndpoint = $serviceAuthEndpoint;
       $this->jwksEndpoint = $jwksEndpoint;
       $this->signingKeySet = $signingKeySet;
+      $this->institution = $institution;
       $this->deployments = new ArrayCollection();
       $this->encryptionService = new SodiumEncryptionService();
     }
@@ -108,18 +109,6 @@ class Registration
         return $this;
     }
 
-    public function getServiceAuthEndpoint(): string
-    {
-        return $this->serviceAuthEndpoint;
-    }
-
-    public function setServiceAuthEndpoint(string $serviceAuthEndpoint): static
-    {
-        $this->serviceAuthEndpoint = $serviceAuthEndpoint;
-
-        return $this;
-    }
-
     public function getJwksEndpoint(): string
     {
         return $this->jwksEndpoint;
@@ -128,6 +117,18 @@ class Registration
     public function setJwksEndpoint(string $jwksEndpoint): static
     {
         $this->jwksEndpoint = $jwksEndpoint;
+
+        return $this;
+    }
+
+    public function getInstitution(): Institution
+    {
+        return $this->institution;
+    }
+
+    public function setInstitution(Institution $institution): static
+    {
+        $this->institution = $institution;
 
         return $this;
     }

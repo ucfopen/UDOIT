@@ -52,6 +52,12 @@ class Institution implements JsonSerializable
 
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
 
+    #[ORM\Column(type: "string", length: 2048)]
+    private string $serviceAuthEndpoint;
+
+    #[ORM\OneToOne(targetEntity: Registration::class, mappedBy: 'institution')]
+    private ?Registration $registration;
+
     #[ORM\Column(type: "string", nullable: true)]
     private $apiClientId;
 
@@ -70,7 +76,7 @@ class Institution implements JsonSerializable
     // Public Methods
     public function encryptDeveloperKey(): self
     {
-        $this->setApiClientSecret($this->apiClientSecret);
+        $this->apiClientSecretEncrypted = $this->encryptData($this->apiClientSecretEncrypted);
 
         return $this;
     }
@@ -255,6 +261,30 @@ class Institution implements JsonSerializable
                 $user->setInstitution(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getServiceAuthEndpoint(): ?string
+    {
+        return $this->serviceAutHEndpoint;
+    }
+
+    public function setServiceAuthEndpoint(string $serviceAuthEndpoint): static
+    {
+        $this->serviceAuthEndpoint = $serviceAuthEndpoint;
+
+        return $this;
+    }
+
+    public function getRegistration(): ?Registration
+    {
+        return $this->registration;
+    }
+
+    public function setRegistration(Registration $registration): static
+    {
+        $this->registration = $registration;
 
         return $this;
     }
