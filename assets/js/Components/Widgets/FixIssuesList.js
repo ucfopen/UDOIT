@@ -9,7 +9,8 @@ import './FixIssuesList.css'
 export default function FixIssuesList({
   t,
   settings,
-  
+  unfilteredIssues,
+  initialSeverity,
   groupedList,
   setActiveIssue
 }) {
@@ -63,10 +64,42 @@ export default function FixIssuesList({
     setOpenList(updatedList)
   }
 
+  const checkBarriersResolved = (initialSeverity, unfilteredIssues) => {
+
+    const solvedStatus = [
+    settings.ISSUE_FILTER.FIXED,
+    settings.ISSUE_FILTER.RESOLVED,
+    settings.ISSUE_FILTER.FIXEDANDRESOLVED,
+    ]
+
+    // Get specified section (Known, Potential) if it exists
+    if (initialSeverity) {
+      const severityIssues = unfilteredIssues.filter(issue => 
+        issue.severity === initialSeverity
+      );
+
+      return severityIssues.every(issue => solvedStatus.includes(issue.status));
+    } 
+    else {
+      return unfilteredIssues.every(issue => solvedStatus.includes(issue.status))
+    };
+  }
+
+  const barriersResolved = checkBarriersResolved(initialSeverity, unfilteredIssues);
+
   return (
     <div className="ufixit-list-container flex-column">
       <div className="ufixit-list-scrollable flex-grow-1" tabIndex="-1">
-        { groupedList.length > 0 ? groupedList.map((group, i) => {
+        { (barriersResolved && groupedList.length === 0) ? (
+          <div className="flex-column gap-3 mt-3">
+            <div className="flex-row align-self-center ms-3 me-3">
+              <h2 className="mt-0 mb-0 primary-dark">{t('report.label.barriers_resolved')}</h2>
+            </div>
+            <div className="flex-row align-self-center ms-3 me-3">
+              {t('report.msg.barriers_resolved', {initialSeverity : initialSeverity === "ISSUE" ? t('filter.label.severity.issue').toLowerCase() : initialSeverity === "POTENTIAL" ? t('filter.label.severity.potential').toLowerCase() : t('report.label.issue').toLowerCase()})}
+            </div>
+          </div>
+          ) : groupedList.length > 0 ? groupedList.map((group, i) => {
           return (
             <div className={`ufixit-list-section-container ${openList[group.formLabel] ? 'open' : 'closed'}`} key={i}>
               <div className={`ufixit-list-heading flex-row gap-3 justify-content-between ${openList[group.formLabel] ? 'open' : 'closed'}`}

@@ -104,13 +104,23 @@
     &:not(.emphasis) .summary-icon-container {
       border-color: var(--pill-error-border);
       background-color: var(--pill-error-background);
+      &.completed {
+        background-color: var(--pill-success-background);
+        border-color: var(--pill-success-border);
+      }
     }
 
     .progress-bar-container {
       background-color: var(--pill-error-border);
 
+
       .progress-bar-fill {
+        &.completed {
+          background-color: var(--success-color);
+        }
+        &:not(.completed) {
         background-color: var(--error-color);
+        }
       }
     }
   }
@@ -124,13 +134,22 @@
     &:not(.emphasis) .summary-icon-container {
       border-color: var(--potential-border);
       background-color: var(--potential-background);
+      &.completed {
+        background-color: var(--pill-success-background);
+        border-color: var(--pill-success-border);
+      }
     }
 
     .progress-bar-container {
       background-color: var(--potential-border);
 
       .progress-bar-fill {
+        &.completed {
+          background-color: var(--success-color);
+        }
+        &:not(.completed) {
         background-color: var(--potential-color);
+        }
       }
     }
   }
@@ -144,13 +163,22 @@
     &:not(.emphasis) .summary-icon-container {
       border-color: var(--pill-info-border);
       background-color: var(--pill-info-background);
+      &.completed {
+        background-color: var(--pill-success-background);
+        border-color: var(--pill-success-border);
+      }
     }
 
     .progress-bar-container {
       background-color: var(--pill-info-border);
 
       .progress-bar-fill {
-        background-color: var(--file-color);
+        &.completed {
+          background-color: var(--success-color);
+        }
+        &:not(.completed) {
+          background-color: var(--file-color);
+        }
       }
     }
   }
