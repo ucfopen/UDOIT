@@ -21,7 +21,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-
 class SyncController extends ApiController
 {
     protected $maxAge = '1D';
@@ -29,12 +28,13 @@ class SyncController extends ApiController
     /** @var UtilityService $util */
     protected $util;
 
-    private function isCurrentVersion(Course $course): bool {
+    private function isCurrentVersion(Course $course): bool
+    {
         $previousReport = $course->getLatestReport();
-        if($previousReport) {
+        if ($previousReport) {
             $data = json_decode($previousReport->getData());
             $currentVersionNumber = !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '';
-            if(isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
+            if (isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
                 return true;
             }
         }
@@ -47,9 +47,10 @@ class SyncController extends ApiController
     {
         $this->doctrine = $doctrine;
     }
-  
-    private function executeScan(Course $course, SessionService $sessionService, LmsFetchService $lmsFetch, bool $force) {
-        
+
+    private function executeScan(Course $course, SessionService $sessionService, LmsFetchService $lmsFetch, bool $force)
+    {
+
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
@@ -80,19 +81,10 @@ class SyncController extends ApiController
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
-            // $reportArr['instructors'] = $this->getInstructorNamesForCourse(
-            //     $course,
-            //     $user,
-            //     $courseUserRepo,
-            //     $userRepo,
-            //     $em,
-            //     $lmsApi
-            // );
-
             $response->setData($reportArr);
 
             $reportData = json_decode($report->getData());
-            if(isset($reportData->itemsScanned) && $reportData->itemsScanned > 0) {
+            if (isset($reportData->itemsScanned) && $reportData->itemsScanned > 0) {
                 $response->addMessage('msg.new_content', 'success', 5000);
             } else {
                 $response->addMessage('msg.no_new_content', 'success', 5000);
@@ -112,12 +104,13 @@ class SyncController extends ApiController
     public function requestSync(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course)
     {
         $force = ! $this->isCurrentVersion($course);
-        
+
         return $this->executeScan($course, $sessionService, $lmsFetch, $force);
     }
 
     #[Route('/api/sync/rescan/{course}', name: 'full_rescan')]
-    public function fullCourseRescan(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course) {
+    public function fullCourseRescan(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course)
+    {
         return $this->executeScan($course, $sessionService, $lmsFetch, true);
     }
 
@@ -137,7 +130,7 @@ class SyncController extends ApiController
             $useReport = $request->query->getBoolean('report');
 
             // Delete old issues
-            $lmsFetch->deleteContentItemIssues(array($contentItem));
+            $lmsFetch->deleteContentItemIssues([$contentItem]);
 
             // Rescan the contentItem
             $report = $scanner->scanContentItem($contentItem, null, $this->util);
@@ -155,36 +148,36 @@ class SyncController extends ApiController
                 $reportArr = $this->updateReport($course, $user, $lmsFetch);
                 $response->setData($reportArr);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response->addMessage($e->getMessage(), 'error');
         }
-        
+
         return new JsonResponse($response);
     }
 
-    #[Route('/api/courses/{course}/reports/update', name:'update_and_get_reports', methods: ['GET'])]
-    public function updateAndGetReport(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course){
+    #[Route('/api/courses/{course}/reports/update', name: 'update_and_get_reports', methods: ['GET'])]
+    public function updateAndGetReport(SessionService $sessionService, LmsFetchService $lmsFetch, Course $course)
+    {
         $response = new ApiResponse();
         $user = $this->getUser();
-        try{
+        try {
             if (!$this->userHasCourseAccess($course, $sessionService)) {
                 throw new \Exception("msg.no_permissions");
             }
             $reportArr = $this->updateReport($course, $user, $lmsFetch);
-            if(!$reportArr){
+            if (!$reportArr) {
                 throw new \Exception("Unable to update report.");
             }
             $response->addMessage('Successfully updated and fetched report', 'success', 5000);
             $response->setData($reportArr);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response->addError($e->getMessage());
         }
         return new JsonResponse($response);
     }
-   
-    private function updateReport($course,  $user, LmsFetchService $lmsFetch){
+
+    private function updateReport($course, $user, LmsFetchService $lmsFetch)
+    {
         $report = $lmsFetch->updateReport($course, $user, 1);
         if (!$report) {
             throw new \Exception('msg.no_report_created');
@@ -197,76 +190,5 @@ class SyncController extends ApiController
         $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
         return $reportArr;
-    }
-
-            /**
-     * Return a de-duplicated, sorted list of instructor display names for a course.
-     * Will refresh the local mapping from Canvas if empty or older than $ttlMinutes.
-     */
-protected function getInstructorNamesForCourse(
-    Course $course,
-    User $actingUser,
-    CourseUserRepository $courseUserRepo,
-    UserRepository $userRepo,
-    EntityManagerInterface $em,
-    LmsApiService $lmsApi,
-    int $ttlMinutes = 1440
-) {
-
-        $rows = $courseUserRepo->findByCourse($course);
-        $lastFetched = $courseUserRepo->maxFetchedAt($course);
-
-        $stale = !$rows
-            || !$lastFetched
-            || $lastFetched < (new \DateTimeImmutable())->modify("-{$ttlMinutes} minutes");
-
-        if ($stale) {
-            try {
-                $lmsClient = $lmsApi->getLms(); 
-                $this->syncInstructors($course, $actingUser, $lmsClient, $courseUserRepo, $userRepo, $em);
-                $rows = $courseUserRepo->findByCourse($course);
-            } catch (\Throwable $e) {
-                // optionally log
-            }
-        }
-
-        $namesSet = [];
-        foreach ($rows as $cu) {
-            $name = trim((string)($cu->getUser()?->getName() ?? $cu->getDisplayName()));
-            if ($name !== '') {
-                $namesSet[$name] = true;
-            }
-        }
-
-        $names = array_keys($namesSet);
-        sort($names, SORT_NATURAL | SORT_FLAG_CASE);
-        return $names;
-    }
-
-    private function syncInstructors(
-        Course $course,
-        User $actingUser,
-        object $lms,
-        CourseUserRepository $courseUserRepo,
-        UserRepository $userRepo,
-        EntityManagerInterface $em
-    ) {
-        $teachers = $lms->getCourseTeachers($actingUser, $course->getLmsCourseId()) ?? [];
-
-        foreach ($teachers as $t) {
-            $lmsUserId   = (string)($t['id'] ?? '');
-            if ($lmsUserId === '') { continue; }
-            $displayName = $t['name'] ?? null;
-
-            $maybeUser = $userRepo->findOneBy([
-                'institution' => $course->getInstitution(),
-                'lmsUserId'   => $lmsUserId,
-            ]);
-
-            $courseUserRepo->upsertFromApi($course, $lmsUserId, $displayName, $maybeUser);
-        }
-
-        $em->flush();
-
     }
 }
