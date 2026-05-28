@@ -47,7 +47,7 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
         $titleStyle = new OutputFormatterStyle('#2c5dd1', null, ['bold']);
         $output->getFormatter()->setStyle('header', $titleStyle);
 
-        $io = new InterruptibleSymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         
         $io->writeln('');
         $io->writeln('<header>---------------------------------</header>');   
