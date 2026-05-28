@@ -164,7 +164,7 @@ class AuthController extends AbstractController
         ];
 
         $client = HttpClient::create();
-        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
+        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($registration);
         $response = $client->request('POST', $requestUrl, $options);
         $contentStr = $response->getContent(false);
 

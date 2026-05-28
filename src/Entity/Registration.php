@@ -151,7 +151,7 @@ class Registration
 
     public function getServiceLoginEndpoint(): string
     {
-        return $this->$serviceLoginEndpoint;
+        return $this->serviceLoginEndpoint;
     }
 
     public function setServiceLoginEndpoint(string $serviceLoginEndpoint): static

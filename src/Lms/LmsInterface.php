@@ -6,7 +6,6 @@ use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Registration;
-use App\Entity\Institution;
 use App\Entity\User;
 use App\Entity\UserSession;
 
@@ -23,9 +22,7 @@ interface LmsInterface {
     public function getAccountData(User $user, $accountId);
     public function getCourseUrl(Course $course, User $user);
     public function getCourseSections(Course $course, User $user);
-    public function getLtiAuthUrl($params);
-    public function getOauthTokenUri(Institution $institution);
-    public function getKeysetUrl();
+    public function getOauthTokenUri(Registration $registration);
     public function saveTokenToSession($token);
     public function getContentTypes();
 }

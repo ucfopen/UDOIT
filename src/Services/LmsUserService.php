@@ -107,7 +107,7 @@ class LmsUserService {
         }
 
         $client = HttpClient::create();
-        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
+        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($registration);
         try {
             $response = $client->request('POST', $requestUrl, $options);
             $contentStr = $response->getContent(false);
