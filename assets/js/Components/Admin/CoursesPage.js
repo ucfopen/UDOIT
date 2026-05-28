@@ -15,7 +15,6 @@ export default function CoursePage({
   addMessage,
 }) {
   const [filteredCourses, setFilteredCourses] = useState([]);
-  const [isAnyScanning, setIsAnyScanning] = useState(false);
   const [tableSettings, setTableSettings] = useState({
     sortBy: "lastUpdated",
     ascending: false,
@@ -133,14 +132,12 @@ export default function CoursePage({
               <button
                 key={`reportButton${course.id}`}
                 onClick={() => {
-                  !course.loading &&
-                    !isAnyScanning &&
                     hasReport &&
                     handleReportClick(course);
                 }}
                 textalign="center"
-                className={`btn btn-text btn-icon-only ${course.loading || isAnyScanning || !hasReport ? "btn-disabled" : ""}`}
-                disabled={course.loading || isAnyScanning || !hasReport}
+                className={`btn btn-text btn-icon-only ${ !hasReport ? "btn-disabled" : ""}`}
+                disabled={!hasReport}
                 title={
                   hasReport
                     ? t("report.button.view_report")
@@ -153,19 +150,6 @@ export default function CoursePage({
                 }
               >
                 <ReportIcon className="icon-md" />
-              </button>
-              <button
-                key={`scanButton${course.id}`}
-                onClick={() => {
-                  !course.loading && !isAnyScanning && handleScanClick(course);
-                }}
-                textalign="center"
-                className={`btn btn-text btn-icon-only ${course.loading || isAnyScanning ? "btn-disabled" : ""}`}
-                disabled={course.loading || isAnyScanning}
-                title={t("report.button.scan")}
-                aria-label={t("report.button.scan")}
-              >
-                <SummaryIcon className="icon-md" />
               </button>
             </div>
           ),
@@ -246,7 +230,6 @@ export default function CoursePage({
 
   const handleScanClick = (course) => {
     let api = new Api(settings);
-    setIsAnyScanning(true);
 
     // For unscanned courses, course.id will be the LMS course ID (string/number)
     // and hasReport will be false. We need to create the course in UDOIT first.
@@ -314,9 +297,7 @@ export default function CoursePage({
             severity: "error",
             timeout: 5000,
           });
-          course.loading = false;
           handleCourseUpdate(course);
-          setIsAnyScanning(false);
         });
     } else {
       // For already scanned courses, use the UDOIT database ID
@@ -347,9 +328,7 @@ export default function CoursePage({
             severity: "error",
             timeout: 5000,
           });
-          course.loading = false;
           handleCourseUpdate(course);
-          setIsAnyScanning(false);
         });
     }
 
@@ -359,7 +338,6 @@ export default function CoursePage({
       timeout: 5000,
     });
 
-    course.loading = true;
     handleCourseUpdate(course);
   };
 
@@ -397,7 +375,6 @@ export default function CoursePage({
             }
 
             handleCourseUpdate(updatedCourse);
-            setIsAnyScanning(false);
           }
         });
     }, newReportInterval);
