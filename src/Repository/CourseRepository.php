@@ -48,24 +48,25 @@ class CourseRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findCoursesByAccount(User $user, $accounts, $termId = null)
+    public function findCoursesByAccount(User $user, $accountId, $termId = null)
     {
         $institution = $user->getInstitution();
 
-        $accountIds = array_keys($accounts);
-
         $qb = $this->createQueryBuilder('c')
             ->andWhere('c.institution = :institution')
-            ->andWhere('c.active = TRUE')
             ->setParameter('institution', $institution);
 
-        if (!empty($accountIds)) {
-            $qb->andWhere('c.lmsAccountId IN (:ids)')
-                ->setParameter('ids', $accountIds);
+        if (is_array($accountId)) {
+            $accountIds = array_keys($accountId);
+            $qb->andWhere('c.account IN (:ids)')
+                    ->setParameter('ids', $accountIds);
+        } else {
+            $qb->andWhere('c.account = :id')
+                    ->setParameter('id', $accountId);
         }
 
         if ($termId) {
-            $qb->andWhere('c.lmsTermId = :term')
+            $qb->andWhere('c.term = :term')
                 ->setParameter('term', $termId);
         }
 

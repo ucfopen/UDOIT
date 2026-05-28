@@ -5,7 +5,6 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Entity(repositoryClass: "App\Repository\ReportRepository")]
 #[ORM\Table(name: 'report')]
 class Report implements \JsonSerializable
@@ -79,6 +78,9 @@ class Report implements \JsonSerializable
             if (isset($tempData['scanCounts'])) {
                 $scanCounts = $tempData['scanCounts'];
             }
+            if (isset($tempData['scanRules'])) {
+                $scanRules = $tempData['scanRules'];
+            }
             if (isset($tempData['itemsScanned'])) {
                 $itemsScanned = $tempData['itemsScanned'];
             }
@@ -90,6 +92,7 @@ class Report implements \JsonSerializable
             "created" => $this->created->format($_ENV['DATE_FORMAT']),
             "errors" => $this->getErrors(),
             "scanCounts" => $scanCounts,
+            "scanRules" => $scanRules,
             "itemsScanned" => $itemsScanned,
             "suggestions" => $this->getSuggestions(),
             "contentFixed" => $this->getContentFixed(),

@@ -66,6 +66,7 @@
     select {
       max-width: 250px;
       min-width: 180px;
+      max-height: 2.5em;
     }
   }
 
