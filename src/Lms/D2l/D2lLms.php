@@ -6,6 +6,7 @@ use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Institution;
+use App\Entity\Registration;
 use App\Entity\User;
 use App\Entity\UserSession;
 use App\Lms\LmsInterface;
@@ -97,10 +98,10 @@ class D2lLms implements LmsInterface {
         return ($response->getStatusCode() < 400);
     }
 
-    public function getOauthUri(Institution $institution, UserSession $session)
+    public function getOauthUri(Registration $registration, UserSession $session)
     {
         $query = [
-            'client_id' => $institution->getApiClientId(),
+            'client_id' => $registration->getApiClientId(),
             'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),

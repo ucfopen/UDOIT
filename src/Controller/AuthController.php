@@ -2,7 +2,8 @@
 
 namespace App\Controller;
 
-use App\Services\Encryption\InstitutionEncryptionService;
+use App\Repository\RegistrationRepository;
+use App\Services\Encryption\RegistrationEncryptionService;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
@@ -26,14 +27,14 @@ class AuthController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
-    private InstitutionEncryptionService $institutionEncryptionService;
+    private RegistrationEncryptionService $registrationEncryptionService;
 
     private $session;
 
-    public function __construct(ManagerRegistry $doctrine, InstitutionEncryptionService $institutionEncryptionService)
+    public function __construct(ManagerRegistry $doctrine, RegistrationEncryptionService $registrationEncryptionService)
     {
         $this->doctrine = $doctrine;
-        $this->institutionEncryptionService = $institutionEncryptionService;
+        $this->registrationEncryptionService = $registrationEncryptionService;
     }
 
     #[Route('/authorize', name: 'authorize')]
@@ -60,7 +61,7 @@ class AuthController extends AbstractController
 
         $this->session->set('oauthAttempted', true);
 
-        $oauthUri = $lmsApi->getLms()->getOauthUri($institution, $this->session);
+        $oauthUri = $lmsApi->getLms()->getOauthUri($institution->getRegistration(), $this->session);
 
         return $this->redirect($oauthUri);
     }
@@ -116,11 +117,15 @@ class AuthController extends AbstractController
 
     // Pass in the institution ID and this will encrypt the developer key.
     #[Route('/encrypt/key', name: 'encrypt_developer_key')]
-    public function encryptDeveloperKey(Request $request, UtilityService $util)
-    {
+    public function encryptDeveloperKey(
+        Request $request,
+        RegistrationRepository $registrationRepository,
+    ) {
         $instId = $request->query->get('id');
-        $institution = $util->getInstitutionById($instId);
-        $institution->encryptDeveloperKey();
+
+        $registration = $registrationRepository->getByInstitutionId($instId);
+        $registrationEncryptionService->encryptKey($registration);
+
         $this->doctrine->getManager()->flush();
 
         return new Response('Updated.');
@@ -132,22 +137,23 @@ class AuthController extends AbstractController
         /** @var \App\Entity\User */
         $user = $this->getUser();
         $institution = $user->getInstitution();
+        $registration = $institution->getRegistration();
         $code = $this->request->query->get('code');
-        $clientSecret = $this->institutionEncryptionService->getClientSecret($institution);
+        $clientSecret = $this->registrationEncryptionService->getClientSecret($registration);
         $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($clientSecret)) {
-            $institution->encryptDeveloperKey();
+            $registrationEncryptionService->encryptKey($registration);
             $this->doctrine->getManager()->flush();
-            $clientSecret = $this->institutionEncryptionService->getClientSecret($institution);
+            $clientSecret = $this->registrationEncryptionService->getClientSecret($registration);
         }
 
         $options = [
             'body' => [
                 'grant_type'    => 'authorization_code',
-                'client_id'     => $institution->getApiClientId(),
+                'client_id'     => $registration->getApiClientId(),
                 'redirect_uri'  => LmsUserService::getOauthRedirectUri(),
-                'client_secret' => $this->institutionEncryptionService->getClientSecret($institution),
+                'client_secret' => $this->registrationEncryptionService->getClientSecret($registration),
                 'code'          => $code,
             ],
             'headers' => [

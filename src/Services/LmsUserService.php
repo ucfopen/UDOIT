@@ -3,10 +3,9 @@
 namespace App\Services;
 
 use App\Entity\User;
-use App\Services\Encryption\InstitutionEncryptionService;
+use App\Services\Encryption\RegistrationEncryptionService;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -22,18 +21,18 @@ class LmsUserService {
     /** @var UtilityService $util */
     protected $util;
 
-    protected InstitutionEncryptionService $institutionEncryptionService;
+    protected RegistrationEncryptionService $registrationEncryptionService;
 
     public function __construct(
         LmsApiService $lmsApi,
         ManagerRegistry $doctrine,
         UtilityService $util,
-        InstitutionEncryptionService $institutionEncryptionService
+        RegistrationEncryptionService $registrationEncryptionService
     ) {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
         $this->util = $util;
-        $this->institutionEncryptionService = $institutionEncryptionService;
+        $this->registrationEncryptionService = $registrationEncryptionService;
     }
 
     public static function getOauthRedirectUri()
@@ -80,7 +79,8 @@ class LmsUserService {
     public function refreshApiKey(User $user)
     {
         $refreshToken = $user->getRefreshToken();
-        $institution = $user->getInstitution();;
+        $institution = $user->getInstitution();
+        $registration = $institution->getRegistration();
         $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($refreshToken)) {
@@ -90,9 +90,9 @@ class LmsUserService {
         $options = [
             'body' => [
                 'grant_type'    => 'refresh_token',
-                'client_id'     => $institution->getApiClientId(),
+                'client_id'     => $registration->getApiClientId(),
                 'redirect_uri'  => self::getOauthRedirectUri(),
-                'client_secret' => $this->institutionEncryptionService->getClientSecret($institution),
+                'client_secret' => $this->registrationEncryptionService->getClientSecret($registration),
                 'refresh_token' => $refreshToken,
             ],
             'headers' => [

@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Repository\RegistrationRepository;
 use App\Services\LmsApiService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -32,10 +34,17 @@ class LtiController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
-    {
+    private RegistrationRepository $registrationRepository;
+
+    public function __construct(
+        ManagerRegistry $doctrine,
+        SessionService $sessionService,
+        RegistrationRepository $registrationRepository,
+        private LoggerInterface $logger
+    ) {
         $this->doctrine = $doctrine;
         $this->sessionService = $sessionService;
+        $this->registrationRepository = $registrationRepository;
     }
 
     #[Route('/lti/authorize', name: 'lti_authorize')]
@@ -52,7 +61,13 @@ class LtiController extends AbstractController
 
         $this->saveRequestToSession();
 
-        return $this->redirect($this->getLtiAuthResponseUrl());
+        $postParams = $request->request->all();
+        $getParams = $request->query->all();
+        $allParams = array_merge($postParams, $getParams);
+        $iss = $allParams['iss'];
+        $clientId = $allParams['client_id'];
+
+        return $this->redirect($this->getLtiAuthResponseUrl($iss, $clientId));
     }
 
     #[Route('/lti/authorize/check', name: 'lti_authorize_check')]
@@ -71,6 +86,7 @@ class LtiController extends AbstractController
 
         $this->saveRequestToSession();
         $clientId = $this->session->get('client_id');
+        $iss = $this->session->get('iss');
 
         $jwt = $this->session->get('id_token');
         if (!$jwt) {
@@ -78,7 +94,7 @@ class LtiController extends AbstractController
         }
 
         // Create token from JWT and public JWKs
-        $jwks = $this->getPublicJwks();
+        $jwks = $this->getPublicJwks($iss, $clientId);
         $publicKey = JWK::parseKeySet($jwks);
         JWT::$leeway = 60;
         $token = JWT::decode($jwt, $publicKey);
@@ -108,6 +124,8 @@ class LtiController extends AbstractController
         // Remove old sessions
         $sessionService->removeExpiredSessions();
 
+        $this->logger->info(json_encode($this->session));
+        
         $authCookie = Cookie::create('AUTH_TOKEN')
             ->withValue($this->session->getUuid())
             ->withExpires(0)
@@ -310,11 +328,15 @@ class LtiController extends AbstractController
         return;
     }
 
-    protected function getPublicJwks()
+    protected function getPublicJwks(string $iss, string $clientId)
     {
         $httpClient = HttpClient::create();
-        /* URL will be different for other LMSes */
-        $url = $this->lmsApi->getLms()->getKeysetUrl();
+
+        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
+        if (empty($registrations)) $this->util->exitWithMessage('Invalid LTI registration.');
+        $registration = $registrations[0];
+
+        $url = $registration->getJwksEndpoint();
         $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
         $response = $httpClient->request('GET', $url, [
             'headers' => [
@@ -326,7 +348,7 @@ class LtiController extends AbstractController
         return $keys;
     }
 
-    protected function getLtiAuthResponseUrl()
+    protected function getLtiAuthResponseUrl(string $iss, string $clientId)
     {
         $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
@@ -336,8 +358,17 @@ class LtiController extends AbstractController
             throw new \Exception("No UUID found!");
         }
 
+        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
+
+        if (empty($registrations)) {
+            $this->util->exitWithMessage('Invalid LTI registration.');
+        }
+
+        $registration = $registrations[0];
+
+
         $params = [
-            'client_id' => $this->session->get('client_id'),
+            'client_id' => $clientId,
             'state' => $uuid,
             'scope' => 'openid',
             'response_type' => 'id_token',
@@ -357,7 +388,9 @@ class LtiController extends AbstractController
             $params['login_hint'] = $loginHint;
         }
 
-        return $lms->getLtiAuthUrl($params);
+        $queryStr = http_build_query($params);
+
+        return "{$registration->getLoginAuthEndpoint()}?{$queryStr}";
     }
 
     // Get institution before the user is authenticated.

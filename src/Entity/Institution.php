@@ -52,17 +52,8 @@ class Institution implements JsonSerializable
 
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
 
-    #[ORM\Column(type: "string", length: 2048)]
-    private string $serviceAuthEndpoint;
-
     #[ORM\OneToOne(targetEntity: Registration::class, mappedBy: 'institution')]
     private ?Registration $registration;
-
-    #[ORM\Column(type: "string", nullable: true)]
-    private $apiClientId;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private string $apiClientSecretEncrypted;
 
 
     // Constructor
@@ -70,36 +61,6 @@ class Institution implements JsonSerializable
     {
         $this->courses = new ArrayCollection();
         $this->users = new ArrayCollection();
-    }
-
-
-    // Public Methods
-    public function encryptDeveloperKey(): self
-    {
-        $this->apiClientSecretEncrypted = $this->encryptData($this->apiClientSecretEncrypted);
-
-        return $this;
-    }
-
-
-    // Private Methods
-    private function encryptData($data): string
-    {
-        $key   = base64_decode($this->encodedKey);
-        $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $encrypted_data = sodium_crypto_secretbox($data, $nonce, $key);
-
-        return base64_encode($nonce . $encrypted_data);
-    }
-
-    private function decryptData($encrypted): bool | string
-    {
-        $key     = base64_decode($this->encodedKey);
-        $decoded = base64_decode($encrypted);
-        $nonce   = mb_substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
-        $encrypted_text = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
-
-        return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
     }
 
 
@@ -265,18 +226,6 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    public function getServiceAuthEndpoint(): ?string
-    {
-        return $this->serviceAutHEndpoint;
-    }
-
-    public function setServiceAuthEndpoint(string $serviceAuthEndpoint): static
-    {
-        $this->serviceAuthEndpoint = $serviceAuthEndpoint;
-
-        return $this;
-    }
-
     public function getRegistration(): ?Registration
     {
         return $this->registration;
@@ -285,30 +234,6 @@ class Institution implements JsonSerializable
     public function setRegistration(Registration $registration): static
     {
         $this->registration = $registration;
-
-        return $this;
-    }
-
-    public function getApiClientId(): ?string
-    {
-        return $this->apiClientId;
-    }
-
-    public function setApiClientId(?int $apiClientId): self
-    {
-        $this->apiClientId = $apiClientId;
-
-        return $this;
-    }
-
-    public function getApiClientSecretEncrypted(): ?string
-    {
-        return $this->apiClientSecretEncrypted;
-    }
-
-    public function setApiClientSecretEncrypted(?string $apiClientSecretEncrypted): self
-    {
-        $this->apiClientSecretEncrypted = $apiClientSecretEncrypted;
 
         return $this;
     }

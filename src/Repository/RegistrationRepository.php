@@ -26,4 +26,15 @@ class RegistrationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getByInstitutionId(string $id)
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('r')
+            ->from(Registration::class, 'r')
+            ->where('r.institution = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+    }
 }
