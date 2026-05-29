@@ -47,6 +47,44 @@ class LtiController extends AbstractController
         $this->registrationRepository = $registrationRepository;
     }
 
+
+    /**
+     * OIDC Login Initiation Request Handler
+     *
+     * Handles the third-party initiated login from an LMS. Both GET and POST
+     * requests must be supported, as the LMS may use either method.
+     *
+     * ---
+     *
+     * Request Parameters (from LMS):
+     *
+     * From IMS Security Framework 1.0, Section 5.1.1.1
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#step-1-third-party-initiated-login}
+     *
+     *   iss                The platform issuer
+     *   login_hint         Opaque value that should be returned untouched to the LMS 
+     *   target_link_uri    The target endpoint that should be retrieved at the end of the authentication flow
+     *
+     * From LTI 1.3, Section 4.1
+     * {@link https://www.imsglobal.org/spec/lti/v1p3#additional-login-parameters}
+     *
+     *   lti_message_hint       Opaque value that should be returned untouched to the LMS
+     *   lti_deployment_id      The ID of the specific deployment of the tool
+     *   client_id              The client ID for the tool
+     *
+     * ---
+     *
+     * The tool must redirect the user agent to the OIDC Authentication endpoint
+     * registered in the LMS. The redirect may be issued as either GET or POST.
+     *
+     * Redirect Parameters (to OIDC endpoint):
+     *
+     * From IMS Security Framework 1.0, Section 5.1.1.2
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request}
+     *
+     *   scope, response_type, client_id, redirect_uri, login_hint,
+     *   state, response_mode, nonce, prompt
+     */
     #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
@@ -70,6 +108,75 @@ class LtiController extends AbstractController
         return $this->redirect($this->getLtiAuthResponseUrl($iss, $clientId));
     }
 
+
+    /**
+     * LTI Resource Link Launch Request Handler
+     *
+     * Handles the final step of the LTI 1.3 launch flow. After the OIDC login
+     * initiation and authentication redirect, the LMS POSTs the authentication
+     * response to this endpoint containing the LTI message claims.
+     *
+     *
+     * ---
+     *
+     * Request parameters (POST body):
+     *
+     * From IMS Security Framework 1.0, Section 5.1.1.3
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#step-3-authentication-response}
+     *
+     *   state     Must match the value sent in the auth request (CSRF protection)
+     *   id_token  Signed JWT containing the user identity and LTI message claims
+     *
+     * ---
+     *
+     * REQUIRED claims inside the id_token JWT:
+     *
+     *
+     * From IMS Security Framework 1.0, Section 5.1.2
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#id-token}
+     *   iss           Issuer (the platform's identifier)
+     *   sub           Subject (the user's unique identifier on the platform)
+     *   aud           Audience (this tool's client_id)
+     *   iat           Issued-at timestamp
+     *   exp           Expiry timestamp
+     *   nonce         Must match the value sent in the auth request
+     *
+     * From LTI 1.3 Specification, Section 5.3
+     * {@link https://www.imsglobal.org/spec/lti/v1p3#required-message-claims}
+     * 
+     *   https://purl.imsglobal.org/spec/lti/claim/message_type     Must be "LtiResourceLinkRequest"
+     *   https://purl.imsglobal.org/spec/lti/claim/version          Must be "1.3.0"
+     *   https://purl.imsglobal.org/spec/lti/claim/deployment_id    Identifies the tool deployment within the platform
+     *   https://purl.imsglobal.org/spec/lti/claim/target_link_uri  The URL the tool should redirect to after launch
+     *   https://purl.imsglobal.org/spec/lti/claim/resource_link {
+     *       id          Opaque platform-unique identifier for this resource link (required)
+     *       title       Descriptive title (optional)
+     *       description (optional)
+     *   }
+     *   https://purl.imsglobal.org/spec/lti/claim/roles            Array of LIS role URIs for the launching user (may be empty)
+     
+     * ---
+     *
+     * OPTIONAL claims inside the id_token JWT:
+     *
+     * From LTI 1.3 Core Specification, Section 5.4
+     * {@link https://www.imsglobal.org/spec/lti/v1p3#optional-message-claims}
+     *
+     *   https://purl.imsglobal.org/spec/lti/claim/context                  Course/context info (id, label, title, type)
+     *   https://purl.imsglobal.org/spec/lti/claim/tool_platform            Platform info (guid, name, version, etc.)
+     *   https://purl.imsglobal.org/spec/lti/claim/role_scope_mentor        Mentor role mappings
+     *   https://purl.imsglobal.org/spec/lti/claim/launch_presentation      Presentation hints (locale, target, return URL)
+     *   https://purl.imsglobal.org/spec/lti/claim/lis                      LIS person and course data
+     *   https://purl.imsglobal.org/spec/lti/claim/custom                   Custom variables defined in the tool placement
+     *
+     * ---
+     *
+     * The tool MUST validate the state parameter, JWT signature, nonce, and expiry 
+     * before trusting any claims and establishing a user session.
+     *
+     * See IMS Security Framework 1.0, Section 5.1.3 for validation requirements:
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#authentication-response-validation}
+     */
     #[Route('/lti/authorize/check', name: 'lti_authorize_check')]
     public function ltiAuthorizeCheck(
         Request $request,

@@ -1,5 +1,13 @@
 <?php
 
+/*
+    Because UDOIT does not currently use LTI messaging,
+    it does not sign any JWT, so this table is 
+    not used. However, it is still implemented to maintain
+    the standard practice for LTI applications and allow
+    easy future key implementations if necessary.
+*/
+
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
