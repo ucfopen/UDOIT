@@ -24,6 +24,11 @@ use Symfony\Component\Yaml\Yaml;
 class CreateRegistrationCommand extends Command implements SignalableCommandInterface
 {
 
+
+    private bool $isRunningFromFile = false;
+    private int $totalFileRegistrations = 0;
+    private int $finishedFileRegistrations = 0;
+
     public function __construct(
         private ManagerRegistry $doctrine,
         private SigningKeySetRepository $signingKeySetRepo,
@@ -58,7 +63,8 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
         $filePath = $input->getOption('file');
         
         if ($filePath !== null)
-        {
+        {   
+            $this->isRunningFromFile = true;
             return $this->runFromFile($filePath, $io);
         }
 
@@ -108,8 +114,10 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
 
         $this->doctrine->getManager()->persist($institution);
         $this->doctrine->getManager()->persist($registration);
+        
+        // This should be the only flush so that no DB operation is 
+        // committed if the user exits the progam before it finishes.
         $this->doctrine->getManager()->flush();
-
         
         return Command::SUCCESS;
     }
@@ -184,8 +192,10 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
             $io->error('The file must contain at least one registration entry.');
             return Command::FAILURE;
         }
+
+        $this->totalFileRegistrations = count($registrations);
  
-        $io->writeln(sprintf('<info>Found %d registration(s) to process.</info>', count($registrations)));
+        $io->writeln(sprintf('<info>Found %d registration(s) to process.</info>', $this->totalFileRegistrations));
         $io->writeln('');
  
         $successCount = 0;
@@ -206,6 +216,7 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
                 $this->createRegistrationFromEntry($entry, $io);
                 $io->success("Created successfully.");
                 $successCount++;
+                $this->finishedFileRegistrations = $successCount;
             } catch (\Throwable $e) {
                 $io->error("Failed: " . $e->getMessage());
                 $failCount++;
@@ -293,6 +304,8 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
  
         $this->doctrine->getManager()->persist($institution);
         $this->doctrine->getManager()->persist($registration);
+
+        // Save changes after every successful registration. 
         $this->doctrine->getManager()->flush();
     }
 
@@ -439,8 +452,10 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
  
         $this->doctrine->getManager()->persist($signingKeySet);
         $this->doctrine->getManager()->persist($signingKey);
-        $this->doctrine->getManager()->flush();
- 
+        
+        // Don't flush here so that if user cancels the program, the keys
+        // won't be saved.
+
         return $signingKeySet;
     }
 
@@ -586,6 +601,26 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
 
         return $idNameToId[$idChoice];
 
+    }
+
+
+    public function getSubscribedSignals(): array
+    {
+        return [\SIGINT];
+    }
+
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+    {
+        if ($signal === \SIGINT) {
+            if ($this->isRunningFromFile) {
+                exit(
+                    "\n\n\Operation stopped. {$this->finishedFileRegistrations}/{$this->totalFileRegistrations} registrations have been successfully added.\n\n",);
+            } else {
+                exit("\n\nRegistration cancelled. \n\n");
+            }
+        }
+
+        return $previousExitCode;
     }
 
 }
