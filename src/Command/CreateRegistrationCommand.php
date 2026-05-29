@@ -626,7 +626,7 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
         if ($signal === \SIGINT) {
             if ($this->isRunningFromFile) {
                 exit(
-                    "\n\n\Operation stopped. {$this->finishedFileRegistrations}/{$this->totalFileRegistrations} registrations have been successfully added.\n\n",);
+                    "\n\n\Operation stopped. {$this->finishedFileRegistrations}/{$this->totalFileRegistrations} registrations have been successfully added.\n\n");
             } else {
                 exit("\n\nRegistration cancelled. \n\n");
             }
