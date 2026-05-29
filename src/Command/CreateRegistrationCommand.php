@@ -148,7 +148,9 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
      *       // "jwk_endpoint": "..."
      *     },
      *     "keyset": {
-     *       "generate": true
+     *       "generate": true 
+     *       // true will ALWAYS generate new set, false only generates if no key available
+     * 
      *       // OR use an existing keyset by ID:
      *       // "existing_id": 7
      *     }
@@ -262,9 +264,9 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
  
         // Keyset validation: either generate:true or existing_id.
         $keyset = $entry['keyset'];
-        if (empty($keyset['generate']) && empty($keyset['existing_id'])) {
+        if (!isset($keyset['generate']) && empty($keyset['existing_id'])) {
             throw new \InvalidArgumentException(
-                'Keyset must specify either "generate": true or "existing_id": <id>.'
+                'Keyset must specify either "generate": true|false or "existing_id": <id>.'
             );
         }
     }
@@ -357,9 +359,19 @@ class CreateRegistrationCommand extends Command implements SignalableCommandInte
             $io->writeln("Using existing SigningKeySet ID {$id}.");
             return $found;
         }
- 
+
+        if (!$keysetEntry['generate']) {
+            $existingKey = $this->getFirstKeyset();
+            if ($existingKey) return $existingKey;
+        }
+
         $io->writeln('Generating new RSA key pair...');
         return $this->generateAndPersistKeyset();
+    }
+
+    private function getFirstKeySet(): ?SigningKeySet {
+        $existing =  $this->signingKeySetRepo->getFirstKeySet();
+        return empty($existing) ? null : $existing[0];
     }
 
     private function getPlatformPresets(): array

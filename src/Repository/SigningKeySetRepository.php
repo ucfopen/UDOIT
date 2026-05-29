@@ -7,10 +7,10 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Issue|null find($id, $lockMode = null, $lockVersion = null)
- * @method Issue|null findOneBy(array $criteria, array $orderBy = null)
- * @method Issue[]    findAll()
- * @method Issue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method SigningKeySet|null find($id, $lockMode = null, $lockVersion = null)
+ * @method SigningKeySet|null findOneBy(array $criteria, array $orderBy = null)
+ * @method SigningKeySet[]    findAll()
+ * @method SigningKeySet[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class SigningKeySetRepository extends ServiceEntityRepository
 {
@@ -25,6 +25,17 @@ class SigningKeySetRepository extends ServiceEntityRepository
             ->select('ks', 'k')
             ->from(SigningKeySet::class, 'ks')
             ->leftJoin('ks.signingKeys', 'k')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getFirstKeySet()
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('ks')
+            ->from(SigningKeySet::class, 'ks')
+            ->orderBy('ks.id', 'ASC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getResult();
     }
