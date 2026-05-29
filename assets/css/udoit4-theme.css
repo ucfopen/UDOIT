@@ -1463,6 +1463,47 @@
     }
   }
 
+  /* Adapted from https://css-loaders.com/progress/ (#16) */
+  .loader {
+    height: 0.5em;
+    border-radius: 0.25em;
+    width: 100%;
+    --c: no-repeat linear-gradient(var(--progress-bar-color) 0 0);
+    background: var(--c), var(--c), var(--progress-bar-background-color);
+    background-size: 60% 100%;
+    animation: l16 5s infinite;
+
+    &.complete {
+      animation: none;
+      background: var(--selection-color);
+    }
+  }
+
+  @keyframes l16 {
+    0%   {background-position:-150% 0,-150% 0}
+    66%  {background-position: 250% 0,-150% 0}
+    100% {background-position: 250% 0, 250% 0}
+  }
+
+  .progress-bar-container {
+    background-color: var(--border-color);
+    width: var(--progress-bar-width);
+    max-width: 100%;
+    height: .5rem;
+    border-radius: 1rem;
+    position: relative;
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 1rem;
+      min-width: .5rem;
+    }
+  }
+
   .allow-word-break {
     overflow: auto;
     overflow-wrap: break-word;

@@ -321,13 +321,6 @@ export default function ReviewFilesPage({
     setIsDisabled(tempIsDisabled)
   }, [sessionFiles])
 
-  const handleEscapeKey = (e) => {
-    if(e.key === 'Escape' && widgetState === WIDGET_STATE.FIXIT) {
-      e.preventDefault()
-      closeDialog()
-    }
-  }
-
 useEffect(() => {
     if(showLearnMore) {
       document.getElementById('btn-learn-more-back')?.focus()
@@ -342,22 +335,14 @@ useEffect(() => {
     if(widgetState === WIDGET_STATE.FIXIT) {
       const dialog = document.getElementById(dialogId)
       if (dialog) {
-        dialog.addEventListener('keydown', handleEscapeKey)
-        const title = dialog.querySelector('#ufixit-dialog-title')
-        if(title) {
-          title.focus()
-        }
+        dialog.focus()
       }
     }
     else if(widgetState === WIDGET_STATE.LIST) {
       if(mostRecentFileId) {
         const fileElement = document.getElementById(`udoit-file-${mostRecentFileId}`)
         if(fileElement) {
-          fileElement.focus() 
-        }
-        const dialog = document.getElementById(dialogId)
-        if (dialog) {
-          dialog.removeEventListener('keydown', handleEscapeKey)
+          fileElement.focus()
         }
       }
     }
@@ -984,6 +969,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       <div className={`dialog-backdrop ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`} />
       <div
         id={dialogId}
+        tabIndex="-1"
         role="dialog"
         aria-modal="true"
         className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`}

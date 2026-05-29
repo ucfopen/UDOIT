@@ -5,6 +5,15 @@
   background: var(--white);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-container {
+  position: relative;
+  width: 35em;
+  max-width: 50%;
+  margin: auto;
 }
 
 #media-captions-editor {
@@ -36,7 +45,7 @@
     justify-content: center;
 
     @container captions-editor (width < 1000px) {
-      flex-direction: column;
+      flex-direction: column-reverse;
       overflow: auto;
       flex-shrink: 0;
 
@@ -49,7 +58,7 @@
         width: 100% !important;
         flex-shrink: 0;
         border-left: none !important;
-        border-top: 1px solid var(--border-color) !important;
+        border-block-end: 1px solid var(--border-color) !important;
       }
     }
 
@@ -95,14 +104,12 @@
 
       .cue-row {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
         gap: .5rem;
         margin-bottom: 0.5rem;
-        padding: var(--element-radius);
-        border-radius: var(--element-radius);
-        background-color: var(--background-color);
-        border: 1px solid var(--border-color);
+        border: 1px solid transparent;
+        padding: 0 var(--element-radius);
         box-sizing: border-box;
 
         .btn-icon-only {
@@ -116,8 +123,12 @@
         }
 
         &.active {
-          background-color: var(--selection-color-background);
-          border-color: var(--selection-color-border);
+          /* background-color: var(--selection-color-background);
+          border-color: var(--selection-color-border); */
+          border: 1px solid var(--border-color);
+          padding: var(--element-radius);
+          border-radius: var(--element-radius);
+          background-color: var(--background-color);
 
           .btn-icon-only {
             fill: var(--link-color);
@@ -145,6 +156,8 @@
         flex-direction: row;
         justify-content: center;
         width: 100%;
+        flex: 1 1 auto;
+        min-height: 0px;
         
         video {
           background: #000;
@@ -162,8 +175,21 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
-        gap: 1rem;
+        gap: 1em;
         flex-wrap: wrap;
+        align-items: center;
+
+        .btn-icon-only {
+          padding: .25em;
+          border-radius: 100%;
+        }
+
+        .btn-play {
+          border-radius: 100%;
+          display: flex;
+          align-items: center;
+          padding: .75em;
+        }
       }
     }
   }
@@ -185,5 +211,11 @@
         margin-top: 0px;
       }
     }
+  }
+}
+
+@media screen and (width > 50em) {
+  .cue-row .slider-select {
+    background-color: var(--white);
   }
 }
