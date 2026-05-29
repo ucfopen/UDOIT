@@ -5,7 +5,7 @@ namespace App\Lms\D2l;
 use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
-use App\Entity\Institution;
+use App\Entity\Registration;
 use App\Entity\User;
 use App\Entity\UserSession;
 use App\Lms\LmsInterface;
@@ -97,22 +97,22 @@ class D2lLms implements LmsInterface {
         return ($response->getStatusCode() < 400);
     }
 
-    public function getOauthUri(Institution $institution, UserSession $session)
+    public function getOauthUri(Registration $registration, UserSession $session)
     {
         $query = [
-            'client_id' => $institution->getApiClientId(),
+            'client_id' => $registration->getApiClientId(),
             'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
             'state' => $session->getUuid(),
         ];
 
-        return 'https://auth.brightspace.com/oauth2/auth?' . http_build_query($query);
+        return "{$registration->getServiceLoginEndpoint()}?" . http_build_query($query);
     }
 
-    public function getOauthTokenUri(Institution $institution)
+    public function getOauthTokenUri(Registration $registration)
     {
-        return 'https://auth.brightspace.com/core/connect/token';
+        return $registration->getServiceAuthEndpoint();
     }
 
     /**
@@ -120,25 +120,6 @@ class D2lLms implements LmsInterface {
      * LTI Functions
      * *************
      */
-    public function getLtiAuthUrl($params)
-    {
-        $session = $this->sessionService->getSession();
-        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
-        $baseUrl = rtrim($baseUrl, '/');
-
-        $queryStr = http_build_query($params);
-
-        return "{$baseUrl}/d2l/lti/authenticate?{$queryStr}";
-    }
-
-    public function getKeysetUrl()
-    {
-        $session = $this->sessionService->getSession();
-        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
-        $baseUrl = rtrim($baseUrl, '/');
-        
-        return $baseUrl . '/d2l/.well-known/jwks';
-    }
 
     public function saveTokenToSession($token)
     {

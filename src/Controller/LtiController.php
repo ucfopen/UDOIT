@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Repository\RegistrationRepository;
 use App\Services\LmsApiService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -32,12 +34,57 @@ class LtiController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
-    {
+    private RegistrationRepository $registrationRepository;
+
+    public function __construct(
+        ManagerRegistry $doctrine,
+        SessionService $sessionService,
+        RegistrationRepository $registrationRepository,
+        private LoggerInterface $logger
+    ) {
         $this->doctrine = $doctrine;
         $this->sessionService = $sessionService;
+        $this->registrationRepository = $registrationRepository;
     }
 
+
+    /**
+     * OIDC Login Initiation Request Handler
+     *
+     * Handles the third-party initiated login from an LMS. Both GET and POST
+     * requests must be supported, as the LMS may use either method.
+     *
+     * ---
+     *
+     * Request Parameters (from LMS):
+     *
+     * From IMS Security Framework 1.0, Section 5.1.1.1
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#step-1-third-party-initiated-login}
+     *
+     *   iss                The platform issuer
+     *   login_hint         Opaque value that should be returned untouched to the LMS 
+     *   target_link_uri    The target endpoint that should be retrieved at the end of the authentication flow
+     *
+     * From LTI 1.3, Section 4.1
+     * {@link https://www.imsglobal.org/spec/lti/v1p3#additional-login-parameters}
+     *
+     *   lti_message_hint       Opaque value that should be returned untouched to the LMS
+     *   lti_deployment_id      The ID of the specific deployment of the tool
+     *   client_id              The client ID for the tool
+     *
+     * ---
+     *
+     * The tool must redirect the user agent to the OIDC Authentication endpoint
+     * registered in the LMS. The redirect may be issued as either GET or POST.
+     *
+     * Redirect Parameters (to OIDC endpoint):
+     *
+     * From IMS Security Framework 1.0, Section 5.1.1.2
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request}
+     *
+     *   scope, response_type, client_id, redirect_uri, login_hint,
+     *   state, response_mode, nonce, prompt
+     */
     #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
@@ -52,9 +99,84 @@ class LtiController extends AbstractController
 
         $this->saveRequestToSession();
 
-        return $this->redirect($this->getLtiAuthResponseUrl());
+        $postParams = $request->request->all();
+        $getParams = $request->query->all();
+        $allParams = array_merge($postParams, $getParams);
+        $iss = $allParams['iss'];
+        $clientId = $allParams['client_id'];
+
+        return $this->redirect($this->getLtiAuthResponseUrl($iss, $clientId));
     }
 
+
+    /**
+     * LTI Resource Link Launch Request Handler
+     *
+     * Handles the final step of the LTI 1.3 launch flow. After the OIDC login
+     * initiation and authentication redirect, the LMS POSTs the authentication
+     * response to this endpoint containing the LTI message claims.
+     *
+     *
+     * ---
+     *
+     * Request parameters (POST body):
+     *
+     * From IMS Security Framework 1.0, Section 5.1.1.3
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#step-3-authentication-response}
+     *
+     *   state     Must match the value sent in the auth request (CSRF protection)
+     *   id_token  Signed JWT containing the user identity and LTI message claims
+     *
+     * ---
+     *
+     * REQUIRED claims inside the id_token JWT:
+     *
+     *
+     * From IMS Security Framework 1.0, Section 5.1.2
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#id-token}
+     *   iss           Issuer (the platform's identifier)
+     *   sub           Subject (the user's unique identifier on the platform)
+     *   aud           Audience (this tool's client_id)
+     *   iat           Issued-at timestamp
+     *   exp           Expiry timestamp
+     *   nonce         Must match the value sent in the auth request
+     *
+     * From LTI 1.3 Specification, Section 5.3
+     * {@link https://www.imsglobal.org/spec/lti/v1p3#required-message-claims}
+     * 
+     *   https://purl.imsglobal.org/spec/lti/claim/message_type     Must be "LtiResourceLinkRequest"
+     *   https://purl.imsglobal.org/spec/lti/claim/version          Must be "1.3.0"
+     *   https://purl.imsglobal.org/spec/lti/claim/deployment_id    Identifies the tool deployment within the platform
+     *   https://purl.imsglobal.org/spec/lti/claim/target_link_uri  The URL the tool should redirect to after launch
+     *   https://purl.imsglobal.org/spec/lti/claim/resource_link {
+     *       id          Opaque platform-unique identifier for this resource link (required)
+     *       title       Descriptive title (optional)
+     *       description (optional)
+     *   }
+     *   https://purl.imsglobal.org/spec/lti/claim/roles            Array of LIS role URIs for the launching user (may be empty)
+     
+     * ---
+     *
+     * OPTIONAL claims inside the id_token JWT:
+     *
+     * From LTI 1.3 Core Specification, Section 5.4
+     * {@link https://www.imsglobal.org/spec/lti/v1p3#optional-message-claims}
+     *
+     *   https://purl.imsglobal.org/spec/lti/claim/context                  Course/context info (id, label, title, type)
+     *   https://purl.imsglobal.org/spec/lti/claim/tool_platform            Platform info (guid, name, version, etc.)
+     *   https://purl.imsglobal.org/spec/lti/claim/role_scope_mentor        Mentor role mappings
+     *   https://purl.imsglobal.org/spec/lti/claim/launch_presentation      Presentation hints (locale, target, return URL)
+     *   https://purl.imsglobal.org/spec/lti/claim/lis                      LIS person and course data
+     *   https://purl.imsglobal.org/spec/lti/claim/custom                   Custom variables defined in the tool placement
+     *
+     * ---
+     *
+     * The tool MUST validate the state parameter, JWT signature, nonce, and expiry 
+     * before trusting any claims and establishing a user session.
+     *
+     * See IMS Security Framework 1.0, Section 5.1.3 for validation requirements:
+     * {@link https://www.imsglobal.org/spec/security/v1p0/#authentication-response-validation}
+     */
     #[Route('/lti/authorize/check', name: 'lti_authorize_check')]
     public function ltiAuthorizeCheck(
         Request $request,
@@ -71,6 +193,7 @@ class LtiController extends AbstractController
 
         $this->saveRequestToSession();
         $clientId = $this->session->get('client_id');
+        $iss = $this->session->get('iss');
 
         $jwt = $this->session->get('id_token');
         if (!$jwt) {
@@ -78,7 +201,7 @@ class LtiController extends AbstractController
         }
 
         // Create token from JWT and public JWKs
-        $jwks = $this->getPublicJwks();
+        $jwks = $this->getPublicJwks($iss, $clientId);
         $publicKey = JWK::parseKeySet($jwks);
         JWT::$leeway = 60;
         $token = JWT::decode($jwt, $publicKey);
@@ -108,6 +231,8 @@ class LtiController extends AbstractController
         // Remove old sessions
         $sessionService->removeExpiredSessions();
 
+        $this->logger->info(json_encode($this->session));
+        
         $authCookie = Cookie::create('AUTH_TOKEN')
             ->withValue($this->session->getUuid())
             ->withExpires(0)
@@ -276,11 +401,15 @@ class LtiController extends AbstractController
         return;
     }
 
-    protected function getPublicJwks()
+    protected function getPublicJwks(string $iss, string $clientId)
     {
         $httpClient = HttpClient::create();
-        /* URL will be different for other LMSes */
-        $url = $this->lmsApi->getLms()->getKeysetUrl();
+
+        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
+        if (empty($registrations)) $this->util->exitWithMessage('Invalid LTI registration.');
+        $registration = $registrations[0];
+
+        $url = $registration->getJwksEndpoint();
         $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
         $response = $httpClient->request('GET', $url, [
             'headers' => [
@@ -292,7 +421,7 @@ class LtiController extends AbstractController
         return $keys;
     }
 
-    protected function getLtiAuthResponseUrl()
+    protected function getLtiAuthResponseUrl(string $iss, string $clientId)
     {
         $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
@@ -302,8 +431,17 @@ class LtiController extends AbstractController
             throw new \Exception("No UUID found!");
         }
 
+        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
+
+        if (empty($registrations)) {
+            $this->util->exitWithMessage('Invalid LTI registration.');
+        }
+
+        $registration = $registrations[0];
+
+
         $params = [
-            'client_id' => $this->session->get('client_id'),
+            'client_id' => $clientId,
             'state' => $uuid,
             'scope' => 'openid',
             'response_type' => 'id_token',
@@ -323,7 +461,9 @@ class LtiController extends AbstractController
             $params['login_hint'] = $loginHint;
         }
 
-        return $lms->getLtiAuthUrl($params);
+        $queryStr = http_build_query($params);
+
+        return "{$registration->getLoginAuthEndpoint()}?{$queryStr}";
     }
 
     // Get institution before the user is authenticated.

@@ -5,7 +5,7 @@ namespace App\Lms\Canvas;
 use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
-use App\Entity\Institution;
+use App\Entity\Registration;
 use App\Entity\User;
 use App\Entity\UserSession;
 use App\Lms\LmsInterface;
@@ -66,26 +66,6 @@ class CanvasLms implements LmsInterface
      * ********************
      */
 
-    public function getLtiAuthUrl($params)
-    {
-        $session = $this->sessionService->getSession();
-        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
-        $baseUrl = rtrim($baseUrl, '/');
-
-        $queryStr = http_build_query($params);
-
-        return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
-    }
-
-    public function getKeysetUrl()
-    {
-        $session = $this->sessionService->getSession();
-        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
-        $baseUrl = rtrim($baseUrl, '/');
-
-        return "{$baseUrl}/api/lti/security/jwks";
-    }
-
     public function saveTokenToSession($token) {}
 
     /**
@@ -94,28 +74,22 @@ class CanvasLms implements LmsInterface
      * ********************
      */
 
-    public function getOauthUri(Institution $institution, UserSession $session)
+    public function getOauthUri(Registration $registration, UserSession $session)
     {
         $query = [
-            'client_id' => $institution->getApiClientId(),
+            'client_id' => $registration->getApiClientId(),
             'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
             'state' => $session->getUuid(),
         ];
-        $baseUrl = $this->util->getCurrentDomain();
 
-        return "https://{$baseUrl}/login/oauth2/auth?" . http_build_query($query);
+        return "{$registration->getServiceLoginEndpoint()}?" . http_build_query($query);
     }
 
-    public function getOauthTokenUri(Institution $institution)
+    public function getOauthTokenUri(Registration $registration)
     {
-        $baseUrl = $this->util->getCurrentDomain();
-        if (!$baseUrl) {
-            $baseUrl = $institution->getLmsDomain();
-        }
-
-        return "https://{$baseUrl}/login/oauth2/token";
+        return $registration->getServiceAuthEndpoint();
     }
 
 
@@ -1067,7 +1041,7 @@ class CanvasLms implements LmsInterface
         return $lmsContentTypeUrls[$contentType];
     }
 
-    protected function getScopes()
+    public function getScopes()
     {
         $scopes = [
             // Accounts

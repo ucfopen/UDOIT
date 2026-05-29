@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Repository;
+
+use App\Entity\SigningKeySet;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+/**
+ * @method SigningKeySet|null find($id, $lockMode = null, $lockVersion = null)
+ * @method SigningKeySet|null findOneBy(array $criteria, array $orderBy = null)
+ * @method SigningKeySet[]    findAll()
+ * @method SigningKeySet[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */
+class SigningKeySetRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, SigningKeySet::class);
+    }
+
+    public function getAllKeySets()
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('ks', 'k')
+            ->from(SigningKeySet::class, 'ks')
+            ->leftJoin('ks.signingKeys', 'k')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getFirstKeySet()
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('ks')
+            ->from(SigningKeySet::class, 'ks')
+            ->orderBy('ks.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult();
+    }
+
+    // public function deleteContentItemIssues(ContentItem $contentItem)
+    // {
+    //     $this->getEntityManager()->createQueryBuilder()
+    //         ->delete(Issue::class, 'i')
+    //         ->where('i.contentItem = :contentItem AND i.status = :status')
+    //         ->setParameter('contentItem', $contentItem)
+    //         ->setParameter('status', Issue::$issueStatusActive)
+    //         ->getQuery()
+    //         ->getResult();
+    // }
+
+    // Returns an array of Issue objects
+    /*
+    public function findByExampleField($value): array
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('i.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    */
+
+    /*
+    public function findOneBySomeField($value): ?Issue
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+    */
+}
