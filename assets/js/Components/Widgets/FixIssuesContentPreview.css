@@ -221,12 +221,37 @@
   }
 }
 
-.file-reference-table{
+.file-reference-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8em;
   overflow-x: auto;
 
+  
+  
+  thead, tbody tr {
+      display: table;
+      width: 100%;
+  }
+
+  tbody {
+    display: block;
+    overflow-y: auto;
+    max-height: 40vh
+  }
+
+
+  tr {
+
+    :nth-child(2) {
+      width: 25%;
+    }
+    
+    :nth-child(3) {
+      width: 30%;
+    }
+  }
+  
   thead {
 
     tr {
@@ -261,7 +286,6 @@
   }
 
   tbody {
-
     tr {
       background-color: var(--white);
 
