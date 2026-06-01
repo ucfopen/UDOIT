@@ -12,6 +12,8 @@ use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -198,5 +200,55 @@ class FileItemsController extends ApiController
         }
 
         return new JsonResponse($apiResponse);
+    }
+
+    #[Route('/api/files/{file}/download', methods: ['GET'], name: 'download_file')]
+    public function downloadFile(Request $request, FileItem $file): Response
+    {
+        $output = new ConsoleOutput();
+        $url = $file->getDownloadUrl();
+        $output->writeln("Attempting file download from URL: " . $url);
+
+        // First, do a HEAD request to get Content-Length and check status
+        $headCh = curl_init($url);
+        curl_setopt($headCh, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($headCh, CURLOPT_NOBODY, true);
+        curl_setopt($headCh, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($headCh);
+        $httpCode = curl_getinfo($headCh, CURLINFO_HTTP_CODE);
+        $contentLength = curl_getinfo($headCh, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+        $contentType = curl_getinfo($headCh, CURLINFO_CONTENT_TYPE) ?: 'video/mp4';
+        curl_close($headCh);
+
+        if ($httpCode >= 400) {
+            return new Response("Upstream error: HTTP $httpCode", $httpCode);
+        }
+
+        $headers = [
+            'Content-Type' => $contentType,
+        ];
+        if ($contentLength > 0) {
+            $headers['Content-Length'] = (int) $contentLength;
+        }
+
+        $response = new StreamedResponse(function () use ($url, $output) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) {
+                echo $data;
+                flush();
+                return strlen($data);
+            });
+
+            $result = curl_exec($ch);
+            if ($result === false) {
+                $output->writeln("cURL error: " . curl_error($ch));
+            }
+            curl_close($ch);
+        }, 200, $headers);
+
+        return $response;
     }
 }

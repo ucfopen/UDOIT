@@ -10,6 +10,7 @@ import ArrowIcon from "../Icons/ArrowIcon";
 import CaptionIcon from "../Icons/CaptionIcon";
 import CloseIcon from "../Icons/CloseIcon";
 import DeleteIcon from "../Icons/DeleteIcon";
+import ExpandIcon from "../Icons/ExpandIcon";
 import ForwardDoubleIcon from "../Icons/ForwardDoubleIcon";
 import ForwardSingleIcon from "../Icons/ForwardSingleIcon";
 import PauseIcon from "../Icons/PauseIcon";
@@ -52,17 +53,20 @@ export default function MediaCaptionsEditor({
   onSaveVtt,
   isDisabled = false,
 }) {
-  const [videoFile, setVideoFile] = useState(null);
+  
   const [vttFile, setVttFile] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [fileLoadedSize, setFileLoadedSize] = useState(0);
   const [totalFileSize, setTotalFileSize] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullWidthVideo, setIsFullWidthVideo] = useState(false);
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl || null);
   const [cues, setCues] = useState(() => (initialVttText ? parseVTT(initialVttText) : []));
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [error, setError] = useState("");
+  const [errorDetails, setErrorDetails] = useState("");
+  const [waveError, setWaveError] = useState("");
   const [activeRegion, setActiveRegion] = useState(-1);
   const [inputFocus, setInputFocus] = useState(false);
 
@@ -90,9 +94,12 @@ export default function MediaCaptionsEditor({
   useEffect(() => {
     if(!lmsFileData) return;
     setIsLoading(true);
+    setWaveError("");
+    setError("");
+    setErrorDetails("");
 
-    if (lmsFileData?.downloadUrl) {
-      downloadVideoFromLMS(lmsFileData.downloadUrl)
+    if (lmsFileData?.id) {
+      downloadVideoFromLMS(lmsFileData.id)
     }
 
     if (lmsFileData?.metadata?.media_entry_id) {
@@ -100,43 +107,63 @@ export default function MediaCaptionsEditor({
     }
   }, [lmsFileData])
 
-  // ---- object URL handling for uploaded video file
-  useEffect(() => {
-    if (!videoFile) return;
 
-    const url = URL.createObjectURL(videoFile);
-    setVideoUrl(url);
-
-    return () => URL.revokeObjectURL(url);
-  }, [videoFile]);
-
-  const downloadVideoFromLMS = async (lmsUrl) => {
+  const downloadVideoFromLMS = async (lmsFileId) => {
     setFileLoadedSize(0);
     setTotalFileSize(0);
+    const baseUrl = `https://${window.location.hostname}`;
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", lmsUrl, true);
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", `${window.location.origin}/udoit3/api/files/${lmsFileId}/download`, true);
     xhr.responseType = "arraybuffer";
+    xhr.withCredentials = true;
 
     xhr.onload = function(event) {
 
+      if (xhr.status >= 200 && xhr.status < 300) {
         var blob = new Blob([event.target.response], {type: "video/mp4"});
-
         let tempURL = URL.createObjectURL(blob);
         setVideoUrl(tempURL);
+      }
+      // Specific HTTP error handling
+      else {
+        if (xhr.status === 302) {
+          // Almost always a CORS issue, and can be fixed when the File sharing settings are changed.
+          setError(t('form.media.label.error_lms_download'));
+          setErrorDetails(t('form.media.label.error_lms_cors'));
+        }
+      }
     };
 
     xhr.onprogress = function(event) {
         if (event.lengthComputable) {
           setTotalFileSize(event.total);
         }
-        // else {
-        //   setTotalFileSize(1552199);  // Fallback for testing...
-        // }
         setFileLoadedSize(event.loaded);
     }
 
-    xhr.send();
+    xhr.onreadystatechange = () => {
+      if (xhr.status === 302) {
+        // Almost always a CORS issue, and can be fixed when the File sharing settings are changed.
+        setError(t('form.media.label.error_lms_download'));
+        setErrorDetails(t('form.media.label.error_lms_cors'));
+      }
+      else if (xhr.status === 404) {
+        setError(t('form.media.label.error_lms_download'));
+      }
+    }
+
+    xhr.onerror = function(e) {
+      console.error(`${xhr.status} Error downloading video from LMS: `, e);
+      setError(t('form.media.label.error_lms_download'));
+    }
+
+    try {
+      xhr.send();
+    } catch (e) {
+      console.error(`${xhr.status} Error CATCH sending request to LMS: `, e);
+      setError(t('form.media.label.error_lms_download'));
+    }
   }
 
   // ---- read uploaded VTT file
@@ -255,9 +282,15 @@ export default function MediaCaptionsEditor({
     setSelectedIndex(i);
   }
 
+  const handleWaveformError = (e) => {
+    console.error("Error loading waveform: ", e);
+    setWaveError(t('form.media.label.error_waveform'));
+    setIsLoading(false);
+  }
+
   const handleLoadError = (e) => {
     console.error("Error loading media: ", e);
-    setError("Unable to load media.");
+    setError(t('form.media.label.error_lms_download'));
     setIsLoading(false);
   }
 
@@ -353,11 +386,11 @@ export default function MediaCaptionsEditor({
     if (!regionsPlugin?.on) return;
 
     const handler = (region) => {
-      const idx = region?.data?.index;
-      if (typeof idx !== "number") return;
-      if (!cues[idx]) return;
+      const index = region?.data?.index;
+      if (typeof index !== "number") return;
+      if (!cues[index]) return;
 
-      const activeCueId = cues[idx].id;
+      const activeCueId = cues[index].id;
 
       const start = formatTimeVTT(region.start);
       const end = formatTimeVTT(region.end);
@@ -366,7 +399,7 @@ export default function MediaCaptionsEditor({
       if (vttToMS(start) >= vttToMS(end)) return;
 
       let tempCues = cues.map((c, i) => {
-        if (i !== idx) return c;
+        if (i !== index) return c;
         return { ...c, start, end, duration: computeVTTDuration(start, end) };
       })
       sortCues(tempCues, activeCueId);
@@ -383,8 +416,8 @@ export default function MediaCaptionsEditor({
     };
   }, [cues, findRegionsPlugin]);
 
-  const selectCue = useCallback((idx, seekSeconds) => {
-    handleSelectedIndex(idx);
+  const selectCue = useCallback((index, seekSeconds) => {
+    handleSelectedIndex(index);
 
     if (typeof seekSeconds === "number") {
       const video = videoElRef.current;
@@ -401,15 +434,15 @@ export default function MediaCaptionsEditor({
     }
   }, []);
 
-  const updateCueText = useCallback((idx, value) => {
+  const updateCueText = useCallback((index, value) => {
     setCues((prev) => {
-      const cue = prev[idx];
+      const cue = prev[index];
       if (!cue) return prev;
 
       const trimmed = String(value ?? "").trim();
       if (trimmed === cue.text) return prev;
 
-      return prev.map((c, i) => (i === idx ? { ...c, text: trimmed } : c));
+      return prev.map((c, i) => (i === index ? { ...c, text: trimmed } : c));
     });
   }, []);
 
@@ -618,13 +651,13 @@ export default function MediaCaptionsEditor({
     if (index < 0 || !cues[index]) return;
 
     setCues((prev) => {
-      const cue = prev[idx];
+      const cue = prev[index];
       if (!cue) return prev;
 
       const trimmed = String(value ?? "").trim();
       if (trimmed === cue.end) return prev;
 
-      return prev.map((c, i) => (i === idx ? { ...c, end: trimmed } : c));
+      return prev.map((c, i) => (i === index ? { ...c, end: trimmed } : c));
     });
   };
 
@@ -703,58 +736,56 @@ export default function MediaCaptionsEditor({
     <>
       { isLoading && (
         <div id="captionsLoadingOverlay">
-          <div className="flex-column align-items-center mb-4">
-            <div className="mb-4 flex-row justify-content-center align-items-center gap-3">
-              <ProgressIcon className="icon-lg udoit-progress spinner" />
-              <h2>{t('fix.label.loading_content')}</h2>
-            </div>
-            <div className="progress-container">
-            { totalFileSize === 0 ? (
-              <>
-                <div className='loader' />
-                <div className="flex-row justify-content-center mt-2">
-                  {fileLoadedSize === 0 ? (
-                    <span>{t('form.media.label.retrieving_info')}</span>
-                  ) : (
+          { error === "" ? (
+            <div className="flex-column align-items-center mb-4 w-100">
+              <div className="mb-2 flex-row justify-content-center align-items-center gap-3">
+                <ProgressIcon className="icon-lg udoit-progress spinner" />
+                <h2>{t('fix.label.loading_content')}</h2>
+              </div>
+              <div className="progress-container">
+              { totalFileSize === 0 ? (
+                <>
+                  <div className='loader' />
+                  <div className="flex-row justify-content-center mt-2">
+                    {fileLoadedSize === 0 ? (
+                      <span>{t('form.media.label.retrieving_info')}</span>
+                    ) : (
+                      <span>{t('form.media.label.loaded')} {Text.getReadableFileSize(fileLoadedSize)}</span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="progress-bar-container">
+                    <div className="progress-bar-fill" style={{width: `${(fileLoadedSize / totalFileSize) * 100}%`}}></div>
+                  </div>
+                  <div className="flex-row justify-content-between mt-2">
                     <span>{t('form.media.label.loaded')} {Text.getReadableFileSize(fileLoadedSize)}</span>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="progress-bar-container mt-1">
-                  <div className="progress-bar-fill" style={{width: `${(fileLoadedSize / totalFileSize) * 100}%`}}></div>
-                </div>
-                <div className="flex-row justify-content-between mt-2">
-                  <span>{t('form.media.label.loaded')} {Text.getReadableFileSize(fileLoadedSize)}</span>
-                  <span>{t('form.media.label.total_size')} {Text.getReadableFileSize(totalFileSize)}</span>
-                </div>
-              </>
-            )}
+                    <span>{t('form.media.label.total_size')} {Text.getReadableFileSize(totalFileSize)}</span>
+                  </div>
+                </>
+              )}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-      { error !== "" && (
-        <div id="captionsLoadingOverlay">
-          <div className="mt-1 mb-4 flex-row justify-content-center align-items-center flex-grow-1 gap-2">
-            <SeverityIssueIcon className="icon-lg udoit-issue" />
-            <h2>{t('fix.label.error_media')}</h2>
-          </div>
+          ) : (
+            <div className="mt-1 mb-4 flex-column justify-content-center align-items-center gap-2">
+              <div className="flex-row justify-content-center align-items-center gap-2">
+                <SeverityIssueIcon className="icon-lg udoit-issue" />
+                <h2>{t('fix.label.error_media')}</h2>
+              </div>
+              {errorDetails && (
+                <div className="error-details">
+                  {errorDetails}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
       <div inert={isLoading ? true : undefined} id="media-captions-editor">
 
         <div id="captions-editor-info-row">
-          <label>
-            Load Video{" "}
-            <input
-              type="file"
-              accept="video/*"
-              disabled={isDisabled}
-              onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-            />
-          </label>
+
           <label>
             Load Subtitles (VTT){" "}
             <input
@@ -769,227 +800,237 @@ export default function MediaCaptionsEditor({
             Save VTT
           </button>
         </div>
-        <div id="captions-editor-main-row">
-
-          <div
-            id="table-focus-layer"
-          >
+        <div id="captions-editor-main-row" className={isFullWidthVideo ? "full-width-video" : ""}>
+          <div id="table-focus-layer">
             <h3 id="captions-list-label" className="m-0">{t("form.media.label.captions")}</h3>
-            {cues.length === 0 && (
-              <div className="insert-button-container">
-                <button
-                  className="btn-icon-left btn-secondary btn-small"
-                  onClick={() => insertCue(-1)}
-                  aria-label={t('form.media.button.add')}
-                  title={t('form.media.button.add')}
-                  disabled={isDisabled || error !== ""}
-                >
-                  <AddIcon aria-hidden="true" className="icon-md" />
-                  Insert New Caption    
-                </button>
-              </div>
-            )}
-            <ul aria-labelledby="captions-list-label">
-              {cues.map((cue, i) => {
+            <div id="captions-list-inputs">
+              {cues.length === 0 && (
+                <div className="insert-button-container">
+                  <button
+                    className="btn-icon-left btn-secondary btn-small"
+                    onClick={() => insertCue(-1)}
+                    aria-label={t('form.media.button.add')}
+                    title={t('form.media.button.add')}
+                    disabled={isDisabled || error !== ""}
+                  >
+                    <AddIcon aria-hidden="true" className="icon-md" />
+                    Insert New Caption    
+                  </button>
+                </div>
+              )}
+              <ul aria-labelledby="captions-list-label">
+                {cues.map((cue, i) => {
 
-                const firstCaption = i === 0;
-                const lastCaption = i === cues.length - 1;
-                const active = selectedIndex === i;
+                  const firstCaption = i === 0;
+                  const lastCaption = i === cues.length - 1;
+                  const active = selectedIndex === i;
 
-                return (
-                  <li
-                    tabIndex={-1}
-                    key={cue.id || i}
-                    id={'list-item-cue-' + i}
-                    data-id={i}
-                    onBlur={(e) => {
-                      const i = Number(e.currentTarget.dataset.id)
-                      if (selectedIndex === i) {
-                        // If we can verify that we're still in the same row, don't deselect
-                        const parentListItem = document.getElementById(`list-item-cue-${i}`);
-                        if (e.relatedTarget && (e.relatedTarget === parentListItem || parentListItem?.contains(e.relatedTarget))) {
-                          return
+                  return (
+                    <li
+                      tabIndex={-1}
+                      key={cue.id || i}
+                      id={'list-item-cue-' + i}
+                      data-id={i}
+                      onBlur={(e) => {
+                        const i = Number(e.currentTarget.dataset.id)
+                        if (selectedIndex === i) {
+                          // If we can verify that we're still in the same row, don't deselect
+                          const parentListItem = document.getElementById(`list-item-cue-${i}`);
+                          if (e.relatedTarget && (e.relatedTarget === parentListItem || parentListItem?.contains(e.relatedTarget))) {
+                            return
+                          }
+                          setSelectedIndex(-1)
+                          if(activeSettingsIndex === i) {
+                            setActiveSettingsIndex(-1)
+                          }
                         }
-                        setSelectedIndex(-1)
-                        if(activeSettingsIndex === i) {
-                          setActiveSettingsIndex(-1)
-                        }
-                      }
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                    }}
-                    >
-                    {(active || firstCaption) && (
-                      <div className={"insert-button-container mb-2" + (!firstCaption ? " mt-3" : "")}>
-                        <button
-                          className="btn-icon-only btn-secondary btn-small"
-                          onClick={() => insertCue(i)}
-                          aria-label={t('form.media.button.add')}
-                          title={t('form.media.button.add')}
-                          disabled={isDisabled || error !== ""}
-                        >
-                          <AddIcon aria-hidden="true" className="icon-md" />
-                        </button>
-                      </div>
-                    )}
-                    <div
-                      id={`cue-row-${i}`}
-                      className={`cue-row${active ? " active" : ""}`}
+                      }}
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleSelectedIndex(i);
-                        selectCue(i, vttToMS(cue.start) / 1000);
                       }}
-                      role="group"
-                      aria-label={cue.text}
-                    >
-                      { (activeSettingsIndex === i) && (
-                        <div className="flex-row w-100 justify-content-between">
-                          <div
+                      >
+                      {(active || firstCaption) && (
+                        <div className={"insert-button-container mb-2" + (!firstCaption ? " mt-3" : "")}>
+                          <button
+                            className="btn-icon-only btn-secondary btn-small"
+                            onClick={() => insertCue(i)}
+                            aria-label={t('form.media.button.add')}
+                            title={t('form.media.button.add')}
+                            disabled={isDisabled || error !== ""}
+                          >
+                            <AddIcon aria-hidden="true" className="icon-md" />
+                          </button>
+                        </div>
+                      )}
+                      <div
+                        id={`cue-row-${i}`}
+                        className={`cue-row${active ? " active" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleSelectedIndex(i);
+                          selectCue(i, vttToMS(cue.start) / 1000);
+                        }}
+                        role="group"
+                        aria-label={cue.text}
+                      >
+                        { (activeSettingsIndex === i) && (
+                          <div className="flex-row w-100 justify-content-between">
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation()
+                              }}
+                            >
+                              <SliderSelect
+                                activeOption = {cue?.align || "center"}
+                                setActiveOption={setAlign}
+                                options = {[
+                                  { name: (<AlignLeftIcon className="icon-md" alt={t('form.media.label.align_left')} title={t('form.media.label.align_left')} />), value: "left" },
+                                  { name: (<AlignCenterIcon className="icon-md" alt={t('form.media.label.align_center')} title={t('form.media.label.align_center')} />), value: "center" },
+                                  { name: (<AlignRightIcon className="icon-md" alt={t('form.media.label.align_right')} title={t('form.media.label.align_right')} />), value: "right" },
+                                ]}
+                              />
+                            </div>
+
+                            <div className="flex-row gap-2 align-items-center">
+                              <div className="flex-row gap-1 align-items-center">
+                                <TimeIcon className="icon-sm gray" aria-hidden="true" />
+                                <input
+                                  type="text"
+                                  value={cue.start}
+                                  aria-label={t('form.media.label.start_time')}
+                                  disabled={isDisabled}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                  }}
+                                  onChange={e => setStart(e.target.value)}
+                                  style={{ width: "8em" }}
+                                />
+                                <ArrowIcon className="icon-sm gray" aria-hidden="true" />
+                                <input
+                                  type="text"
+                                  value={cue.end}
+                                  aria-label={t('form.media.label.end_time')}
+                                  disabled={isDisabled}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                  }}
+                                  onChange={e => setEnd(e.target.value)}
+                                  style={{ width: "8em" }}
+                                />
+                              </div>
+                              <button
+                                id={`close-settings-button-${i}`}
+                                className="btn-icon-only btn-link btn-small"
+                                aria-label={t('form.media.button.close_details')}
+                                title={t('form.media.button.close_details')}
+                                onClick={() => {
+                                  setActiveSettingsIndex(-1)
+                                }} >
+                                <CloseIcon className="icon-md gray" aria-hidden="true" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex-row gap-1 w-100 align-items-center">
+                          <input
+                            id={`cue-field-${i}`}
+                            type="text"
+                            defaultValue={cue.text}
+                            disabled={isDisabled || error !== ""}
+                            style={{ flex: 2, minWidth: 0 }}
+                            aria-label={t('form.media.label.caption_text', { captionNumber: i + 1 })}
+                            onBlur={(e) => updateCueText(i, e.target.value)}
+                            onFocus={(e) => {
+                              handleSelectedIndex(i)
+                            }}
                             onClick={(e) => {
                               e.stopPropagation()
                             }}
-                          >
-                            <SliderSelect
-                              activeOption = {cue?.align || "center"}
-                              setActiveOption={setAlign}
-                              options = {[
-                                { name: (<AlignLeftIcon className="icon-md" alt={t('form.media.label.align_left')} title={t('form.media.label.align_left')} />), value: "left" },
-                                { name: (<AlignCenterIcon className="icon-md" alt={t('form.media.label.align_center')} title={t('form.media.label.align_center')} />), value: "center" },
-                                { name: (<AlignRightIcon className="icon-md" alt={t('form.media.label.align_right')} title={t('form.media.label.align_right')} />), value: "right" },
-                              ]}
-                            />
-                          </div>
-
-                          <div className="flex-row gap-2 align-items-center">
-                            <div className="flex-row gap-1 align-items-center">
-                              <TimeIcon className="icon-sm gray" aria-hidden="true" />
-                              <input
-                                type="text"
-                                value={cue.start}
-                                aria-label={t('form.media.label.start_time')}
-                                disabled={isDisabled}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                }}
-                                onChange={e => setStart(e.target.value)}
-                                style={{ width: "8em" }}
-                              />
-                              <ArrowIcon className="icon-sm gray" aria-hidden="true" />
-                              <input
-                                type="text"
-                                value={cue.end}
-                                aria-label={t('form.media.label.end_time')}
-                                disabled={isDisabled}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                }}
-                                onChange={e => setEnd(e.target.value)}
-                                style={{ width: "8em" }}
-                              />
-                            </div>
+                          />
+                          { (activeSettingsIndex !== i) && (
                             <button
-                              id={`close-settings-button-${i}`}
-                              className="btn-icon-only btn-link btn-small"
-                              aria-label={t('form.media.button.close_details')}
-                              title={t('form.media.button.close_details')}
-                              onClick={() => {
-                                setActiveSettingsIndex(-1)
-                              }} >
-                              <CloseIcon className="icon-md gray" aria-hidden="true" />
+                              id={`settings-button-${i}`}
+                              className="btn-small btn-icon-only btn-link"
+                              aria-label={t('form.media.button.show_details')}
+                              title={t('form.media.button.show_details')}
+                              // This button SHOULD just have an onClick handler that by default works on keypresses, HOWEVER...
+                              // Because rows with the settings open auto-close when they lose focus, rows underneath them "jump" up.
+                              // This means that you could start a click on the settings button, but the button moves before the click is
+                              // released, causing the click to "miss" and the settings to not open.
+                              //
+                              // To solve this, we add the onMouseDown handler to handle clicks before the button can move.
+                              onMouseDown={() => {
+                                openSettings(i)
+                              }}
+                              // This is fine, because the openSettings function isn't a toggle; it only changes indices that need it.
+                              onClick={(e) => {
+                                openSettings(i)
+                              }}
+                              // Since we've hand-edited the mouse events, the keyboard events don't trigger unless we hand-edit those, too.
+                              onKeyDown={(e) => {
+                                if(e.key === 'Enter' || e.key === ' ') {
+                                  openSettings(i)
+                                }
+                              }}
+                              disabled={isDisabled || error !== ""}
+                            >
+                              <SettingsIcon aria-hidden="true" className="icon-md" />
                             </button>
-                          </div>
+                          )}
+                          { (activeSettingsIndex !== i) && (
+                            <button
+                              className="btn-small btn-icon-only btn-link"
+                              aria-label={t('form.media.button.delete')}
+                              title={t('form.media.button.delete')}
+                              onFocus={() => handleSelectedIndex(i)}
+                              onMouseDown={() => deleteCue(i)}
+                              onKeyDown={(e) => {
+                                if(e.key === 'Enter' || e.key === ' ') {
+                                  deleteCue(i);
+                                }
+                              }}
+                              disabled={isDisabled || error !== ""}
+                            >
+                              <DeleteIcon aria-hidden="true" className="icon-md" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {(active || lastCaption) && (
+                        <div className="insert-button-container mb-3">
+                          <button
+                            className="btn-icon-only btn-secondary btn-small"
+                            onClick={() => insertCue(i, false)}
+                            aria-label={t('form.media.button.add')}
+                            title={t('form.media.button.add')}
+                            disabled={isDisabled || error !== ""}
+                          >
+                            <AddIcon aria-hidden="true" className="icon-md" />
+                          </button>
                         </div>
                       )}
-                      <div className="flex-row gap-1 w-100 align-items-center">
-                        <input
-                          id={`cue-field-${i}`}
-                          type="text"
-                          defaultValue={cue.text}
-                          disabled={isDisabled || error !== ""}
-                          style={{ flex: 2, minWidth: 0 }}
-                          aria-label={t('form.media.label.caption_text', { captionNumber: i + 1 })}
-                          onBlur={(e) => updateCueText(i, e.target.value)}
-                          onFocus={(e) => {
-                            handleSelectedIndex(i)
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                          }}
-                        />
-                        { (activeSettingsIndex !== i) && (
-                          <button
-                            id={`settings-button-${i}`}
-                            className="btn-small btn-icon-only btn-link"
-                            aria-label={t('form.media.button.show_details')}
-                            title={t('form.media.button.show_details')}
-                            // This button SHOULD just have an onClick handler that by default works on keypresses, HOWEVER...
-                            // Because rows with the settings open auto-close when they lose focus, rows underneath them "jump" up.
-                            // This means that you could start a click on the settings button, but the button moves before the click is
-                            // released, causing the click to "miss" and the settings to not open.
-                            //
-                            // To solve this, we add the onMouseDown handler to handle clicks before the button can move.
-                            onMouseDown={() => {
-                              openSettings(i)
-                            }}
-                            // This is fine, because the openSettings function isn't a toggle; it only changes indices that need it.
-                            onClick={(e) => {
-                              openSettings(i)
-                            }}
-                            // Since we've hand-edited the mouse events, the keyboard events don't trigger unless we hand-edit those, too.
-                            onKeyDown={(e) => {
-                              if(e.key === 'Enter' || e.key === ' ') {
-                                openSettings(i)
-                              }
-                            }}
-                            disabled={isDisabled || error !== ""}
-                          >
-                            <SettingsIcon aria-hidden="true" className="icon-md" />
-                          </button>
-                        )}
-                        { (activeSettingsIndex !== i) && (
-                          <button
-                            className="btn-small btn-icon-only btn-link"
-                            aria-label={t('form.media.button.delete')}
-                            title={t('form.media.button.delete')}
-                            onFocus={() => handleSelectedIndex(i)}
-                            onMouseDown={() => deleteCue(i)}
-                            onKeyDown={(e) => {
-                              if(e.key === 'Enter' || e.key === ' ') {
-                                deleteCue(i);
-                              }
-                            }}
-                            disabled={isDisabled || error !== ""}
-                          >
-                            <DeleteIcon aria-hidden="true" className="icon-md" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    {(active || lastCaption) && (
-                      <div className="insert-button-container mb-3">
-                        <button
-                          className="btn-icon-only btn-secondary btn-small"
-                          onClick={() => insertCue(i, false)}
-                          aria-label={t('form.media.button.add')}
-                          title={t('form.media.button.add')}
-                          disabled={isDisabled || error !== ""}
-                        >
-                          <AddIcon aria-hidden="true" className="icon-md" />
-                        </button>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-            <div style={{ color: "red", minHeight: 18, marginTop: 6 }}>{error}</div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </div>
 
           {/* Right: video + controls */}
           <div id="video-focus-layer">
-            <h3 className="m-0">{t("fix.label.live_preview")}</h3>
+            <div className="flex-row justify-content-between align-items-center">
+              <h3 className="m-0">{t("fix.label.live_preview")}</h3>
+              <button
+                id="resize-button"
+                onClick={() => {
+                  setIsFullWidthVideo(!isFullWidthVideo)
+                }}
+                aria-label={t('form.media.button.toggle_video_size')}
+                title={t('form.media.button.toggle_video_size')}
+                className="btn-icon-only btn-link">
+                  <ExpandIcon className="icon-md" aria-hidden="true" />
+                </button>
+              </div>
             <div id="video-container">
               <video
                 preload={"auto"}
@@ -1002,57 +1043,65 @@ export default function MediaCaptionsEditor({
             </div>
 
             {error === "" && videoElRef.current && (
-              <div id="video-controls-container">
-                <button
-                  className="btn-link btn-icon-only"
-                  aria-label={t('form.media.button.rewind_5s')}
-                  title={t('form.media.button.rewind_5s')}
-                  disabled={isDisabled}
-                  onClick={() => seekBy(-5)}>
-                  <RewindDoubleIcon className="icon-lg" aria-hidden="true" />
-                </button>
-                <button
-                  className="btn-link btn-icon-only"
-                  aria-label={t('form.media.button.rewind_1s')}
-                  title={t('form.media.button.rewind_1s')}
-                  disabled={isDisabled}
-                  onClick={() => seekBy(-1)}>
-                  <RewindSingleIcon className="icon-lg" aria-hidden="true" />
-                </button>
+              <div className="flex-row justify-content-center align-items-center gap-4">
+                <div id="video-controls-container">
+                  <button
+                    className="btn-link btn-icon-only"
+                    aria-label={t('form.media.button.rewind_5s')}
+                    title={t('form.media.button.rewind_5s')}
+                    disabled={isDisabled}
+                    onClick={() => seekBy(-5)}>
+                    <RewindDoubleIcon className="icon-lg" aria-hidden="true" />
+                  </button>
+                  <button
+                    className="btn-link btn-icon-only"
+                    aria-label={t('form.media.button.rewind_1s')}
+                    title={t('form.media.button.rewind_1s')}
+                    disabled={isDisabled}
+                    onClick={() => seekBy(-1)}>
+                    <RewindSingleIcon className="icon-lg" aria-hidden="true" />
+                  </button>
 
-                <button
-                  className="btn-secondary btn-play"
-                  aria-label={videoElRef.current.paused ? t('form.media.button.play') : t('form.media.button.pause')}
-                  disabled={isDisabled}
-                  onClick={playPause}>
-                  { isPlaying ? (
-                    <PauseIcon className="icon-lg" aria-hidden="true" />
-                  ) : (
-                    <PlayIcon className="icon-lg" aria-hidden="true" />
-                  )}
-                </button>
+                  <button
+                    className="btn-secondary btn-play"
+                    aria-label={videoElRef.current.paused ? t('form.media.button.play') : t('form.media.button.pause')}
+                    disabled={isDisabled}
+                    onClick={playPause}>
+                    { isPlaying ? (
+                      <PauseIcon className="icon-lg" aria-hidden="true" />
+                    ) : (
+                      <PlayIcon className="icon-lg" aria-hidden="true" />
+                    )}
+                  </button>
 
-                <button
-                  className="btn-link btn-icon-only"
-                  aria-label={t('form.media.button.forward_1s')}
-                  title={t('form.media.button.forward_1s')}
-                  disabled={isDisabled}
-                  onClick={() => seekBy(1)}>
-                  <ForwardSingleIcon className="icon-lg" aria-hidden="true" />
-                </button>
+                  <button
+                    className="btn-link btn-icon-only"
+                    aria-label={t('form.media.button.forward_1s')}
+                    title={t('form.media.button.forward_1s')}
+                    disabled={isDisabled}
+                    onClick={() => seekBy(1)}>
+                    <ForwardSingleIcon className="icon-lg" aria-hidden="true" />
+                  </button>
 
-                <button
-                  className="btn-link btn-icon-only"
-                  aria-label={t('form.media.button.forward_5s')}
-                  title={t('form.media.button.forward_5s')}
-                  disabled={isDisabled}
-                  onClick={() => seekBy(5)}>
-                  <ForwardDoubleIcon className="icon-lg" aria-hidden="true" />
-                </button>
-                
-                {/* <button type="button" className="btn-secondary" disabled={isDisabled} onClick={insertCue}>
-                  Insert
-                </button> */}
+                  <button
+                    className="btn-link btn-icon-only"
+                    aria-label={t('form.media.button.forward_5s')}
+                    title={t('form.media.button.forward_5s')}
+                    disabled={isDisabled}
+                    onClick={() => seekBy(5)}>
+                    <ForwardDoubleIcon className="icon-lg" aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="align-items-center">
+                  <button
+                    className="btn-link btn-icon-only"
+                    aria-label={t('form.media.button.insert_caption_now')}
+                    title={t('form.media.button.insert_caption_now')}
+                    disabled={isDisabled}
+                    onClick={() => insertCue(-1, true, true)}>
+                    <CaptionIcon className="icon-lg" aria-hidden="true" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -1060,9 +1109,16 @@ export default function MediaCaptionsEditor({
 
         {/* Waveform focus container */}
         { error === "" && (
-          <div id="waveform-container">
+          <div id="waveform-container" >
+            { waveError !== "" && (
+              <div className="m-3 flex-row justify-content-center align-items-center flex-grow-1 gap-2">
+                <SeverityIssueIcon className="icon-lg udoit-issue" />
+                <h2>{t('form.media.label.error_waveform')}</h2>
+              </div>
+            )}
             <div
               id="waveform"
+              className={isLoading || waveError !== "" ? "hidden" : ""}
               ref={waveformFocusRef}
               tabIndex={0}
               aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
@@ -1087,21 +1143,13 @@ export default function MediaCaptionsEditor({
                   progressColor="#1976d2"
                   plugins={plugins}
                   onReady={onWsReady}
-                  onError={(e) => handleLoadError(e)}
+                  onError={(e) => handleWaveformError(e)}
                 />
               </div>
               <div ref={timelineRef} />
             </div>
           </div>
         )}
-
-        {/* <CaptionEditDialog
-          open={dialogOpen}
-          cue={cues[activeSettingsIndex]}
-          onClose={handleDialogClose}
-          onSave={handleDialogSave}
-          isDisabled={isDisabled}
-        /> */}
       </div>
     </>
   );

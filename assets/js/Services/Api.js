@@ -1,7 +1,7 @@
 export default class Api {
 
     constructor(settings) {
-        this.apiUrl = `https://${window.location.hostname}`;
+        this.apiUrl = settings?.apiUrl || `https://${window.location.hostname}`;
         this.endpoints = {
             getReport: '/api/courses/{course}/reports/{report}',
             getReportHistory: '/api/courses/{course}/reports',
@@ -25,10 +25,6 @@ export default class Api {
             updateUser: '/api/users/{user}'
         }
         this.settings = settings;
-
-        if (settings && settings.apiUrl) {
-            this.apiUrl = settings.apiUrl;
-        }
     }
 
     getCourseId() {
