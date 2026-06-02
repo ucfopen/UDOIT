@@ -256,10 +256,64 @@
       background-color: var(--background-color);
       box-sizing: border-box;
 
-      &::part(region-content) {
+      &.layer-wave:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+      }
+
+      ::part(scroll) {
+        border-radius: var(--element-radius);
+      }
+
+      /* The background for the waveform player */
+      ::part(wrapper) {
+        background: var(--background-color);
+      }
+
+      ::part(timeline-notch-primary),
+      ::part(timeline-notch-secondary) {
+        color: var(--text-secondary-color);
+        opacity: 1;
+      }
+
+      ::part(timeline-notch-tick) {
+        border-color: var(--border-color);
+        opacity: 1;
+      }
+
+      ::part(region) {
+        outline-color: var(--focus-color);
+        background: var(--background-color-transparent);
+      }
+
+      ::part(region region-focus) {
+        outline: 2px solid var(--focus-color);
+        outline-offset: -2px;
+      }
+
+      ::part(region highlight-start) {
+        box-shadow: -3px 0 0 3px var(--focus-color);
+      }
+
+      ::part(region highlight-pan) {
+        box-shadow: inset 0 0 0 3px var(--focus-color);
+      }
+
+      ::part(region highlight-end) {
+        /* border-right: 4px solid var(--focus-color); */
+        box-shadow: 3px 0 0 3px var(--focus-color);
+      }
+
+      ::part(region-content) {
         position: absolute;
         top: 0;
         margin-top: 0px;
+        padding: .25em .5em;
+      }
+
+      ::part(cursor) {
+        background-color: var(--link-color);
+        width: 2px;
       }
     }
   }

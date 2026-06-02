@@ -46,6 +46,7 @@ import * as Text from '../../Services/Text';
  */
 export default function MediaCaptionsEditor({
   t,
+  settings,
   addMessage,
   lmsFileData,
   initialVideoUrl,
@@ -67,13 +68,13 @@ export default function MediaCaptionsEditor({
   const [error, setError] = useState("");
   const [errorDetails, setErrorDetails] = useState("");
   const [waveError, setWaveError] = useState("");
-  const [activeRegion, setActiveRegion] = useState(-1);
   const [inputFocus, setInputFocus] = useState(false);
 
   const videoElRef = useRef(null);
   const wavesurferRef = useRef(null);
   const timelineRef = useRef(null);
   const waveformFocusRef = useRef(null);
+  const darkMode = (settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
 
   // Unique id counter for cues
   const [cueIdCounter, setCueIdCounter] = useState(1);
@@ -288,6 +289,11 @@ export default function MediaCaptionsEditor({
     setIsLoading(false);
   }
 
+  const handleWaveformClick = (e) => {
+    if (!wavesurferRef.current) return;
+    console.log("Waveform clicked at ", e);
+  }
+
   const handleLoadError = (e) => {
     console.error("Error loading media: ", e);
     setError(t('form.media.label.error_lms_download'));
@@ -352,24 +358,51 @@ export default function MediaCaptionsEditor({
     });
   }, [cues, selectedIndex, findRegionsPlugin]);
 
+  const seekTo = (seconds) => {
+    console.log("seekTo: ", seconds);
+    const video = videoElRef.current;
+    if (!video?.duration) return;
+
+    video.currentTime = seconds;
+
+    const ws = wavesurferRef.current;
+    if (ws) {
+      ws.seekTo(seconds / video.duration);
+    }
+  };
+
+  const playPause = () => {
+    const video = videoElRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    }
+    else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
   // Hook: keyboard layers
   const {
-  waveKbLayer,
-  activeMode,
-  setWaveKbLayer,
-  setActiveMode,
-  onWaveformKeyDown,
-  applyRegionHighlight,
-  sanitizeRegionsDom,
+    waveKbLayer,
+    activeMode,
+    setWaveKbLayer,
+    setActiveMode,
+    onWaveformKeyDown,
+    applyRegionHighlight,
+    sanitizeRegionsDom,
   } = useWaveformKeyboard({
     cues,
     setCues,
     selectedIndex,
+    setSelectedIndex,
     wavesurferRef,
     videoElRef,
     findRegionsPlugin,
-    activeRegion,
-    setActiveRegion,
+    seekTo,
+    playPause
   });
 
   // Sanitize after regions render (handles late DOM changes)
@@ -405,7 +438,7 @@ export default function MediaCaptionsEditor({
       sortCues(tempCues, activeCueId);
       setVideoTime(region.start);
     };
-
+ 
     regionsPlugin.on("region-updated", handler);
     return () => {
       try {
@@ -455,49 +488,38 @@ export default function MediaCaptionsEditor({
     video.currentTime = next;
 
     const ws = wavesurferRef.current;
-    if (ws && video.duration) ws.seekTo(next / video.duration);
-  }, []);
-
-  const playPause = useCallback(() => {
-    const video = videoElRef.current;
-    if (!video) return;
-    if (video.paused) {
-      video.play();
-      setIsPlaying(true);
+    if (ws) {
+      ws.seekTo(next / video.duration);
     }
-    else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  }, []);
+  }, [videoElRef, wavesurferRef]);
 
-  const playCurrent = useCallback(() => {
-    const video = videoElRef.current;
-    if (!video) return;
-    if (selectedIndex < 0 || !cues[selectedIndex]) return;
+  // const playCurrent = useCallback(() => {
+  //   const video = videoElRef.current;
+  //   if (!video) return;
+  //   if (selectedIndex < 0 || !cues[selectedIndex]) return;
 
-    const cue = cues[selectedIndex];
-    const start = vttToMS(cue.start) / 1000;
-    const end = vttToMS(cue.end) / 1000;
+  //   const cue = cues[selectedIndex];
+  //   const start = vttToMS(cue.start) / 1000;
+  //   const end = vttToMS(cue.end) / 1000;
 
-    video.currentTime = start;
-    video.play();
+  //   video.currentTime = start;
+  //   video.play();
 
-    let raf = null;
-    const tick = () => {
-      if (!video) return;
-      if (video.currentTime >= end) {
-        video.pause();
-        video.currentTime = end;
-        raf = null;
-        return;
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
+  //   let raf = null;
+  //   const tick = () => {
+  //     if (!video) return;
+  //     if (video.currentTime >= end) {
+  //       video.pause();
+  //       video.currentTime = end;
+  //       raf = null;
+  //       return;
+  //     }
+  //     raf = requestAnimationFrame(tick);
+  //   };
+  //   raf = requestAnimationFrame(tick);
 
-    return () => raf && cancelAnimationFrame(raf);
-  }, [cues, selectedIndex]);
+  //   return () => raf && cancelAnimationFrame(raf);
+  // }, [cues, selectedIndex]);
 
   const insertCue = useCallback((cueId, before = true, fromPlayer = false) => {
     const video = videoElRef.current;
@@ -608,20 +630,6 @@ export default function MediaCaptionsEditor({
     URL.revokeObjectURL(url);
   }, [cues, onSaveVtt]);
 
-  const onWaveWheel = useCallback((e) => {
-    // e.preventDefault();
-    // const video = videoElRef.current;
-    // if (!video?.duration) return;
-
-    // const delta = e.deltaY < 0 ? 1 : -1;
-    // let newTime = video.currentTime + delta * 0.2;
-    // newTime = Math.max(0, Math.min(video.duration, newTime));
-    // video.currentTime = newTime;
-
-    // const ws = wavesurferRef.current;
-    // if (ws && video.duration) ws.seekTo(newTime / video.duration);
-  }, []);
-
   const setAlign = (newAlign) => {
     let index = activeSettingsIndex;
     if (index < 0 || !cues[index]) return;
@@ -644,6 +652,8 @@ export default function MediaCaptionsEditor({
 
       return prev.map((c, i) => (i === index ? { ...c, start: trimmed } : c));
     });
+
+    seekTo(value);
   };
 
   const setEnd = (value) => {
@@ -659,9 +669,9 @@ export default function MediaCaptionsEditor({
 
       return prev.map((c, i) => (i === index ? { ...c, end: trimmed } : c));
     });
-  };
 
-  const [waveformFocused, setWaveformFocused] = useState(false);
+    seekTo(value);
+  };
 
   const openSettings = (index) => {
     if(selectedIndex !== index) {
@@ -1118,34 +1128,37 @@ export default function MediaCaptionsEditor({
             )}
             <div
               id="waveform"
-              className={isLoading || waveError !== "" ? "hidden" : ""}
+              className={(isLoading || waveError !== "" ? "hidden" : "") + (waveKbLayer === 'wave' ? " layer-wave" : "")}
               ref={waveformFocusRef}
               tabIndex={0}
               aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
               onKeyDown={onWaveformKeyDown}
-              onFocus={() => setWaveformFocused(true)}
-              onBlur={() => setWaveformFocused(false)}
-              style={{
-                outline: waveformFocused && waveKbLayer === 'wave' ? '3px solid #1976d2' : 'none',
-                boxShadow: waveformFocused && waveKbLayer === 'wave' ? '0 0 0 4px #90caf9' : 'none'
+              onFocus={() => {
+                setWaveKbLayer('wave');
+                setActiveMode(1);
+              }}
+              onBlur={() => {
+                setWaveKbLayer('wave');
+                setActiveMode(1)
               }}
             >
-              <div onWheel={onWaveWheel}>
-                <WavesurferPlayer
-                  key={videoUrl || "no-url"}
-                  url={videoUrl || undefined}
-                  height={120}
-                  normalize
-                  hideScrollbar
-                  minPxPerSec={100}
-                  interact={false}
-                  waveColor="#595656ff"
-                  progressColor="#1976d2"
-                  plugins={plugins}
-                  onReady={onWsReady}
-                  onError={(e) => handleWaveformError(e)}
-                />
-              </div>
+              <WavesurferPlayer
+                key={videoUrl || "no-url"}
+                url={videoUrl || undefined}
+                height={120}
+                normalize
+                interact={false}
+                tabIndex={-1}
+                minPxPerSec={100}
+                waveColor={darkMode ? "#505975" : "#C5C9D3"}
+                progressColor={darkMode ? "#5BA1FF" : "#81acd0"}
+                plugins={plugins}
+                onReady={onWsReady}
+                onError={(e) => handleWaveformError(e)}
+                onClick={(e) => {
+                  handleWaveformClick(e)
+                }}
+              />
               <div ref={timelineRef} />
             </div>
           </div>

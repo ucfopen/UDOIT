@@ -78,6 +78,7 @@
     --selection-color-background: #F7FEF9;
 
     --background-color: var(--gray-lightest);
+    --background-color-transparent: #F9FAFB80;
     --container-color: #FFFFFF; /* #F2F4F7; */
     --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
@@ -186,6 +187,7 @@
       --button-secondary-background-color: #1E2230;
 
       --background-color: #0F1117;
+      --background-color-transparent: #0F111780;
       --container-color: #161923;
       --border-color: #3A4155;
       --progress-bar-background-color: #272c3f;

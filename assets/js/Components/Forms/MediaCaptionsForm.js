@@ -80,6 +80,7 @@ export default function MediaCaptionsForm({
             </button>
             <MediaCaptionsEditor
               t={t}
+              settings={settings}
               addMessage={addMessage}
               initialVideoUrl={initialVideoUrl}
               initialMatch={initialMatch}
