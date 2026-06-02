@@ -11,7 +11,8 @@ use Symfony\Component\Uid\Uuid;
 
 const FIVE_MINUTES = 300;
 
-class SessionService {
+class SessionService
+{
     protected UserSessionRepository $sessionRepo;
     protected Request $request;
     protected ?UserSession $userSession = null;
@@ -21,8 +22,7 @@ class SessionService {
         UserSessionRepository $sessionRepo,
         RequestStack $requestStack,
         ManagerRegistry $doctrine,
-    )
-    {
+    ) {
         $this->sessionRepo = $sessionRepo;
         $this->request = $requestStack->getCurrentRequest();
         $this->doctrine = $doctrine;
@@ -54,12 +54,16 @@ class SessionService {
             $uuid = $this->request->query->get('state');
         }
 
+        $userSession = null;
+
         if ($uuid) {
-            $this->userSession = $this->sessionRepo->findOneBy(['uuid' => $uuid]);
+            $userSession = $this->sessionRepo->findOneBy(['uuid' => $uuid]);
         }
 
-        if (empty($this->userSession)) {
+        if ($userSession === null) {
             $this->userSession = $this->createSession();
+        } else {
+            $this->userSession = $userSession;
         }
 
         return $this->userSession;
@@ -125,7 +129,8 @@ class SessionService {
         return $session;
     }
 
-    public function generateNonce(): string {
+    public function generateNonce(): string
+    {
         $session = $this->getSession();
         $nonce = bin2hex(random_bytes(8));
         $session->set('nonce', [$nonce, time()]);
@@ -133,7 +138,8 @@ class SessionService {
         return $nonce;
     }
 
-    public function verifyNonce(string $nonceToVerify): bool {
+    public function verifyNonce(string $nonceToVerify): bool
+    {
         $session = $this->getSession();
         $nonceData = $session->get('nonce', false);
         if ($nonceData) {

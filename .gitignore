@@ -9,6 +9,10 @@
 !/assets/js/Components/Icons/
 ###< symfony/framework-bundle ###
 
+###> php linter cache ###
+.php-cs-fixer.*
+###> php linter cache ###
+
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache

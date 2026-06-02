@@ -6,8 +6,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: "App\Repository\CourseRepository")]
-#[ORM\Table(name: 'course')]
+#[ORM\Entity]
+#[ORM\UniqueConstraint(
+    name: "unique_course_id_institution_id_combination",
+    columns: ["lms_course_id", "institution_id"]
+)]
 class Course implements \JsonSerializable
 {
     // Private Members
@@ -23,13 +26,12 @@ class Course implements \JsonSerializable
     #[ORM\JoinColumn(nullable: false)]
     private $institution;
 
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $lmsAccountId;
+    #[ORM\ManyToOne(targetEntity: Account::class)]
+    #[ORM\JoinColumn(name: "lms_account_id", referencedColumnName: "lms_account_id", nullable: true)]
+    private ?Account $account = null;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $lmsCourseId;
-
 
     #[ORM\Column(type: "datetime", nullable: true)]
     private $lastUpdated;
@@ -50,8 +52,12 @@ class Course implements \JsonSerializable
     #[ORM\OneToMany(targetEntity: FileItem::class, mappedBy: "course")]
     private $fileItems;
 
-    #[ORM\Column(type: "integer", nullable: true)]
-    private $lmsTermId;
+    #[ORM\ManyToOne(targetEntity: Term::class)]
+    #[ORM\JoinColumn(name: "lms_term_id", referencedColumnName: "lms_term_id")]
+    private ?Term $term = null;
+
+    #[ORM\Column(type: "json", nullable: true)]
+    private $courseProfessors;
 
     // Constructor
     public function __construct()
@@ -70,7 +76,7 @@ class Course implements \JsonSerializable
         return [
             "id" => $this->id,
             "title" => $this->title,
-            "lmsAccountId" => $this->lmsAccountId,
+            "lmsAccountId" => $this->account?->getLmsAccountId(),
             "lmsCourseId" => $this->lmsCourseId,
             "lastUpdated" => (!empty($this->lastUpdated)) ? $this->lastUpdated->format('c') : false,
             "active" => $this->active,
@@ -133,14 +139,14 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getLmsAccountId(): ?string
+    public function getAccount(): ?Account
     {
-        return $this->lmsAccountId;
+        return $this->account;
     }
 
-    public function setLmsAccountId(?string $lms_account_id): self
+    public function setAccount(?Account $account): self
     {
-        $this->lmsAccountId = $lms_account_id;
+        $this->account = $account;
 
         return $this;
     }
@@ -208,7 +214,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getReports(): Collection | array
+    public function getReports(): Collection|array
     {
         return $this->reports;
     }
@@ -247,7 +253,7 @@ class Course implements \JsonSerializable
         $reports = $this->reports->toArray();
         $count = count($reports);
 
-        return ($count > 1) ? $reports[$count-2] : null;
+        return ($count > 1) ? $reports[$count - 2] : null;
     }
 
     public function getLatestReport(): ?Report
@@ -267,7 +273,7 @@ class Course implements \JsonSerializable
         foreach ($issues as $issue) {
             if ($issue->getStatus() === Issue::$issueStatusFixed) {
                 $fixed++;
-            } else if ($issue->getStatus() === Issue::$issueStatusResolved) {
+            } elseif ($issue->getStatus() === Issue::$issueStatusResolved) {
                 $resolved++;
             } else {
                 if ('error' === $issue->getType()
@@ -367,15 +373,26 @@ class Course implements \JsonSerializable
         return (strtolower($a->getTitle()) > strtolower($b->getTitle())) ? 1 : -1;
     }
 
-    public function getLmsTermId(): ?int
+    public function getTerm(): ?Term
     {
-        return $this->lmsTermId;
+        return $this->term;
     }
 
-    public function setLmsTermId(?int $lmsTermId): self
+    public function setTerm(?Term $term): self
     {
-        $this->lmsTermId = $lmsTermId;
+        $this->term = $term;
 
+        return $this;
+    }
+
+    public function getCourseProfessors(): array
+    {
+        return $this->courseProfessors;
+    }
+
+    public function setCourseProfessors(array $courseProfessors): self
+    {
+        $this->courseProfessors = $courseProfessors;
         return $this;
     }
 }

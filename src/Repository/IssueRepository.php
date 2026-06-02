@@ -31,6 +31,18 @@ class IssueRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function deleteIssuesById(array $issueIds)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->delete('App\Entity\Issue', 'i')
+            ->where('i.id IN (:ids)')
+            ->setParameter('ids', $issueIds);
+
+        $result = $qb->getQuery()->execute();
+
+        return $result;
+    }
+
     // Returns an array of Issue objects
     /*
     public function findByExampleField($value): array

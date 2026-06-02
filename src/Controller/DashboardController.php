@@ -42,8 +42,8 @@ class DashboardController extends AbstractController
         UtilityService $util,
         SessionService $sessionService,
         LmsUserService $lmsUser,
-        LmsApiService $lmsApi): Response
-    {
+        LmsApiService $lmsApi
+    ): Response {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
@@ -82,8 +82,8 @@ class DashboardController extends AbstractController
     public function settingsApi(
         UtilityService $util,
         SessionService $sessionService,
-        LmsApiService $lmsApi): JsonResponse
-    {
+        LmsApiService $lmsApi
+    ): JsonResponse {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
@@ -98,12 +98,9 @@ class DashboardController extends AbstractController
             return new JsonResponse(['error' => 'Missing LMS course ID'], 400);
         }
 
-        $courseRepo = $this->doctrine->getRepository(Course::class);
-        $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
+        $courseTitle = $this->session->get('title');
 
-        if (!$course) {
-            $course = $this->createCourse($user->getInstitution(), $lmsCourseId);
-        }
+        $course = $this->createOrUpdateCourse($user->getInstitution(), $lmsCourseId, $courseTitle);
 
         return new JsonResponse([
             'settings' => $this->getSettings($course),
@@ -144,12 +141,22 @@ class DashboardController extends AbstractController
         ];
     }
 
-    protected function createCourse(Institution $institution, $lmsCourseId)
+    protected function createOrUpdateCourse(Institution $institution, $lmsCourseId, $courseTitle): Course
     {
-        $course = new Course();
+        $courseRepo = $this->doctrine->getRepository(Course::class);
+        $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
+
+        if (!$course) {
+            $course = new Course();
+        }
+
+        if (!$courseTitle) {
+            $courseTitle = "New Course #{$lmsCourseId}";
+        }
+
         $course->setInstitution($institution);
         $course->setLmsCourseId($lmsCourseId);
-        $course->setTitle("New Course: ID#{$lmsCourseId}");
+        $course->setTitle($courseTitle);
         $course->setActive(true);
         $course->setDirty(false);
 

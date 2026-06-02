@@ -1,127 +1,147 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import AdminHeader from './AdminHeader'
-import AdminDashboard from './AdminDashboard'
-import CoursesPage from './CoursesPage'
-import ReportsPage from './ReportsPage'
-import UsersPage from './UsersPage'
-import Api from '../../Services/Api'
-import MessageTray from '../Widgets/MessageTray'
-import AdminFilters from '../Admin/AdminFilters'
-import ProgressIcon from '../Icons/ProgressIcon'
+import React, { useState, useEffect, useCallback } from "react";
+import AdminHeader from "./AdminHeader";
+import AdminDashboard from "./AdminDashboard";
+import CoursesPage from "./CoursesPage";
+import ReportsPage from "./ReportsPage";
+import Api from "../../Services/Api";
+import MessageTray from "../Widgets/MessageTray";
+import AdminFilters from "../Admin/AdminFilters";
+import ProgressIcon from "../Icons/ProgressIcon";
 
-import '../../../css/udoit4-theme.css'
+import { ISSUE_FILTER } from "../../Services/Settings";
+
+import "../../../css/udoit4-theme.css";
 
 export default function AdminApp(initialData) {
-
   // If there are multiple accounts available, the first account is the selected accountId
-  let accountId = initialData.settings?.accountId
-  if(initialData.settings?.accounts) {
-    const accountIds = Object.keys(initialData.settings.accounts)
-    accountId = accountIds.shift()
+  let accountId = initialData.settings?.accountId;
+  if (initialData.settings?.accounts) {
+    const accountIds = Object.keys(initialData.settings.accounts);
+    accountId = accountIds.shift();
   }
 
   let initialFilters = {
     accountId: accountId,
     termId: initialData.settings.defaultTerm,
     includeSubaccounts: true,
-    courseId: null
-  }
+    courseId: null,
+  };
 
-  const [messages, setMessages] = useState(initialData.messages || [])
-  const [settings, setSettings] = useState(initialData.settings || null)
-  const [courses, setCourses] = useState({})
-  const [selectedCourse, setSelectedCourse] = useState(null)
-  const [filters, setFilters] = useState({...initialFilters})
-  const [searchTerm, setSearchTerm] = useState('')
-  const [accountData, setAccountData] = useState([])
-  const [navigation, setNavigation] = useState('dashboard')
-  const [modal, setModal] = useState(null)
-  const [loadingCourses, setLoadingCourses] = useState(true)
-  const [trayOpen, setTrayOpen] = useState(false)
+  const [messages, setMessages] = useState(initialData.messages || []);
+  const [settings, setSettings] = useState(
+    Object.assign({}, initialData?.settings || {}, { ISSUE_FILTER }),
+  );
+  const [courses, setCourses] = useState({});
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [filters, setFilters] = useState({ ...initialFilters });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [accountData, setAccountData] = useState([]);
+  const [navigation, setNavigation] = useState("dashboard");
+  const [modal, setModal] = useState(null);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [trayOpen, setTrayOpen] = useState(false);
 
-  const t = useCallback((key) => {
-    return (settings.labels[key]) ? settings.labels[key] : key
-  }, [settings.labels])
+  const t = useCallback(
+    (key, values = {}) => {
+      let translatedText = settings.labels[key] ? settings.labels[key] : key;
+      if (values && Object.keys(values).length > 0) {
+        Object.keys(values).forEach((valKey) => {
+          translatedText = translatedText.replace(
+            `{${valKey}}`,
+            values[valKey],
+          );
+        });
+      }
+      return translatedText;
+    },
+    [settings.labels],
+  );
 
   const loadCourses = (filters) => {
-    setLoadingCourses(true)
+    setLoadingCourses(true);
 
-    const api = new Api(settings)
-    api.getAdminCourses(filters)
+    const api = new Api(settings);
+    api
+      .getAdminCourses(filters)
       .then((response) => response.json())
       .then((data) => {
-        let courses = {}
+        let courses = {};
         if (Array.isArray(data.data)) {
-          data.data.forEach(course => {
-            courses[course.id] = course
-          })
-          setCourses(courses)
+          data.data.forEach((course) => {
+            courses[course.id] = course;
+          });
+          setCourses(courses);
         }
-        setLoadingCourses(false)
-      })
-  }
+        setLoadingCourses(false);
+      });
+  };
 
   const handleNavigation = (navigation) => {
-    setSelectedCourse(null)
-    setNavigation(navigation)
-  }
+    setSelectedCourse(null);
+    setNavigation(navigation);
+  };
 
   const handleReportClick = (course) => {
-    setSelectedCourse(course)
-    setNavigation('reports')
-  }
+    setSelectedCourse(course);
+    setNavigation("reports");
+  };
 
   const addMessage = (msg) => {
-    setMessages(prevMessages => [...prevMessages, msg])
-  }
+    setMessages((prevMessages) => [...prevMessages, msg]);
+  };
 
   const clearMessages = () => {
-    setMessages([])
-  }
+    setMessages([]);
+  };
 
   const handleFilter = (newFilter) => {
-    const tempFilters = Object.assign({}, filters, newFilter)
-    setFilters(tempFilters)
-  }
+    const tempFilters = Object.assign({}, filters, newFilter);
+    setFilters(tempFilters);
+  };
 
   useEffect(() => {
-    loadCourses(initialFilters)
-  }, [])
+    loadCourses(initialFilters);
+  }, []);
 
   useEffect(() => {
-    loadCourses(filters, true)
-  }, [filters])
+    loadCourses(filters, true);
+  }, [filters]);
 
   const handleCourseUpdate = (courseData) => {
-    let tempCourses = {...courses}
-    
+    let tempCourses = { ...courses };
+
     // If there's an oldId, this is a newly scanned course that needs the old entry removed
     if (courseData.oldId && courseData.oldId !== courseData.id) {
       // Remove the old unscanned course entry
       if (tempCourses[courseData.oldId]) {
-        delete tempCourses[courseData.oldId]
+        delete tempCourses[courseData.oldId];
       }
-      
+
       // Add the new scanned course entry
-      const updatedCourse = {...courseData}
-      delete updatedCourse.oldId  // Remove the signal flag
-      tempCourses[courseData.id] = updatedCourse
+      const updatedCourse = { ...courseData };
+      delete updatedCourse.oldId; // Remove the signal flag
+      tempCourses[courseData.id] = updatedCourse;
     }
     // If updating an existing course, just update its data
     else if (tempCourses[courseData.id]) {
-      tempCourses[courseData.id] = {...tempCourses[courseData.id], ...courseData}
-    } 
+      tempCourses[courseData.id] = {
+        ...tempCourses[courseData.id],
+        ...courseData,
+      };
+    }
     // If it's a new course, add it
     else {
-      tempCourses[courseData.id] = courseData
+      tempCourses[courseData.id] = courseData;
     }
-    
-    setCourses(tempCourses)
-  }
+
+    setCourses(tempCourses);
+  };
 
   return (
-    <div id="app-container"
-         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+    <div
+      id="app-container"
+      className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || "font-medium"} ${settings?.user?.roles?.font_family || "sans-serif"} ${settings?.user?.roles?.dark_mode ? "dark-mode" : ""}`}
+    >
       <AdminHeader
         t={t}
         settings={settings}
@@ -129,34 +149,32 @@ export default function AdminApp(initialData) {
         handleNavigation={handleNavigation}
       />
 
-      <main role="main" className="pt-2">
-        { (navigation !== 'reports' && navigation !== 'dashboard') &&
-          <AdminFilters
-            t={t}
-            settings={settings}
-            filters={filters}
-            handleFilter={handleFilter}
-            loadingContent={loadingCourses}
-            searchTerm={searchTerm}
-            handleSearchTerm={setSearchTerm}
-          />
-        }
+      <AdminFilters
+        t={t}
+        settings={settings}
+        filters={filters}
+        handleFilter={handleFilter}
+        loadingContent={loadingCourses}
+        searchTerm={searchTerm}
+        handleSearchTerm={setSearchTerm}
+        navigation={navigation}
+      />
 
-        {loadingCourses &&
+      <main role="main" className="pt-2">
+        {loadingCourses && (
           <div className="mt-3 flex-row justify-content-center">
             <div className="flex-column justify-content-center me-3">
               <ProgressIcon className="icon-lg udoit-progress spinner" />
             </div>
             <div className="flex-column justify-content-center">
-              <h2 className="mt-0 mb-0">{t('report.label.loading')}</h2>
+              <h2 className="mt-0 mb-0">{t("report.label.loading")}</h2>
             </div>
           </div>
-        }
+        )}
 
-        { !loadingCourses && (
+        {!loadingCourses && (
           <div className="scrollable">
-            
-            {('dashboard' === navigation) &&
+            {"dashboard" === navigation && (
               <AdminDashboard
                 t={t}
                 settings={settings}
@@ -164,8 +182,8 @@ export default function AdminApp(initialData) {
                 handleNavigation={handleNavigation}
                 addMessage={addMessage}
               />
-            }
-            {('courses' === navigation) &&
+            )}
+            {"courses" === navigation && (
               <CoursesPage
                 t={t}
                 settings={settings}
@@ -176,27 +194,18 @@ export default function AdminApp(initialData) {
                 handleReportClick={handleReportClick}
                 handleNavigation={handleNavigation}
               />
-            }
-            {('reports' === navigation) &&
+            )}
+            {"reports" === navigation && (
               <ReportsPage
                 t={t}
                 settings={settings}
                 filters={filters}
                 selectedCourse={selectedCourse}
               />
-            }
-            {('users' === navigation) &&
-              <UsersPage
-                t={t}
-                settings={settings}
-                searchTerm={searchTerm}
-                accountId={accountId}
-                termId={filters.termId}
-              />
-            }
+            )}
           </div>
         )}
-        </main>
+      </main>
       <MessageTray
         t={t}
         messages={messages}
@@ -204,5 +213,5 @@ export default function AdminApp(initialData) {
         hasNewReport={true}
       />
     </div>
-  )
+  );
 }
