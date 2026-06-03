@@ -105,15 +105,6 @@ export default function Header({
     <header id="udoit-header" role="banner" inert={modalActive ? "inert" : undefined}>
       <a className="skip-link" href="#main-content">{t('menu.nav.skip_to_main')}</a>
       <img alt={t('alt.UDOIT')} src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}></img>
-      <input
-        id="nav-menu-toggle"
-        tabIndex="-1"
-        type="checkbox"
-        aria-hidden="true"
-        checked={mobileMenuVisible}
-        onChange={() => {}}
-      />
-      
       <div id="nav-container" className={isMobile ? 'mobile' : ''}>
         <div className="flex-row gap-1" id="nav-row">
           <div

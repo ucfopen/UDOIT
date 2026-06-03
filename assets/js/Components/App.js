@@ -402,7 +402,12 @@ export default function App(initialData) {
               syncComplete={syncComplete}
              />
 
-            <main role="main" id="main-content">
+            <main
+              role="main"
+              id="main-content"
+              aria-labelledby="pageTitle"
+              tabIndex="-1"
+              >
               {('summary' === navigation) &&
                 <HomePage
                   t={t}

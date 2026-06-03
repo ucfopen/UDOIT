@@ -159,7 +159,7 @@ export default function HomePage({
   return (
     <div className="flex-column flex-grow-1">
       <div className="pageTitleRow">
-        <h1 className="pageTitle">{t('summary.title')}</h1>
+        <h1 id="pageTitle" className="pageTitle">{t('summary.title')}</h1>
         { !syncComplete ? (
           <button className="btn-small btn-icon-left" tabIndex="0" disabled>
             <ProgressIcon className="icon-sm spinner" />

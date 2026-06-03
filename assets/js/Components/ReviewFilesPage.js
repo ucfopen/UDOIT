@@ -932,7 +932,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
           aria-hidden={widgetState === WIDGET_STATE.FIXIT}
           >
-          <h1 className="pageTitle">{t('files.title')}</h1>
+          <h1 id="pageTitle" className="pageTitle">{t('files.title')}</h1>
           <p className="pageSubtitle">{t('files.subtitle')}</p>
 
           <ReviewFilesFilters

@@ -832,7 +832,7 @@ export default function FixIssuesPage({
         <></>
       ) : (
         <div inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}>
-          <h1 className="pageTitle">{t('barriers.title')}</h1>
+          <h1 id="pageTitle" className="pageTitle">{t('barriers.title')}</h1>
           <p className="pageSubtitle">{t('barriers.subtitle')}</p>
 
           <FixIssuesFilters

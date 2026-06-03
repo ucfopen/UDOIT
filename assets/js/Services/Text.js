@@ -69,6 +69,25 @@ export function getReadableFileSize(fileSize) {
   }
 }
 
+export function getReadableFileType(t, fileType) {
+  switch (fileType) {
+    case 'doc':
+      return t('label.mime.doc')
+    case 'ppt':
+      return t('label.mime.ppt')
+    case 'xls':
+      return t('label.mime.xls')
+    case 'pdf':
+      return t('label.mime.pdf')
+    case 'audio':
+      return t('label.mime.audio')
+    case 'video':
+      return t('label.mime.video')
+    default:
+      return t('label.mime.unknown')
+  }
+}
+
 export function getReadableDateTime(dateString) {
   let date = new Date(dateString)
   const year = date.getFullYear();
