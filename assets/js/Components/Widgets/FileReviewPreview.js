@@ -11,39 +11,14 @@ export default function FixIssuesContentPreview({
   t,
   settings,
   activeIssue,
-  getReadableFileType,
   isDisabled
 }) {
 
   const [fileReferenceHolder, setFileReferenceHolder] = useState([])
-  const [currentFile, setCurrentFile] = useState(null)
-  const [oldFile, setOldFile] = useState(null)
 
   useEffect(() => {
     if(activeIssue){
       handleFileReference()
-      if(activeIssue.fileData.replacement){
-        const tempCurrFile = {
-          fileName: activeIssue.fileData.replacement.fileName,
-          fileType: getReadableFileType(activeIssue.fileData.replacement.fileType),
-          fileIconType: activeIssue.fileData.replacement.fileType,
-          fileSize: Text.getReadableFileSize(activeIssue.fileData.replacement.fileSize),
-          fileLink: activeIssue.fileData.replacement.lmsUrl
-        }  
-        setCurrentFile(tempCurrFile)
-      }
-      const tempCurrFile = {
-        fileName: activeIssue.fileData.fileName,
-        fileType: getReadableFileType(activeIssue.fileData.fileType),
-        fileIconType: activeIssue.fileData.fileType,
-        fileSize: Text.getReadableFileSize(activeIssue.fileData.fileSize),
-        fileLink: activeIssue.fileData.lmsUrl
-      }
-      if(!activeIssue.fileData.replacement){
-        setCurrentFile(tempCurrFile)
-      }
-      setOldFile(tempCurrFile)
-      
     }
   }, [activeIssue])
 
@@ -78,8 +53,6 @@ export default function FixIssuesContentPreview({
     
     setFileReferenceHolder(tempReferences)
   }
-    
-
 
 
   return (
@@ -97,31 +70,27 @@ export default function FixIssuesContentPreview({
             <>
               <div className='file-label-pill'>{t('form.file.original.label')}</div>
               <div className='callout-container w-100 mt-2'>
-                <FileInformation t={t} file={oldFile} />
+                <FileInformation t={t} fileData={activeIssue.fileData} />
               </div>
               <div className="flex-row w-100 justify-content-center mt-2">
                 <DownwardArrowIcon className="icon-md gray" />
               </div>
               <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
               <div className='callout-container w-100 mt-2'>
-                <FileInformation t={t} file={currentFile} />
+                <FileInformation t={t} fileData={activeIssue.fileData.replacement} />
               </div>
             </>
-          ) : ( currentFile && ( 
+          ) : ( 
             <>
               <div className="flex-row gap-2 align-items-center">
                 <div className="strong-caps">{t('form.file.current.label')}</div>
-                { activeIssue.fileData.replacement ? (
-                  <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
-                ) : (
-                  <div className='file-label-pill'>{t('form.file.original.label')}</div>
-                )}
+                <div className='file-label-pill'>{t('form.file.original.label')}</div>
               </div>
               <div className='callout-container w-100 mt-2'>
-                <FileInformation t={t} file={currentFile} />
+                <FileInformation t={t} fileData={activeIssue.fileData} />
               </div>
             </>
-          ))}
+          )}
 
           { fileReferenceHolder.length > 0 ? (
             <>

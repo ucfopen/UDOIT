@@ -47,6 +47,7 @@ import * as Text from '../../Services/Text';
 export default function MediaCaptionsEditor({
   t,
   settings,
+  file,
   addMessage,
   lmsFileData,
   initialVideoUrl,
@@ -795,20 +796,27 @@ export default function MediaCaptionsEditor({
       <div inert={isLoading ? true : undefined} id="media-captions-editor">
 
         <div id="captions-editor-info-row">
-
-          <label>
-            Load Subtitles (VTT){" "}
-            <input
-              type="file"
-              accept=".vtt"
-              disabled={isDisabled}
-              onChange={(e) => setVttFile(e.target.files?.[0] || null)}
-            />
-          </label>
-
-          <button type="button" className="btn-secondary" disabled={isDisabled || cues.length === 0} onClick={onSave}>
-            Save VTT
+          <div className="flex-row gap-2 align-items-center">
+            <FileInformation t={t} fileData={file.fileData} />
+            <button onClick={() => getExistingTracks()}>GET TRACKS</button>
+          </div>
+          
+          {/* IMPORT/EXPORT VTT BUTTONS*/}
+          <div className="flex-row gap-2 align-items-center">
+            <button
+              className="btn-secondary btn-small btn-icon-left"
+              onClick={() => handleImport()}>
+              <DownloadIcon className="icon-md" />
+              <div>Import VTT</div>
+            </button>
+            <button
+              className="btn-secondary btn-small btn-icon-left"
+              disabled={isDisabled || cues.length === 0}
+              onClick={onSave}>
+              <UploadIcon className="icon-md" />
+              <div>Export VTT</div>
           </button>
+          </div>
         </div>
         <div id="captions-editor-main-row" className={isFullWidthVideo ? "full-width-video" : ""}>
           <div id="table-focus-layer">

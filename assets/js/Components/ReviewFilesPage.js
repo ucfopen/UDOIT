@@ -985,6 +985,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             {activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio' ? (
               <MediaCaptionsEditor
                 t={t}
+                file={activeIssue}
                 settings={settings}
                 addMessage={addMessage}
                 lmsFileData={activeIssue?.fileData}
