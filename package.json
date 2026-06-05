@@ -40,7 +40,7 @@
         "chroma-js": "^3.1.2",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
-        "tinymce": "^7.9.1",
+        "tinymce": "^7.9.3",
         "webpack": "^5.100.2"
     },
     "resolutions": {
