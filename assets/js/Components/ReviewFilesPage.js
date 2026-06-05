@@ -14,6 +14,7 @@ import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 
 import Api from '../Services/Api'
+import { parseVTT, buildVttText, vttToMS, formatTimeVTT, formatVTTTime, computeVTTDuration } from "../Services/Captions";
 import * as Html from '../Services/Html.js'
 import * as Text from '../Services/Text'
 
@@ -76,7 +77,7 @@ export default function ReviewFilesPage({
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [mostRecentFileId, setMostRecentFileId] = useState(null)
 
-  // Form States
+  // Form states
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
   const [markDelete, setMarkDelete] = useState(false)
   const [markRevert, setMarkRevert] = useState(false)
@@ -85,8 +86,13 @@ export default function ReviewFilesPage({
   const [formInvalid, setFormInvalid] = useState(true)
   const [uploadedFile, setUploadedFile] = useState(null)
 
+  // For files that get replaced (.pdf, .docx, .pptx, .xlsx)
   const [fileContentReferences, setFileContentReferences] = useState([])
   const [fileSectionReferences, setFileSectionReferences] = useState([])
+
+  // For media files
+  const [vttArray, setVttArray] = useState([]);
+  const [vttActiveIndex, setVttActiveIndex] = useState(-1);
 
   const [isDisabled, setIsDisabled] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
@@ -274,7 +280,7 @@ export default function ReviewFilesPage({
   
     setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
-    if(activeIssue.fileData){
+    if (activeIssue.fileData) {
       let tempContentReferences = []
       let tempSectionRefereces = []
 
@@ -297,6 +303,8 @@ export default function ReviewFilesPage({
       setFileContentReferences(tempContentReferences)
       setFileSectionReferences(tempSectionRefereces)
       setModalTitle(getModalTitle(activeIssue.fileData?.fileType))
+      setVttArray([])
+      setVttActiveIndex(-1)
     }
 
     setTempActiveIssue(activeIssueClone)
@@ -871,6 +879,36 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
   }
 
+  const handleCaptionSave = () => {
+    
+    if(!activeIssue?.fileData?.metadata?.media_entry_id) {
+      addMessage({ message: "File is missing Media ID. Cannot save captions to Canvas.", severity: "error", visible: true });
+      return;
+    }
+
+    if(vttArray && vttArray.length === 0){
+      addMessage({ message: "No captions found. Cannot save to Canvas.", severity: "error", visible: true });
+      return;
+    }
+
+    const mediaEntryId = activeIssue?.fileData?.metadata?.media_entry_id;
+
+    if(!mediaEntryId) {
+      addMessage({ message: "No media id found. Cannot save to Canvas. Export your captions to save your work.", severity: "error", visible: true });
+      return;
+    }
+
+    const api = new Api(settings)
+    api.setMediaTracks(mediaEntryId, vttArray)
+      .then((responseStr) => responseStr.json())
+      .then((response) => {
+        if(response?.data?.tracks) {
+          const existingTracks = response.data.tracks
+          setVttArray(existingTracks);
+        }
+      })
+  }
+
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -902,25 +940,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
     setMostRecentFileId(filteredFiles[newIndex].id)
     setActiveIssue(filteredFiles[newIndex])
-  }
-
-  const getReadableFileType = (fileType) => {
-    switch (fileType) {
-      case 'doc':
-        return t('label.mime.doc')
-      case 'ppt':
-        return t('label.mime.ppt')
-      case 'xls':
-        return t('label.mime.xls')
-      case 'pdf':
-        return t('label.mime.pdf')
-      case 'audio':
-        return t('label.mime.audio')
-      case 'video':
-        return t('label.mime.video')
-      default:
-        return t('label.mime.unknown')
-    }
   }
 
   return (
@@ -988,7 +1007,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 file={activeIssue}
                 settings={settings}
                 addMessage={addMessage}
-                lmsFileData={activeIssue?.fileData}
+                vttArray={vttArray}
+                setVttArray={setVttArray}
+                vttActiveIndex={vttActiveIndex}
+                setVttActiveIndex={setVttActiveIndex}
+                setFormInvalid={setFormInvalid}
               />
             ) : (
 
@@ -1015,7 +1038,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                         markAsReviewed={markAsReviewed}
                         setMarkAsReviewed={setMarkAsReviewed}
                         setFormInvalid={setFormInvalid}
-                        getReadableFileType={getReadableFileType}
                         handleFileResolveWrapper={handleFileResolveWrapper}
                         setMarkDelete={setMarkDelete}
                         setMarkRevert={setMarkRevert}
@@ -1032,7 +1054,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                     <FileReviewPreview
                       t={t}
                       settings={settings}
-                      getReadableFileType={getReadableFileType}
                       activeIssue={tempActiveIssue}
                       isDisabled={isDisabled}
                     />
@@ -1042,7 +1063,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             )}
           </div>
           <div className='dialog-footer'>
-            <div className="flex-row gap-2">
+            <div className="flex-row gap-2 flex-wrap">
               <button
                 className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextFile(true)}
@@ -1062,7 +1083,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </button>
             </div>
               <button
-                onClick={handleFileSave}
+                onClick={() => {
+                  if (activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio') {
+                    handleCaptionSave();
+                  }
+                  else {
+                    handleFileSave();
+                  }
+                }}
                 className="btn btn-primary btn-icon-left"
                 disabled={formInvalid || isDisabled }
                 tabIndex='0'

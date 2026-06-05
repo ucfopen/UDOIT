@@ -251,4 +251,42 @@ class FileItemsController extends ApiController
 
         return $response;
     }
+
+    #[Route('/api/media/{mediaId}/tracks', methods: ['GET'], name: 'get_tracks')]
+    public function getTracks(Request $request, LmsFetchService $lmsFetch) {
+        $apiResponse = new ApiResponse();    
+        try {
+            $mediaId = $request->get('mediaId');
+            $user = $this->getUser();
+            $tracks = $lmsFetch->getMediaTracks($mediaId, $user);
+
+            
+            $apiResponse->setData([
+                'tracks' => $tracks
+            ]);
+        }
+        catch(\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
+
+    #[Route('/api/media/{mediaId}/settracks', methods: ['POST'], name: 'set_tracks')]
+    public function setTracks(Request $request, LmsPostService $lmsPost) {
+        $mediaId = $request->get('mediaId');
+        $user = $this->getUser();
+        $apiResponse = new ApiResponse();
+
+        try{
+            $content= \json_decode($request->getContent(), true);
+            $tracks = $content['tracks'];
+            $response = $lmsPost->setMediaTracks($mediaId, $tracks, $user);
+        }
+        catch(\Exception $e){
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
 }

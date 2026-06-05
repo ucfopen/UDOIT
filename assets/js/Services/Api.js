@@ -12,6 +12,8 @@ export default class Api {
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             deleteFile: '/api/files/{file}/delete',
+            getMediaTracks: '/api/media/{mediaId}/tracks',
+            setMediaTracks: '/api/media/{mediaId}/settracks',
             updateContent: '/api/{file}/content',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}?report={getReport}',
@@ -152,6 +154,33 @@ export default class Api {
         return fetch(url, {
             method: 'DELETE',
             credentials: 'include',
+        })
+    }
+
+    getMediaTracks(mediaId) {
+        let url = `${this.apiUrl}${this.endpoints.getMediaTracks}`
+        url = url.replace('{mediaId}', mediaId)
+
+        return fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+    }
+
+    setMediaTracks(mediaId, newTracks) {
+        let url = `${this.apiUrl}${this.endpoints.setMediaTracks}`
+        url = url.replace('{mediaId}', mediaId)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            credentials: 'include',
+            body: JSON.stringify({
+                tracks: newTracks
+            })
         })
     }
 

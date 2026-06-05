@@ -395,6 +395,10 @@
 
   .btn-small {
     font-size: 0.8em;
+
+    &:not(.btn-link){
+      padding: .4rem .8rem;
+    }
   }
 
   .btn-large {
@@ -697,13 +701,23 @@
     box-shadow: 0 0 10px var(--shadow-color);
 
     &.dialog-full-screen {
-      width: 95%;
-      max-width: calc(var(--content-max-width) * 0.95);
-      height: 95%;
-      max-height: 95%;
+      width: calc(100% - 3rem);
+      max-width: calc(100% - 3rem);
+      height: calc(100% - 2.5rem);
+      max-height: calc(100% - 2.5rem);
       position: absolute;
-      top: 2.5%;
-      left: calc(max((((100% - var(--content-max-width)) * .5) + (var(--content-max-width) * 0.025)), 2.5%));
+      top: 1.25rem;
+      left: 1.5rem;
+
+      @media screen and (max-width: 450px) {
+        width: calc(100% - 1rem);
+        max-width: calc(100% - 1rem);
+        height: calc(100% - 1rem);
+        max-height: calc(100% - 1rem);
+        position: absolute;
+        top: .5rem;
+        left: .5rem;
+      }
     }
 
     > * {
@@ -909,6 +923,11 @@
     overflow-y: auto;
     margin: 0 auto;
     padding: 0 1rem 1rem 1rem;
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: -2px;
+    }
   }
 }
 
@@ -1412,6 +1431,18 @@
 
   .rotate-270 {
     transform: rotate(270deg);
+  }
+
+  a {
+    line-height: normal;
+    &.no-default-underline {
+      text-decoration: none;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
+    }
   }
 
   .udoit-issue,

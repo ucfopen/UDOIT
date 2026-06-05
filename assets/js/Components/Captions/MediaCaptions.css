@@ -9,14 +9,19 @@
   justify-content: center;
   padding: 2em;
   box-sizing: border-box;
+  z-index: 5;
+
+  .callout-container {
+    width: 40em;
+    max-width: 100%;
+  }
 }
 
 .progress-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 36em;
-  max-width: 100%;
+  width: 100%;
   margin: auto;
 
   .progress-bar-container {
@@ -46,6 +51,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     flex-shrink: 0;
+    justify-content: space-between;
     gap: .5rem;
     align-items: center;
     padding: .5rem 1.5rem;
@@ -127,6 +133,10 @@
         list-style: none;
         padding: 0;
         margin: 0;
+
+        li {
+          position: relative;
+        }
       }
 
       .insert-button-container {

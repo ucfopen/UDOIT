@@ -169,4 +169,19 @@ class LmsPostService {
 
         return $cnt;
     }
+
+    public function setMediaTracks($mediaId, $tracks, User $user){
+        $lms = $this->lmsApi->getLms();
+        $apiStatus = $this->lmsUser->validateApiKey($user);
+        if(!$apiStatus['success']){
+            $this->util->exitWithMessage($apiStatus['message']);
+        }
+
+        $lmsResponse = $lms->setMediaTracks($mediaId, $tracks, $user);
+        if(!$lmsResponse){
+            return;
+        }
+
+        return $lmsResponse;
+    }
 }

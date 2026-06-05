@@ -72,16 +72,15 @@ export function parseVTT(data) {
 }
 
 // Update buildVttText to only use position based on align, always align:center
-export function buildVttText(cues) {
+export function buildVttText(cues, includeFormat = true) {
   return (
-    "WEBVTT\n\n" +
+    (includeFormat ? "WEBVTT\n\n" : "") +
     cues
       .map(
         (cue) => {
           let position = 50;
           if (cue.align === "left") position = 20;
           else if (cue.align === "right") position = 80;
-          else position = 50;
           return `${cue.start} --> ${cue.end} position:${position}% align:center\n${cue.text}\n`;
         }
       )

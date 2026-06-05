@@ -711,6 +711,36 @@ class CanvasLms implements LmsInterface {
         return "https://{$domain}/courses/{$course->getLmsCourseId()}";
     }
 
+    public function getMediaTracks($mediaId, User $user) {
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $url = "media_objects/{$mediaId}/media_tracks?include[]=content";
+        $response = $canvasApi->apiGet($url);
+        $content = $response->getContent();
+
+        return $content;
+    }
+
+    public function setMediaTracks($mediaId, $tracks, User $user) {
+        $output = new ConsoleOutput();
+        $output->writeln("Tracks: " . json_encode($tracks));
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $options = [
+            'body' => json_encode($tracks),
+            'headers' => ['Content-Type' => 'application/json']
+        ];
+        $url = "media_objects/{$mediaId}/media_tracks?include[]=content";
+        $response = $canvasApi->apiPut($url, $options);
+        $content = $response->getContent();
+
+        return $content;
+    }
+
     /**
      * ******************
      * Account Functions

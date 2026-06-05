@@ -2,37 +2,26 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import WavesurferPlayer from "@wavesurfer/react";
 import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
+
 import AddIcon from "../Icons/AddIcon";
-import AlignCenterIcon from "../Icons/AlignCenterIcon";
-import AlignLeftIcon from "../Icons/AlignLeftIcon";
-import AlignRightIcon from "../Icons/AlignRightIcon";
-import ArrowIcon from "../Icons/ArrowIcon";
 import CaptionIcon from "../Icons/CaptionIcon";
-import CloseIcon from "../Icons/CloseIcon";
-import DeleteIcon from "../Icons/DeleteIcon";
+import DownloadIcon from "../Icons/DownloadIcon";
 import ExpandIcon from "../Icons/ExpandIcon";
-import ForwardDoubleIcon from "../Icons/ForwardDoubleIcon";
-import ForwardSingleIcon from "../Icons/ForwardSingleIcon";
-import PauseIcon from "../Icons/PauseIcon";
-import PlayIcon from "../Icons/PlayIcon";
-import ProgressIcon from "../Icons/ProgressIcon";
-import RewindDoubleIcon from "../Icons/RewindDoubleIcon";
-import RewindSingleIcon from "../Icons/RewindSingleIcon";
-import SettingsIcon from "../Icons/SettingsIcon";
 import SeverityIssueIcon from "../Icons/SeverityIssueIcon";
-import TimeIcon from "../Icons/TimeIcon";
-import './MediaCaptions.css';
-import {
-  parseVTT,
-  buildVttText,
-  vttToMS,
-  formatTimeVTT,
-  formatVTTTime,
-  computeVTTDuration,
-} from "../../Services/Captions";
-import useWaveformKeyboard from "./useWaveformKeyboard";
+import UploadIcon from "../Icons/UploadIcon";
+
+import FileInformation from "../Widgets/FileInformation";
+import MediaCaptionsCueList from "./MediaCaptionsCueList";
+import MediaCaptionsLoadingProgress from "./MediaCaptionsLoadingProgress";
+import MediaCaptionsPlaybackControls from "./MediaCaptionsPlaybackControls";
 import SliderSelect from "../Widgets/SliderSelect";
+import useWaveformKeyboard from "./useWaveformKeyboard";
+
+import Api from '../../Services/Api';
+import { parseVTT, buildVttText, vttToMS, formatTimeVTT, formatVTTTime, computeVTTDuration } from "../../Services/Captions";
+import { primaryLanguages } from '../../Services/Lang'
 import * as Text from '../../Services/Text';
+import './MediaCaptions.css';
 
 /**
  * MediaCaptionsEditor
@@ -40,7 +29,6 @@ import * as Text from '../../Services/Text';
  * Minimal props you probably want in a larger project:
  * - t: translation fn
  * - initialVideoUrl?: string  (if you already have a media URL)
- * - initialVttText?: string   (if you already have captions content)
  * - onSaveVtt?: ({ vttText, cues }) => void
  * - isDisabled?: boolean
  */
@@ -49,28 +37,35 @@ export default function MediaCaptionsEditor({
   settings,
   file,
   addMessage,
-  lmsFileData,
+  setFormInvalid,
   initialVideoUrl,
-  initialVttText,
-  onSaveVtt,
+  vttArray,
+  setVttArray,
+  vttActiveIndex,
+  setVttActiveIndex,
   isDisabled = false,
 }) {
-  
-  const [vttFile, setVttFile] = useState(null);
 
+  const CUE_STYLE = {
+    LIST: 'list',
+    TEXT: 'text',
+  }
+  
   const [isLoading, setIsLoading] = useState(true);
+  const [fileTotalSize, setFileTotalSize] = useState(0);
   const [fileLoadedSize, setFileLoadedSize] = useState(0);
-  const [totalFileSize, setTotalFileSize] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isFullWidthVideo, setIsFullWidthVideo] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);  // Only used for properly displaying the play/pause button.
+  const [isFullWidthVideo, setIsFullWidthVideo] = useState(false);  // For the fullscreen toggle classes.
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl || null);
-  const [cues, setCues] = useState(() => (initialVttText ? parseVTT(initialVttText) : []));
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+
+  const [cues, setCues] = useState([]);
+  const [cueDisplay, setCueDisplay] = useState(CUE_STYLE.LIST);
   const [error, setError] = useState("");
   const [errorDetails, setErrorDetails] = useState("");
-  const [waveError, setWaveError] = useState("");
   const [inputFocus, setInputFocus] = useState(false);
-
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [waveError, setWaveError] = useState("");
+  
   const videoElRef = useRef(null);
   const wavesurferRef = useRef(null);
   const timelineRef = useRef(null);
@@ -81,38 +76,55 @@ export default function MediaCaptionsEditor({
   const [cueIdCounter, setCueIdCounter] = useState(1);
   const [activeSettingsIndex, setActiveSettingsIndex] = useState(-1);
 
-  // Ensure cues have unique ids on initial load
   useEffect(() => {
-    if (initialVttText) {
-      const parsed = parseVTT(initialVttText).map((cue, i) => ({
-        ...cue,
-        id: cue.id || `cue-${Date.now()}-${i}`,
-      }));
-      setCues(parsed);
-      setCueIdCounter(parsed.length + 1);
-    }
-  }, [initialVttText]);
+    if(!file?.fileData) return;
 
-  useEffect(() => {
-    if(!lmsFileData) return;
+    setVttActiveIndex(-1);
+    setVttArray([]);
     setIsLoading(true);
     setWaveError("");
     setError("");
     setErrorDetails("");
+    setCues([])
 
-    if (lmsFileData?.id) {
-      downloadVideoFromLMS(lmsFileData.id)
+    const fileData = file.fileData;
+
+    if (fileData?.metadata?.media_entry_id) {
+      console.log("Found media_entry_id in LMS file data metadata:", fileData.metadata.media_entry_id);
     }
 
-    if (lmsFileData?.metadata?.media_entry_id) {
-      console.log("Found media_entry_id in LMS file data metadata:", lmsFileData.metadata.media_entry_id);
+    if (fileData?.id) {
+      downloadVideoFromLMS(fileData.id)
     }
-  }, [lmsFileData])
+  }, [file])
 
+  const getExistingTracks = async () => {
+    if(!file?.fileData?.metadata?.media_entry_id) {
+      addMessage({ message: "File is missing Media ID. Cannot save captions to Canvas.", severity: "error", visible: true });
+      return [];
+    }
+    const mediaEntryId = file.fileData.metadata.media_entry_id;
+
+    const api = new Api(settings)
+    const responseStr = await api.getMediaTracks(mediaEntryId)
+    const response = await responseStr.json()
+    if(response.errors && response.errors.length > 0) {
+      response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
+      return
+    }
+    else if(response?.data?.tracks) {
+      const existingTracks = response.data.tracks
+      setVttArray(existingTracks);
+
+      if(existingTracks.length > 0) {
+        setVttActiveIndex(0);
+      }
+    }
+  }
 
   const downloadVideoFromLMS = async (lmsFileId) => {
     setFileLoadedSize(0);
-    setTotalFileSize(0);
+    setFileTotalSize(0);
     const baseUrl = `https://${window.location.hostname}`;
 
     const xhr = new XMLHttpRequest();
@@ -123,7 +135,7 @@ export default function MediaCaptionsEditor({
     xhr.onload = function(event) {
 
       if (xhr.status >= 200 && xhr.status < 300) {
-        var blob = new Blob([event.target.response], {type: "video/mp4"});
+        var blob = new Blob([event.target.response], {type: "video/*"});
         let tempURL = URL.createObjectURL(blob);
         setVideoUrl(tempURL);
       }
@@ -139,7 +151,7 @@ export default function MediaCaptionsEditor({
 
     xhr.onprogress = function(event) {
         if (event.lengthComputable) {
-          setTotalFileSize(event.total);
+          setFileTotalSize(event.total);
         }
         setFileLoadedSize(event.loaded);
     }
@@ -166,50 +178,69 @@ export default function MediaCaptionsEditor({
       console.error(`${xhr.status} Error CATCH sending request to LMS: `, e);
       setError(t('form.media.label.error_lms_download'));
     }
+
+    getExistingTracks();
   }
-
-  // ---- read uploaded VTT file
-  useEffect(() => {
-    if (!vttFile) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = String(ev.target?.result || "");
-      const parsed = parseVTT(text).map((cue, i) => ({
-        ...cue,
-        id: cue.id || `cue-${Date.now()}-${i}`,
-      }));
-      setCues(parsed);
-      setCueIdCounter(parsed.length + 1);
-      setSelectedIndex(-1);
-      setError("");
-    };
-    reader.readAsText(vttFile);
-  }, [vttFile]);
 
   // ---- keep <track> updated as cues change
   useEffect(() => {
     const video = videoElRef.current;
     if (!video) return;
 
-    // clear old tracks
+    if (!cues || cues.length === 0) {
+      setFormInvalid(true);
+    }
+    else {
+      setFormInvalid(false);
+    }
+
+    const vttText = buildVttText(cues, false);
+    const vttLang = vttArray[vttActiveIndex]?.locale || settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE || "en";
+    const vttFormattedText = "WEBVTT\n\n" + vttText;
+
+    // Update the big array for when it's time to save things.
+    if(vttActiveIndex !== -1) {
+      const tempVttArray = structuredClone(vttArray);
+      tempVttArray[vttActiveIndex] = { locale: vttLang, content: vttText };
+      setVttArray(tempVttArray);
+    }
+
+    // Keep the video's <track> elements updated as the cues change.
     Array.from(video.querySelectorAll("track")).forEach((tr) => tr.remove());
-
-    const vttText = buildVttText(cues);
-    const blob = new Blob([vttText], { type: "text/vtt" });
+    const blob = new Blob([vttFormattedText], { type: "text/vtt" });
     const blobUrl = URL.createObjectURL(blob);
-
     const track = document.createElement("track");
-    track.kind = "subtitles";
-    track.label = "Captions";
-    track.srclang = "en";
+    track.kind = "captions";
+    track.srclang = vttLang;
+    track.src = blobUrl;
     track.default = true;
     track.src = blobUrl;
-
     video.appendChild(track);
 
     return () => URL.revokeObjectURL(blobUrl);
   }, [cues]);
+
+  useEffect(() => {
+    const vttText = vttArray[vttActiveIndex]?.content || ''
+    const parsed = parseVTT(vttText).map((cue, i) => ({
+      ...cue,
+      id: cue.id || `cue-${Date.now()}-${i}`,
+    }));
+    setCues(parsed);
+    const vttContent = buildVttText(parsed, false);
+    const tempVttObject = {
+      "locale": settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE || "en",
+      "content": vttContent
+    }
+    const tempVttArray = structuredClone(vttArray);
+    tempVttArray.push(tempVttObject);
+    setVttArray(tempVttArray);
+    
+    setCueIdCounter(parsed.length + 1);
+    setActiveSettingsIndex(-1);
+    setSelectedIndex(-1);
+    setError("");
+  }, [vttActiveIndex])
 
   // ---- Wavesurfer plugins (MUST be memoized)
   const plugins = useMemo(() => {
@@ -360,7 +391,6 @@ export default function MediaCaptionsEditor({
   }, [cues, selectedIndex, findRegionsPlugin]);
 
   const seekTo = (seconds) => {
-    console.log("seekTo: ", seconds);
     const video = videoElRef.current;
     if (!video?.duration) return;
 
@@ -468,7 +498,7 @@ export default function MediaCaptionsEditor({
     }
   }, []);
 
-  const updateCueText = useCallback((index, value) => {
+  const setCueText = useCallback((index, value) => {
     setCues((prev) => {
       const cue = prev[index];
       if (!cue) return prev;
@@ -611,27 +641,46 @@ export default function MediaCaptionsEditor({
     setInputFocus(!inputFocus);
   }, [cues]);
 
-  const onSave = useCallback(() => {
-    const vttText = buildVttText(cues);
-
-    if (typeof onSaveVtt === "function") {
-      onSaveVtt({ vttText, cues });
-      return;
+  const handleImport = () => {
+    let shadowInput = document.createElement('input');
+    shadowInput.setAttribute('type', 'file');
+    shadowInput.setAttribute('accept', '.vtt');
+    shadowInput.onchange = _ => {
+      const newFile = shadowInput.files[0];
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = String(ev.target?.result || "");
+        const parsed = parseVTT(text).map((cue, i) => ({
+          ...cue,
+          id: cue.id || `cue-${Date.now()}-${i}`,
+        }));
+        setCues(parsed);        
+        setCueIdCounter(parsed.length + 1);
+        setSelectedIndex(-1);
+        setActiveSettingsIndex(-1);
+        setError("");
+      };
+      reader.readAsText(newFile);
     }
+    shadowInput.click();
+    shadowInput.remove();
+  }
 
-    // fallback: download
+  const handleExport = () => {
+    const vttText = buildVttText(cues);
     const blob = new Blob([vttText], { type: "text/vtt" });
     const url = URL.createObjectURL(blob);
+    const fileName = Text.removeExtension(file?.fileData?.fileName || file?.fileData?.name || 'captions');
     const a = document.createElement("a");
     a.href = url;
-    a.download = "captions.vtt";
+    a.download = fileName + ".vtt";
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }, [cues, onSaveVtt]);
+  }
 
-  const setAlign = (newAlign) => {
+  const setCueAlign = (newAlign) => {
     let index = activeSettingsIndex;
     if (index < 0 || !cues[index]) return;
 
@@ -640,7 +689,7 @@ export default function MediaCaptionsEditor({
     );
   }
 
-  const setStart = (value) => {
+  const setCueStart = (value) => {
     let index = activeSettingsIndex;
     if (index < 0 || !cues[index]) return;
 
@@ -657,7 +706,7 @@ export default function MediaCaptionsEditor({
     seekTo(value);
   };
 
-  const setEnd = (value) => {
+  const setCueEnd = (value) => {
     let index = activeSettingsIndex;
     if (index < 0 || !cues[index]) return;
 
@@ -711,6 +760,18 @@ export default function MediaCaptionsEditor({
     }
   }, [inputFocus])
 
+  useEffect(() => {
+    // Hide existing captions so they don't bleed through the "Loading" screen.
+    if(isLoading) {
+      const tracks = document.querySelector("video")?.textTracks;
+      if(tracks && tracks.length > 0) {
+        for (const track of tracks) {
+          track.mode = "disabled";
+        }
+      }
+    }
+  }, [isLoading])
+
   // Seek to highlighted row's start when selection changes
   useEffect(() => {
     if (selectedIndex < 0 || !cues[selectedIndex]) return;
@@ -748,36 +809,12 @@ export default function MediaCaptionsEditor({
       { isLoading && (
         <div id="captionsLoadingOverlay">
           { error === "" ? (
-            <div className="flex-column align-items-center mb-4 w-100">
-              <div className="mb-2 flex-row justify-content-center align-items-center gap-3">
-                <ProgressIcon className="icon-lg udoit-progress spinner" />
-                <h2>{t('fix.label.loading_content')}</h2>
-              </div>
-              <div className="progress-container">
-              { totalFileSize === 0 ? (
-                <>
-                  <div className='loader' />
-                  <div className="flex-row justify-content-center mt-2">
-                    {fileLoadedSize === 0 ? (
-                      <span>{t('form.media.label.retrieving_info')}</span>
-                    ) : (
-                      <span>{t('form.media.label.loaded')} {Text.getReadableFileSize(fileLoadedSize)}</span>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="progress-bar-container">
-                    <div className="progress-bar-fill" style={{width: `${(fileLoadedSize / totalFileSize) * 100}%`}}></div>
-                  </div>
-                  <div className="flex-row justify-content-between mt-2">
-                    <span>{t('form.media.label.loaded')} {Text.getReadableFileSize(fileLoadedSize)}</span>
-                    <span>{t('form.media.label.total_size')} {Text.getReadableFileSize(totalFileSize)}</span>
-                  </div>
-                </>
-              )}
-              </div>
-            </div>
+            <MediaCaptionsLoadingProgress
+              t={t}
+              fileName={file.fileData?.fileName || ''}
+              fileLoadedSize={fileLoadedSize}
+              fileTotalSize={fileTotalSize}
+            />
           ) : (
             <div className="mt-1 mb-4 flex-column justify-content-center align-items-center gap-2">
               <div className="flex-row justify-content-center align-items-center gap-2">
@@ -812,10 +849,10 @@ export default function MediaCaptionsEditor({
             <button
               className="btn-secondary btn-small btn-icon-left"
               disabled={isDisabled || cues.length === 0}
-              onClick={onSave}>
+              onClick={handleExport}>
               <UploadIcon className="icon-md" />
               <div>Export VTT</div>
-          </button>
+            </button>
           </div>
         </div>
         <div id="captions-editor-main-row" className={isFullWidthVideo ? "full-width-video" : ""}>
@@ -836,201 +873,27 @@ export default function MediaCaptionsEditor({
                   </button>
                 </div>
               )}
-              <ul aria-labelledby="captions-list-label">
-                {cues.map((cue, i) => {
 
-                  const firstCaption = i === 0;
-                  const lastCaption = i === cues.length - 1;
-                  const active = selectedIndex === i;
-
-                  return (
-                    <li
-                      tabIndex={-1}
-                      key={cue.id || i}
-                      id={'list-item-cue-' + i}
-                      data-id={i}
-                      onBlur={(e) => {
-                        const i = Number(e.currentTarget.dataset.id)
-                        if (selectedIndex === i) {
-                          // If we can verify that we're still in the same row, don't deselect
-                          const parentListItem = document.getElementById(`list-item-cue-${i}`);
-                          if (e.relatedTarget && (e.relatedTarget === parentListItem || parentListItem?.contains(e.relatedTarget))) {
-                            return
-                          }
-                          setSelectedIndex(-1)
-                          if(activeSettingsIndex === i) {
-                            setActiveSettingsIndex(-1)
-                          }
-                        }
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
-                      >
-                      {(active || firstCaption) && (
-                        <div className={"insert-button-container mb-2" + (!firstCaption ? " mt-3" : "")}>
-                          <button
-                            className="btn-icon-only btn-secondary btn-small"
-                            onClick={() => insertCue(i)}
-                            aria-label={t('form.media.button.add')}
-                            title={t('form.media.button.add')}
-                            disabled={isDisabled || error !== ""}
-                          >
-                            <AddIcon aria-hidden="true" className="icon-md" />
-                          </button>
-                        </div>
-                      )}
-                      <div
-                        id={`cue-row-${i}`}
-                        className={`cue-row${active ? " active" : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSelectedIndex(i);
-                          selectCue(i, vttToMS(cue.start) / 1000);
-                        }}
-                        role="group"
-                        aria-label={cue.text}
-                      >
-                        { (activeSettingsIndex === i) && (
-                          <div className="flex-row w-100 justify-content-between">
-                            <div
-                              onClick={(e) => {
-                                e.stopPropagation()
-                              }}
-                            >
-                              <SliderSelect
-                                activeOption = {cue?.align || "center"}
-                                setActiveOption={setAlign}
-                                options = {[
-                                  { name: (<AlignLeftIcon className="icon-md" alt={t('form.media.label.align_left')} title={t('form.media.label.align_left')} />), value: "left" },
-                                  { name: (<AlignCenterIcon className="icon-md" alt={t('form.media.label.align_center')} title={t('form.media.label.align_center')} />), value: "center" },
-                                  { name: (<AlignRightIcon className="icon-md" alt={t('form.media.label.align_right')} title={t('form.media.label.align_right')} />), value: "right" },
-                                ]}
-                              />
-                            </div>
-
-                            <div className="flex-row gap-2 align-items-center">
-                              <div className="flex-row gap-1 align-items-center">
-                                <TimeIcon className="icon-sm gray" aria-hidden="true" />
-                                <input
-                                  type="text"
-                                  value={cue.start}
-                                  aria-label={t('form.media.label.start_time')}
-                                  disabled={isDisabled}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                  }}
-                                  onChange={e => setStart(e.target.value)}
-                                  style={{ width: "8em" }}
-                                />
-                                <ArrowIcon className="icon-sm gray" aria-hidden="true" />
-                                <input
-                                  type="text"
-                                  value={cue.end}
-                                  aria-label={t('form.media.label.end_time')}
-                                  disabled={isDisabled}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                  }}
-                                  onChange={e => setEnd(e.target.value)}
-                                  style={{ width: "8em" }}
-                                />
-                              </div>
-                              <button
-                                id={`close-settings-button-${i}`}
-                                className="btn-icon-only btn-link btn-small"
-                                aria-label={t('form.media.button.close_details')}
-                                title={t('form.media.button.close_details')}
-                                onClick={() => {
-                                  setActiveSettingsIndex(-1)
-                                }} >
-                                <CloseIcon className="icon-md gray" aria-hidden="true" />
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                        <div className="flex-row gap-1 w-100 align-items-center">
-                          <input
-                            id={`cue-field-${i}`}
-                            type="text"
-                            defaultValue={cue.text}
-                            disabled={isDisabled || error !== ""}
-                            style={{ flex: 2, minWidth: 0 }}
-                            aria-label={t('form.media.label.caption_text', { captionNumber: i + 1 })}
-                            onBlur={(e) => updateCueText(i, e.target.value)}
-                            onFocus={(e) => {
-                              handleSelectedIndex(i)
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                            }}
-                          />
-                          { (activeSettingsIndex !== i) && (
-                            <button
-                              id={`settings-button-${i}`}
-                              className="btn-small btn-icon-only btn-link"
-                              aria-label={t('form.media.button.show_details')}
-                              title={t('form.media.button.show_details')}
-                              // This button SHOULD just have an onClick handler that by default works on keypresses, HOWEVER...
-                              // Because rows with the settings open auto-close when they lose focus, rows underneath them "jump" up.
-                              // This means that you could start a click on the settings button, but the button moves before the click is
-                              // released, causing the click to "miss" and the settings to not open.
-                              //
-                              // To solve this, we add the onMouseDown handler to handle clicks before the button can move.
-                              onMouseDown={() => {
-                                openSettings(i)
-                              }}
-                              // This is fine, because the openSettings function isn't a toggle; it only changes indices that need it.
-                              onClick={(e) => {
-                                openSettings(i)
-                              }}
-                              // Since we've hand-edited the mouse events, the keyboard events don't trigger unless we hand-edit those, too.
-                              onKeyDown={(e) => {
-                                if(e.key === 'Enter' || e.key === ' ') {
-                                  openSettings(i)
-                                }
-                              }}
-                              disabled={isDisabled || error !== ""}
-                            >
-                              <SettingsIcon aria-hidden="true" className="icon-md" />
-                            </button>
-                          )}
-                          { (activeSettingsIndex !== i) && (
-                            <button
-                              className="btn-small btn-icon-only btn-link"
-                              aria-label={t('form.media.button.delete')}
-                              title={t('form.media.button.delete')}
-                              onFocus={() => handleSelectedIndex(i)}
-                              onMouseDown={() => deleteCue(i)}
-                              onKeyDown={(e) => {
-                                if(e.key === 'Enter' || e.key === ' ') {
-                                  deleteCue(i);
-                                }
-                              }}
-                              disabled={isDisabled || error !== ""}
-                            >
-                              <DeleteIcon aria-hidden="true" className="icon-md" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      {(active || lastCaption) && (
-                        <div className="insert-button-container mb-3">
-                          <button
-                            className="btn-icon-only btn-secondary btn-small"
-                            onClick={() => insertCue(i, false)}
-                            aria-label={t('form.media.button.add')}
-                            title={t('form.media.button.add')}
-                            disabled={isDisabled || error !== ""}
-                          >
-                            <AddIcon aria-hidden="true" className="icon-md" />
-                          </button>
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+              {cueDisplay === CUE_STYLE.LIST && (
+                <MediaCaptionsCueList
+                  t={t}
+                  activeSettingsIndex={activeSettingsIndex}
+                  cues={cues}
+                  deleteCue={deleteCue}
+                  error={error}
+                  handleSelectedIndex={handleSelectedIndex}
+                  insertCue={insertCue}
+                  isDisabled={isDisabled}
+                  openSettings={openSettings}
+                  selectedIndex={selectedIndex}
+                  selectCue={selectCue}
+                  setActiveSettingsIndex={setActiveSettingsIndex}
+                  setCueAlign={setCueAlign}
+                  setCueEnd={setCueEnd}
+                  setCueStart={setCueStart}
+                  setCueText={setCueText}
+                />
+              )}
             </div>
           </div>
 
@@ -1062,54 +925,13 @@ export default function MediaCaptionsEditor({
 
             {error === "" && videoElRef.current && (
               <div className="flex-row justify-content-center align-items-center gap-4">
-                <div id="video-controls-container">
-                  <button
-                    className="btn-link btn-icon-only"
-                    aria-label={t('form.media.button.rewind_5s')}
-                    title={t('form.media.button.rewind_5s')}
-                    disabled={isDisabled}
-                    onClick={() => seekBy(-5)}>
-                    <RewindDoubleIcon className="icon-lg" aria-hidden="true" />
-                  </button>
-                  <button
-                    className="btn-link btn-icon-only"
-                    aria-label={t('form.media.button.rewind_1s')}
-                    title={t('form.media.button.rewind_1s')}
-                    disabled={isDisabled}
-                    onClick={() => seekBy(-1)}>
-                    <RewindSingleIcon className="icon-lg" aria-hidden="true" />
-                  </button>
-
-                  <button
-                    className="btn-secondary btn-play"
-                    aria-label={videoElRef.current.paused ? t('form.media.button.play') : t('form.media.button.pause')}
-                    disabled={isDisabled}
-                    onClick={playPause}>
-                    { isPlaying ? (
-                      <PauseIcon className="icon-lg" aria-hidden="true" />
-                    ) : (
-                      <PlayIcon className="icon-lg" aria-hidden="true" />
-                    )}
-                  </button>
-
-                  <button
-                    className="btn-link btn-icon-only"
-                    aria-label={t('form.media.button.forward_1s')}
-                    title={t('form.media.button.forward_1s')}
-                    disabled={isDisabled}
-                    onClick={() => seekBy(1)}>
-                    <ForwardSingleIcon className="icon-lg" aria-hidden="true" />
-                  </button>
-
-                  <button
-                    className="btn-link btn-icon-only"
-                    aria-label={t('form.media.button.forward_5s')}
-                    title={t('form.media.button.forward_5s')}
-                    disabled={isDisabled}
-                    onClick={() => seekBy(5)}>
-                    <ForwardDoubleIcon className="icon-lg" aria-hidden="true" />
-                  </button>
-                </div>
+                <MediaCaptionsPlaybackControls
+                  t={t}
+                  isDisabled={isDisabled}
+                  isPlaying={isPlaying}
+                  playPause={playPause}
+                  seekBy={seekBy}
+                />
                 <div className="align-items-center">
                   <button
                     className="btn-link btn-icon-only"

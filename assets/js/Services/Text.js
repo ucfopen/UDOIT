@@ -100,3 +100,11 @@ export function getReadableDateTime(dateString) {
   
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
+
+export function removeExtension(filename) {
+  if(!filename.includes('.')) {
+    return filename
+  }
+  const parts = filename.split('.');
+  return parts.slice(0, -1).join('.');
+}
