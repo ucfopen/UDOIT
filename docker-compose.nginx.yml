@@ -52,8 +52,8 @@ services:
         - .env
       labels:
         ofelia.enabled: "true"
-        ofelia.job-exec.datecron.schedule: "@every 2h"
-        ofelia.job-exec.datecron.command: "bin/console app:clear-lti-sessions"
+        ofelia.job-exec.delete-lti-sessions.schedule: "@every 2h"
+        ofelia.job-exec.delete-lti-sessions.command: "bin/console app:clear-lti-sessions"
   composer:
       container_name: udoit3-composer
       build:
