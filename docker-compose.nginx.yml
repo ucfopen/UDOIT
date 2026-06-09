@@ -50,6 +50,10 @@ services:
           target: /usr/local/etc/php/conf.d/php-custom.ini
       env_file:
         - .env
+      labels:
+        ofelia.enabled: "true"
+        ofelia.job-exec.datecron.schedule: "@every 2h"
+        ofelia.job-exec.datecron.command: "bin/console app:clear-lti-sessions"
   composer:
       container_name: udoit3-composer
       build:
@@ -90,6 +94,15 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
+  
+  ofelia:
+    container_name: udoit3-scheduler
+    image: mcuadros/ofelia:latest
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - php
 
 volumes:
   web:

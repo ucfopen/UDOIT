@@ -25,4 +25,14 @@ class LtiSessionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function deleteExpired()
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->delete(LtiSession::class, 'ls')
+            ->where('ls.expiresAt < :now')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->execute();
+    }
 }
