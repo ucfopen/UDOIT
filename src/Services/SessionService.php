@@ -116,7 +116,7 @@ class SessionService
         $this->doctrine->getManager()->flush();
     }
 
-    protected function createSession(): UserSession
+    public function createSession(): UserSession
     {
         $session = new UserSession();
 
@@ -126,28 +126,44 @@ class SessionService
 
         $this->doctrine->getManager()->persist($session);
 
+        $this->userSession = $session;
         return $session;
     }
 
-    public function generateNonce(): string
+    public function saveTokenToSession($token, UserSession $session)
     {
-        $session = $this->getSession();
-        $nonce = bin2hex(random_bytes(8));
-        $session->set('nonce', [$nonce, time()]);
-        $this->doctrine->getManager()->flush();
-        return $nonce;
-    }
+        try {
+            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/context'})) {
+                $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
+                foreach ($contextFields as $key => $val) {
+                    $session->set($key, $val);
+                }
+            }
 
-    public function verifyNonce(string $nonceToVerify): bool
-    {
-        $session = $this->getSession();
-        $nonceData = $session->get('nonce', false);
-        if ($nonceData) {
-            [$storedNonce, $timestamp] = $nonceData;
-            unset($session->getData()['nonce']);
-            $this->doctrine->getManager()->flush();
-            return time() - $timestamp < FIVE_MINUTES && $storedNonce === $nonceToVerify;
+            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/custom'})) {
+                $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
+                foreach ($customFields as $key => $val) {
+                    $session->set($key, $val);
+                }
+            }
+
+            $roles = [];
+            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/roles'})) {
+                $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
+                foreach ($roleFields as $role) {
+                    $roleArr = explode('#', $role);
+                    $roles[] = trim($roleArr[1]);
+                }
+            }
+
+            $session->set('roles', array_values(array_unique($roles)));
+
+            if (isset($token->name)) {
+                $session->set('lms_user_name', $token->name);
+            }
+
+        } catch (\Exception $e) {
+            print_r($e->getMessage());
         }
-        return false;
     }
 }

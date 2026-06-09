@@ -66,7 +66,7 @@ class CanvasLms implements LmsInterface
      * ********************
      */
 
-    public function saveTokenToSession($token) {}
+    public function saveTokenToSession($token, $session) {}
 
     /**
      * ********************

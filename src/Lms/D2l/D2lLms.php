@@ -121,10 +121,8 @@ class D2lLms implements LmsInterface {
      * *************
      */
 
-    public function saveTokenToSession($token)
+    public function saveTokenToSession($token, $session)
     {
-        $session = $this->sessionService->getSession();
-
         $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
         foreach ($contextFields as $key => $val) {
             $session->set('lms_course_' . $key, $val);

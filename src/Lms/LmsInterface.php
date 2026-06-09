@@ -23,6 +23,6 @@ interface LmsInterface {
     public function getCourseUrl(Course $course, User $user);
     public function getCourseSections(Course $course, User $user);
     public function getOauthTokenUri(Registration $registration);
-    public function saveTokenToSession($token);
+    public function saveTokenToSession($token, UserSession $session);
     public function getContentTypes();
 }

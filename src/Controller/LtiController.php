@@ -3,14 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Institution;
+use App\Entity\LtiSession;
+use App\Entity\Registration;
 use App\Entity\User;
+use App\Entity\UserSession;
+use App\Repository\LtiSessionRepository;
 use App\Repository\RegistrationRepository;
 use App\Services\LmsApiService;
+use App\Services\LtiSessionService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -22,12 +28,12 @@ class LtiController extends AbstractController
 {
     /** @var UtilityService $util */
     private $util;
-    /** @var \App\Entity\UserSession $session */
-    private $session;
     /** @var Request $request */
     private $request;
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
+
+    private ?LtiSession $ltiSession;
 
     private SessionService $sessionService;
 
@@ -35,14 +41,23 @@ class LtiController extends AbstractController
 
     private RegistrationRepository $registrationRepository;
 
+    private LtiSessionService $ltiSessionService;
+
+    private LtiSessionRepository $ltiSessionRepository;
+
     public function __construct(
         ManagerRegistry $doctrine,
         SessionService $sessionService,
         RegistrationRepository $registrationRepository,
+        LtiSessionService $ltiSessionService,
+        LtiSessionRepository $ltiSessionRepository,
+        private LoggerInterface $logger,
     ) {
         $this->doctrine = $doctrine;
         $this->sessionService = $sessionService;
         $this->registrationRepository = $registrationRepository;
+        $this->ltiSessionService = $ltiSessionService;
+        $this->ltiSessionRepository = $ltiSessionRepository;
     }
 
 
@@ -91,19 +106,27 @@ class LtiController extends AbstractController
     ) {
 
         $this->request = $request;
-        $this->session = $this->sessionService->getSession();
         $this->util = $util;
         $this->lmsApi = $lmsApi;
-
-        $this->saveRequestToSession();
 
         $postParams = $request->request->all();
         $getParams = $request->query->all();
         $allParams = array_merge($postParams, $getParams);
         $iss = $allParams['iss'];
         $clientId = $allParams['client_id'];
+        $loginHint = $allParams['login_hint'];
+        $ltiMessageHint = $allParams['lti_message_hint'];
 
-        return $this->redirect($this->getLtiAuthResponseUrl($iss, $clientId));
+        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
+
+        if (empty($registrations)) {
+            $this->util->exitWithMessage('Invalid LTI registration.');
+        }
+
+        $registration = $registrations[0];
+        $this->ltiSession = $this->ltiSessionService->createLtiSession($registration);
+
+        return $this->redirect($this->getLtiAuthResponseUrl($registration, $ltiMessageHint, $loginHint));
     }
 
 
@@ -170,7 +193,6 @@ class LtiController extends AbstractController
      * ---
      *
      * The tool MUST validate the state parameter, JWT signature, nonce, and expiry 
-     * before trusting any claims and establishing a user session.
      *
      * See IMS Security Framework 1.0, Section 5.1.3 for validation requirements:
      * {@link https://www.imsglobal.org/spec/security/v1p0/#authentication-response-validation}
@@ -187,50 +209,57 @@ class LtiController extends AbstractController
         $this->lmsApi = $lmsApi;
 
         $state = $request->request->get('state');
-        $this->session = $sessionService->getSession($state);
 
-        $this->saveRequestToSession();
-        $clientId = $this->session->get('client_id');
-        $iss = $this->session->get('iss');
+        $this->ltiSession = $this->ltiSessionRepository->getByState($state);
 
-        $jwt = $this->session->get('id_token');
+        if (!$this->ltiSession) {
+            $this->util->exitWithMessage('State is not valid.');
+        }
+
+        $registration = $this->ltiSession->getRegistration();
+
+        $jwt = $request->request->get('id_token');
+
         if (!$jwt) {
-            $this->util->exitWithMessage('ID token not received from Canvas.');
+            $this->util->exitWithMessage('ID token not received from the LMS.');
         }
 
         // Create token from JWT and public JWKs
-        $jwks = $this->getPublicJwks($iss, $clientId);
+        $jwks = $this->getPublicJwks($registration);
         $publicKey = JWK::parseKeySet($jwks);
         JWT::$leeway = 60;
         $token = JWT::decode($jwt, $publicKey);
 
+        
         // Issuer should match previously defined issuer
-        $this->claimMatchOrExit('iss', $this->session->get('iss'), $token->iss);
-
+        $this->claimMatchOrExit('iss', $registration->getIssuer(), $token->iss);
         // Audience should include the client id
-        $this->claimMatchOrExit('aud', $clientId, $token->aud);
+        $this->claimMatchOrExit('aud', $registration->getClientId(), $token->aud);
 
         // Expiration should be after the current time
         if (date('U') >= $token->exp) {
             $this->util->exitWithMessage(sprintf('The "exp" provided is before the current time.'));
         }
 
-        // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
-        if (!$this->sessionService->verifyNonce($token->nonce)) {
+        if (!$this->ltiSessionService->verifyAndDeleteNonce($this->ltiSession, $token->nonce)) {
             throw new \Exception("Invalid nonce!");
         }
 
         // Add Token to Session
-        $this->saveTokenToSession($token);
+        $session = $this->sessionService->createSession();
+        $this->sessionService->saveTokenToSession($token, $session);
+        $this->lmsApi->getLms()->saveTokenToSession($token, $session);
 
-        // Add user to session
-        $this->saveUserToSession();
+        $domain = $session->get('iss');
+        $userId = $session->get('lms_user_id');
+        $this->saveUserToSession($domain, $userId, $session);
+        $this->doctrine->getManager()->flush(); 
 
         // Remove old sessions
         $sessionService->removeExpiredSessions();
 
         $authCookie = Cookie::create('AUTH_TOKEN')
-            ->withValue($this->session->getUuid())
+            ->withValue($session->getUuid())
             ->withExpires(0)
             ->withPath('/')
             ->withSecure(true)
@@ -333,77 +362,9 @@ class LtiController extends AbstractController
         $this->util->exitWithMessage(sprintf('The "%s" provided does not match the expected value: %s.', $claimType, $sessionClaim));
     }
 
-    protected function saveTokenToSession($token)
-    {
-        try {
-            $lms = $this->lmsApi->getLms();
-            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/context'})) {
-                $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
-                foreach ($contextFields as $key => $val) {
-                    $this->session->set($key, $val);
-                }
-            }
-
-            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/custom'})) {
-                $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
-                foreach ($customFields as $key => $val) {
-                    $this->session->set($key, $val);
-                }
-            }
-
-            $roles = [];
-            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/roles'})) {
-                $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
-                foreach ($roleFields as $role) {
-                    $roleArr = explode('#', $role);
-                    $roles[] = trim($roleArr[1]);
-                }
-            }
-            $this->session->set('roles', array_values(array_unique($roles)));
-
-            if (isset($token->name)) {
-                $this->session->set('lms_user_name', $token->name);
-            }
-
-            $lms->saveTokenToSession($token);
-        } catch (\Exception $e) {
-            print_r($e->getMessage());
-        }
-    }
-
-    protected function saveRequestToSession()
-    {
-        try {
-            $getParams = $this->request->query->all();
-            $postParams = $this->request->request->all();
-            $allParams = array_merge($getParams, $postParams);
-
-            foreach ($allParams as $key => $val) {
-                if (!empty($val)) {
-                    $this->session->set($key, $val);
-                }
-            }
-
-            if (!$this->session->get('lms_api_domain')) {
-                $domain = $this->session->get('iss');
-                $this->session->set('lms_api_domain', str_replace('https://', '', $domain));
-            }
-
-            $this->doctrine->getManager()->flush();
-        } catch (\Exception $e) {
-            print_r($e->getMessage());
-        }
-
-        return;
-    }
-
-    protected function getPublicJwks(string $iss, string $clientId)
+    protected function getPublicJwks(Registration $registration)
     {
         $httpClient = HttpClient::create();
-
-        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
-        if (empty($registrations)) $this->util->exitWithMessage('Invalid LTI registration.');
-        $registration = $registrations[0];
 
         $url = $registration->getJwksEndpoint();
         $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
@@ -417,45 +378,23 @@ class LtiController extends AbstractController
         return $keys;
     }
 
-    protected function getLtiAuthResponseUrl(string $iss, string $clientId)
+    protected function getLtiAuthResponseUrl(Registration $registration, ?string $ltiMessageHint, ?string $loginHint)
     {
-        $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
 
-        $uuid = $this->session->getUuid();
-        if (empty($uuid)) {
-            throw new \Exception("No UUID found!");
-        }
-
-        $registrations = $this->registrationRepository->getByIssAndClientId($iss, $clientId);
-
-        if (empty($registrations)) {
-            $this->util->exitWithMessage('Invalid LTI registration.');
-        }
-
-        $registration = $registrations[0];
-
-
         $params = [
-            'client_id' => $clientId,
-            'state' => $uuid,
+            'client_id' => $registration->getClientId(),
+            'state' => $this->ltiSession->getState(),
             'scope' => 'openid',
             'response_type' => 'id_token',
             'response_mode' => 'form_post',
-            'nonce' => $this->sessionService->generateNonce(),
+            'nonce' => $this->ltiSession->getNonce(),
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
 
-        $ltiMessageHint = $this->session->get('lti_message_hint');
-        if ($ltiMessageHint !== '') {
-            $params['lti_message_hint'] = $ltiMessageHint;
-        }
-
-        $loginHint = $this->session->get('login_hint');
-        if ($loginHint !== '') {
-            $params['login_hint'] = $loginHint;
-        }
+        if ($ltiMessageHint && $ltiMessageHint !== '') $params['lti_message_hint'] = $ltiMessageHint;
+        if ($loginHint && $loginHint !== '') $params['login_hint'] = $loginHint;
 
         $queryStr = http_build_query($params);
 
@@ -511,10 +450,8 @@ class LtiController extends AbstractController
         return $institution;
     }
 
-    protected function createUser()
+    protected function createUser($domain, $userId)
     {
-        $domain = $this->session->get('iss');
-        $userId = $this->session->get('lms_user_id');
         $institution = $this->getInstitutionFromSession();
         $date = new \DateTime();
 
@@ -525,9 +462,6 @@ class LtiController extends AbstractController
         $user->setCreated($date);
         $user->setLastLogin($date);
 
-        if ($this->session->has('lms_user_name')) {
-            $user->setName($this->session->get('lms_user_name'));
-        }
 
         $this->doctrine->getManager()->persist($user);
         $this->doctrine->getManager()->flush();
@@ -536,27 +470,18 @@ class LtiController extends AbstractController
     }
 
     // Returns User object, creates a new user if doesn't exist.
-    protected function saveUserToSession(): void
+    protected function saveUserToSession(string $domain, string $userId, UserSession $session): void
     {
-        $user = null;
+        if ($session->get('userId')) return;
 
-        if ($this->session->get('userId')) {
-            return;
-        } else {
-            $domain = $this->session->get('iss');
-            $userId = $this->session->get('lms_user_id');
-
-            if ($domain && $userId) {
-                $user = $this->doctrine->getRepository(User::class)
-                    ->findOneBy(['username' => "{$domain}||{$userId}"]);
-            }
-        }
+        $user = $this->doctrine->getRepository(User::class)
+            ->findOneBy(['username' => "{$domain}||{$userId}"]);
 
         if (empty($user)) {
-            $user = $this->createUser();
+            $user = $this->createUser($domain, $userId);
         }
-
-        $this->session->set('userId', $user->getId());
+            
+        $session->set('userId', $user->getId());
         $this->doctrine->getManager()->flush();
     }
 }
