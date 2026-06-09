@@ -32,17 +32,17 @@ class LtiSessionService
         return $ltiSession;
     }
 
-    public function verifyAndDeleteNonce(LtiSession $ltiSession, string $nonce): bool
+    public function verifyNonceAndDelete(LtiSession $ltiSession, string $nonce): bool
     {
         if ($ltiSession->getNonce() !== $nonce) return false;
 
         $now = new \DateTimeImmutable();
+        $expiresAt = $ltiSession->getExpiresAt();
 
-        if ($now >= $ltiSession->getExpiresAt()) return false;
-
-        $ltiSession->removeNonce();
+        $this->em->remove($ltiSession);
         $this->em->flush();
-        return true;
+
+        return $now < $expiresAt;
     }
 
 }

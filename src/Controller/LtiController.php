@@ -241,9 +241,11 @@ class LtiController extends AbstractController
             $this->util->exitWithMessage(sprintf('The "exp" provided is before the current time.'));
         }
 
-        if (!$this->ltiSessionService->verifyAndDeleteNonce($this->ltiSession, $token->nonce)) {
+        if (!$this->ltiSessionService->verifyNonceAndDelete($this->ltiSession, $token->nonce)) {
             throw new \Exception("Invalid nonce!");
         }
+        
+        $this->ltiSession = null;
 
         // Add Token to Session
         $session = $this->sessionService->createSession();

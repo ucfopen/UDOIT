@@ -60,13 +60,6 @@ class LtiSession
         return $this->nonce;
     }
 
-    public function removeNonce(): static
-    {
-        $this->nonce = null;
-
-        return $this;
-    }
-
     public function getRegistration(): Registration
     {
         return $this->registration;
