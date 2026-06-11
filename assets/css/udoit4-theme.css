@@ -78,7 +78,7 @@
     --selection-color-background: #F7FEF9;
 
     --background-color: var(--gray-lightest);
-    --background-color-transparent: #F9FAFB80;
+    --background-color-transparent: #F9FAFBB0;
     --container-color: #FFFFFF; /* #F2F4F7; */
     --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
@@ -187,7 +187,7 @@
       --button-secondary-background-color: #1E2230;
 
       --background-color: #0F1117;
-      --background-color-transparent: #0F111780;
+      --background-color-transparent: #0F1117A0;
       --container-color: #161923;
       --border-color: #3A4155;
       --progress-bar-background-color: #272c3f;
@@ -701,13 +701,12 @@
     box-shadow: 0 0 10px var(--shadow-color);
 
     &.dialog-full-screen {
-      width: calc(100% - 3rem);
-      max-width: calc(100% - 3rem);
+      width: calc(100% - 2rem);
+      max-width: var(--content-max-width);
       height: calc(100% - 2.5rem);
       max-height: calc(100% - 2.5rem);
       position: absolute;
       top: 1.25rem;
-      left: 1.5rem;
 
       @media screen and (max-width: 450px) {
         width: calc(100% - 1rem);

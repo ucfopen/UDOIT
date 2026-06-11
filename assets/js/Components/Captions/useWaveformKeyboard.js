@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
-import { vttToMS, formatVTTTime } from "../../Services/Captions";
+import { vttToMS, formatVTTTime, truncateVttTime } from "../../Services/Captions";
 
 export default function useWaveformKeyboard({
   cues,
@@ -15,18 +15,18 @@ export default function useWaveformKeyboard({
   const [waveKbLayer, setWaveKbLayer] = useState('wave'); // 'wave' | 'regions' | 'mode'
   const [activeMode, setActiveMode] = useState(1);        // 0=start, 1=pan, 2=end
 
-  const removePart = (el, part) => {
+  const removePartAttribute = (el, partAttribute) => {
     if (!el) return;
     let parts = el.getAttribute('part')?.split(' ') || [];
-    parts = parts.filter(p => p !== part);
+    parts = parts.filter(p => p !== partAttribute);
     el.setAttribute('part', parts.join(' '));
   }
 
-  const addPart = (el, part) => {
+  const addPartAttribute = (el, partAttribute) => {
     if (!el) return;
     let parts = el.getAttribute('part')?.split(' ') || [];
-    if (!parts.includes(part)) {
-      parts.push(part);
+    if (!parts.includes(partAttribute)) {
+      parts.push(partAttribute);
       el.setAttribute('part', parts.join(' '));
     }
   }
@@ -36,38 +36,26 @@ export default function useWaveformKeyboard({
     return ws ? findRegionsPlugin(ws) : null;
   }, [findRegionsPlugin, wavesurferRef]);
 
-  const getRegionByIndex = useCallback((idx) => {
+  const getRegionByCueId = useCallback((cueId) => {
     const plugin = getRegionsPlugin();
     if (!plugin) return null;
     const all = plugin.getRegions?.() || [];
-    return all.find(r => r?.data?.index === idx) || null;
-  }, [getRegionsPlugin]);
-
-  const sanitizeRegionsDom = useCallback(() => {
-    const plugin = getRegionsPlugin();
-    const all = plugin?.getRegions?.() || [];
-    all.forEach(r => {
-      const el = r?.element;
-      if (!el) return;
-      el.setAttribute('tabindex', '-1');
-      el.setAttribute('aria-hidden', 'true');
-      el.setAttribute('role', 'presentation');
-    });
+    return all.find(r => r?.data?.cueId === cueId) || null;
   }, [getRegionsPlugin]);
 
   // Apply visual highlight per mode
-  const applyRegionHighlight = useCallback((idx, mode) => {
-    const region = getRegionByIndex(idx);
+  const applyRegionHighlight = useCallback((cueId, mode = 1) => {
+    const region = getRegionByCueId(cueId);
     const plugin = getRegionsPlugin();
     const all = plugin?.getRegions?.() || [];
 
     all.forEach(r => {
-      const el = r.element;
-      if (!el) return;
-      removePart(el, 'region-focus');
-      removePart(el, 'highlight-start');
-      removePart(el, 'highlight-pan');
-      removePart(el, 'highlight-end');
+      const domElement = r.element;
+      if (!domElement) return;
+      removePartAttribute(domElement, 'region-focus');
+      removePartAttribute(domElement, 'highlight-start');
+      removePartAttribute(domElement, 'highlight-pan');
+      removePartAttribute(domElement, 'highlight-end');
     });
 
     const el = region?.element;
@@ -75,23 +63,22 @@ export default function useWaveformKeyboard({
 
     if (mode === 0) {
       // Start edge
-      addPart(el, 'highlight-start');
+      addPartAttribute(el, 'highlight-start');
     } else if (mode === 1) {
       // Whole region
-      addPart(el, 'highlight-pan');
+      addPartAttribute(el, 'highlight-pan');
     } else if (mode === 2) {
       // End edge
-      addPart(el, 'highlight-end');
+      addPartAttribute(el, 'highlight-end');
     }
     else {
       // Focused, but not selected.
-      addPart(el, 'region-focus');
+      addPartAttribute(el, 'region-focus');
     }
 
-  }, [getRegionsPlugin, getRegionByIndex, selectedIndex]);
+  }, [getRegionsPlugin, getRegionByCueId, selectedIndex]);
 
   useEffect(() => {
-    sanitizeRegionsDom();
     if (waveKbLayer === 'regions' && selectedIndex >= 0) {
       applyRegionHighlight(selectedIndex, 1);
     } else if (waveKbLayer === 'mode' && selectedIndex >= 0) {
@@ -100,12 +87,12 @@ export default function useWaveformKeyboard({
       const plugin = getRegionsPlugin();
       const all = plugin?.getRegions?.() || [];
       all.forEach(r => {
-        const el = r.element;
-        if (!el) return;
-        el.classList.remove('region-focus', 'highlight-start', 'highlight-pan', 'highlight-end');
+        const domElement = r.element;
+        if (!domElement) return;
+        domElement.classList.remove('region-focus', 'highlight-start', 'highlight-pan', 'highlight-end');
       });
     }
-  }, [sanitizeRegionsDom, waveKbLayer, selectedIndex, activeMode, applyRegionHighlight, getRegionsPlugin]);
+  }, [waveKbLayer, selectedIndex, activeMode, applyRegionHighlight, getRegionsPlugin]);
 
   const nudgeSeconds = 0.1;
   const onWaveformKeyDown = useCallback((e) => {
@@ -229,29 +216,29 @@ export default function useWaveformKeyboard({
 
   const prevRegionRef = useRef(selectedIndex);
 
-  useEffect(() => {
-    if (selectedIndex < 0 || !cues[selectedIndex]) return;
-    const cue = cues[selectedIndex];
-    const startSec = vttToMS(cue.start) / 1000;
-    const endSec = vttToMS(cue.end) / 1000;
+  // useEffect(() => {
+  //   if (selectedIndex < 0 || !cues[selectedIndex]) return;
+  //   const cue = cues[selectedIndex];
+  //   const startSec = vttToMS(cue.start) / 1000;
+  //   const endSec = vttToMS(cue.end) / 1000;
 
-    // Determine direction
-    const prev = prevRegionRef.current;
-    let seekTarget = endSec;
-    if (prev !== undefined && prev !== selectedIndex) {
-      seekTarget = selectedIndex > prev ? endSec : startSec;
-    }
-    prevRegionRef.current = selectedIndex;
+  //   // Determine direction
+  //   const prev = prevRegionRef.current;
+  //   let seekTarget = endSec;
+  //   if (prev !== undefined && prev !== selectedIndex) {
+  //     seekTarget = selectedIndex > prev ? endSec : startSec;
+  //   }
+  //   prevRegionRef.current = selectedIndex;
 
-    const ws = wavesurferRef.current;
-    const video = videoElRef.current;
-    const duration = ws?.getDuration?.() || video?.duration || 0;
+  //   const ws = wavesurferRef.current;
+  //   const video = videoElRef.current;
+  //   const duration = ws?.getDuration?.() || video?.duration || 0;
 
-    if (video && duration) video.currentTime = seekTarget;
-    if (ws && ws.getDuration?.()) ws.seekTo(seekTarget / ws.getDuration());
+  //   if (video && duration) video.currentTime = seekTarget;
+  //   if (ws && ws.getDuration?.()) ws.seekTo(seekTarget / ws.getDuration());
 
-    applyRegionHighlight(selectedIndex, waveKbLayer === 'mode' ? activeMode : -1);
-  }, [selectedIndex, cues, wavesurferRef, videoElRef]);
+  //   applyRegionHighlight(selectedIndex, waveKbLayer === 'mode' ? activeMode : -1);
+  // }, [selectedIndex, cues, wavesurferRef, videoElRef]);
 
   return {
     waveKbLayer,
@@ -261,7 +248,6 @@ export default function useWaveformKeyboard({
     setSelectedIndex,
     setActiveMode,
     onWaveformKeyDown,
-    applyRegionHighlight, // optional export if needed elsewhere
-    sanitizeRegionsDom,
+    applyRegionHighlight // optional export if needed elsewhere
   };
 }

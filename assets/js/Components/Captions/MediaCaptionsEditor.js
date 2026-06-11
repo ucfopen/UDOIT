@@ -6,10 +6,12 @@ import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 import AddIcon from "../Icons/AddIcon";
 import CaptionIcon from "../Icons/CaptionIcon";
 import DownloadIcon from "../Icons/DownloadIcon";
+import InfoIcon from "../Icons/InfoIcon";
 import ExpandIcon from "../Icons/ExpandIcon";
 import SeverityIssueIcon from "../Icons/SeverityIssueIcon";
 import UploadIcon from "../Icons/UploadIcon";
 
+import Combobox from '../Widgets/Combobox';
 import FileInformation from "../Widgets/FileInformation";
 import MediaCaptionsCueList from "./MediaCaptionsCueList";
 import MediaCaptionsLoadingProgress from "./MediaCaptionsLoadingProgress";
@@ -18,7 +20,7 @@ import SliderSelect from "../Widgets/SliderSelect";
 import useWaveformKeyboard from "./useWaveformKeyboard";
 
 import Api from '../../Services/Api';
-import { parseVTT, buildVttText, vttToMS, formatTimeVTT, formatVTTTime, computeVTTDuration } from "../../Services/Captions";
+import { parseVTT, buildVttText, vttToMS, vttToS, formatTimeVTT, formatVTTTime, computeVTTDuration, truncateVttTime } from "../../Services/Captions";
 import { primaryLanguages } from '../../Services/Lang'
 import * as Text from '../../Services/Text';
 import './MediaCaptions.css';
@@ -50,6 +52,13 @@ export default function MediaCaptionsEditor({
     LIST: 'list',
     TEXT: 'text',
   }
+
+  const captionTypes = {
+    'captions': t('form.media.label.type_captions'),
+    'chapters': t('form.media.label.type_chapters'),
+    'descriptions': t('form.media.label.type_descriptions'),
+    'subtitles': t('form.media.label.type_subtitles')
+  }
   
   const [isLoading, setIsLoading] = useState(true);
   const [fileTotalSize, setFileTotalSize] = useState(0);
@@ -60,10 +69,12 @@ export default function MediaCaptionsEditor({
 
   const [cues, setCues] = useState([]);
   const [cueDisplay, setCueDisplay] = useState(CUE_STYLE.LIST);
+  const [languageOptions, setLanguageOptions] = useState([]);
+  const [typeOptions, setTypeOptions] = useState([]);
   const [error, setError] = useState("");
   const [errorDetails, setErrorDetails] = useState("");
   const [inputFocus, setInputFocus] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedCueId, setSelectedCueId] = useState(-1);
   const [waveError, setWaveError] = useState("");
   
   const videoElRef = useRef(null);
@@ -101,7 +112,9 @@ export default function MediaCaptionsEditor({
   const getExistingTracks = async () => {
     if(!file?.fileData?.metadata?.media_entry_id) {
       addMessage({ message: "File is missing Media ID. Cannot save captions to Canvas.", severity: "error", visible: true });
-      return [];
+      setVttArray([{ locale: '', kind: '', content: ''}]);
+      setVttActiveIndex(0);
+      return;
     }
     const mediaEntryId = file.fileData.metadata.media_entry_id;
 
@@ -110,16 +123,19 @@ export default function MediaCaptionsEditor({
     const response = await responseStr.json()
     if(response.errors && response.errors.length > 0) {
       response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
-      return
     }
     else if(response?.data?.tracks) {
       const existingTracks = response.data.tracks
-      setVttArray(existingTracks);
 
       if(existingTracks.length > 0) {
+        setVttArray(existingTracks);
         setVttActiveIndex(0);
+        return;
       }
     }
+
+    setVttArray([{ locale: '', content: ''}]);
+    setVttActiveIndex(0);
   }
 
   const downloadVideoFromLMS = async (lmsFileId) => {
@@ -187,7 +203,7 @@ export default function MediaCaptionsEditor({
     const video = videoElRef.current;
     if (!video) return;
 
-    if (!cues || cues.length === 0) {
+    if (!cues || cues.length === 0 || isLoading) {
       setFormInvalid(true);
     }
     else {
@@ -218,7 +234,20 @@ export default function MediaCaptionsEditor({
     video.appendChild(track);
 
     return () => URL.revokeObjectURL(blobUrl);
-  }, [cues]);
+  }, [cues, isLoading]);
+
+  const getDefaultLanguage = () => {
+    let userDefaultLanguage = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE || "en";
+    // Check to see if there is already a VTT track with that language.
+    if (vttArray && vttArray.length > 0) {
+      for(let i = 0; i < vttArray.length; i++) {
+        if (vttArray[i].locale === userDefaultLanguage) {
+          return '';
+        }
+      }
+    }
+    return userDefaultLanguage;
+  }
 
   useEffect(() => {
     const vttText = vttArray[vttActiveIndex]?.content || ''
@@ -229,16 +258,36 @@ export default function MediaCaptionsEditor({
     setCues(parsed);
     const vttContent = buildVttText(parsed, false);
     const tempVttObject = {
-      "locale": settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE || "en",
+      "locale": vttArray[vttActiveIndex]?.locale || getDefaultLanguage(),
       "content": vttContent
     }
     const tempVttArray = structuredClone(vttArray);
     tempVttArray.push(tempVttObject);
     setVttArray(tempVttArray);
+
+    let tempLanguageOptions = [{value: '', name: t('form.media.label.select_track_language'), selected: vttArray[vttActiveIndex]?.locale === ''}]
+    Object.keys(primaryLanguages).forEach((key) => {
+        tempLanguageOptions.push({
+          value: key,
+          name: primaryLanguages[key],
+          selected: vttArray[vttActiveIndex]?.locale === key
+        })
+      });
+    setLanguageOptions(tempLanguageOptions);
+
+    let tempTypeOptions = [{value: '', name: t('form.media.label.select_track_type'), selected: vttArray[vttActiveIndex]?.kind === ''}]
+    Object.keys(captionTypes).forEach((key) => {
+        tempTypeOptions.push({
+          value: key,
+          name: captionTypes[key],
+          selected: vttArray[vttActiveIndex]?.kind === key
+        })
+      });
+    setTypeOptions(tempTypeOptions);
     
     setCueIdCounter(parsed.length + 1);
     setActiveSettingsIndex(-1);
-    setSelectedIndex(-1);
+    setSelectedCueId(-1);
     setError("");
   }, [vttActiveIndex])
 
@@ -259,6 +308,129 @@ export default function MediaCaptionsEditor({
       ) || null
     );
   }, []);
+
+  const createNewRegion = useCallback((cue, regionsPlugin) => {
+    // Region start and end times are measured in seconds.
+    const start = vttToS(cue.start);
+    const end = vttToS(cue.end);
+
+    const region = regionsPlugin.addRegion({
+      start,
+      end,
+      drag: true,
+      resize: true,
+      content: cue.text,
+    });
+
+    region.data = { cueId: cue.id };
+
+    if (region.element) {
+      region.element.setAttribute('tabindex', '-1');
+      region.element.setAttribute('aria-hidden', 'true');
+      region.element.setAttribute('role', 'presentation');
+      region.element.setAttribute(
+        'aria-label',
+        `Region from ${cue.start} to ${cue.end}: ${cue.text}`
+      );
+    }
+
+    region.on("update", (updateControl) => {
+      const domElement = region?.element;
+      if (!domElement) return;
+      const fakeCue = {
+        start: region?.start || 0,
+        end: region?.end || 0
+      };
+      updateRegionTimestampText(domElement, fakeCue);
+      
+      if (!updateControl || updateControl === "start") {
+        seekTo(region.start);
+      }
+      else {
+        seekTo(region.end);
+      }
+    });
+
+    region.on("update-end", (e) => {
+      const cueId = region.data?.cueId;
+      if (!cueId) return;
+
+      setCueStartEnd(cueId, region.start, region.end);
+    });
+
+  }, [cues, videoElRef, wavesurferRef])
+
+  const updateRegionTimestampText = (domElement, cue) => {
+    const startTimeText = truncateVttTime(cue.start);
+    const endTimeText = truncateVttTime(cue.end);
+    const timestampText = `${startTimeText} - ${endTimeText}`;
+
+    let timestampElement = domElement.querySelector('[part="timestamp"]');
+    if(!timestampElement) {
+      timestampElement = document.createElement("div")
+      timestampElement.setAttribute('part', 'timestamp');
+      domElement.appendChild(timestampElement)
+    }
+
+    timestampElement.textContent = timestampText;
+  }
+
+  useEffect(() => {
+    const ws = wavesurferRef.current;
+    if (!ws) {
+      return;
+    }
+    
+    const regionsPlugin = findRegionsPlugin(ws);
+    if (!regionsPlugin) {
+      return;
+    }
+
+    const allRegions = regionsPlugin.getRegions?.() || [];
+
+    // There may be cues that have not been added to regions, and there may be
+    // regions that have not been deleted when a cue was.
+    const currentRegionsCueIds = allRegions.map(region => region?.data?.cueId);
+
+    // Add regions that don't already exist.
+    cues.forEach(cue => {
+      if (cue.id && !currentRegionsCueIds.includes(cue.id)) {
+        createNewRegion(cue, regionsPlugin);
+      }
+    });
+
+    // Remove regions where the cue was removed.
+    const currentCueIds = cues.map(cue => cue.id);
+
+    allRegions.forEach(region => {
+      const domElement = region?.element;
+      if (!domElement) {
+        return;
+      }
+
+      if (region?.data?.cueId && !currentCueIds.includes(region.data.cueId)) {
+        region.remove();
+        return;
+      }
+
+      const relatedCue = cues.find((cue) => cue.id === region.data.cueId);
+      if (!relatedCue) {
+        return;
+      }
+
+      const startTime = vttToS(relatedCue.start);
+      const endTime = vttToS(relatedCue.end);
+      region.setOptions({
+        start: startTime,
+        end: endTime,
+        content: relatedCue.text
+      });
+
+      // Update the timestamp element's text.
+      updateRegionTimestampText(domElement, region);
+    })
+
+  }, [cues, wavesurferRef, isLoading]);
 
   const onWsReady = useCallback(
     (ws) => {
@@ -287,15 +459,18 @@ export default function MediaCaptionsEditor({
 
       setIsLoading(false);
     },
-    []
+    [cues, handleWaveformClick]
   );
 
-  const sortCues = (tempCues = cues, activeId = cues[selectedIndex]?.id) => {
+  const sortCues = (tempCues = cues, activeId = cues[selectedCueId]?.id) => {
     tempCues = Object.values(tempCues).sort((a, b) => vttToMS(a.start) - vttToMS(b.start));
     setCues(tempCues);
 
     let newIndex = tempCues.findIndex(c => c.id === activeId);
-    setSelectedIndex(newIndex);
+    setSelectedCueId(newIndex);
+
+    // This ensures that on the next render, the focus moves to the new selectedIndex
+    setInputFocus(!inputFocus);
   }
 
   const setVideoTime = (seconds) => {
@@ -304,15 +479,31 @@ export default function MediaCaptionsEditor({
     video.currentTime = seconds;
   };
 
-  const handleSelectedIndex = (i) => {
-    if(selectedIndex === i) {
+  const handleSelectCueId = (i) => {
+    if(selectedCueId === i) {
       return
     }
 
     if (activeSettingsIndex !== i) {
       setActiveSettingsIndex(-1);
     }
-    setSelectedIndex(i);
+    setSelectedCueId(i);
+  }
+
+  const handleTrackTypeSelect = (newType) => {
+    const tempVttArray = structuredClone(vttArray);
+    if(tempVttArray[vttActiveIndex]) {
+      tempVttArray[vttActiveIndex].kind = newType;
+    }
+    setVttArray(tempVttArray);
+  }  
+
+  const handleTrackLanguageSelect = (newLanguage) => {
+    const tempVttArray = structuredClone(vttArray);
+    if(tempVttArray[vttActiveIndex]) {
+      tempVttArray[vttActiveIndex].locale = newLanguage;
+    }
+    setVttArray(tempVttArray);
   }
 
   const handleWaveformError = (e) => {
@@ -321,10 +512,12 @@ export default function MediaCaptionsEditor({
     setIsLoading(false);
   }
 
-  const handleWaveformClick = (e) => {
+  const handleWaveformClick = useCallback((relativeX) => {
     if (!wavesurferRef.current) return;
-    console.log("Waveform clicked at ", e);
-  }
+
+    // relativeX is between 0 and 1, and is the percent of the video completed.
+    seekFromWaveform(relativeX);
+  }, [cues, wavesurferRef]);
 
   const handleLoadError = (e) => {
     console.error("Error loading media: ", e);
@@ -332,65 +525,11 @@ export default function MediaCaptionsEditor({
     setIsLoading(false);
   }
 
-  // ---- render regions whenever cues or selection changes
-  useEffect(() => {
-    const ws = wavesurferRef.current;
-    if (!ws) return;
-
-    const regionsPlugin = findRegionsPlugin(ws);
-    if (!regionsPlugin) return;
-
-    // remove existing regions
-    const existing = regionsPlugin.getRegions?.() || [];
-    existing.forEach((r) => { try { r.remove(); } catch {} });
-
-    cues.forEach((cue, i) => {
-      const start = vttToMS(cue.start) / 1000;
-      const end = vttToMS(cue.end) / 1000;
-
-      const region = regionsPlugin.addRegion({
-        id: "sub_" + i,
-        start,
-        end,
-        drag: true,
-        resize: true,
-        content: cue.text,
-        color: i === selectedIndex ? "rgba(50,150,255,0.35)" : "rgba(120,120,120,0.18)",
-      });
-
-      region.data = { index: i };
-
-      if (region.element) {
-        region.element.removeAttribute('tabindex');
-        region.element.setAttribute('tabindex', '-1');
-        region.element.setAttribute('aria-hidden', 'true');
-        region.element.setAttribute('role', 'presentation');
-        region.element.style.outline = 'none';
-        region.element.setAttribute(
-          'aria-label',
-          `Region from ${cue.start} to ${cue.end}: ${cue.text}`
-        );
-      }
-
-      // dblclick seeks inside the region
-      region.on("dblclick", (e) => {
-        let seekTime = region.start;
-        try {
-          const bbox = ws.getWrapper().getBoundingClientRect();
-          const x = e.clientX - bbox.left;
-          const duration = ws.getDuration();
-          const pxPerSec = bbox.width / duration;
-          let clickTime = x / pxPerSec;
-          if (clickTime < region.start) clickTime = region.start;
-          if (clickTime > region.end) clickTime = region.end;
-          seekTime = clickTime;
-        } catch {}
-        selectCue(i, seekTime);
-      });
-    });
-  }, [cues, selectedIndex, findRegionsPlugin]);
-
   const seekTo = (seconds) => {
+    if (typeof seconds !== 'number' || seconds < 0) {
+      return;
+    }
+
     const video = videoElRef.current;
     if (!video?.duration) return;
 
@@ -423,23 +562,17 @@ export default function MediaCaptionsEditor({
     setActiveMode,
     onWaveformKeyDown,
     applyRegionHighlight,
-    sanitizeRegionsDom,
   } = useWaveformKeyboard({
     cues,
     setCues,
-    selectedIndex,
-    setSelectedIndex,
+    selectedIndex: selectedCueId,
+    setSelectedIndex: setSelectedCueId,
     wavesurferRef,
     videoElRef,
     findRegionsPlugin,
     seekTo,
     playPause
   });
-
-  // Sanitize after regions render (handles late DOM changes)
-  useEffect(() => {
-    sanitizeRegionsDom();
-  }, [sanitizeRegionsDom, cues]);
 
   // ---- when region is dragged/resized, write back to cues
   useEffect(() => {
@@ -480,8 +613,8 @@ export default function MediaCaptionsEditor({
     };
   }, [cues, findRegionsPlugin]);
 
-  const selectCue = useCallback((index, seekSeconds) => {
-    handleSelectedIndex(index);
+  const selectCue = useCallback((cueId, seekSeconds) => {
+    handleSelectCueId(cueId);
 
     if (typeof seekSeconds === "number") {
       const video = videoElRef.current;
@@ -498,17 +631,59 @@ export default function MediaCaptionsEditor({
     }
   }, []);
 
-  const setCueText = useCallback((index, value) => {
+  const setCueText = useCallback((cueId, value) => {
     setCues((prev) => {
-      const cue = prev[index];
+      const cue = cues.find((cue) => cue.id === cueId);
       if (!cue) return prev;
 
       const trimmed = String(value ?? "").trim();
       if (trimmed === cue.text) return prev;
 
-      return prev.map((c, i) => (i === index ? { ...c, text: trimmed } : c));
+      return prev.map((c) => (c.id === cueId ? { ...c, text: trimmed } : c));
     });
-  }, []);
+  }, [cues]);
+
+  const setCueStartEnd = useCallback((cueId, startSeconds, endSeconds) => {
+    setCues((prev) => {
+      const cue = cues.find((cue) => cue.id === cueId);
+      if (!cue) return prev;
+
+      const startVTT = formatTimeVTT(startSeconds);
+      const endVTT = formatTimeVTT(endSeconds);
+
+      return prev.map((c) => (c.id === cueId ? { ...c, start: startVTT, end: endVTT } : c));
+    });
+  }, [cues])
+
+  useEffect(() => {
+    console.log("Cues have changed! ", cues);
+  }, [cues])
+
+  const seekFromWaveform = useCallback((percent) => {
+    const video = videoElRef.current;
+    if (!video?.duration || percent === undefined || percent < 0 || percent > 1) {
+      return;
+    }
+
+    let targetTime = video.duration * percent;
+    video.currentTime = targetTime;
+
+    let tempSelectedCueId = -1;
+    if (cues && cues.length > 0) {
+      for (let i = 0; i < cues.length; i++) {
+        let cueStart = vttToMS(cues[i].start) * .001;
+        let cueEnd = vttToMS(cues[i].end) * .001;
+        if (cueStart <= targetTime && cueEnd >= targetTime) {
+          if(selectedCueId !== cues[i].id) {
+            targetTime = cueStart;
+          }
+          tempSelectedCueId = cues[i].id;
+        }
+      }
+    }
+
+    handleSelectCueId(tempSelectedCueId);
+  }, [cues, videoElRef]);
 
   const seekBy = useCallback((deltaSeconds) => {
     const video = videoElRef.current;
@@ -622,21 +797,24 @@ export default function MediaCaptionsEditor({
 
     let tempCues = Object.assign({}, cues, { [cues.length]: newCue });
     sortCues(tempCues, insertedCueId);
-    setInputFocus(!inputFocus);
 
     return;
-  }, [cues, selectedIndex, cueIdCounter, inputFocus]);
+  }, [cues, selectedCueId, cueIdCounter, inputFocus]);
 
   const deleteCue = useCallback((cueId) => {
-    let tempCues = cues.filter((c, i) => i !== cueId);
-    
-    if(tempCues[cueId - 1]) {
-      handleSelectedIndex(cueId - 1);
-    }
-    else {
-      handleSelectedIndex(-1);
-    }
+    let tempCues = [];
 
+    let previousCueId = -1;
+    for (let i = 0; i < cues.length; i++) {
+      if (cueId === cues[i].id) {
+        previousCueId = cues[i - 1]?.id || -1;
+      }
+      else {
+        tempCues.push(cues[i]);
+      }
+    }
+    handleSelectCueId(previousCueId);
+    
     setCues(tempCues);
     setInputFocus(!inputFocus);
   }, [cues]);
@@ -656,7 +834,7 @@ export default function MediaCaptionsEditor({
         }));
         setCues(parsed);        
         setCueIdCounter(parsed.length + 1);
-        setSelectedIndex(-1);
+        setSelectedCueId(-1);
         setActiveSettingsIndex(-1);
         setError("");
       };
@@ -681,51 +859,44 @@ export default function MediaCaptionsEditor({
   }
 
   const setCueAlign = (newAlign) => {
-    let index = activeSettingsIndex;
-    if (index < 0 || !cues[index]) return;
+    if (activeSettingsIndex < 0) {
+      return;
+    }
 
-    setCues((prev) =>
-      prev.map((c, i) => (i === index ? { ...c, align: newAlign } : c))
-    );
+    setCues((prev) => {
+      return prev.map((c) => (c.id === activeSettingsIndex ? { ...c, align: newAlign } : c))
+    });
   }
 
-  const setCueStart = (value) => {
-    let index = activeSettingsIndex;
-    if (index < 0 || !cues[index]) return;
+  const setCueStart = useCallback((value) => {
+    if (vttToS(value) === -1) {
+      return;
+    }
 
+    const trimmed = String(value ?? "").trim();
     setCues((prev) => {
-      const cue = prev[index];
-      if (!cue) return prev;
-
-      const trimmed = String(value ?? "").trim();
-      if (trimmed === cue.start) return prev;
-
-      return prev.map((c, i) => (i === index ? { ...c, start: trimmed } : c));
+      return prev.map((c) => (c.id === activeSettingsIndex ? { ...c, start: trimmed } : c));
     });
 
     seekTo(value);
-  };
+  }, [activeSettingsIndex, cues]);
 
-  const setCueEnd = (value) => {
-    let index = activeSettingsIndex;
-    if (index < 0 || !cues[index]) return;
+  const setCueEnd = useCallback((value) => {
+    if (vttToS(value) === -1) {
+      return;
+    }
 
+    const trimmed = String(value ?? "").trim();
     setCues((prev) => {
-      const cue = prev[index];
-      if (!cue) return prev;
-
-      const trimmed = String(value ?? "").trim();
-      if (trimmed === cue.end) return prev;
-
-      return prev.map((c, i) => (i === index ? { ...c, end: trimmed } : c));
+      return prev.map((c) => (c.id === activeSettingsIndex ? { ...c, end: trimmed } : c));
     });
 
     seekTo(value);
-  };
+  }, [activeSettingsIndex, cues]);
 
   const openSettings = (index) => {
-    if(selectedIndex !== index) {
-      setSelectedIndex(index);
+    if(selectedCueId !== index) {
+      setSelectedCueId(index);
     }
     if(activeSettingsIndex !== index) {
       setActiveSettingsIndex(index);
@@ -749,11 +920,11 @@ export default function MediaCaptionsEditor({
 
   // After inserting a new cue, focus immediately on its text input for accessibility and ease of use
   useEffect(() => {
-    if(selectedIndex === -1) {
+    if(selectedCueId === -1) {
       return
     }
 
-    let inputElement = document.querySelector(`#cue-field-${selectedIndex}`)
+    let inputElement = document.querySelector(`#cue-field-${selectedCueId}`)
     if (inputElement) {
       inputElement?.focus()
       setActiveSettingsIndex(-1)
@@ -774,32 +945,32 @@ export default function MediaCaptionsEditor({
 
   // Seek to highlighted row's start when selection changes
   useEffect(() => {
-    if (selectedIndex < 0 || !cues[selectedIndex]) return;
-    const video = videoElRef.current;
-    const ws = wavesurferRef.current;
-    const startSec = vttToMS(cues[selectedIndex].start) / 1000;
-    if (typeof startSec !== "number" || isNaN(startSec)) return;
+    if (selectedCueId < 0) {
+      return;
+    }
+    
+    const cue = cues.find((cue) => cue.id === selectedCueId);
+    if (!cue) {
+      return;
+    }
 
-    if (video?.duration) {
-      video.currentTime = startSec;
-    }
-    const duration = ws?.getDuration?.();
-    if (ws && duration) {
-      ws.seekTo(startSec / duration);
-    }
-  }, [selectedIndex, cues, videoElRef, wavesurferRef]);
+    applyRegionHighlight(selectedCueId);
+
+    const startTime = vttToS(cue.start);
+    seekTo(startTime);
+  }, [selectedCueId]);
 
   useEffect(() => {
     // When the settings panel is closed, if there is a selected row, re-focus the settings button for accessibility
     if (activeSettingsIndex === -1) {
-      if (selectedIndex >= 0) {
-        const button = document.getElementById(`settings-button-${selectedIndex}`)
+      if (selectedCueId >= 0) {
+        const button = document.getElementById(`settings-button-${selectedCueId}`)
         button?.focus()
       }
     }
     // If the settings panel is opened, focus the first input in the panel
     else {  
-      const firstInput = document.querySelector('.cue-row.active .slider-select .slider-option-container.active')
+      const firstInput = document.querySelector('li.active .cue-row .slider-select .slider-option-container.active')
       firstInput?.focus()
     }
   }, [activeSettingsIndex])
@@ -835,7 +1006,6 @@ export default function MediaCaptionsEditor({
         <div id="captions-editor-info-row">
           <div className="flex-row gap-2 align-items-center">
             <FileInformation t={t} fileData={file.fileData} />
-            <button onClick={() => getExistingTracks()}>GET TRACKS</button>
           </div>
           
           {/* IMPORT/EXPORT VTT BUTTONS*/}
@@ -848,7 +1018,7 @@ export default function MediaCaptionsEditor({
             </button>
             <button
               className="btn-secondary btn-small btn-icon-left"
-              disabled={isDisabled || cues.length === 0}
+              disabled={isDisabled || !cues || cues?.length === 0}
               onClick={handleExport}>
               <UploadIcon className="icon-md" />
               <div>Export VTT</div>
@@ -857,45 +1027,96 @@ export default function MediaCaptionsEditor({
         </div>
         <div id="captions-editor-main-row" className={isFullWidthVideo ? "full-width-video" : ""}>
           <div id="table-focus-layer">
-            <h3 id="captions-list-label" className="m-0">{t("form.media.label.captions")}</h3>
-            <div id="captions-list-inputs">
-              {cues.length === 0 && (
-                <div className="insert-button-container">
-                  <button
-                    className="btn-icon-left btn-secondary btn-small"
-                    onClick={() => insertCue(-1)}
-                    aria-label={t('form.media.button.add')}
-                    title={t('form.media.button.add')}
-                    disabled={isDisabled || error !== ""}
-                  >
-                    <AddIcon aria-hidden="true" className="icon-md" />
-                    Insert New Caption    
-                  </button>
+            { vttArray.length === 0 ? (
+              <div className="callout-container">
+                <div className="flex-row gap-2">
+                  <InfoIcon className="icon-md udoit-info align-self-center" alt="" aria-hidden="true"/>
+                  <div className="flex-column gap-2">
+                    <h2 className="m-0">Adding Tracks</h2>
+                    <div className="secondary">
+                      This media file does not have any associated caption tracks. Add a new track by clicking the "Add Track" button.
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
+            ) : (
+              <>
+                <div id="track-header">
+                  <h3 id="captions-list-label" className="m-0">{t("form.media.label.track_number", {'trackNumber' : vttActiveIndex + 1})}</h3>
+                  <div className="flex-row gap-2 align-items-center">
+                    <label id="combo-label-typeSelect">{t('form.media.label.track_type')}</label>
+                    <Combobox
+                      isDisabled={vttArray.length === 0}
+                      handleChange={handleTrackTypeSelect}
+                      id='typeSelect'
+                      label=''
+                      options={typeOptions}
+                      settings={settings}
+                    />
+                  </div>
+                  <div className="flex-row gap-2 align-items-center">
+                    <label id="combo-label-languageSelect">{t('form.media.label.track_language')}</label>
+                    <Combobox
+                      isDisabled={vttArray.length === 0}
+                      handleChange={handleTrackLanguageSelect}
+                      id='languageSelect'
+                      label=''
+                      options={languageOptions}
+                      settings={settings}
+                    />
+                  </div>
+                </div>
+                <div id="captions-list-inputs">
+                  {cues.length === 0 && (
+                    <div className="callout-container">
+                      <div className="flex-column gap-4">
+                        <div className="flex-row justify-content-around align-items-center">
+                          <button
+                            className="btn-icon-left btn-secondary btn-small"
+                            onClick={() => insertCue(-1)}
+                            aria-label={t('form.media.button.add')}
+                            title={t('form.media.button.add')}
+                            disabled={isDisabled || error !== ""}
+                          >
+                            <AddIcon aria-hidden="true" className="icon-md" />
+                            Enter Captions  
+                          </button>
+                          <button
+                            className="btn-secondary btn-small btn-icon-left"
+                            onClick={() => handleImport()}>
+                            <DownloadIcon className="icon-md" />
+                            <div>Import VTT</div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-              {cueDisplay === CUE_STYLE.LIST && (
-                <MediaCaptionsCueList
-                  t={t}
-                  activeSettingsIndex={activeSettingsIndex}
-                  cues={cues}
-                  deleteCue={deleteCue}
-                  error={error}
-                  handleSelectedIndex={handleSelectedIndex}
-                  insertCue={insertCue}
-                  isDisabled={isDisabled}
-                  openSettings={openSettings}
-                  selectedIndex={selectedIndex}
-                  selectCue={selectCue}
-                  setActiveSettingsIndex={setActiveSettingsIndex}
-                  setCueAlign={setCueAlign}
-                  setCueEnd={setCueEnd}
-                  setCueStart={setCueStart}
-                  setCueText={setCueText}
-                />
-              )}
-            </div>
+                  {cueDisplay === CUE_STYLE.LIST && (
+                    <MediaCaptionsCueList
+                      t={t}
+                      activeSettingsIndex={activeSettingsIndex}
+                      cues={cues}
+                      deleteCue={deleteCue}
+                      error={error}
+                      handleSelectedIndex={handleSelectCueId}
+                      insertCue={insertCue}
+                      isDisabled={isDisabled}
+                      openSettings={openSettings}
+                      selectedIndex={selectedCueId}
+                      selectCue={selectCue}
+                      setActiveSettingsIndex={setActiveSettingsIndex}
+                      setCueAlign={setCueAlign}
+                      setCueEnd={setCueEnd}
+                      setCueStart={setCueStart}
+                      setCueText={setCueText}
+                    />
+                  )}
+                </div>
+              </>
+            )}
           </div>
+            
 
           {/* Right: video + controls */}
           <div id="video-focus-layer">
@@ -977,7 +1198,7 @@ export default function MediaCaptionsEditor({
                 url={videoUrl || undefined}
                 height={120}
                 normalize
-                interact={false}
+                interact={true}
                 tabIndex={-1}
                 minPxPerSec={100}
                 waveColor={darkMode ? "#505975" : "#C5C9D3"}
@@ -985,9 +1206,7 @@ export default function MediaCaptionsEditor({
                 plugins={plugins}
                 onReady={onWsReady}
                 onError={(e) => handleWaveformError(e)}
-                onClick={(e) => {
-                  handleWaveformClick(e)
-                }}
+                onClick={(self, e) => { handleWaveformClick(e) }}
               />
               <div ref={timelineRef} />
             </div>

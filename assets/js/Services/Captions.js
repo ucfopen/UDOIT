@@ -101,6 +101,19 @@ export function vttToMS(t) {
   return 0;
 }
 
+export function vttToS(t) {
+  const parts = String(t || "").split(":");
+  if (parts.length === 3) {
+    const [h, m, s] = parts;
+    return Number(h) * 3600000 + Number(m) * 60000 + Number(s);
+  }
+  if (parts.length === 2) {
+    const [m, s] = parts;
+    return Number(m) * 60000 + Number(s);
+  }
+  return -1;
+}
+
 export function computeVTTDuration(start, end) {
   return ((vttToMS(end) - vttToMS(start)) / 1000).toFixed(3);
 }
@@ -124,6 +137,28 @@ export function formatTimeVTT(seconds) {
 
 export function formatVTTTime(sec) {
   return formatTimeVTT(sec);
+}
+
+export function truncateVttTime(vttTime) {
+  if (typeof vttTime !== "string") {
+    vttTime = formatTimeVTT(vttTime);
+  }
+  // VTT time is in the format of HH:MM:SS.MS
+  const parts = vttTime.split(":");
+  if (parts.length < 3) return vttTime; // Not a parseable VTT time
+
+  const hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
+  const seconds = parseFloat(parts[2], 10).toFixed(1);
+
+  if (hours === 0 && minutes === 0) {
+    return seconds;
+  }
+  else if (hours === 0) {
+    return minutes + ":" + seconds;
+  } else {
+    return hours + ":" + minutes + ":" + seconds;
+  }
 }
 
 export function normalizeVttTime(str) {
