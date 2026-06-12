@@ -105,11 +105,11 @@ export function vttToS(t) {
   const parts = String(t || "").split(":");
   if (parts.length === 3) {
     const [h, m, s] = parts;
-    return Number(h) * 3600000 + Number(m) * 60000 + Number(s);
+    return Number(h) * 3600 + Number(m) * 60 + Number(s);
   }
   if (parts.length === 2) {
     const [m, s] = parts;
-    return Number(m) * 60000 + Number(s);
+    return Number(m) * 60 + Number(s);
   }
   return -1;
 }

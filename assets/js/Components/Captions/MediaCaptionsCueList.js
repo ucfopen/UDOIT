@@ -125,7 +125,7 @@ export default function MediaCaptionsCueList({
               )}
               <div className="flex-row gap-1 w-100 align-items-center">
                 <input
-                  id={`cue-field-${i}`}
+                  id={`input-${cue.id}`}
                   type="text"
                   defaultValue={cue.text}
                   disabled={isDisabled || error !== ""}
@@ -185,12 +185,9 @@ export default function MediaCaptionsCueList({
                       aria-label={t('form.media.button.delete')}
                       title={t('form.media.button.delete')}
                       onFocus={() => handleSelectedIndex(cue.id)}
-                      onMouseDown={() => deleteCue(cue.id)}
-                      onKeyDown={(e) => {
-                        if(e.key === 'Enter' || e.key === ' ') {
-                          deleteCue(i);
-                          e.stopPropagation()
-                        }
+                      onClick={(e) => {
+                        deleteCue(cue.id);
+                        e.stopPropagation();
                       }}
                       disabled={isDisabled || error !== ""}
                     >

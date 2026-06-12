@@ -4,8 +4,8 @@ import { vttToMS, formatVTTTime, truncateVttTime } from "../../Services/Captions
 export default function useWaveformKeyboard({
   cues,
   setCues,
-  selectedIndex,
-  setSelectedIndex,
+  selectedCueId,
+  setSelectedCueId,
   wavesurferRef,
   videoElRef,
   findRegionsPlugin,
@@ -52,7 +52,6 @@ export default function useWaveformKeyboard({
     all.forEach(r => {
       const domElement = r.element;
       if (!domElement) return;
-      removePartAttribute(domElement, 'region-focus');
       removePartAttribute(domElement, 'highlight-start');
       removePartAttribute(domElement, 'highlight-pan');
       removePartAttribute(domElement, 'highlight-end');
@@ -64,101 +63,112 @@ export default function useWaveformKeyboard({
     if (mode === 0) {
       // Start edge
       addPartAttribute(el, 'highlight-start');
-    } else if (mode === 1) {
-      // Whole region
-      addPartAttribute(el, 'highlight-pan');
     } else if (mode === 2) {
       // End edge
       addPartAttribute(el, 'highlight-end');
     }
     else {
-      // Focused, but not selected.
-      addPartAttribute(el, 'region-focus');
+      // Whole region
+      addPartAttribute(el, 'highlight-pan');
     }
 
-  }, [getRegionsPlugin, getRegionByCueId, selectedIndex]);
+  }, [getRegionsPlugin, getRegionByCueId, selectedCueId]);
 
   useEffect(() => {
-    if (waveKbLayer === 'regions' && selectedIndex >= 0) {
-      applyRegionHighlight(selectedIndex, 1);
-    } else if (waveKbLayer === 'mode' && selectedIndex >= 0) {
-      applyRegionHighlight(selectedIndex, activeMode);
+    if (waveKbLayer === 'regions' && selectedCueId !== -1) {
+      applyRegionHighlight(selectedCueId, 1);
+    } else if (waveKbLayer === 'mode' && selectedCueId !== -1) {
+      applyRegionHighlight(selectedCueId, activeMode);
     } else {
       const plugin = getRegionsPlugin();
       const all = plugin?.getRegions?.() || [];
       all.forEach(r => {
         const domElement = r.element;
         if (!domElement) return;
-        domElement.classList.remove('region-focus', 'highlight-start', 'highlight-pan', 'highlight-end');
+        domElement.classList.remove('highlight-start', 'highlight-pan', 'highlight-end');
       });
     }
-  }, [waveKbLayer, selectedIndex, activeMode, applyRegionHighlight, getRegionsPlugin]);
+  }, [waveKbLayer, selectedCueId, activeMode, applyRegionHighlight, getRegionsPlugin]);
 
   const nudgeSeconds = 0.1;
+  
   const onWaveformKeyDown = useCallback((e) => {
-    // Layer transitions
-    if ((e.key === 'Enter' || e.key === ' ') && waveKbLayer === 'wave') {
-      setWaveKbLayer('regions');
-      setSelectedIndex(prev => {
-        const next = prev >= 0 ? prev : Math.max(0, Math.min(cues.length - 1, selectedIndex >= 0 ? selectedIndex : 0));
-        return next;
-      });
-      e.preventDefault();
-      return;
-    }
-    if (e.key === 'Enter' && waveKbLayer === 'regions') {
-      setWaveKbLayer('mode');
-      setActiveMode(0);
-      e.preventDefault();
-      return;
-    }
-    if (e.key === ' ' && waveKbLayer === 'regions') {
-      const cue = cues[selectedIndex];
-      if (cue) {
-        seekTo(vttToMS(cue.start) / 1000);
+    
+    // Space should trigger play/pause no matter the active mode.
+    if (e.key === ' ') {
+      
+      if (waveKbLayer === 'regions') {
+        const cue = cues.find((cue) => cue.id === selectedCueId);
+        if (cue) {
+          seekTo(vttToMS(cue.start) / 1000);
+        }
       }
+
       playPause();
       e.preventDefault();
     }
-    if (e.key === 'Escape') {
-      if (waveKbLayer === 'mode') setWaveKbLayer('regions');
-      else if (waveKbLayer === 'regions') setWaveKbLayer('wave');
+
+    // Layer transitions: Enter to enter wave -> regions -> mode, Esc to leave mode -> regions -> wave.
+    else if (e.key === 'Enter') {
+      if (waveKbLayer === 'wave') {
+        setWaveKbLayer('regions');
+      }
+      else if (waveKbLayer === 'regions') {
+        setWaveKbLayer('mode');
+        setActiveMode(0);
+      }
+      e.preventDefault();
+      return;
+    }
+    else if (e.key === 'Escape') {
+      if (waveKbLayer === 'mode') {
+        setWaveKbLayer('regions');
+      }
+      else if (waveKbLayer === 'regions') {
+        setWaveKbLayer('wave');
+      }
       e.preventDefault();
       return;
     }
 
-    // Tab cycles
-    if (e.key === 'Tab') {
+    // Tab cycles through regions in the region layer and modes in the mode layer.
+    else if (e.key === 'Tab') {
+      e.preventDefault();
+      e.stopPropagation();
       if (waveKbLayer === 'regions') {
         const dir = e.shiftKey ? -1 : 1;
-        setSelectedIndex(prev => Math.max(0, Math.min(cues.length - 1, prev + dir)));
-        e.preventDefault();
+        const prevIndex = cues.length > 0 ? cues.findIndex(cue => cue.id === selectedCueId) : -1;
+        const nextIndex = Math.max(0, Math.min(cues.length - 1, prevIndex + dir));
+        const nextCueId = cues[nextIndex]?.id
+        if (nextCueId) {
+          setSelectedCueId(nextCueId);
+          const region = getRegionByCueId(nextCueId);
+          if(region && region.element) {
+            region.element.focus();
+          }
+        }
         return;
       }
       if (waveKbLayer === 'mode') {
         const dir = e.shiftKey ? -1 : 1;
-        setActiveMode(prev => {
-          let next = prev + dir;
-          if (next < 0) next = 2;
-          if (next > 2) next = 0;
-          return next;
-        });
-        e.preventDefault();
+        let tempMode = activeMode + dir;
+        if (tempMode > 2) {
+          tempMode = 0;
+        }
+        else if (tempMode < 0) {
+          tempMode = 2;
+        }
+        setActiveMode(tempMode);
         return;
       }
     }
 
     // Arrow edits in mode layer
-    if (waveKbLayer === 'mode' && selectedIndex >= 0) {
-      if(e.key === ' ') {
-        const cue = cues[selectedIndex];
-        if (cue) {
-          seekTo(vttToMS(cue.start) / 1000);
-        }
-        playPause();
-        e.preventDefault();
+    else if (waveKbLayer === 'mode') {
+      if (selectedCueId === -1) {
         return;
       }
+
       const isLeft = e.key === 'ArrowLeft';
       const isRight = e.key === 'ArrowRight';
       if (!isLeft && !isRight) return;
@@ -166,7 +176,7 @@ export default function useWaveformKeyboard({
       e.preventDefault();
 
       const delta = (isRight ? 1 : -1) * nudgeSeconds;
-      const cue = cues[selectedIndex];
+      const cue = cues.find((cue) => cue.id === selectedCueId);
       if (!cue) return;
 
       const start = vttToMS(cue.start) / 1000;
@@ -195,9 +205,9 @@ export default function useWaveformKeyboard({
         newEnd = Math.min(duration, Math.max(start + 0.05, end + delta));
       }
 
-      setCues(prev => prev.map((c, i) => (
-        i !== selectedIndex ? c : {
-          ...c,
+      setCues(prev => prev.map((cue) => (
+        cue.id !== selectedCueId ? cue : {
+          ...cue,
           start: formatVTTTime(newStart),
           end: formatVTTTime(newEnd),
           duration: (newEnd - newStart).toFixed(3),
@@ -212,40 +222,12 @@ export default function useWaveformKeyboard({
         ws.seekTo(previewTime / duration);
       }      
     }
-  }, [waveKbLayer, cues, selectedIndex, activeMode, nudgeSeconds, setSelectedIndex, setCues, wavesurferRef, videoElRef, playPause, seekTo]);
-
-  const prevRegionRef = useRef(selectedIndex);
-
-  // useEffect(() => {
-  //   if (selectedIndex < 0 || !cues[selectedIndex]) return;
-  //   const cue = cues[selectedIndex];
-  //   const startSec = vttToMS(cue.start) / 1000;
-  //   const endSec = vttToMS(cue.end) / 1000;
-
-  //   // Determine direction
-  //   const prev = prevRegionRef.current;
-  //   let seekTarget = endSec;
-  //   if (prev !== undefined && prev !== selectedIndex) {
-  //     seekTarget = selectedIndex > prev ? endSec : startSec;
-  //   }
-  //   prevRegionRef.current = selectedIndex;
-
-  //   const ws = wavesurferRef.current;
-  //   const video = videoElRef.current;
-  //   const duration = ws?.getDuration?.() || video?.duration || 0;
-
-  //   if (video && duration) video.currentTime = seekTarget;
-  //   if (ws && ws.getDuration?.()) ws.seekTo(seekTarget / ws.getDuration());
-
-  //   applyRegionHighlight(selectedIndex, waveKbLayer === 'mode' ? activeMode : -1);
-  // }, [selectedIndex, cues, wavesurferRef, videoElRef]);
+  }, [waveKbLayer, cues, selectedCueId, activeMode, nudgeSeconds, setSelectedCueId, setCues, wavesurferRef, videoElRef, playPause, seekTo]);
 
   return {
     waveKbLayer,
-    selectedIndex,
     activeMode,
     setWaveKbLayer,
-    setSelectedIndex,
     setActiveMode,
     onWaveformKeyDown,
     applyRegionHighlight // optional export if needed elsewhere
