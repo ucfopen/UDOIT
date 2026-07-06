@@ -3,10 +3,11 @@ import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
+import * as Contrast from '../../Services/Contrast'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function EmphasisForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -17,8 +18,8 @@ export default function EmphasisForm({
 }) {
 
   const FORM_OPTIONS = {
-    ADD_EMPHASIS: settings.UFIXIT_OPTIONS.ADD_EMPHASIS,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_EMPHASIS: UFIXIT_OPTIONS.ADD_EMPHASIS,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [useBold, setUseBold] = useState(false)
@@ -138,35 +139,35 @@ export default function EmphasisForm({
         />
         {activeOption === FORM_OPTIONS.ADD_EMPHASIS && (
           <>
-            <div className="flex-row justify-content-start gap-1">
+            <div className="flex-row justify-content-start gap-2">
               <ToggleSwitch
                 labelId="boldCheckbox"
                 initialValue={useBold}
                 updateToggle={setUseBold}
                 disabled={isDisabled}
-                small={true}
+                small={false}
               />
-              <label htmlFor="boldCheckbox" className="ufixit-instructions">{t('form.emphasis.label.bold')}</label>
+              <label id="boldCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.bold')}</label>
             </div>
-            <div className="flex-row justify-content-start gap-1 mt-2">
+            <div className="flex-row justify-content-start gap-2 mt-2">
               <ToggleSwitch
                 labelId="italicCheckbox"
                 initialValue={useItalics}
                 updateToggle={setUseItalics}
                 disabled={isDisabled}
-                small={true}
+                small={false}
               />
-              <label htmlFor="italicCheckbox" className="ufixit-instructions">{t('form.emphasis.label.italic')}</label>
+              <label id="italicCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.italic')}</label>
             </div>
-            <div className="flex-row justify-content-start gap-1 mt-2">
+            <div className="flex-row justify-content-start gap-2 mt-2">
               <ToggleSwitch
                 labelId="removeColorCheckbox"
                 initialValue={removeColor}
                 updateToggle={setRemoveColor}
                 disabled={isDisabled}
-                small={true}
+                small={false}
               />
-              <label htmlFor="removeColorCheckbox" className="ufixit-instructions">{t('form.emphasis.label.remove_color')}</label>
+              <label id="removeColorCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.remove_color')}</label>
             </div>
             <OptionFeedback
               t={t}

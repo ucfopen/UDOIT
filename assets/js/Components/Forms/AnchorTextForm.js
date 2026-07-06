@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import { formNames } from '../../Services/Ufixit'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function AnchorTextForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   doesIssueBelongToForm,
@@ -19,9 +19,9 @@ export default function AnchorTextForm ({
 }) {
 
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    DELETE_ELEMENT: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    DELETE_ELEMENT: UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [textInputValue, setTextInputValue] = useState("")

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import MagicIcon from '../Icons/MagicIcon'
 import * as Html from '../../Services/Html'
 import './SensoryMisuseForm.css'
@@ -6,7 +7,7 @@ import { numberedPattern, letteredPattern, bulletPattern } from '../../Services/
 
 export default function ListForm({
   t,
-  settings,
+  instanceInfo,
   activeIssue,
   activeContentItem,
   isDisabled,
@@ -20,7 +21,7 @@ export default function ListForm({
 }) {
   
   const FORM_OPTIONS = {
-    EDIT_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT
+    EDIT_TEXT: UFIXIT_OPTIONS.ADD_TEXT
   }
 
   const editorRef = useRef(null)

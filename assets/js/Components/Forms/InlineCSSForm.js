@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import RadioSelector from '../Widgets/RadioSelector'
 import * as Html from '../../Services/Html'
 import { getIssueHtml } from '../../Services/Html'
 
 export default function InlineCSSForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -16,9 +16,9 @@ export default function InlineCSSForm ({
  }) {
 
   const FORM_OPTIONS = {
-    REMOVE_STYLING: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
-    DEEMPHASIZE_STYLING: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    REMOVE_STYLING: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
+    DEEMPHASIZE_STYLING: UFIXIT_OPTIONS.EDIT_ATTRIBUTE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const getInlineCSS = () => {

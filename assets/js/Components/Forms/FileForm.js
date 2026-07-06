@@ -7,7 +7,6 @@ import CloseIcon from '../Icons/CloseIcon'
 
 export default function FileForm ({
   t, 
-  settings,
   activeFile,
   sessionFiles,
   uploadedFile,
@@ -158,7 +157,7 @@ export default function FileForm ({
 
   return (
     <>
-    { activeFile.reviewed && activeFile.replacement && 
+    { activeFile.reviewed && activeFile.replacement && activeFile.references?.length == 0 &&
       <div className='flex-column gap-1'>
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
             <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
@@ -194,6 +193,52 @@ export default function FileForm ({
               {activeOption === FORM_OPTIONS.MARK_REVERT && <div className='instructions'>{t('form.file.revert_instructions', {file: activeFile.fileName})}</div>}
         </div>
       </div>
+    }
+
+    {activeFile.reviewed && activeFile.replacement && activeFile.references?.length > 0 && 
+            <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_REVERT ? 'selected' : ''}`}>
+              <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+              <input
+                type="radio"
+                id={FORM_OPTIONS.MARK_REVERT}
+                name="altTextOption"
+                tabIndex="0"
+                checked={activeOption === FORM_OPTIONS.MARK_REVERT}
+                disabled={isDisabled}
+                onChange={() => {
+                  handleOptionChange(FORM_OPTIONS.MARK_REVERT)
+                }} />
+                {t('form.file.revert_label')}
+              </label>
+              {activeOption === FORM_OPTIONS.MARK_REVERT && <div className='instructions'>{t('form.file.revert_instructions', {file: activeFile.fileName})}</div>}
+        </div>
+    }
+    
+    {!activeFile.reviewed && activeFile.replacement &&
+      <>
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.MARK_AS_REVIEWED}
+              name="altTextOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
+              }} />
+              {t('form.file.mark_review')}
+            </label>
+        </div>
+        <div className='callout-container'>
+          <div className='p-2 flex-column justify-content-center align-items-center text-center'>
+              <h3 className="mt-0">{t('form.file.failed_replacement')}</h3>
+              <div className="instructions">{t('form.file.failed_instruction')}</div>
+          </div>
+        </div>
+
+      </>
     }
 
     {activeFile.reviewed && !activeFile.replacement && 

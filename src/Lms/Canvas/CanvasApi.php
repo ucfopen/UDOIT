@@ -12,13 +12,18 @@ class CanvasApi {
 
     protected $session;
     protected $baseUrl;
+    protected $userAgent;
     protected $apiToken;
     protected $httpClient;
 
     public function __construct($baseUrl, $apiToken)
     {
+        $this->userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
         $this->httpClient = HttpClient::create([
-            'headers' => ["Authorization: Bearer " . $apiToken],
+            'headers' => [
+                "Authorization: Bearer " . $apiToken,
+                "User-Agent: " . $this->userAgent
+            ]
         ]);
         $this->baseUrl = $baseUrl;
         $this->apiToken = $apiToken;
@@ -31,8 +36,7 @@ class CanvasApi {
         if(!isset($options['headers'])) {
             $options['headers'] = [];
         }
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
-        $options['headers']['User-Agent'] = $userAgent;
+        $options['headers']['User-Agent'] = $this->userAgent;
 
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();
@@ -110,7 +114,10 @@ class CanvasApi {
 
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => ["Authorization: Bearer {$this->apiToken}"],
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer {$this->apiToken}",
+                    "User-Agent: {$this->userAgent}"
+                ],
             ]);
 
             curl_multi_add_handle($multi, $ch);
@@ -153,8 +160,7 @@ class CanvasApi {
         if(!isset($options['headers'])) {
             $options['headers'] = [];
         }
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
-        $options['headers']['User-Agent'] = $userAgent;
+        $options['headers']['User-Agent'] = $this->userAgent;
 
         if (strpos($url, 'https://') === false) {
             $url = "https://{$this->baseUrl}/api/v1/{$url}";
@@ -190,8 +196,7 @@ class CanvasApi {
         if(!isset($options['headers'])) {
             $options['headers'] = [];
         }
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
-        $options['headers']['User-Agent'] = $userAgent;
+        $options['headers']['User-Agent'] = $this->userAgent;
 
         // TODO: handle failed call
 
@@ -219,11 +224,11 @@ class CanvasApi {
     public function apiPut($url, $options)
     {
         $lmsResponse = new LmsResponse();
+        $output = new ConsoleOutput();
         if(!isset($options['headers'])) {
             $options['headers'] = [];
         }
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
-        $options['headers']['User-Agent'] = $userAgent;
+        $options['headers']['User-Agent'] = $this->userAgent;
 
         if (strpos($url, 'https://') === false) {
             $url = "https://{$this->baseUrl}/api/v1/{$url}";
@@ -255,20 +260,20 @@ class CanvasApi {
 
         $multi = curl_multi_init();
         $handles = [];
-        $output = new ConsoleOutput();
 
         foreach($paths as $i => $url){
             if (strpos($url, 'https://') === false) {
                 $url = "https://{$this->baseUrl}/api/v1/{$url}";
             }
 
-            $output->writeln("Printing URL: ");
-            $output->writeln($url);
-
             $ch = curl_init($url);
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => ["Authorization: Bearer {$this->apiToken}", "Content-Type: application/json"],
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer {$this->apiToken}",
+                    "User-Agent: {$this->userAgent}",
+                    "Content-Type: application/json"
+                ],
                 CURLOPT_CUSTOMREQUEST => "PUT",
                 CURLOPT_POSTFIELDS => json_encode($options[$i]),
             ]);
@@ -291,6 +296,10 @@ class CanvasApi {
             $type = "";
             $lmsId = "";
 
+            if (preg_match('#^courses/(\d+)\?include\[\]=syllabus_body$#', $paths[$i], $matches)) {
+                $type = "syllabus";
+            }
+
             if (preg_match('#/(\w+)/([^/]+)$#', $paths[$i], $matches)) {
                 $type = $matches[1]; 
                 $type = preg_replace('/s$/', '', $type);
@@ -307,6 +316,10 @@ class CanvasApi {
             if ($type == 'discussion_topic' && isset($normalizedContent->is_announcement) && $normalizedContent->is_announcement) {
                 $type = 'announcement';
             }
+
+            if ($type == 'syllabus' && isset($normalizedContent->id)){
+                $lmsId = $normalizedContent->id;
+            }
             $response = [
                 'content' => $normalizedContent,
                 'id' => $lmsId,
@@ -322,11 +335,8 @@ class CanvasApi {
         }
 
         curl_multi_close($multi);
-        $output->writeln("responses: ");
-        $output->writeln(json_encode($responses, JSON_PRETTY_PRINT));
         return $responses;
     }
-
 
     public function apiPostBatch(array $paths, array $options){
         if(count($paths) == 0) {
@@ -343,9 +353,14 @@ class CanvasApi {
             }
 
             $ch = curl_init($url);
+            
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => ["Authorization: Bearer {$this->apiToken}", "Content-Type: application/json"],
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer {$this->apiToken}",
+                    "User-Agent: {$this->userAgent}",
+                    "Content-Type: application/json"
+                ],
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => json_encode($options[$i]),
             ]);
@@ -401,7 +416,11 @@ class CanvasApi {
             $ch = curl_init($url);
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => ["Authorization: Bearer {$this->apiToken}", "Content-Type: application/json"],
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer {$this->apiToken}",
+                    "User-Agent: {$this->userAgent}",
+                    "Content-Type: application/json"
+                ],
                 CURLOPT_CUSTOMREQUEST => "DELETE",
             ]);
             curl_multi_add_handle($multi, $ch);
@@ -434,7 +453,6 @@ class CanvasApi {
             curl_multi_remove_handle($multi, $ch);
             curl_close($ch);
         }
-
         return $responses;
     }
 
@@ -443,15 +461,11 @@ class CanvasApi {
         if(!isset($options['headers'])) {
             $options['headers'] = [];
         }
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
-        $options['headers']['User-Agent'] = $userAgent;
+        $options['headers']['User-Agent'] = $this->userAgent;
 
         if (strpos($url, 'https://') === false) {
             $pattern = '/\/files\/\d+/';
-
             preg_match($pattern, $url, $matches);
-
-            
             $url = "https://" . $this->baseUrl . "/api/v1/" . $url;
         }
 
@@ -467,7 +481,5 @@ class CanvasApi {
         }
 
         return $lmsResponse;
-
     }
-
 }

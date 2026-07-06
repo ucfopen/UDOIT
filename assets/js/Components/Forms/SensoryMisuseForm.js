@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import * as Html from '../../Services/Html'
 // The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
 // Failure to do so often results in the TinyMCE editor not display, especially the first time the component is rendered.
 import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
-  t,
-  settings,
-  activeIssue,
+  t, 
+  activeIssue, 
+  handleIssueSave, 
+  addMessage,
   isDisabled,
   handleActiveIssue,
   activeOption,
@@ -17,7 +19,7 @@ export default function SensoryMisuseForm({
 }) {
 
   const FORM_OPTIONS = {
-    EDIT_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT
+    EDIT_TEXT: UFIXIT_OPTIONS.ADD_TEXT
   }
 
   const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))

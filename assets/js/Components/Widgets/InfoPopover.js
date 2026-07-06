@@ -60,10 +60,7 @@ export default function InfoPopover({
       const { x, y } = getCoords(e)
       dialog.style.left = `${x}px`
       dialog.style.top = `${y}px`
-      const title = document.getElementById(uuid + '-info-popover-title')
-      if (title) {
-        title.focus()
-      }
+      dialog.focus()
       setOpen(true)
     }
   }
@@ -103,6 +100,8 @@ export default function InfoPopover({
       <dialog
         id={uuid + '-info-popover-dialog'}
         className="info-popover-dialog"
+        aria-labelledby={uuid + 'info-popover-title'}
+        tabIndex="-1"
         onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
@@ -115,7 +114,7 @@ export default function InfoPopover({
         }}
       >
         <div className="info-popover-title">
-          <h2 id={uuid + '-info-popover-title'} tabIndex="-1">{title}</h2>
+          <h2 id={uuid + '-info-popover-title'}>{title}</h2>
           <CloseIcon
             className="icon-sm close-icon me-0"
             onClick={handleClose}

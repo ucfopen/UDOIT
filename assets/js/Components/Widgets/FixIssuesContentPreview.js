@@ -7,8 +7,6 @@ import './FixIssuesContentPreview.css'
 
 export default function FixIssuesContentPreview({
   t,
-  settings,
-
   activeContentItem,
   activeIssue,
   activeOption,
@@ -122,7 +120,6 @@ export default function FixIssuesContentPreview({
                 <HtmlPreview
                   key={"html-preview"}
                   t={t}
-                  settings={settings}
 
                   activeContentItem={activeContentItem}
                   activeIssue={activeIssue}

@@ -110,6 +110,10 @@ export const FORM_CLASSIFICATIONS = {
     formNames.SELECT_VALID_ID
   ],
 
+  CONTRAST_RELATED: [
+    formNames.CONTRAST,
+  ],
+
   HEADINGS_RELATED : [
     formNames.HEADING_EMPTY,
     formNames.HEADING_STYLE

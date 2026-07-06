@@ -4,7 +4,7 @@ import MediaCaptionsEditor from '../Captions/MediaCaptionsEditor'
 
 export default function MediaCaptionsForm({
   t,
-  settings,
+  instanceInfo,
   activeIssue,
   addMessage,
   isDisabled
@@ -41,7 +41,7 @@ export default function MediaCaptionsForm({
       <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
       <FormExternalLink
         t={t}
-        settings={settings}
+        instanceInfo={instanceInfo}
         activeIssue={activeIssue}
       />
       <button

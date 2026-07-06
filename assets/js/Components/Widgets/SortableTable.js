@@ -202,13 +202,15 @@ export default function SortableTable({
           <tbody>
             {pagedRows.map((row, index) => {
               const isRowClickable = !!row.onClick;
+              const rowAriaLabel = row.name?.display || row.name || row.courseTitle || ''
               return (
                 <tr
                   id={row.id ? row.id : `row${index}`}
                   key={`row${index}`}
                   className={isRowClickable ? 'clickable' : ''}
+                  aria-label={rowAriaLabel}
                   onClick={isRowClickable ? row.onClick : undefined}
-                  tabIndex={isRowClickable ? 0 : undefined}
+                  tabIndex={isRowClickable && !row.noTabFocus && rowAriaLabel !== '' ? 0 : undefined}
                   onKeyDown={(e) => {
                     if(isRowClickable && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault()

@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import { formNames, formNameFromRule } from '../../Services/Ufixit'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function LabelForm({
   t,
-  settings,
   activeIssue,
   activeContentItem,
   isDisabled,
@@ -19,8 +19,8 @@ export default function LabelForm({
  }) {
   
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   const [textInputValue, setTextInputValue] = useState('')
   const [usedLabels, setUsedLabels] = useState([])

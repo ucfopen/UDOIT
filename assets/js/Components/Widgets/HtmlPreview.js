@@ -1,12 +1,12 @@
 import React, { useState, useEffect, use } from 'react'
 import { FORM_CLASSIFICATIONS, formNameFromRule, formNames } from '../../Services/Ufixit'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import './FixIssuesContentPreview.css'
 
 export default function HtmlPreview({
   t,
-  settings,
 
   activeContentItem,
   activeIssue,
@@ -56,7 +56,7 @@ export default function HtmlPreview({
       return doc
     }
 
-    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT){
+    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT){
       const allElements = doc.querySelectorAll('*')
       allElements.forEach((el) => {
         if (el.id?.includes('ufixit-alt-text-preview')) {
@@ -70,7 +70,7 @@ export default function HtmlPreview({
       })
     }
 
-    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT) {
+    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT) {
       doc.querySelectorAll('.ufixit-temp-selected').forEach((el) => {
         el.classList.remove('ufixit-temp-selected')
       })
@@ -225,7 +225,7 @@ export default function HtmlPreview({
       else {
         errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
         if(!errorElement) {
-          if(activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+          if(activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT) {
             setShowMessage(true)
             setIsErrorFoundInContent(false)
           }
@@ -248,12 +248,12 @@ export default function HtmlPreview({
       errorElement = Html.findElementWithXpath(doc, xpath)
       let editedElement = Html.getIssueHtml(activeIssue?.issueData)
     
-      if(!errorElement && activeOption !== settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+      if(!errorElement && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT) {
         setShowMessage(true)
         setIsErrorFoundInContent(false)
       }
       else {
-        if(activeOption === settings.UFIXIT_OPTIONS.DELETE_ELEMENT) {
+        if(activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT) {
           // The element has already been deleted, so DON'T do anything else.
         }
         else if(editedElement) { 
@@ -264,6 +264,26 @@ export default function HtmlPreview({
         } else {
           errorElement.replaceWith(convertErrorHtmlElement(errorElement))
         }
+
+        // For the contrast issue, we heed to highlight both the text AND the background when they are
+        // separate elements.
+        if (FORM_CLASSIFICATIONS.CONTRAST_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+          if (activeIssue?.issueData?.metadata) {
+            try {
+              const metadata = JSON.parse(activeIssue.issueData.metadata)
+              if(metadata.textColorXpath) {
+                let textElement = Html.findElementWithXpath(errorElement, metadata.textColorXpath)
+                if(textElement) {
+                  textElement.classList.add('ufixit-error-highlight');
+                  errorElement.classList.remove('ufixit-error-highlight');
+                  errorElement.classList.add('ufixit-error-highlight-background');
+                }
+              }
+            }
+            catch (e) { }
+          }
+        }
+
         setShowMessage(false)
         setIsErrorFoundInContent(true)
       }
@@ -367,7 +387,7 @@ export default function HtmlPreview({
       ) : (
         <div
           key={"html-content-preview-div"}
-          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === settings.UFIXIT_OPTIONS.SELECT_ELEMENT ? ' ufixit-clickable-container' : ''}`}
+          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT ? ' ufixit-clickable-container' : ''}`}
           id='ufixit-content-preview-main'
           onScroll={() => handleScroll()}
           onClick={handleClickedElement}

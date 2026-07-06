@@ -356,31 +356,6 @@ export function prepareLink(element) {
   return element;
 }
 
-export function processStaticHtml(nodes, settings) {    
-  let baseUrl = document.referrer.endsWith('/') ? document.referrer.slice(0, -1) : document.referrer
-
-  if (settings) {
-    baseUrl = `https://${settings.institution.lmsDomain}`
-  }
-
-  for (let node of nodes) {
-    if (('tag' === node.type) && ('a' === node.name)) {
-      node.attribs.target = '_blank'
-    }
-    if (('tag' === node.type) && ('img' === node.name)) {
-      if (node.attribs.src && node.attribs.src.startsWith('/')) {
-        node.attribs.src = `${baseUrl}${node.attribs.src}`
-      }
-    }
-
-    if (Array.isArray(node.children) && node.children.length > 0) {
-      node.children = processStaticHtml(node.children)
-    }
-  }
-
-  return nodes    
-}
-
 export function getIssueHtml(issue) {
   return issue.newHtml ? issue.newHtml : issue.sourceHtml
 }
@@ -595,6 +570,13 @@ export const findElementWithXpath = (content, xpath) => {
   // If there is no xpath aside from the root element, return null
   if(xpath === 'html[1]/body[1]') {
     return null
+  }
+
+  if(!content.querySelector('html') && !content.querySelector('body')) {
+    // If the content doesn't have html and body tags, remove that part from the xpath, if present.
+    if(xpath.startsWith('html[1]/body[1]/')) {
+      xpath = xpath.replace('html[1]/body[1]/', '')
+    }
   }
 
   if(xpath.length > 0) {

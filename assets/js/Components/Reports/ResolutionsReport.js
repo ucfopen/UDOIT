@@ -26,7 +26,7 @@ for (let i = 1; i <= 100; i++) {
 
 export default function ResolutionsReport({
   t,
-  settings,
+  preferences,
   reports = null,
   selectedCourse = null,
   visibility = { issues: true, potentialIssues: true, files: true },
@@ -40,7 +40,7 @@ export default function ResolutionsReport({
   const [dateStart, setDateStart] = useState(null);
   const [dateEnd, setDateEnd] = useState(null);
   const [selectedPreset, setSelectedPreset] = useState('all');
-  const darkMode = (settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
+  const darkMode = preferences.darkMode
   const courseLimit = 5;
 
   // Colors for multi course line graph
@@ -325,7 +325,7 @@ export default function ResolutionsReport({
   }
 
   const getFontSize = () => {
-    let fontSize = settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE;
+    let fontSize = preferences.fontSize;
     switch (fontSize) {
       case 'font-small':
         return '14';

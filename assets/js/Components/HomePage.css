@@ -70,9 +70,30 @@
     }
   }
 
+  .progress-bar-container {
+    background-color: var(--border-color);
+    width: var(--progress-bar-width);
+    max-width: 100%;
+    height: .5rem;
+    border-radius: 1rem;
+    position: relative;
+    justify-self: center;
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 1rem;
+      min-width: .5rem;
+    }
+  }
+
   button {
     width: var(--progress-bar-width);
     max-width: 100%;
+    justify-self: center;
   }
 
   &.type-issue {
@@ -88,13 +109,23 @@
 
     &:not(.emphasis) .summary-icon-container {
       background-color: var(--pill-error-background);
+      &.completed {
+        background-color: var(--pill-success-background);
+        border-color: var(--pill-success-border);
+      }
     }
 
     .progress-bar-container {
       background-color: var(--progress-bar-background-color);
 
+
       .progress-bar-fill {
+        &.completed {
+          background-color: var(--success-color);
+        }
+        &:not(.completed) {
         background-color: var(--error-color);
+        }
       }
     }
   }
@@ -111,13 +142,22 @@
 
     &:not(.emphasis) .summary-icon-container {
       background-color: var(--pill-warning-background);
+      &.completed {
+        background-color: var(--pill-success-background);
+        border-color: var(--pill-success-border);
+      }
     }
 
     .progress-bar-container {
       background-color: var(--progress-bar-background-color);
 
       .progress-bar-fill {
+        &.completed {
+          background-color: var(--success-color);
+        }
+        &:not(.completed) {
         background-color: var(--potential-color);
+        }
       }
     }
   }
@@ -134,13 +174,23 @@
 
     &:not(.emphasis) .summary-icon-container {
       background-color: var(--pill-file-background);
+      &.completed {
+        background-color: var(--pill-success-background);
+        border-color: var(--pill-success-border);
+      }
+      
     }
 
     .progress-bar-container {
       background-color: var(--progress-bar-background-color);
 
       .progress-bar-fill {
-        background-color: var(--file-color);
+        &.completed {
+          background-color: var(--success-color);
+        }
+        &:not(.completed) {
+          background-color: var(--file-color);
+        }
       }
     }
   }

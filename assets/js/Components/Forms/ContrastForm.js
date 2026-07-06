@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import CheckIcon from '../Icons/CheckIcon'
 import DarkIcon from '../Icons/DarkIcon'
 import ErrorIcon from '../Icons/ErrorIcon'
@@ -9,11 +10,14 @@ import * as Contrast from '../../Services/Contrast'
 import './ContrastForm.css'
 
 export default function ContrastForm({
-  t, 
-  settings,
+  t,
+  instanceInfo, 
   activeIssue,
+  activeContentItem,
   isDisabled,
   handleActiveIssue,
+  handleIssueSave,
+  markAsReviewed,
   activeOption,
   setActiveOption,
   formErrors,
@@ -21,13 +25,13 @@ export default function ContrastForm({
 }) {
 
   const FORM_OPTIONS = {
-    SET_COLOR: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE
+    SET_COLOR: UFIXIT_OPTIONS.EDIT_ATTRIBUTE
   }
 
   const GRADIENT_KEYWORDS = new Set([
     'linear', 'radial', 'repeating-linear', 'repeating-radial', 'gradient',
     'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'
-  ])
+  ]);
 
   // Extract color strings from a CSS background value, handling nested color functions
   const extractColors = (str) => {
@@ -138,29 +142,26 @@ export default function ContrastForm({
     if (tempBackgroundColors.length === 0) {
       tempBackgroundColors.push({
         originalString: '',
-        originalColorString: settings.backgroundColor,
-        hsl: Contrast.toHSL(settings.backgroundColor)
+        originalColorString: instanceInfo.backgroundColor,
+        hsl: Contrast.toHSL(instanceInfo.backgroundColor)
       })
     }
     return tempBackgroundColors
   }
 
   // Get initial text color
-  const getTextColor = () => {
+  const getTextColor = (elementStyle) => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
-    const html = Html.getIssueHtml(activeIssue);
-    const element = Html.toElement(html);
 
-    let colorEl = element;
-    if (metadata.textColorXpath && Html.findElementWithXpath) {
-      const found = Html.findElementWithXpath(element, metadata.textColorXpath);
-      if (found) colorEl = found;
-    }
+    let textColor = elementStyle.color;
 
-    if (colorEl && colorEl.style && colorEl.style.color) {
-      return Contrast.toHSL(colorEl.style.color);
+    if (textColor) {
+      return Contrast.toHSL(textColor);
     }
-    return Contrast.toHSL(settings.textColor);
+    else if (metadata?.messageArgs && metadata.messageArgs.length > 3) {
+      return Contrast.toHSL(metadata.messageArgs[3])
+    }
+    return Contrast.toHSL(instanceInfo.textColor);
   }
 
   // Heading tags for contrast threshold
@@ -211,11 +212,6 @@ export default function ContrastForm({
     }
 
     // Set text color on the correct element
-    let textColorXpath = null;
-    try {
-      const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
-      textColorXpath = metadata.textColorXpath;
-    } catch (e) {}
     let textEl = element;
     try {
       const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
@@ -277,19 +273,35 @@ export default function ContrastForm({
 
   // On issue change, extract from original HTML
   useEffect(() => {
-    if (!activeIssue) {
+    if (!activeIssue || !activeContentItem) {
       return
     }
 
-    const element = Html.toElement(Html.getIssueHtml(activeIssue))
-    const isLarge = isLargeText(element)
+    let fullPageHtml = activeContentItem.body || ''
+
+    let backgroundElementStyle = Contrast.getComputedStyle(fullPageHtml, activeIssue.xpath)
+    let foregroundElementStyle = backgroundElementStyle
+
+    if (activeIssue.metadata) {
+      try {
+        const metadata = JSON.parse(activeIssue.metadata);
+        if (metadata.textColorXpath) {
+          let fullTextXpath = activeIssue.xpath + metadata.textColorXpath
+          foregroundElementStyle = Contrast.getComputedStyle(fullPageHtml, fullTextXpath)
+        }
+      } catch (e) {}
+    }
+
+    const isLarge = isLargeText(foregroundElementStyle)
     setMinRatio(isLarge ? 3 : 4.5)
     setMinAAARatio(isLarge ? 4.5 : 7)
 
-    const info = getBackgroundColors()
-    setOriginalBgColors(info)
-    setCurrentBgColors(info.map(bg => bg.hsl))
-    setTextColor(getTextColor())
+    const tempBackgroundColors = getBackgroundColors()
+    setOriginalBgColors(tempBackgroundColors)
+    setCurrentBgColors(tempBackgroundColors.map(bg => bg.hsl))
+
+    let tempTextColor = getTextColor(foregroundElementStyle)
+    setTextColor(tempTextColor)
     
     setShowAllColors(false)
     setActiveOption(FORM_OPTIONS.SET_COLOR)
@@ -308,16 +320,9 @@ export default function ContrastForm({
     )
   }
 
-  const debounceTimer = useRef(null)
-  // Debounced updatePreview
   useEffect(() => {
     checkFormErrors()
     updatePreview()
-    // if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    // debounceTimer.current = setTimeout(() => {
-    //   updatePreview()
-    // }, 150)
-    // return () => clearTimeout(debounceTimer.current)
   }, [textColor, currentBgColors])
 
   const handleAutoAdjustAll = () => {
@@ -369,9 +374,7 @@ export default function ContrastForm({
     }
   }
 
-  function isLargeText(element) {
-    if (!element) return false;
-    const style = window.getComputedStyle(element);
+  function isLargeText(style) {
     const fontSizePx = parseFloat(style.fontSize);
     const fontWeight = style.fontWeight;
 
