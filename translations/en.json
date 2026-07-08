@@ -703,6 +703,8 @@
   "form.media.button.import_vtt": "Import VTT",
   "form.media.button.export_vtt": "Export VTT",
   "form.media.button.enter_with_type": "Enter {captionType}",
+  "form.media.info.track_type_title": "Track Type",
+  "form.media.info.track_type_content": "Different track types have specific purposes:<ul><li><strong>Captions</strong>: All audio information, including dialog, sound effects, relevant musical cues, and audio source (like a speaker's name). These are for when audio is completely unavailable, drowned out, or the user is deaf.</li><li><strong>Chapters</strong>: These are used to help users navigate between sections, like a table of contents.</li><li><strong>Descriptive Audio</strong>: Text descriptions of the <em>video</em> content. These cues pause the video and are read out loud with a synthesized voice. They are designed for when the visual component is unavailable or the screen cannot be seen, like when the user is blind or driving a vehicle.</li><li><strong>Subtitles</strong>: Subtitles provide translation or transcription of dialog, and are primarily for when the spoken language is available but not understood. For instance, when a reporter interviews someone in a non-English language for an English newscast, or when characters in movies speak in alien languages.</li></ol>",
   "form.media.label.track_number": "Track {trackNumber}",
   "form.media.label.track_type": "Type",
   "form.media.label.select_track_type": "Select Type",

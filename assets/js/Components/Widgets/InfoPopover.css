@@ -41,8 +41,7 @@
   z-index: 1000;
   background: var(--white);
   border-radius: var(--window-radius);
-  min-width: 20em;
-  max-width: 25em;
+  width: clamp(20em, 40vw, 40em);
   border: 1px solid var(--border-color);
   outline: none;
 
@@ -78,6 +77,12 @@
   color: var(--text-secondary-color);
   font-weight: 300;
   background-color: var(--container-color);
+
+  ul, ol {
+    li:not(:last-child) {
+      padding-block-end: .75em;
+    }
+  }
 }
 
 .info-popover-action {

@@ -13,6 +13,7 @@ import UploadIcon from "../Icons/UploadIcon";
 
 import Combobox from '../Widgets/Combobox';
 import FileInformation from "../Widgets/FileInformation";
+import InfoPopover from "../Widgets/InfoPopover";
 import MediaCaptionsCueList from "./MediaCaptionsCueList";
 import MediaCaptionsLoadingProgress from "./MediaCaptionsLoadingProgress";
 import MediaCaptionsPlaybackControls from "./MediaCaptionsPlaybackControls";
@@ -991,6 +992,11 @@ export default function MediaCaptionsEditor({
                         id='typeSelect'
                         label=''
                         options={typeOptions}
+                      />
+                      <InfoPopover
+                        t={t}
+                        title={t('form.media.info.track_type_title')}
+                        content={t('form.media.info.track_type_content')}
                       />
                     </div>
                     <div className="flex-row gap-1 align-items-center me-2">

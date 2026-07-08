@@ -111,6 +111,10 @@ export default function InfoPopover({
             e.stopPropagation()
             e.preventDefault()
           }
+          else if(e.key === 'Escape') {
+            console.log("ESCAPE PRESSED!");
+            handleClose(e)
+          }
         }}
       >
         <div className="info-popover-title">

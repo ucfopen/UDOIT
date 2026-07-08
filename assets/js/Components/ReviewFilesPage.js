@@ -1236,7 +1236,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         role="dialog"
         aria-modal="true"
         className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && !unusedDialogModal ? 'open' : 'hidden'}`}
-        onClose={closeDialog}
         aria-labelledby="ufixit-dialog-title"
         >
         <div className='flex-column h-100'>
