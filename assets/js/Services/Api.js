@@ -1,35 +1,37 @@
 export default class Api {
 
     constructor(instanceInfo) {
-        this.apiUrl = `https://${window.location.hostname}`;
-        this.endpoints = {
-            getReport: '/api/courses/{course}/reports/{report}',
-            getReportHistory: '/api/courses/{course}/reports',
-            setReportData: '/api/reports/{report}/setdata',
-            updateAndGetReport: '/api/courses/{course}/reports/update',
-            getIssueContent: '/api/issues/{issue}/content',
-            saveIssue: '/api/issues/{issue}/save',
-            reviewFile: '/api/files/{file}/review',
-            postFile: '/api/files/{file}/post',
-            deleteFile: '/api/files/{file}/delete',
-            getMediaTracks: '/api/media/{mediaId}/tracks',
-            setMediaTracks: '/api/media/{mediaId}/settracks',
-            batchDelete: '/api/{course}/files/delete',
-            updateContent: '/api/{file}/content',
-            adminCourses: '/api/admin/courses/account/{account}/term/{term}',
-            scanContent: '/api/sync/content/{contentItem}?report={getReport}',
-            scanCourse: '/api/sync/{course}',
-            scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
-            fullRescan: '/api/sync/rescan/{course}',
-            adminReport: '/api/admin/courses/{course}/reports/latest',
-            adminCourseReport: '/api/admin/courses/{course}/reports/full',
-            adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
-            adminUser: '/api/admin/users',
-            updatePreferences: '/api/users/{user}/preferences'
-        }
-    }
-    this.instanceInfo = instanceInfo;
+      this.apiUrl = `https://${window.location.hostname}`;
+      this.endpoints = {
+        adminCourses: '/api/admin/courses/account/{account}/term/{term}',
+        adminCourseReport: '/api/admin/courses/{course}/reports/full',
+        adminReport: '/api/admin/courses/{course}/reports/latest',
+        adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
+        adminUser: '/api/admin/users',
 
+        getMediaTracks: '/api/media/{mediaId}/tracks',
+        getIssueContent: '/api/issues/{issue}/content',
+        getReport: '/api/courses/{course}/reports/{report}',
+        getReportHistory: '/api/courses/{course}/reports',
+        updateAndGetReport: '/api/courses/{course}/reports/update',
+
+        batchDelete: '/api/{course}/files/delete',
+        deleteFile: '/api/files/{file}/delete',
+        downloadFile: '/api/files/{file}/download',
+        fullRescan: '/api/sync/rescan/{course}',
+        postFile: '/api/files/{file}/post',
+        saveIssue: '/api/issues/{issue}/save',
+        reviewFile: '/api/files/{file}/review',
+        scanContent: '/api/sync/content/{contentItem}?report={getReport}',
+        scanCourse: '/api/sync/{course}',
+        scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
+        setMediaTracks: '/api/media/{mediaId}/settracks',
+        setReportData: '/api/reports/{report}/setdata',
+        updateContent: '/api/{file}/content',
+        updatePreferences: '/api/users/{user}/preferences'
+      }
+      this.instanceInfo = instanceInfo;
+  
     if (instanceInfo && instanceInfo.apiUrl) {
       this.apiUrl = instanceInfo.apiUrl;
     }
@@ -268,6 +270,33 @@ export default class Api {
       method: "DELETE",
       credentials: "include",
     });
+  }
+
+  async downloadFile(fileId, contentType = "video/mp4") {
+    let url = `${this.apiUrl}${this.endpoints.downloadFile}`;
+    url = url.replace("{file}", fileId);
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": contentType,
+        },
+      });
+      const contentLength = response.headers.get('Content-Length');
+
+      if (contentLength > 0) {
+          console.log(`Total file size reported by server: ${contentLength} bytes`);
+          // You can use this total size for your state management
+      } else {
+            console.warn("Server did not provide Content-Length header.");
+      }
+      return response;
+
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   batchDelete(urlList) {

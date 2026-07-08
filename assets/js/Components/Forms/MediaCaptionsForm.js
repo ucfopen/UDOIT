@@ -44,7 +44,7 @@ export default function MediaCaptionsForm({
         instanceInfo={instanceInfo}
         activeIssue={activeIssue}
       />
-      <button
+      {/* <button
         type="button"
         className="btn-secondary"
         onClick={() => setShowModal(true)}
@@ -87,7 +87,7 @@ export default function MediaCaptionsForm({
             />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

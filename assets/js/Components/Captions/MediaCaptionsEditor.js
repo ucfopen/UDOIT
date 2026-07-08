@@ -21,6 +21,7 @@ import useWaveformKeyboard from "./useWaveformKeyboard";
 
 import Api from '../../Services/Api';
 import { parseVTT, buildVttText, vttToMS, vttToS, formatTimeVTT, formatVTTTime, computeVTTDuration, truncateVttTime } from "../../Services/Captions";
+import { DEFAULT_USER_SETTINGS } from "../../Services/Constants";
 import { primaryLanguages } from '../../Services/Lang'
 import * as Text from '../../Services/Text';
 import './MediaCaptions.css';
@@ -36,11 +37,12 @@ import './MediaCaptions.css';
  */
 export default function MediaCaptionsEditor({
   t,
-  settings,
+  preferences,
+  instanceInfo,
   file,
   addMessage,
-  setFormInvalid,
-  initialVideoUrl,
+  setFormInvalid = () => {},
+  initialVideoUrl = null,
   vttArray,
   setVttArray,
   vttActiveIndex,
@@ -81,7 +83,6 @@ export default function MediaCaptionsEditor({
   const wavesurferRef = useRef(null);
   const timelineRef = useRef(null);
   const waveformFocusRef = useRef(null);
-  const darkMode = (settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
 
   // Unique id counter for cues
   const [cueIdCounter, setCueIdCounter] = useState(1);
@@ -105,7 +106,7 @@ export default function MediaCaptionsEditor({
     }
 
     if (fileData?.id) {
-      downloadVideoFromLMS(fileData.id)
+      downloadVideoFromLMS(fileData.id, fileData?.metadata?.content-type || '', fileData?.metadata?.fileSize || 0);
     }
   }, [file])
 
@@ -118,7 +119,7 @@ export default function MediaCaptionsEditor({
     }
     const mediaEntryId = file.fileData.metadata.media_entry_id;
 
-    const api = new Api(settings)
+    const api = new Api(instanceInfo)
     const responseStr = await api.getMediaTracks(mediaEntryId)
     const response = await responseStr.json()
     if(response.errors && response.errors.length > 0) {
@@ -138,61 +139,35 @@ export default function MediaCaptionsEditor({
     setVttActiveIndex(0);
   }
 
-  const downloadVideoFromLMS = async (lmsFileId) => {
+  const downloadVideoFromLMS = async (lmsFileId, contentType = 'video/mp4', fileSize = 0) => {
     setFileLoadedSize(0);
-    setFileTotalSize(0);
-    const baseUrl = `https://${window.location.hostname}`;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", `${window.location.origin}/udoit3/api/files/${lmsFileId}/download`, true);
-    xhr.responseType = "arraybuffer";
-    xhr.withCredentials = true;
-
-    xhr.onload = function(event) {
-
-      if (xhr.status >= 200 && xhr.status < 300) {
-        var blob = new Blob([event.target.response], {type: "video/*"});
-        let tempURL = URL.createObjectURL(blob);
-        setVideoUrl(tempURL);
-      }
-      // Specific HTTP error handling
-      else {
-        if (xhr.status === 302) {
-          // Almost always a CORS issue, and can be fixed when the File sharing settings are changed.
-          setError(t('form.media.label.error_lms_download'));
-          setErrorDetails(t('form.media.label.error_lms_cors'));
-        }
-      }
-    };
-
-    xhr.onprogress = function(event) {
-        if (event.lengthComputable) {
-          setFileTotalSize(event.total);
-        }
-        setFileLoadedSize(event.loaded);
-    }
-
-    xhr.onreadystatechange = () => {
-      if (xhr.status === 302) {
-        // Almost always a CORS issue, and can be fixed when the File sharing settings are changed.
-        setError(t('form.media.label.error_lms_download'));
-        setErrorDetails(t('form.media.label.error_lms_cors'));
-      }
-      else if (xhr.status === 404) {
-        setError(t('form.media.label.error_lms_download'));
-      }
-    }
-
-    xhr.onerror = function(e) {
-      console.error(`${xhr.status} Error downloading video from LMS: `, e);
-      setError(t('form.media.label.error_lms_download'));
-    }
-
+    setFileTotalSize(fileSize);
     try {
-      xhr.send();
-    } catch (e) {
-      console.error(`${xhr.status} Error CATCH sending request to LMS: `, e);
-      setError(t('form.media.label.error_lms_download'));
+      let api = new Api(instanceInfo);
+      const response = await api.downloadFile(lmsFileId, contentType);
+      if (response.headers.has('Content-Length')) {
+        setFileTotalSize(response.headers.get('Content-Length'));
+      }
+      
+      const reader = response.body.getReader();
+      const chunks = [];
+      let tempFileLoadedSize = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        chunks.push(value);
+        tempFileLoadedSize += value.byteLength;
+        setFileLoadedSize(tempFileLoadedSize);
+      }
+
+      const blob = new Blob(chunks);
+      let tempURL = URL.createObjectURL(blob);
+      setVideoUrl(tempURL);
+    }
+    catch (error) {
+      console.error(error);
     }
 
     getExistingTracks();
@@ -211,7 +186,7 @@ export default function MediaCaptionsEditor({
     }
 
     const vttText = buildVttText(cues, false);
-    const vttLang = vttArray[vttActiveIndex]?.locale || settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE || "en";
+    const vttLang = vttArray[vttActiveIndex]?.locale || preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "en";
     const vttFormattedText = "WEBVTT\n\n" + vttText;
 
     // Update the big array for when it's time to save things.
@@ -237,7 +212,7 @@ export default function MediaCaptionsEditor({
   }, [cues, isLoading]);
 
   const getDefaultLanguage = () => {
-    let userDefaultLanguage = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE || "en";
+    let userDefaultLanguage = preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "en";
     // Check to see if there is already a VTT track with that language.
     if (vttArray && vttArray.length > 0) {
       for(let i = 0; i < vttArray.length; i++) {
@@ -687,34 +662,6 @@ export default function MediaCaptionsEditor({
     }
   }, [videoElRef, wavesurferRef]);
 
-  // const playCurrent = useCallback(() => {
-  //   const video = videoElRef.current;
-  //   if (!video) return;
-  //   if (selectedIndex < 0 || !cues[selectedIndex]) return;
-
-  //   const cue = cues[selectedIndex];
-  //   const start = vttToMS(cue.start) / 1000;
-  //   const end = vttToMS(cue.end) / 1000;
-
-  //   video.currentTime = start;
-  //   video.play();
-
-  //   let raf = null;
-  //   const tick = () => {
-  //     if (!video) return;
-  //     if (video.currentTime >= end) {
-  //       video.pause();
-  //       video.currentTime = end;
-  //       raf = null;
-  //       return;
-  //     }
-  //     raf = requestAnimationFrame(tick);
-  //   };
-  //   raf = requestAnimationFrame(tick);
-
-  //   return () => raf && cancelAnimationFrame(raf);
-  // }, [cues, selectedIndex]);
-
   const insertCue = useCallback((cueIndex, before = true, fromPlayer = false) => {
     const video = videoElRef.current;
     if (!video) return;
@@ -990,7 +937,10 @@ export default function MediaCaptionsEditor({
           )}
         </div>
       )}
-      <div inert={isLoading ? true : undefined} id="media-captions-editor">
+      <div
+        inert={isLoading ? true : undefined}
+        id="media-captions-editor"
+        className={isLoading ? 'editor-loading' : '' }>
 
         <div id="captions-editor-info-row">
           <div className="flex-row gap-2 align-items-center">
@@ -1041,7 +991,6 @@ export default function MediaCaptionsEditor({
                         id='typeSelect'
                         label=''
                         options={typeOptions}
-                        settings={settings}
                       />
                     </div>
                     <div className="flex-row gap-1 align-items-center me-2">
@@ -1052,7 +1001,6 @@ export default function MediaCaptionsEditor({
                         id='languageSelect'
                         label=''
                         options={languageOptions}
-                        settings={settings}
                       />
                     </div>
                     <button
@@ -1201,8 +1149,8 @@ export default function MediaCaptionsEditor({
                 interact={true}
                 tabIndex={-1}
                 minPxPerSec={100}
-                waveColor={darkMode ? "#505975" : "#C5C9D3"}
-                progressColor={darkMode ? "#5BA1FF" : "#81acd0"}
+                waveColor={preferences.darkMode ? "#505975" : "#C5C9D3"}
+                progressColor={preferences.darkMode ? "#5BA1FF" : "#81acd0"}
                 plugins={plugins}
                 onReady={onWsReady}
                 onError={(e) => handleWaveformError(e)}

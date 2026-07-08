@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
-import ToggleSwitch from './Widgets/ToggleSwitch'
-import SortableTable from './Widgets/SortableTable'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
 import LearnMore from './Widgets/LearnMore.js'
@@ -9,6 +6,7 @@ import MediaCaptionsEditor from './Captions/MediaCaptionsEditor.js'
 import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
 import SortableTable from './Widgets/SortableTable'
 import StatusPill from './Widgets/StatusPill'
+import ToggleSwitch from './Widgets/ToggleSwitch'
 
 import CloseIcon from './Icons/CloseIcon.js'
 import DeleteIcon from './Icons/DeleteIcon'
@@ -1250,6 +1248,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             {activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio' ? (
               <MediaCaptionsEditor
                 t={t}
+                preferences={preferences}
+                instanceInfo={instanceInfo}
                 file={activeIssue}
                 addMessage={addMessage}
                 vttArray={vttArray}

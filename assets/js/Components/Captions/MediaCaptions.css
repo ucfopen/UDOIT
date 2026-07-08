@@ -46,6 +46,11 @@
   container-type: inline-size;
   container-name: captions-editor;
 
+  &.editor-loading {
+    height: 0;
+    overflow: hidden;
+  }
+
   #captions-editor-info-row {
     display: flex;
     flex-direction: row;

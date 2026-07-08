@@ -11,7 +11,7 @@ import SettingsPage from "./SettingsPage";
 import Api from "../Services/Api";
 import MessageTray from "./Widgets/MessageTray";
 import { analyzeReport } from "../Services/Report";
-import { ISSUE_STATE } from "../Services/Constants";
+import { DEFAULT_USER_SETTINGS, ISSUE_STATE } from "../Services/Constants";
 
 export default function App(initialData) {
   const [nextMessage, setNextMessage] = useState("");

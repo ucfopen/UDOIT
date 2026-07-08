@@ -210,33 +210,27 @@ class FileItemsController extends ApiController
         $url = $file->getDownloadUrl();
         $output->writeln("Attempting file download from URL: " . $url);
 
-        // First, do a HEAD request to get Content-Length and check status
-        $headCh = curl_init($url);
-        curl_setopt($headCh, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($headCh, CURLOPT_NOBODY, true);
-        curl_setopt($headCh, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($headCh);
-        $httpCode = curl_getinfo($headCh, CURLINFO_HTTP_CODE);
-        $contentLength = curl_getinfo($headCh, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
-        $contentType = curl_getinfo($headCh, CURLINFO_CONTENT_TYPE) ?: 'video/mp4';
-        curl_close($headCh);
-
-        if ($httpCode >= 400) {
-            return new Response("Upstream error: HTTP $httpCode", $httpCode);
+        $contentType = 'video/mp4';
+        try {
+            $metadata = json_decode($file->getMetadata(), true);
+            if(isset($metadata['content-type'])){
+                $contentType = $metadata['content-type'];
+            }
+        } catch (e) {
+            $output->writeln("No file metadata found.");
         }
 
         $headers = [
             'Content-Type' => $contentType,
+            'User-Agent' => 'UDOIT/4.0.0', //'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/Chrome',
         ];
-        if ($contentLength > 0) {
-            $headers['Content-Length'] = (int) $contentLength;
-        }
 
         $response = new StreamedResponse(function () use ($url, $output) {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
             curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'UDOIT/4.0.0',); //'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/Chrome');
             curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) {
                 echo $data;
                 flush();
@@ -244,7 +238,10 @@ class FileItemsController extends ApiController
             });
 
             $result = curl_exec($ch);
+            
             if ($result === false) {
+                $error = curl_error($ch);
+                curl_close($ch);
                 $output->writeln("cURL error: " . curl_error($ch));
             }
             curl_close($ch);
