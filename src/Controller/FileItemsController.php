@@ -93,9 +93,6 @@ class FileItemsController extends ApiController
             $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
             $responseContent = $lmsResponse->getContent();
 
-            $output->writeln(json_encode($responseContent, JSON_PRETTY_PRINT));
-
-
             // If the new file was successfully posted, update the FileItem metadata to point to this replacement
             if (isset($responseContent['id'])) {
                 $file->setReplacementFile($responseContent);
@@ -279,7 +276,7 @@ class FileItemsController extends ApiController
         try{
             $content= \json_decode($request->getContent(), true);
             $tracks = $content['tracks'];
-            $response = $lmsPost->setMediaTracks($mediaId, $tracks, $user);
+            $apiResponse = $lmsPost->setMediaTracks($mediaId, $tracks, $user);
         }
         catch(\Exception $e){
             $apiResponse->addError($e->getMessage());

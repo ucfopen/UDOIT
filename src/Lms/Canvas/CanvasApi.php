@@ -235,12 +235,10 @@ class CanvasApi {
         }
 
         $output = new ConsoleOutput;
-        $output->writeln("PUT options: " . json_encode($options));
         $response = $this->httpClient->request('PUT', $url, $options);
         $lmsResponse->setResponse($response);
 
         $content = $lmsResponse->getContent();
-        $output->writeln("PUT response: " . json_encode($content));
         if (!empty($content['errors'])) {
             // TODO: If error is invalid token, refresh API token and try again
 

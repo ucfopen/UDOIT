@@ -18,6 +18,7 @@ import RightArrowIcon from './Icons/RightArrowIcon'
 import Api from '../Services/Api'
 import { parseVTT, buildVttText, vttToMS, formatTimeVTT, formatVTTTime, computeVTTDuration } from "../Services/Captions";
 import * as Html from '../Services/Html.js'
+import { primaryLanguages } from '../Services/Lang'
 import * as Text from '../Services/Text'
 import { FILE_FILTER as FILTER, FILE_TYPES, FILE_TYPE_MAP, ISSUE_STATE, WIDGET_STATE } from '../Services/Constants'
 
@@ -1094,12 +1095,21 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       return;
     }
 
-    const api = new Api(settings)
-    api.setMediaTracks(mediaEntryId, vttArray)
+    // Canvas only allows for one track per language, so if you try to save English captions and English subtitles,
+    // only the last one in the array stays. So I need to create false locales, like "English-subtitles" to keep both.
+    let saveVttArray = structuredClone(vttArray);
+    saveVttArray.forEach((track) => {
+      if(track.kind !== "captions" && primaryLanguages[track.locale]) {
+        track.locale = primaryLanguages[track.locale] + '-' + track.kind;
+      }
+    })
+    const api = new Api(instanceInfo)
+    api.setMediaTracks(mediaEntryId, saveVttArray)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        if(response?.data?.tracks) {
-          const existingTracks = response.data.tracks
+        if(Array.isArray(response) && response.length === vttArray.length) {
+          addMessage({ message: "Tracks applied to media file.", severity: "success", visible: true });
+          const existingTracks = response
           setVttArray(existingTracks);
         }
       })

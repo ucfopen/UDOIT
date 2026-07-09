@@ -4,11 +4,11 @@ import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 
 import AddIcon from "../Icons/AddIcon";
-import CaptionIcon from "../Icons/CaptionIcon";
 import DownloadIcon from "../Icons/DownloadIcon";
 import InfoIcon from "../Icons/InfoIcon";
 import ExpandIcon from "../Icons/ExpandIcon";
 import SeverityIssueIcon from "../Icons/SeverityIssueIcon";
+import TimerIcon from "../Icons/TimerIcon";
 import UploadIcon from "../Icons/UploadIcon";
 
 import Combobox from '../Widgets/Combobox';
@@ -26,6 +26,7 @@ import { DEFAULT_USER_SETTINGS } from "../../Services/Constants";
 import { primaryLanguages } from '../../Services/Lang'
 import * as Text from '../../Services/Text';
 import './MediaCaptions.css';
+import DeleteIcon from "../Icons/DeleteIcon";
 
 /**
  * MediaCaptionsEditor
@@ -62,7 +63,14 @@ export default function MediaCaptionsEditor({
     'descriptions': t('form.media.label.type_descriptions'),
     'subtitles': t('form.media.label.type_subtitles')
   }
-  
+
+  const captionTypesSingle = {
+    'captions': t('form.media.label.type_captions_single'),
+    'chapters': t('form.media.label.type_chapters_single'),
+    'descriptions': t('form.media.label.type_descriptions_single'),
+    'subtitles': t('form.media.label.type_subtitles_single')
+  }
+
   const [isLoading, setIsLoading] = useState(true);
   const [fileTotalSize, setFileTotalSize] = useState(0);
   const [fileLoadedSize, setFileLoadedSize] = useState(0);
@@ -72,6 +80,7 @@ export default function MediaCaptionsEditor({
 
   const [cues, setCues] = useState([]);
   const [cueDisplay, setCueDisplay] = useState(CUE_STYLE.LIST);
+  const [trackOptions, setTrackOptions] = useState([]);
   const [languageOptions, setLanguageOptions] = useState([]);
   const [typeOptions, setTypeOptions] = useState([]);
   const [error, setError] = useState("");
@@ -90,7 +99,7 @@ export default function MediaCaptionsEditor({
   const [activeSettingsIndex, setActiveSettingsIndex] = useState(-1);
 
   useEffect(() => {
-    if(!file?.fileData) return;
+    if (!file?.fileData) return;
 
     setVttActiveIndex(-1);
     setVttArray([]);
@@ -112,7 +121,7 @@ export default function MediaCaptionsEditor({
   }, [file])
 
   const getExistingTracks = async () => {
-    if(!file?.fileData?.metadata?.media_entry_id) {
+    if (!file?.fileData?.metadata?.media_entry_id) {
       addMessage({ message: "File is missing Media ID. Cannot save captions to Canvas.", severity: "error", visible: true });
       setVttArray([{ locale: '', kind: '', content: ''}]);
       setVttActiveIndex(0);
@@ -123,26 +132,57 @@ export default function MediaCaptionsEditor({
     const api = new Api(instanceInfo)
     const responseStr = await api.getMediaTracks(mediaEntryId)
     const response = await responseStr.json()
-    if(response.errors && response.errors.length > 0) {
+    if (response.errors && response.errors.length > 0) {
       response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
     }
-    else if(response?.data?.tracks) {
+    else if (response?.data?.tracks) {
       const existingTracks = response.data.tracks
-
-      if(existingTracks.length > 0) {
+      if (existingTracks.length > 0) {
+        existingTracks.forEach((track) => {
+          // If the track has a fake, hyphenated locale (like "English-subtitles"), revert to "en".
+          if (track.locale.includes('-')) {
+            let tempLocale = track.locale.substring(0, track.locale.indexOf('-'));
+            let localeCode = Object.keys(primaryLanguages).find(key => primaryLanguages[key] === tempLocale);
+            if (localeCode) {
+              track.locale = localeCode;
+            }
+          }
+        })
         setVttArray(existingTracks);
         setVttActiveIndex(0);
         return;
       }
     }
 
-    setVttArray([{ locale: '', content: ''}]);
+    setVttArray([{ locale: getDefaultLanguage(), content: '', kind: 'captions'}]);
     setVttActiveIndex(0);
   }
+
+  useEffect(() => {
+    let tempTrackOptions = [];
+    for(let i = 0; i < vttArray.length; i++) {
+      // By default, the track name something like 'Track 2'
+      let tempDescription = t('form.media.label.track_number', {'trackNumber': (i + 1).toString()})
+
+      let localeString = primaryLanguages[vttArray[i].locale] || '';
+      let typeString = captionTypes[vttArray[i].kind] || '';
+      // If the track has a known type and/or language, the name is something like 'English Captions' or 'French' or 'Subtitles'
+      if (localeString !== '' || typeString !== '') {
+        tempDescription = t('form.media.label.track_name', {'trackLocale': localeString, 'trackType': typeString})
+      }
+      tempTrackOptions.push({
+        value: i,
+        name: tempDescription,
+        selected: vttActiveIndex === i
+      })
+      setTrackOptions(tempTrackOptions);
+    }
+  }, [vttArray, vttActiveIndex])
 
   const downloadVideoFromLMS = async (lmsFileId, contentType = 'video/mp4', fileSize = 0) => {
     setFileLoadedSize(0);
     setFileTotalSize(fileSize);
+    getExistingTracks();
     try {
       let api = new Api(instanceInfo);
       const response = await api.downloadFile(lmsFileId, contentType);
@@ -170,8 +210,6 @@ export default function MediaCaptionsEditor({
     catch (error) {
       console.error(error);
     }
-
-    getExistingTracks();
   }
 
   // ---- keep <track> updated as cues change
@@ -188,12 +226,13 @@ export default function MediaCaptionsEditor({
 
     const vttText = buildVttText(cues, false);
     const vttLang = vttArray[vttActiveIndex]?.locale || preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "en";
+    const vttKind = vttArray[vttActiveIndex]?.kind || '';
     const vttFormattedText = "WEBVTT\n\n" + vttText;
 
     // Update the big array for when it's time to save things.
-    if(vttActiveIndex !== -1) {
+    if (vttActiveIndex !== -1) {
       const tempVttArray = structuredClone(vttArray);
-      tempVttArray[vttActiveIndex] = { locale: vttLang, content: vttText };
+      tempVttArray[vttActiveIndex] = { locale: vttLang, content: vttText, kind: vttKind };
       setVttArray(tempVttArray);
     }
 
@@ -202,7 +241,7 @@ export default function MediaCaptionsEditor({
     const blob = new Blob([vttFormattedText], { type: "text/vtt" });
     const blobUrl = URL.createObjectURL(blob);
     const track = document.createElement("track");
-    track.kind = "captions";
+    track.kind = vttKind || "captions";
     track.srclang = vttLang;
     track.src = blobUrl;
     track.default = true;
@@ -232,14 +271,6 @@ export default function MediaCaptionsEditor({
       id: cue.id || `cue-${Date.now()}-${i}`,
     }));
     setCues(parsed);
-    const vttContent = buildVttText(parsed, false);
-    const tempVttObject = {
-      "locale": vttArray[vttActiveIndex]?.locale || getDefaultLanguage(),
-      "content": vttContent
-    }
-    const tempVttArray = structuredClone(vttArray);
-    tempVttArray.push(tempVttObject);
-    setVttArray(tempVttArray);
 
     let tempLanguageOptions = [{value: '', name: t('form.media.label.select_track_language'), selected: vttArray[vttActiveIndex]?.locale === ''}]
     Object.keys(primaryLanguages).forEach((key) => {
@@ -343,7 +374,7 @@ export default function MediaCaptionsEditor({
     const timestampText = `${startTimeText} - ${endTimeText}`;
 
     let timestampElement = domElement.querySelector('[part="timestamp"]');
-    if(!timestampElement) {
+    if (!timestampElement) {
       timestampElement = document.createElement("div")
       timestampElement.setAttribute('part', 'timestamp');
       domElement.appendChild(timestampElement)
@@ -456,7 +487,7 @@ export default function MediaCaptionsEditor({
     }
     setSelectedCueId(i);
 
-    if(cueDisplay === CUE_STYLE.LIST) {
+    if (cueDisplay === CUE_STYLE.LIST) {
       const listElement = document.querySelector(`li[data-id="${i}"]`);
       if (listElement) {
         listElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
@@ -464,9 +495,39 @@ export default function MediaCaptionsEditor({
     }
   }, [selectedCueId]);
 
+  const addNewTrack = () => {
+    const tempVttArray = structuredClone(vttArray);
+    tempVttArray.push({
+      locale: getDefaultLanguage(),
+      content: '',
+      kind: 'captions'
+    })
+    setVttArray(tempVttArray);
+    setVttActiveIndex(tempVttArray.length - 1);
+  }
+
+  const deleteTrack = () => {
+    if (!vttArray[vttActiveIndex]) {
+      return;
+    }
+    const tempVttArray = structuredClone(vttArray);
+    tempVttArray.splice(vttActiveIndex, 1);
+    setVttArray(tempVttArray);
+    if (tempVttArray.length > 0){
+      setVttActiveIndex(Math.max(0, vttActiveIndex - 1));
+    }
+    else {
+      setVttActiveIndex(-1);
+    }
+  }
+
+  const handleTrackSelect = (id, newTrack) => {
+    setVttActiveIndex(newTrack);
+  }
+
   const handleTrackTypeSelect = (id, newType) => {
     const tempVttArray = structuredClone(vttArray);
-    if(tempVttArray[vttActiveIndex]) {
+    if (tempVttArray[vttActiveIndex]) {
       tempVttArray[vttActiveIndex].kind = newType;
     }
     setVttArray(tempVttArray);
@@ -474,7 +535,7 @@ export default function MediaCaptionsEditor({
 
   const handleTrackLanguageSelect = (id, newLanguage) => {
     const tempVttArray = structuredClone(vttArray);
-    if(tempVttArray[vttActiveIndex]) {
+    if (tempVttArray[vttActiveIndex]) {
       tempVttArray[vttActiveIndex].locale = newLanguage;
     }
     setVttArray(tempVttArray);
@@ -638,7 +699,7 @@ export default function MediaCaptionsEditor({
         let cueStart = vttToS(cues[i].start);
         let cueEnd = vttToS(cues[i].end);
         if (cueStart <= targetTime && cueEnd >= targetTime) {
-          if(selectedCueId !== cues[i].id) {
+          if (selectedCueId !== cues[i].id) {
             targetTime = cueStart;
           }
           tempSelectedCueId = cues[i].id;
@@ -677,7 +738,7 @@ export default function MediaCaptionsEditor({
 
     // Special case: the first caption added OR inserting from the player without a cueId.
     if (cueIndex === -1) {
-      if(fromPlayer) {
+      if (fromPlayer) {
         newStart = currentTime;
         newEnd = currentTime + defaultDuration;
       }
@@ -832,10 +893,10 @@ export default function MediaCaptionsEditor({
   }, [activeSettingsIndex, cues]);
 
   const openSettings = (index) => {
-    if(selectedCueId !== index) {
+    if (selectedCueId !== index) {
       setSelectedCueId(index);
     }
-    if(activeSettingsIndex !== index) {
+    if (activeSettingsIndex !== index) {
       setActiveSettingsIndex(index);
     }
   }
@@ -857,7 +918,7 @@ export default function MediaCaptionsEditor({
 
   // After inserting a new cue, focus immediately on its text input for accessibility and ease of use
   useEffect(() => {
-    if(selectedCueId === -1) {
+    if (selectedCueId === -1) {
       return
     }
 
@@ -870,9 +931,9 @@ export default function MediaCaptionsEditor({
 
   useEffect(() => {
     // Hide existing captions so they don't bleed through the "Loading" screen.
-    if(isLoading) {
+    if (isLoading) {
       const tracks = document.querySelector("video")?.textTracks;
-      if(tracks && tracks.length > 0) {
+      if (tracks && tracks.length > 0) {
         for (const track of tracks) {
           track.mode = "disabled";
         }
@@ -948,35 +1009,37 @@ export default function MediaCaptionsEditor({
             <FileInformation t={t} fileData={file.fileData} />
           </div>
           
-          {/* IMPORT/EXPORT VTT BUTTONS*/}
+          {/* TRACK SELECTION */}
           <div className="flex-row gap-2 align-items-center">
+            <div className="flex-row gap-1 align-items-center">
+              <label id="combo-label-trackSelect">{t('form.media.label.track')}</label>
+              <Combobox
+                isDisabled={vttArray.length === 0}
+                handleChange={handleTrackSelect}
+                id='trackSelect'
+                label=''
+                options={trackOptions}
+              />
+            </div>
             <button
-              className="btn-secondary btn-small btn-icon-left"
-              onClick={() => handleImport()}>
-              <DownloadIcon className="icon-md" />
-              <div>Import VTT</div>
-            </button>
-            <button
-              className="btn-secondary btn-small btn-icon-left"
-              disabled={isDisabled || !cues || cues?.length === 0}
-              onClick={handleExport}>
-              <UploadIcon className="icon-md" />
-              <div>Export VTT</div>
+              className="btn-icon-left btn-secondary btn-small"
+              onClick={addNewTrack}
+              aria-label={t('form.media.button.add_track')}
+              title={t('form.media.button.add_track')}
+              disabled={isDisabled || error !== ""}
+            >
+              <AddIcon aria-hidden="true" className="icon-md" />
+              {t('form.media.button.add_track')}
             </button>
           </div>
         </div>
         <div id="captions-editor-main-row" className={isFullWidthVideo ? "full-width-video" : ""}>
           <div id="table-focus-layer">
             { vttArray.length === 0 ? (
-              <div className="callout-container">
+              <div className="callout-container filled-container">
                 <div className="flex-row gap-2">
-                  <InfoIcon className="icon-md udoit-info align-self-center" alt="" aria-hidden="true"/>
-                  <div className="flex-column gap-2">
-                    <h2 className="m-0">Adding Tracks</h2>
-                    <div className="secondary">
-                      This media file does not have any associated caption tracks. Add a new track by clicking the "Add Track" button.
-                    </div>
-                  </div>
+                  <InfoIcon className="icon-md udoit-info align-self-top" alt="" aria-hidden="true"/>
+                  <div className="flex-column" dangerouslySetInnerHTML={{__html: t('form.media.info.tracks_description')}} />
                 </div>
               </div>
             ) : (
@@ -1024,47 +1087,66 @@ export default function MediaCaptionsEditor({
                   {cues.length === 0 && (
                     <div className="callout-container">
                       <div className="flex-column gap-4">
-                        <div className="flex-row justify-content-around align-items-center">
+                        <div className="flex-row justify-content-around align-items-center flex-wrap gap-1">
                           <button
-                            className="btn-icon-left btn-secondary btn-small"
+                            className="btn-icon-left btn-secondary btn-small flex-shrink-0"
                             onClick={() => insertCue(-1)}
-                            aria-label={t('form.media.button.add')}
-                            title={t('form.media.button.add')}
+                            aria-label={t('form.media.button.add_cue')}
+                            title={t('form.media.button.add_cue')}
                             disabled={isDisabled || error !== ""}
                           >
                             <AddIcon aria-hidden="true" className="icon-md" />
                             {t('form.media.button.enter_with_type', { captionType: captionTypes[vttArray[vttActiveIndex]?.kind] || captionTypes.captions })}
                           </button>
                           <button
-                            className="btn-secondary btn-small btn-icon-left"
+                            className="btn-secondary btn-small btn-icon-left flex-shrink-0"
                             onClick={() => handleImport()}>
                             <DownloadIcon className="icon-md" />
                             <div>{t('form.media.button.import_vtt')}</div>
+                          </button>
+                          <button
+                            className="btn-danger btn-small btn-icon-left flex-shrink-0"
+                            onClick={() => deleteTrack()}>
+                            <DeleteIcon className="icon-md" />
+                            <div>{t('form.media.button.delete_track')}</div>
                           </button>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {cueDisplay === CUE_STYLE.LIST && (
-                    <MediaCaptionsCueList
-                      t={t}
-                      activeSettingsIndex={activeSettingsIndex}
-                      cues={cues}
-                      deleteCue={deleteCue}
-                      error={error}
-                      handleSelectedIndex={handleSelectCueId}
-                      insertCue={insertCue}
-                      isDisabled={isDisabled}
-                      openSettings={openSettings}
-                      selectedIndex={selectedCueId}
-                      selectCue={selectCue}
-                      setActiveSettingsIndex={setActiveSettingsIndex}
-                      setCueAlign={setCueAlign}
-                      setCueEnd={setCueEnd}
-                      setCueStart={setCueStart}
-                      setCueText={setCueText}
-                    />
+                  { cueDisplay === CUE_STYLE.LIST && (
+                    <>
+                      <MediaCaptionsCueList
+                        t={t}
+                        activeSettingsIndex={activeSettingsIndex}
+                        cues={cues}
+                        deleteCue={deleteCue}
+                        error={error}
+                        handleSelectedIndex={handleSelectCueId}
+                        insertCue={insertCue}
+                        isDisabled={isDisabled}
+                        openSettings={openSettings}
+                        selectedIndex={selectedCueId}
+                        selectCue={selectCue}
+                        setActiveSettingsIndex={setActiveSettingsIndex}
+                        setCueAlign={setCueAlign}
+                        setCueEnd={setCueEnd}
+                        setCueStart={setCueStart}
+                        setCueText={setCueText}
+                      />
+                      {cues.length > 0 && (
+                        <div className="flex-row flex-end mt-2">
+                          <button
+                            className="btn-secondary btn-icon-left"
+                            disabled={isDisabled}
+                            onClick={() => insertCue(-1, true, true)}>
+                            <TimerIcon className="icon-md" aria-hidden="true" />
+                            {t('form.media.button.insert_caption_now', {'captionType': captionTypesSingle[vttArray[vttActiveIndex]?.kind] || captionTypesSingle['captions']})}
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </>
@@ -1107,16 +1189,6 @@ export default function MediaCaptionsEditor({
                   playPause={playPause}
                   seekBy={seekBy}
                 />
-                <div className="align-items-center">
-                  <button
-                    className="btn-link btn-icon-only"
-                    aria-label={t('form.media.button.insert_caption_now')}
-                    title={t('form.media.button.insert_caption_now')}
-                    disabled={isDisabled}
-                    onClick={() => insertCue(-1, true, true)}>
-                    <CaptionIcon className="icon-lg" aria-hidden="true" />
-                  </button>
-                </div>
               </div>
             )}
           </div>

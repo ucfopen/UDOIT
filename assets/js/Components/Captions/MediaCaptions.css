@@ -209,6 +209,17 @@
           }
         }
       }
+
+      .callout-container {
+        h2 {
+          margin-top: 0;
+          margin-bottom: 1em;
+        }
+
+        p {
+          margin-top: 0;
+        }
+      }
     }
 
     #video-focus-layer {

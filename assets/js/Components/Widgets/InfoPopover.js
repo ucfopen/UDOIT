@@ -112,7 +112,6 @@ export default function InfoPopover({
             e.preventDefault()
           }
           else if(e.key === 'Escape') {
-            console.log("ESCAPE PRESSED!");
             handleClose(e)
           }
         }}
