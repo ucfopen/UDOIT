@@ -4,6 +4,7 @@ import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 
 import AddIcon from "../Icons/AddIcon";
+import DeleteIcon from "../Icons/DeleteIcon";
 import DownloadIcon from "../Icons/DownloadIcon";
 import InfoIcon from "../Icons/InfoIcon";
 import ExpandIcon from "../Icons/ExpandIcon";
@@ -17,6 +18,7 @@ import InfoPopover from "../Widgets/InfoPopover";
 import MediaCaptionsCueList from "./MediaCaptionsCueList";
 import MediaCaptionsLoadingProgress from "./MediaCaptionsLoadingProgress";
 import MediaCaptionsPlaybackControls from "./MediaCaptionsPlaybackControls";
+import OptionFeedback from "../Widgets/OptionFeedback";
 import SliderSelect from "../Widgets/SliderSelect";
 import useWaveformKeyboard from "./useWaveformKeyboard";
 
@@ -26,7 +28,6 @@ import { DEFAULT_USER_SETTINGS } from "../../Services/Constants";
 import { primaryLanguages } from '../../Services/Lang'
 import * as Text from '../../Services/Text';
 import './MediaCaptions.css';
-import DeleteIcon from "../Icons/DeleteIcon";
 
 /**
  * MediaCaptionsEditor
@@ -43,7 +44,7 @@ export default function MediaCaptionsEditor({
   instanceInfo,
   file,
   addMessage,
-  setFormInvalid = () => {},
+  setFormInvalid,
   initialVideoUrl = null,
   vttArray,
   setVttArray,
@@ -71,11 +72,11 @@ export default function MediaCaptionsEditor({
     'subtitles': t('form.media.label.type_subtitles_single')
   }
 
-  const [isLoading, setIsLoading] = useState(true);
   const [fileTotalSize, setFileTotalSize] = useState(0);
   const [fileLoadedSize, setFileLoadedSize] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);  // Only used for properly displaying the play/pause button.
   const [isFullWidthVideo, setIsFullWidthVideo] = useState(false);  // For the fullscreen toggle classes.
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);  // Only used for properly displaying the play/pause button.
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl || null);
 
   const [cues, setCues] = useState([]);
@@ -85,6 +86,7 @@ export default function MediaCaptionsEditor({
   const [typeOptions, setTypeOptions] = useState([]);
   const [error, setError] = useState("");
   const [errorDetails, setErrorDetails] = useState("");
+  const [trackErrors, setTrackErrors] = useState([]);
   const [inputFocus, setInputFocus] = useState(false);
   const [selectedCueId, setSelectedCueId] = useState(-1);
   const [waveError, setWaveError] = useState("");
@@ -225,7 +227,7 @@ export default function MediaCaptionsEditor({
     }
 
     const vttText = buildVttText(cues, false);
-    const vttLang = vttArray[vttActiveIndex]?.locale || preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "en";
+    const vttLang = vttArray[vttActiveIndex]?.locale || '';
     const vttKind = vttArray[vttActiveIndex]?.kind || '';
     const vttFormattedText = "WEBVTT\n\n" + vttText;
 
@@ -251,16 +253,51 @@ export default function MediaCaptionsEditor({
     return () => URL.revokeObjectURL(blobUrl);
   }, [cues, isLoading]);
 
-  const getDefaultLanguage = () => {
-    let userDefaultLanguage = preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "en";
-    // Check to see if there is already a VTT track with that language.
-    if (vttArray && vttArray.length > 0) {
-      for(let i = 0; i < vttArray.length; i++) {
-        if (vttArray[i].locale === userDefaultLanguage) {
-          return '';
+  const checkFormValid = () => {
+
+    if (!vttArray || vttArray.length === 0 || vttActiveIndex === -1) {
+      setFormInvalid(true);
+      setTrackErrors([]);
+      return;
+    }
+
+    let tempFormInvalid = false;
+    let tempTrackErrors = [];
+    let activeTrackType = '';
+    const trackTypes = [];
+    for(let i = 0; i < vttArray.length; i++) {
+      let tempTrackType = (vttArray[i].locale || 'nolocale') + '-' + (vttArray[i].kind || 'nokind');
+      if (trackTypes.includes(tempTrackType)) {
+        tempFormInvalid = true;
+      }
+      trackTypes.push(tempTrackType);
+      if (i === vttActiveIndex) {
+        activeTrackType = tempTrackType;
+        if (!vttArray[i].locale || !vttArray[i].kind) {
+          tempTrackErrors.push({ text: t('form.media.msg.missing_type_lang'), type: "error" });
         }
       }
     }
+
+    if (trackTypes.filter(typeName => typeName === activeTrackType).length > 1) {
+      tempTrackErrors.push({ text: t('form.media.msg.unique_track_type'), type: "error" });
+    }
+
+    if (tempTrackErrors.length > 0) {
+      tempFormInvalid = true;
+    }
+
+    setFormInvalid(tempFormInvalid);
+    setTrackErrors(tempTrackErrors);
+  };
+
+  useEffect(() => {
+    checkFormValid();
+  }, [vttArray, vttActiveIndex]);
+
+  const getDefaultLanguage = () => {
+    let userDefaultLanguage = preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "";
+    
     return userDefaultLanguage;
   }
 
@@ -1083,14 +1120,20 @@ export default function MediaCaptionsEditor({
                     </button>
                   </div>
                 </div>
+                { trackErrors.length > 0 && (
+                  <OptionFeedback
+                    t={t}
+                    feedbackArray={trackErrors}
+                  />
+                )}
                 <div id="captions-list-inputs">
                   {cues.length === 0 && (
-                    <div className="callout-container">
+                    <div className="callout-container mt-3">
                       <div className="flex-column gap-4">
                         <div className="flex-row justify-content-around align-items-center flex-wrap gap-1">
                           <button
                             className="btn-icon-left btn-secondary btn-small flex-shrink-0"
-                            onClick={() => insertCue(-1)}
+                            onClick={() => insertCue(-1, true, true)}
                             aria-label={t('form.media.button.add_cue')}
                             title={t('form.media.button.add_cue')}
                             disabled={isDisabled || error !== ""}

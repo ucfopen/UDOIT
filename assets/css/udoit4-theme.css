@@ -1408,6 +1408,10 @@
   .font-smaller {
     font-size: .9em;
   }
+
+  .font-normal {
+    font-size: 1em;
+  }
   
   .font-larger {
     font-size: 1.25em;

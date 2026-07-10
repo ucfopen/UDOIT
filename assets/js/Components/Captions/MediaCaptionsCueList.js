@@ -143,7 +143,7 @@ export default function MediaCaptionsCueList({
                   <>
                     <button
                       id={`insert-after-${i}`}
-                      className="btn-small btn-icon-only btn-link"
+                      className="btn-small btn-icon-only btn-link font-normal"
                       aria-label={t('form.media.button.insert_after')}
                       title={t('form.media.button.insert_after')}
                       onClick={(e) => {
@@ -156,7 +156,7 @@ export default function MediaCaptionsCueList({
                     </button>
                     <button
                       id={`insert-before-${i}`}
-                      className="btn-small btn-icon-only btn-link"
+                      className="btn-small btn-icon-only btn-link font-normal"
                       aria-label={t('form.media.button.insert_before')}
                       title={t('form.media.button.insert_before')}
                       onClick={(e) => {
@@ -169,7 +169,7 @@ export default function MediaCaptionsCueList({
                     </button>
                     <button
                       id={`settings-button-${i}`}
-                      className="btn-small btn-icon-only btn-link"
+                      className="btn-small btn-icon-only btn-link font-normal"
                       aria-label={t('form.media.button.show_details')}
                       title={t('form.media.button.show_details')}
                       onClick={(e) => {
@@ -181,7 +181,7 @@ export default function MediaCaptionsCueList({
                       <SettingsIcon aria-hidden="true" className="icon-md" />
                     </button>
                     <button
-                      className="btn-small btn-icon-only btn-link"
+                      className="btn-small btn-icon-only btn-link font-normal"
                       aria-label={t('form.media.button.delete')}
                       title={t('form.media.button.delete')}
                       onFocus={() => handleSelectedIndex(cue.id)}

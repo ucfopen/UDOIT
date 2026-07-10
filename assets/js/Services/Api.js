@@ -284,14 +284,6 @@ export default class Api {
           "Content-Type": contentType,
         },
       });
-      const contentLength = response.headers.get('Content-Length');
-
-      if (contentLength > 0) {
-          console.log(`Total file size reported by server: ${contentLength} bytes`);
-          // You can use this total size for your state management
-      } else {
-            console.warn("Server did not provide Content-Length header.");
-      }
       return response;
 
     } catch (e) {

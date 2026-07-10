@@ -1344,7 +1344,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                   }
                 }}
                 className={`btn btn-icon-left ${markDelete ? 'btn-danger' : 'btn-primary'}`}
-                disabled={formInvalid || isDisabled }
+                disabled={formInvalid || isDisabled}
                 tabIndex='0'
               > 
               {markDelete ? t('form.delete') : t(`form.submit`)}
