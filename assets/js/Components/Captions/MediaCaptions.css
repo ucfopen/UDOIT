@@ -381,6 +381,35 @@
         background-color: var(--link-color);
         width: 2px;
       }
+
+      /* Triangles at the top and bottom of the timestamp cursor */
+      ::part(cursor)::before {
+        content: "";
+        position: absolute;
+        top: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        width: 0px;
+        height: 0px;
+        border-top: 18px solid var(--link-color);
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+      }
+
+      ::part(cursor)::after {
+        content: "";
+        position: absolute;
+        bottom: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        width: 0px;
+        height: 0px;
+        border-bottom: 18px solid var(--link-color);
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+      }
     }
   }
 }

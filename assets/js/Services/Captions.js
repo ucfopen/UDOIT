@@ -155,9 +155,9 @@ export function truncateVttTime(vttTime) {
     return seconds;
   }
   else if (hours === 0) {
-    return minutes + ":" + seconds;
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
   } else {
-    return hours + ":" + minutes + ":" + seconds;
+    return hours + ":" + (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
   }
 }
 
