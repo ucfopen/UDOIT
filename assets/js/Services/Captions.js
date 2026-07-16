@@ -62,6 +62,8 @@ export function parseVTT(data) {
       id: cueId,
       start,
       end,
+      startS: vttToS(start),
+      endS: vttToS(end),
       duration: computeVTTDuration(start, end),
       text,
       align,

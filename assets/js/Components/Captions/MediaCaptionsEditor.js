@@ -58,6 +58,8 @@ export default function MediaCaptionsEditor({
     TEXT: 'text',
   }
 
+  const CUE_SNAP_DISTANCE = 0.25; // Seconds
+
   const captionTypes = {
     'captions': t('form.media.label.type_captions'),
     'chapters': t('form.media.label.type_chapters'),
@@ -81,6 +83,8 @@ export default function MediaCaptionsEditor({
 
   const [cues, setCues] = useState([]);
   const [cueDisplay, setCueDisplay] = useState(CUE_STYLE.LIST);
+  const [dragListener, setDragListener] = useState(null);
+  const [dragEndListener, setDragEndListener] = useState(null);
   const [trackOptions, setTrackOptions] = useState([]);
   const [languageOptions, setLanguageOptions] = useState([]);
   const [typeOptions, setTypeOptions] = useState([]);
@@ -335,6 +339,115 @@ export default function MediaCaptionsEditor({
     setError("");
   }, [vttActiveIndex])
 
+  const evaluateDrag = (updateControl, region, currentCues) => {
+    // Snapping: If the element is within .25 seconds of another, it should "snap" to share an edge.
+    const currentCueId = region?.data?.cueId;
+    if (!currentCueId) {
+      return
+    }
+
+    let dragStartTime = region?.start;
+    let dragEndTime = region?.end;
+    
+    // Dragging the whole region or the start should compare its time to other cues' endings.
+    if (!updateControl || updateControl === "start") {
+      
+      // If the "snap effect" is on for the region's start, see if we've pulled enough away to overcome it.
+      if (region?.data?.snapStartRegionId) {
+        dragStartTime -= (region?.data?.snapStartOffset || 0);
+        for (let i = 0; i < currentCues.length; i++) {
+          if (currentCues[i].id === region.data.snapStartRegionId) {
+            const timeDifference = currentCues[i].endS - dragStartTime;
+            if (Math.abs(timeDifference) > CUE_SNAP_DISTANCE) {
+              region.data.snapStartOffset = 0;
+              region.data.snapStartRegionId = '';
+              region.start = dragStartTime;
+            }
+            else {
+              region.start = currentCues[i].endS;
+              region.data.snapStartOffset = currentCues[i].endS - dragStartTime;
+            }
+          }
+        }
+      }
+
+      else {
+        for (let i = 0; i < currentCues.length; i++) {
+          if (currentCues[i].id !== currentCueId) {
+            const startTimeDifference = currentCues[i].endS - dragStartTime;
+            if (Math.abs(startTimeDifference) < CUE_SNAP_DISTANCE) {
+              region.data.snapStartOffset = startTimeDifference;
+              region.data.snapStartRegionId = currentCues[i].id;
+              region.start = currentCues[i].endS;
+            }
+          }
+        }
+      }
+    }
+    
+    // Dragging the whole region or the end should compare its time to other cues' beginnings.
+    if (!updateControl || updateControl === "end") {
+
+      // If the "snap effect" is on for the regions end, see if we've pulled enough away to overcome it.
+      if (region?.data?.snapEndRegionId) {
+        dragEndTime -= (region?.data?.snapEndOffset || 0);
+        for (let i = 0; i < currentCues.length; i++) {
+          if (currentCues[i].id === region.data.snapEndRegionId) {
+            const timeDifference = currentCues[i].startS - dragEndTime;
+            if (Math.abs(timeDifference) > CUE_SNAP_DISTANCE) {
+              region.data.snapEndOffset = 0;
+              region.data.snapEndRegionId = '';
+              region.end = dragEndTime;
+            }
+            else {
+              region.end = currentCues[i].startS;
+              region.data.snapEndOffset = currentCues[i].startS - dragEndTime;
+            }
+          }
+        }
+      }
+
+      else {
+        for (let i = 0; i < currentCues.length; i++) {
+          if (currentCues[i].id !== currentCueId) {
+            const endTimeDifference = currentCues[i].startS - dragEndTime;
+            if (Math.abs(endTimeDifference) < CUE_SNAP_DISTANCE) {
+              region.data.snapEndOffset = endTimeDifference;
+              region.data.snapEndRegionId = currentCues[i].id;
+              region.end = currentCues[i].startS;
+            }
+          }
+        }
+      }
+    }
+
+    const domElement = region?.element;
+    if (!domElement) return;
+    const fakeCue = {
+      start: region?.start || 0,
+      end: region?.end || 0
+    };
+    updateRegionTimestampText(domElement, fakeCue);
+    
+    if (!updateControl || updateControl === "start") {
+      seekTo(region.start);
+    }
+    else {
+      seekTo(region.end);
+    }
+  };
+
+  const completeDrag = (region, currentCues) => {
+    const cueId = region.data?.cueId;
+    region.data.snapStartRegionId = '';
+    region.data.snapStartOffset = 0;
+    region.data.snapEndRegionId = '';
+    region.data.snapEndOffset = 0;
+    if (!cueId) return;
+
+    setCueStartEnd(currentCues, cueId, region.start, region.end);
+  }
+
   // ---- Wavesurfer plugins (MUST be memoized)
   const plugins = useMemo(() => {
     return [
@@ -361,12 +474,14 @@ export default function MediaCaptionsEditor({
     const region = regionsPlugin.addRegion({
       start,
       end,
+      startS: start,
+      endS: end,
       drag: true,
       resize: true,
       content: cue.text,
     });
 
-    region.data = { cueId: cue.id };
+    region.data = { cueId: cue.id, snapStartOffset: 0, snapStartRegionId: '',  snapEndOffset: 0, snapEndRegionId: '' };
 
     if (region.element) {
       region.element.setAttribute('tabindex', '-1');
@@ -378,30 +493,6 @@ export default function MediaCaptionsEditor({
         `Region from ${cue.start} to ${cue.end}: ${cue.text}`
       );
     }
-
-    region.on("update", (updateControl) => {
-      const domElement = region?.element;
-      if (!domElement) return;
-      const fakeCue = {
-        start: region?.start || 0,
-        end: region?.end || 0
-      };
-      updateRegionTimestampText(domElement, fakeCue);
-      
-      if (!updateControl || updateControl === "start") {
-        seekTo(region.start);
-      }
-      else {
-        seekTo(region.end);
-      }
-    });
-
-    region.on("update-end", (e) => {
-      const cueId = region.data?.cueId;
-      if (!cueId) return;
-
-      setCueStartEnd(cueId, region.start, region.end);
-    });
 
   }, [cues, videoElRef, wavesurferRef])
 
@@ -431,7 +522,7 @@ export default function MediaCaptionsEditor({
       return;
     }
 
-    const allRegions = regionsPlugin.getRegions?.() || [];
+    let allRegions = regionsPlugin.getRegions?.() || [];
 
     // There may be cues that have not been added to regions, and there may be
     // regions that have not been deleted when a cue was.
@@ -443,6 +534,9 @@ export default function MediaCaptionsEditor({
         createNewRegion(cue, regionsPlugin);
       }
     });
+
+    // Now, get a fresh list of all regions and add the drag-and-drop handlers.
+    allRegions = regionsPlugin.getRegions?.() || [];
 
     // Remove regions where the cue was removed.
     const currentCueIds = cues.map(cue => cue.id);
@@ -473,6 +567,24 @@ export default function MediaCaptionsEditor({
 
       // Update the timestamp element's text.
       updateRegionTimestampText(domElement, region);
+
+      // The drag event handlers need to be reinitialized every time the `cues` object updates.
+      if (region.data?.unsubDrag && typeof region.data.unsubDrag === 'function') {
+        region.data.unsubDrag();
+      }
+      if (region.data?.unsubDragEnd && typeof region.data.unsubDragEnd === 'function') {
+        region.data.unsubDragEnd();
+      }
+
+      let tempDragListener = region.on('update', (updateControl) => {
+        evaluateDrag(updateControl, region, cues);
+      });
+      let tempDragEndListener = region.on('update-end', (updateControl) => {
+        completeDrag(region, cues);
+      })
+
+      region.data.unsubDrag = tempDragListener;
+      region.data.unsubDragEnd = tempDragEndListener;
     })
 
   }, [cues, wavesurferRef, isLoading]);
@@ -508,7 +620,7 @@ export default function MediaCaptionsEditor({
   );
 
   const sortCues = (tempCues = cues) => {
-    tempCues = Object.values(tempCues).sort((a, b) => vttToMS(a.start) - vttToMS(b.start));
+    tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
     setCues(tempCues);
   }
 
@@ -656,16 +768,6 @@ export default function MediaCaptionsEditor({
     if (!regionsPlugin?.on) return;
 
     const handler = (region) => {
-      const activeCueId = region?.data?.cueId;
-
-      const start = formatTimeVTT(region.start);
-      const end = formatTimeVTT(region.end);
-
-      let tempCues = cues.map((cue) => {
-        if (cue.id !== activeCueId) return cue;
-        return { ...cue, start, end, duration: computeVTTDuration(start, end) };
-      })
-      sortCues(tempCues);
       setVideoTime(region.start);
     };
  
@@ -709,17 +811,19 @@ export default function MediaCaptionsEditor({
     });
   }, [cues]);
 
-  const setCueStartEnd = useCallback((cueId, startSeconds, endSeconds) => {
-    setCues((prev) => {
-      const cue = cues.find((cue) => cue.id === cueId);
-      if (!cue) return prev;
+  const setCueStartEnd = (currentCues, cueId, startSeconds, endSeconds) => {
+    const startVTT = formatTimeVTT(startSeconds);
+    const endVTT = formatTimeVTT(endSeconds);
+    const duration = Math.max(0, endSeconds - startSeconds);
+    
+    let tempCues = currentCues.map((cue) => {
+      if (cue.id !== cueId) return cue;
+      return { ...cue, start: startVTT, end: endVTT, startS: startSeconds, endS: endSeconds, duration: duration };
+    })
+    tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
 
-      const startVTT = formatTimeVTT(startSeconds);
-      const endVTT = formatTimeVTT(endSeconds);
-
-      return prev.map((c) => (c.id === cueId ? { ...c, start: startVTT, end: endVTT } : c));
-    });
-  }, [cues])
+    setCues(tempCues);
+  };
 
   const seekFromWaveform = useCallback((percent) => {
     const video = videoElRef.current;
@@ -788,18 +892,18 @@ export default function MediaCaptionsEditor({
     // If inserting near an existing cue, use that as a reference for start/end times
     else if (cues[cueIndex]) {
       if (before) {
-        newEnd = vttToMS(cues[cueIndex].start) / 1000 - defaultGap;
+        newEnd = cues[cueIndex].startS - defaultGap;
         newStart = Math.max(0, newEnd - defaultDuration);
         if (cues[cueIndex - 1]) {
-          let previousEnd = vttToMS(cues[cueIndex - 1].end) / 1000;
+          let previousEnd = cues[cueIndex - 1].endS;
           newStart = Math.max(newStart, previousEnd + defaultGap);
         }
       }
       else {
-        newStart = vttToMS(cues[cueIndex].end) / 1000 + defaultGap;
+        newStart = cues[cueIndex].endS + defaultGap;
         newEnd = newStart + defaultDuration;
         if (cues[cueIndex + 1]) {
-          let nextStart = vttToMS(cues[cueIndex + 1].start) / 1000;
+          let nextStart = cues[cueIndex + 1].startS;
           newEnd = Math.min(newEnd, nextStart - defaultGap);
         }
       }
@@ -811,7 +915,7 @@ export default function MediaCaptionsEditor({
     }
 
     let duration = newEnd - newStart;
-    if (duration <= 0) {
+    if (duration <= 0.001) {
       addMessage({ message: "No room to insert caption.", severity: "alert", visible: true });
       return;
     }
@@ -823,6 +927,8 @@ export default function MediaCaptionsEditor({
       id: insertedCueId,
       start: formatVTTTime(newStart),
       end: formatVTTTime(newEnd),
+      startS: newStart,
+      endS: newEnd,
       duration: (newEnd - newStart).toFixed(3),
       text: "",
       position: 50,
@@ -830,7 +936,8 @@ export default function MediaCaptionsEditor({
     }
 
     let tempCues = Object.assign({}, cues, { [cues.length]: newCue });
-    sortCues(tempCues);
+    tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
+    setCues(tempCues);
     handleSelectCueId(insertedCueId);
     setInputFocus(!inputFocus);
     return;
@@ -849,7 +956,6 @@ export default function MediaCaptionsEditor({
       }
     }
     handleSelectCueId(previousCueId);
-    
     setCues(tempCues);
     setInputFocus(!inputFocus);
   }, [cues]);
@@ -903,30 +1009,36 @@ export default function MediaCaptionsEditor({
     });
   }
 
-  const setCueStart = useCallback((value) => {
-    if (vttToS(value) === -1) {
+  const setCueStart = useCallback((value, cueId) => {
+    const trimmed = String(value ?? "").trim();
+    const valueS = vttToS(trimmed);
+    if (valueS === -1) {
       return;
     }
 
-    const trimmed = String(value ?? "").trim();
-    setCues((prev) => {
-      return prev.map((c) => (c.id === activeSettingsIndex ? { ...c, start: trimmed } : c));
-    });
-
-    seekTo(value);
+    let tempCues = cues.map((cue) => {
+      if (cue.id !== cueId) return cue;
+      return { ...cue, start: trimmed, startS: valueS };
+    })
+    tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
+    setCues(tempCues);
+    seekTo(valueS);
   }, [activeSettingsIndex, cues]);
 
-  const setCueEnd = useCallback((value) => {
-    if (vttToS(value) === -1) {
+  const setCueEnd = useCallback((value, cueId) => {
+    const trimmed = String(value ?? "").trim();
+    const valueS = vttToS(trimmed);
+    if (valueS === -1) {
       return;
     }
 
-    const trimmed = String(value ?? "").trim();
-    setCues((prev) => {
-      return prev.map((c) => (c.id === activeSettingsIndex ? { ...c, end: trimmed } : c));
-    });
-
-    seekTo(value);
+    let tempCues = cues.map((cue) => {
+      if (cue.id !== cueId) return cue;
+      return { ...cue, end: trimmed, endS: valueS };
+    })
+    tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
+    setCues(tempCues);
+    seekTo(valueS);
   }, [activeSettingsIndex, cues]);
 
   const openSettings = (index) => {

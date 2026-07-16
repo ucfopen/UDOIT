@@ -94,7 +94,7 @@ export default function MediaCaptionsCueList({
                         onClick={(e) => {
                           e.stopPropagation()
                         }}
-                        onChange={e => setCueStart(e.target.value)}
+                        onChange={e => setCueStart(e.target.value, cue.id)}
                         style={{ width: "8em" }}
                       />
                       <ArrowIcon className="icon-sm gray" aria-hidden="true" />
@@ -106,7 +106,7 @@ export default function MediaCaptionsCueList({
                         onClick={(e) => {
                           e.stopPropagation()
                         }}
-                        onChange={e => setCueEnd(e.target.value)}
+                        onChange={e => setCueEnd(e.target.value, cue.id)}
                         style={{ width: "8em" }}
                       />
                     </div>
