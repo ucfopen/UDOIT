@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
 import LearnMore from './Widgets/LearnMore.js'
@@ -114,6 +114,7 @@ export default function ReviewFilesPage({
   // For media files
   const [vttArray, setVttArray] = useState([]);
   const [vttActiveIndex, setVttActiveIndex] = useState(-1);
+  const cachedMediaURLs = useRef({});
 
   const [isDisabled, setIsDisabled] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
@@ -433,7 +434,7 @@ export default function ReviewFilesPage({
     setIsDisabled(tempIsDisabled)
   }, [sessionFiles])
 
-useEffect(() => {
+  useEffect(() => {
     if(showLearnMore) {
       document.getElementById('btn-learn-more-back')?.focus()
     }
@@ -658,22 +659,22 @@ useEffect(() => {
   }
 
   const extractUrl = (url, contentType) => {
-  if(!url) return ''
-  
-  const idx = url.indexOf('courses/');
-  if (idx !== -1) {
-    // slice from "courses/" onward and strip any leading slashes (defensive)
-    let slicedUrl = url.slice(idx).replace(/^\/+/, '');
-    if(contentType == "syllabus"){
-      const parts = slicedUrl.split("/")
-      slicedUrl = `${parts[0]}/${parts[1]}?include[]=syllabus_body`
+    if(!url) return ''
+    
+    const idx = url.indexOf('courses/');
+    if (idx !== -1) {
+      // slice from "courses/" onward and strip any leading slashes (defensive)
+      let slicedUrl = url.slice(idx).replace(/^\/+/, '');
+      if(contentType == "syllabus"){
+        const parts = slicedUrl.split("/")
+        slicedUrl = `${parts[0]}/${parts[1]}?include[]=syllabus_body`
+      }
+      return slicedUrl
     }
-    return slicedUrl
-  }
 
-  // if no "courses/" found, remove leading slashes and return the remainder
-  return url.replace(/^\/+/, '');
-}
+    // if no "courses/" found, remove leading slashes and return the remainder
+    return url.replace(/^\/+/, '');
+  }
 
   const updateFile = (tempFile, copiedReport, newFile = null, ) => {
     const tempReport = Object.assign({}, copiedReport)
@@ -1115,6 +1116,21 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       })
   }
 
+  const updateMediaURL = (fileId, blobURL) => {
+    cachedMediaURLs.current = {...cachedMediaURLs.current, [fileId]: blobURL};
+  }
+
+  const clearCachedMedia = () => {
+    try {
+      Object.keys(cachedMediaURLs.current).forEach((key) => {
+        let tempURL = cachedMediaURLs.current[key];
+        URL.revokeObjectURL(tempURL);
+      })
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -1166,6 +1182,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         return t('label.mime.unknown')
     }
   }
+
+  useEffect(() => {
+    // Runs when the component closes...
+    return () => {
+      console.log("Clearing cached media...");
+      clearCachedMedia();
+    }
+  }, [])
 
   // This outputs 'true' initially because the unfilteredFiles array is initially empty, but 
   // the widget state check (WIDGET_STATE.LOADING ?) prevents this false-positive from causing unexpected behavior
@@ -1266,6 +1290,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 vttActiveIndex={vttActiveIndex}
                 setVttActiveIndex={setVttActiveIndex}
                 setFormInvalid={setFormInvalid}
+                cachedMediaURLs={cachedMediaURLs.current}
+                updateMediaURL={updateMediaURL}
               />
             ) : (
 

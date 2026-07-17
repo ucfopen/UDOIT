@@ -286,6 +286,10 @@
       background-color: var(--background-color);
       box-sizing: border-box;
 
+      &:focus-visible {
+        outline: none;
+      }
+
       &.layer-wave:focus {
         outline: 2px solid var(--focus-color);
         outline-offset: 2px;
@@ -392,9 +396,9 @@
 
         width: 0px;
         height: 0px;
-        border-top: 18px solid var(--link-color);
-        border-left: 14px solid transparent;
-        border-right: 14px solid transparent;
+        border-top: 14px solid var(--link-color);
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
       }
 
       ::part(cursor)::after {
@@ -406,9 +410,9 @@
 
         width: 0px;
         height: 0px;
-        border-bottom: 18px solid var(--link-color);
-        border-left: 14px solid transparent;
-        border-right: 14px solid transparent;
+        border-bottom: 14px solid var(--link-color);
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
       }
     }
   }

@@ -20,12 +20,13 @@ import MediaCaptionsLoadingProgress from "./MediaCaptionsLoadingProgress";
 import MediaCaptionsPlaybackControls from "./MediaCaptionsPlaybackControls";
 import OptionFeedback from "../Widgets/OptionFeedback";
 import SliderSelect from "../Widgets/SliderSelect";
+import mediaCaptionsProcessing from "./mediaCaptionsProcessing";
 import useWaveformKeyboard from "./useWaveformKeyboard";
 
 import Api from '../../Services/Api';
-import { parseVTT, buildVttText, vttToMS, vttToS, formatTimeVTT, formatVTTTime, computeVTTDuration, truncateVttTime } from "../../Services/Captions";
+import { parseVTT, buildVttText, vttToS, formatTimeVTT, formatVTTTime, truncateVttTime } from "../../Services/Captions";
 import { DEFAULT_USER_SETTINGS } from "../../Services/Constants";
-import { primaryLanguages } from '../../Services/Lang'
+import { primaryLanguages } from '../../Services/Lang';
 import * as Text from '../../Services/Text';
 import './MediaCaptions.css';
 
@@ -51,14 +52,14 @@ export default function MediaCaptionsEditor({
   vttActiveIndex,
   setVttActiveIndex,
   isDisabled = false,
+  cachedMediaURLs,
+  updateMediaURL,
 }) {
 
   const CUE_STYLE = {
     LIST: 'list',
     TEXT: 'text',
   }
-
-  const CUE_SNAP_DISTANCE = 0.25; // Seconds
 
   const captionTypes = {
     'captions': t('form.media.label.type_captions'),
@@ -80,6 +81,7 @@ export default function MediaCaptionsEditor({
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);  // Only used for properly displaying the play/pause button.
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl || null);
+  const [videoTracksUrl, setVideoTracksUrl] = useState('');
 
   const [cues, setCues] = useState([]);
   const [cueDisplay, setCueDisplay] = useState(CUE_STYLE.LIST);
@@ -104,8 +106,10 @@ export default function MediaCaptionsEditor({
   const [cueIdCounter, setCueIdCounter] = useState(1);
   const [activeSettingsIndex, setActiveSettingsIndex] = useState(-1);
 
+  // When a new File Object is selected by the user, download the media associated with it.
   useEffect(() => {
-    if (!file?.fileData) return;
+    if (!file?.fileData || !file.fileData?.id) return;
+    const fileData = file.fileData;
 
     setVttActiveIndex(-1);
     setVttArray([]);
@@ -113,15 +117,24 @@ export default function MediaCaptionsEditor({
     setWaveError("");
     setError("");
     setErrorDetails("");
-    setCues([])
-
-    const fileData = file.fileData;
+    setCues([]);
 
     if (fileData?.metadata?.media_entry_id) {
       console.log("Found media_entry_id in LMS file data metadata:", fileData.metadata.media_entry_id);
     }
 
-    if (fileData?.id) {
+    const tracks = document.querySelector("video")?.textTracks;
+    if (tracks && tracks.length > 0) {
+      for (const track of tracks) {
+        track.mode = "disabled";
+      }
+    }
+
+    getExistingTracks();
+    if (cachedMediaURLs[fileData.id]) {
+      setVideoUrl(cachedMediaURLs[fileData.id])
+    }
+    else {
       downloadVideoFromLMS(fileData.id, fileData?.metadata?.content-type || '', fileData?.metadata?.fileSize || 0);
     }
   }, [file])
@@ -135,11 +148,11 @@ export default function MediaCaptionsEditor({
     }
     const mediaEntryId = file.fileData.metadata.media_entry_id;
 
-    const api = new Api(instanceInfo)
-    const responseStr = await api.getMediaTracks(mediaEntryId)
-    const response = await responseStr.json()
+    const api = new Api(instanceInfo);
+    const responseStr = await api.getMediaTracks(mediaEntryId);
+    const response = await responseStr.json();
     if (response.errors && response.errors.length > 0) {
-      response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
+      response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }));
     }
     else if (response?.data?.tracks) {
       const existingTracks = response.data.tracks
@@ -164,7 +177,7 @@ export default function MediaCaptionsEditor({
     setVttActiveIndex(0);
   }
 
-  useEffect(() => {
+  const updateTrackDropdown = useCallback(() => {
     let tempTrackOptions = [];
     for(let i = 0; i < vttArray.length; i++) {
       // By default, the track name something like 'Track 2'
@@ -183,12 +196,50 @@ export default function MediaCaptionsEditor({
       })
       setTrackOptions(tempTrackOptions);
     }
-  }, [vttArray, vttActiveIndex])
+  }, [vttArray, vttActiveIndex]);
+
+  const updateTypeLanguageDropdowns = useCallback(() => {
+    if (vttActiveIndex === -1) {
+      return;
+    }
+
+    let tempLanguageOptions = [{value: '', name: t('form.media.label.select_track_language'), selected: vttArray[vttActiveIndex]?.locale === ''}]
+    Object.keys(primaryLanguages).forEach((key) => {
+        tempLanguageOptions.push({
+          value: key,
+          name: primaryLanguages[key],
+          selected: vttArray[vttActiveIndex]?.locale === key
+        })
+      });
+    setLanguageOptions(tempLanguageOptions);
+
+    let tempTypeOptions = [{value: '', name: t('form.media.label.select_track_type'), selected: vttArray[vttActiveIndex]?.kind === ''}]
+    Object.keys(captionTypes).forEach((key) => {
+        tempTypeOptions.push({
+          value: key,
+          name: captionTypes[key],
+          selected: vttArray[vttActiveIndex]?.kind === key
+        })
+      });
+    setTypeOptions(tempTypeOptions);
+  }, [vttArray, vttActiveIndex]);
+
+  const loadCuesFromVttArray = useCallback(() => {
+    const vttText = vttArray[vttActiveIndex]?.content || ''
+    const parsed = parseVTT(vttText).map((cue, i) => ({
+      ...cue,
+      id: cue.id || `cue-${Date.now()}-${i}`,
+    }));
+    setCues(parsed);
+    setCueIdCounter(parsed.length + 1);
+    setActiveSettingsIndex(-1);
+    setSelectedCueId(-1);
+    setError("");
+  }, [vttArray, vttActiveIndex]);
 
   const downloadVideoFromLMS = async (lmsFileId, contentType = 'video/mp4', fileSize = 0) => {
     setFileLoadedSize(0);
     setFileTotalSize(fileSize);
-    getExistingTracks();
     try {
       let api = new Api(instanceInfo);
       const response = await api.downloadFile(lmsFileId, contentType);
@@ -212,13 +263,13 @@ export default function MediaCaptionsEditor({
       const blob = new Blob(chunks);
       let tempURL = URL.createObjectURL(blob);
       setVideoUrl(tempURL);
+      updateMediaURL(lmsFileId, tempURL);
     }
     catch (error) {
       console.error(error);
     }
   }
 
-  // ---- keep <track> updated as cues change
   useEffect(() => {
     const video = videoElRef.current;
     if (!video) return;
@@ -233,7 +284,8 @@ export default function MediaCaptionsEditor({
     const vttText = buildVttText(cues, false);
     const vttLang = vttArray[vttActiveIndex]?.locale || '';
     const vttKind = vttArray[vttActiveIndex]?.kind || '';
-    const vttFormattedText = "WEBVTT\n\n" + vttText;
+
+    updateVideoTracks(video, vttText, videoTracksUrl, setVideoTracksUrl);
 
     // Update the big array for when it's time to save things.
     if (vttActiveIndex !== -1) {
@@ -241,20 +293,6 @@ export default function MediaCaptionsEditor({
       tempVttArray[vttActiveIndex] = { locale: vttLang, content: vttText, kind: vttKind };
       setVttArray(tempVttArray);
     }
-
-    // Keep the video's <track> elements updated as the cues change.
-    Array.from(video.querySelectorAll("track")).forEach((tr) => tr.remove());
-    const blob = new Blob([vttFormattedText], { type: "text/vtt" });
-    const blobUrl = URL.createObjectURL(blob);
-    const track = document.createElement("track");
-    track.kind = vttKind || "captions";
-    track.srclang = vttLang;
-    track.src = blobUrl;
-    track.default = true;
-    track.src = blobUrl;
-    video.appendChild(track);
-
-    return () => URL.revokeObjectURL(blobUrl);
   }, [cues, isLoading]);
 
   const checkFormValid = () => {
@@ -297,155 +335,18 @@ export default function MediaCaptionsEditor({
 
   useEffect(() => {
     checkFormValid();
+    updateTrackDropdown();
   }, [vttArray, vttActiveIndex]);
+
+  useEffect(() => {
+    updateTypeLanguageDropdowns();
+    loadCuesFromVttArray();
+  }, [vttActiveIndex]);
 
   const getDefaultLanguage = () => {
     let userDefaultLanguage = preferences.lang || DEFAULT_USER_SETTINGS.LANGUAGE || "";
     
     return userDefaultLanguage;
-  }
-
-  useEffect(() => {
-    const vttText = vttArray[vttActiveIndex]?.content || ''
-    const parsed = parseVTT(vttText).map((cue, i) => ({
-      ...cue,
-      id: cue.id || `cue-${Date.now()}-${i}`,
-    }));
-    setCues(parsed);
-
-    let tempLanguageOptions = [{value: '', name: t('form.media.label.select_track_language'), selected: vttArray[vttActiveIndex]?.locale === ''}]
-    Object.keys(primaryLanguages).forEach((key) => {
-        tempLanguageOptions.push({
-          value: key,
-          name: primaryLanguages[key],
-          selected: vttArray[vttActiveIndex]?.locale === key
-        })
-      });
-    setLanguageOptions(tempLanguageOptions);
-
-    let tempTypeOptions = [{value: '', name: t('form.media.label.select_track_type'), selected: vttArray[vttActiveIndex]?.kind === ''}]
-    Object.keys(captionTypes).forEach((key) => {
-        tempTypeOptions.push({
-          value: key,
-          name: captionTypes[key],
-          selected: vttArray[vttActiveIndex]?.kind === key
-        })
-      });
-    setTypeOptions(tempTypeOptions);
-    
-    setCueIdCounter(parsed.length + 1);
-    setActiveSettingsIndex(-1);
-    setSelectedCueId(-1);
-    setError("");
-  }, [vttActiveIndex])
-
-  const evaluateDrag = (updateControl, region, currentCues) => {
-    // Snapping: If the element is within .25 seconds of another, it should "snap" to share an edge.
-    const currentCueId = region?.data?.cueId;
-    if (!currentCueId) {
-      return
-    }
-
-    let dragStartTime = region?.start;
-    let dragEndTime = region?.end;
-    
-    // Dragging the whole region or the start should compare its time to other cues' endings.
-    if (!updateControl || updateControl === "start") {
-      
-      // If the "snap effect" is on for the region's start, see if we've pulled enough away to overcome it.
-      if (region?.data?.snapStartRegionId) {
-        dragStartTime -= (region?.data?.snapStartOffset || 0);
-        for (let i = 0; i < currentCues.length; i++) {
-          if (currentCues[i].id === region.data.snapStartRegionId) {
-            const timeDifference = currentCues[i].endS - dragStartTime;
-            if (Math.abs(timeDifference) > CUE_SNAP_DISTANCE) {
-              region.data.snapStartOffset = 0;
-              region.data.snapStartRegionId = '';
-              region.start = dragStartTime;
-            }
-            else {
-              region.start = currentCues[i].endS;
-              region.data.snapStartOffset = currentCues[i].endS - dragStartTime;
-            }
-          }
-        }
-      }
-
-      else {
-        for (let i = 0; i < currentCues.length; i++) {
-          if (currentCues[i].id !== currentCueId) {
-            const startTimeDifference = currentCues[i].endS - dragStartTime;
-            if (Math.abs(startTimeDifference) < CUE_SNAP_DISTANCE) {
-              region.data.snapStartOffset = startTimeDifference;
-              region.data.snapStartRegionId = currentCues[i].id;
-              region.start = currentCues[i].endS;
-            }
-          }
-        }
-      }
-    }
-    
-    // Dragging the whole region or the end should compare its time to other cues' beginnings.
-    if (!updateControl || updateControl === "end") {
-
-      // If the "snap effect" is on for the regions end, see if we've pulled enough away to overcome it.
-      if (region?.data?.snapEndRegionId) {
-        dragEndTime -= (region?.data?.snapEndOffset || 0);
-        for (let i = 0; i < currentCues.length; i++) {
-          if (currentCues[i].id === region.data.snapEndRegionId) {
-            const timeDifference = currentCues[i].startS - dragEndTime;
-            if (Math.abs(timeDifference) > CUE_SNAP_DISTANCE) {
-              region.data.snapEndOffset = 0;
-              region.data.snapEndRegionId = '';
-              region.end = dragEndTime;
-            }
-            else {
-              region.end = currentCues[i].startS;
-              region.data.snapEndOffset = currentCues[i].startS - dragEndTime;
-            }
-          }
-        }
-      }
-
-      else {
-        for (let i = 0; i < currentCues.length; i++) {
-          if (currentCues[i].id !== currentCueId) {
-            const endTimeDifference = currentCues[i].startS - dragEndTime;
-            if (Math.abs(endTimeDifference) < CUE_SNAP_DISTANCE) {
-              region.data.snapEndOffset = endTimeDifference;
-              region.data.snapEndRegionId = currentCues[i].id;
-              region.end = currentCues[i].startS;
-            }
-          }
-        }
-      }
-    }
-
-    const domElement = region?.element;
-    if (!domElement) return;
-    const fakeCue = {
-      start: region?.start || 0,
-      end: region?.end || 0
-    };
-    updateRegionTimestampText(domElement, fakeCue);
-    
-    if (!updateControl || updateControl === "start") {
-      seekTo(region.start);
-    }
-    else {
-      seekTo(region.end);
-    }
-  };
-
-  const completeDrag = (region, currentCues) => {
-    const cueId = region.data?.cueId;
-    region.data.snapStartRegionId = '';
-    region.data.snapStartOffset = 0;
-    region.data.snapEndRegionId = '';
-    region.data.snapEndOffset = 0;
-    if (!cueId) return;
-
-    setCueStartEnd(currentCues, cueId, region.start, region.end);
   }
 
   // ---- Wavesurfer plugins (MUST be memoized)
@@ -495,21 +396,6 @@ export default function MediaCaptionsEditor({
     }
 
   }, [cues, videoElRef, wavesurferRef])
-
-  const updateRegionTimestampText = (domElement, cue) => {
-    const startTimeText = truncateVttTime(cue.start);
-    const endTimeText = truncateVttTime(cue.end);
-    const timestampText = `${startTimeText} - ${endTimeText}`;
-
-    let timestampElement = domElement.querySelector('[part="timestamp"]');
-    if (!timestampElement) {
-      timestampElement = document.createElement("div")
-      timestampElement.setAttribute('part', 'timestamp');
-      domElement.appendChild(timestampElement)
-    }
-
-    timestampElement.textContent = timestampText;
-  }
 
   useEffect(() => {
     const ws = wavesurferRef.current;
@@ -572,16 +458,18 @@ export default function MediaCaptionsEditor({
       if (region.data?.unsubDrag && typeof region.data.unsubDrag === 'function') {
         region.data.unsubDrag();
       }
+
       if (region.data?.unsubDragEnd && typeof region.data.unsubDragEnd === 'function') {
         region.data.unsubDragEnd();
       }
 
       let tempDragListener = region.on('update', (updateControl) => {
-        evaluateDrag(updateControl, region, cues);
+        evaluateDrag(updateControl, region, cues, videoElRef, wavesurferRef);
       });
+
       let tempDragEndListener = region.on('update-end', (updateControl) => {
-        completeDrag(region, cues);
-      })
+        completeDrag(region, cues, setCueStartEnd);
+      });
 
       region.data.unsubDrag = tempDragListener;
       region.data.unsubDragEnd = tempDragEndListener;
@@ -618,11 +506,6 @@ export default function MediaCaptionsEditor({
     },
     [cues, handleWaveformClick]
   );
-
-  const sortCues = (tempCues = cues) => {
-    tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
-    setCues(tempCues);
-  }
 
   const setVideoTime = (seconds) => {
     const video = videoElRef.current;
@@ -710,22 +593,6 @@ export default function MediaCaptionsEditor({
     setIsLoading(false);
   }
 
-  const seekTo = (seconds) => {
-    if (typeof seconds !== 'number' || seconds < 0) {
-      return;
-    }
-
-    const video = videoElRef.current;
-    if (!video?.duration) return;
-
-    video.currentTime = seconds;
-
-    const ws = wavesurferRef.current;
-    if (ws) {
-      ws.seekTo(seconds / video.duration);
-    }
-  };
-
   const playPause = () => {
     const video = videoElRef.current;
     if (!video) return;
@@ -738,6 +605,17 @@ export default function MediaCaptionsEditor({
       setIsPlaying(false);
     }
   };
+
+  const {
+    completeDrag,
+    evaluateDrag,
+    seekTo,
+    updateRegionTimestampText,
+    updateVideoTracks
+  } = mediaCaptionsProcessing({
+    wavesurferRef,
+    videoElRef,
+  })
 
   // Hook: keyboard layers
   const {
@@ -758,28 +636,6 @@ export default function MediaCaptionsEditor({
     seekTo,
     playPause
   });
-
-  // ---- when region is dragged/resized, write back to cues
-  useEffect(() => {
-    const ws = wavesurferRef.current;
-    if (!ws) return;
-
-    const regionsPlugin = findRegionsPlugin(ws);
-    if (!regionsPlugin?.on) return;
-
-    const handler = (region) => {
-      setVideoTime(region.start);
-    };
- 
-    regionsPlugin.on("region-updated", handler);
-    return () => {
-      try {
-        regionsPlugin.un?.("region-updated", handler);
-      } catch {
-        // ignore
-      }
-    };
-  }, [cues, findRegionsPlugin]);
 
   const selectCue = useCallback((cueId, seekSeconds) => {
     handleSelectCueId(cueId);
@@ -837,11 +693,9 @@ export default function MediaCaptionsEditor({
     let tempSelectedCueId = -1;
     if (cues && cues.length > 0) {
       for (let i = 0; i < cues.length; i++) {
-        let cueStart = vttToS(cues[i].start);
-        let cueEnd = vttToS(cues[i].end);
-        if (cueStart <= targetTime && cueEnd >= targetTime) {
+        if (cues[i].startS <= targetTime && cues[i].endS >= targetTime) {
           if (selectedCueId !== cues[i].id) {
-            targetTime = cueStart;
+            targetTime = cues[i].startS;
           }
           tempSelectedCueId = cues[i].id;
         }
@@ -1022,7 +876,7 @@ export default function MediaCaptionsEditor({
     })
     tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
     setCues(tempCues);
-    seekTo(valueS);
+    seekTo(valueS, videoElRef, wavesurferRef);
   }, [activeSettingsIndex, cues]);
 
   const setCueEnd = useCallback((value, cueId) => {
@@ -1038,7 +892,7 @@ export default function MediaCaptionsEditor({
     })
     tempCues = Object.values(tempCues).sort((a, b) => a.startS - b.startS);
     setCues(tempCues);
-    seekTo(valueS);
+    seekTo(valueS, videoElRef, wavesurferRef);
   }, [activeSettingsIndex, cues]);
 
   const openSettings = (index) => {
@@ -1049,21 +903,6 @@ export default function MediaCaptionsEditor({
       setActiveSettingsIndex(index);
     }
   }
-
-  // Wait for the waveform to render
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const wrapper = document.querySelector('.wrapper');
-      if (wrapper) {
-        wrapper.removeAttribute('tabindex');
-        wrapper.setAttribute('tabindex', '-1');
-        wrapper.setAttribute('aria-hidden', 'true');
-        clearInterval(interval);
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // After inserting a new cue, focus immediately on its text input for accessibility and ease of use
   useEffect(() => {
@@ -1077,18 +916,6 @@ export default function MediaCaptionsEditor({
       setActiveSettingsIndex(-1)
     }
   }, [inputFocus])
-
-  useEffect(() => {
-    // Hide existing captions so they don't bleed through the "Loading" screen.
-    if (isLoading) {
-      const tracks = document.querySelector("video")?.textTracks;
-      if (tracks && tracks.length > 0) {
-        for (const track of tracks) {
-          track.mode = "disabled";
-        }
-      }
-    }
-  }, [isLoading])
 
   // Seek to highlighted row's start when selection changes
   useEffect(() => {
@@ -1104,7 +931,7 @@ export default function MediaCaptionsEditor({
     applyRegionHighlight(selectedCueId);
 
     const startTime = vttToS(cue.start);
-    seekTo(startTime);
+    seekTo(startTime, videoElRef, wavesurferRef);
   }, [selectedCueId]);
 
   useEffect(() => {
