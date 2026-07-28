@@ -18,11 +18,15 @@ class Account implements \JsonSerializable
     #[ORM\Column(type: "string", length: 255)]
     private string $accountName;
 
+    #[ORM\Column(name: "parent_account_id", type: "string", length: 255, nullable: true)]
+    private string $parentAccountId;
+
     public function __construct(Institution $institution, string $lmsAccountId, string $accountName)
     {
         $this->institution = $institution;
         $this->lmsAccountId = $lmsAccountId;
         $this->accountName = $accountName;
+        $this->parentAccountId = $parentAccountId;
     }
 
     public function jsonSerialize(): array
@@ -30,6 +34,7 @@ class Account implements \JsonSerializable
         return [
             "lmsAccountId" => $this->lmsAccountId,
             "accountName" => $this->accountName,
+            "parentAccountId" => $this->parentAccountId,
         ];
     }
 
@@ -64,6 +69,17 @@ class Account implements \JsonSerializable
     {
         $this->institution = $institution;
 
+        return $this;
+    }
+
+     public function getParentAccountId(): string
+    {
+        return $this->parentAccountId;
+    }
+
+    public function setParentAccountId(string $parentAccountId): self
+    {
+        $this->parentAccountId = $parentAccountId;
         return $this;
     }
 }
