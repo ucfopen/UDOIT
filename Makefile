@@ -6,7 +6,7 @@ endif
 
 # spin up the containers
 start:
-	docker compose -f docker-compose.nginx.yml up
+	./scripts/start-app.sh
 
 
 create-migrations:
@@ -22,7 +22,7 @@ down:
 	docker compose -f docker-compose.nginx.yml down
 
 # rebuild the containers from the ground up
-build:
+rebuild:
 	docker compose -f docker-compose.nginx.yml up --build
 
 # clear the Symfony cache
