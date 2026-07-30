@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Entity\Report;
 use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
+use App\Repository\AccountRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
@@ -95,12 +96,14 @@ class AdminController extends ApiController
         SessionService $sessionService,
         LmsApiService $lmsApi,
         CourseRepository $courseRepo,
-        InitialStateService $initialStateService
+        InitialStateService $initialStateService,
+        AccountRepository $accountRepo
     ): JsonResponse {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
         $this->courseRepo = $courseRepo;
+        $this->accountRepo = $accountRepo;
 
         $user = $this->getUser();
         if (!$user) {
@@ -115,7 +118,7 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
  
-        $accounts = $lms->getAccountData($user, $accountId);
+        $accounts = $accountRepo->getSubAccounts($user, 98184);
 
         return new JsonResponse([
             'messages'     => $util->getUnreadMessages(true),
@@ -157,7 +160,7 @@ class AdminController extends ApiController
 
             $results[] = $row;
         }
-
+        
         $apiResponse->addLogMessages($util->getUnreadMessages());
         $apiResponse->setData($results);
 
@@ -323,9 +326,11 @@ class AdminController extends ApiController
     protected function getCourseData(Course $course, User $user)
     {
         $reportRepository = $this->doctrine->getRepository(Report::class);
+        $accountRepository = $this->doctrine->getRepository(Account::class);
         $updatedDate = $course->getLastUpdated();
-        $accounts = $this->lms->getAccountData($user);
         $accountId = $course->getAccount()->getLmsAccountId();
+        $accounts = $accountRepository->getSubAccounts($user, $accountId);
+
 
         $accountName = $accountId;
         if (!empty($accounts[$accountId])) {

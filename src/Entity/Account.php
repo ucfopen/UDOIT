@@ -24,7 +24,7 @@ class Account implements \JsonSerializable
     #[ORM\Column(name: "depth", type: "integer", nullable: true)]
     private int $depth;
 
-    public function __construct(Institution $institution, string $lmsAccountId, string $accountName)
+    public function __construct(Institution $institution, string $lmsAccountId, string $accountName, string $parentAccountId, int $depth)
     {
         $this->institution = $institution;
         $this->lmsAccountId = $lmsAccountId;
