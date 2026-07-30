@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function EmphasisForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -18,8 +18,8 @@ export default function EmphasisForm({
 }) {
 
   const FORM_OPTIONS = {
-    ADD_EMPHASIS: settings.UFIXIT_OPTIONS.ADD_EMPHASIS,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_EMPHASIS: UFIXIT_OPTIONS.ADD_EMPHASIS,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [useBold, setUseBold] = useState(false)
@@ -57,21 +57,25 @@ export default function EmphasisForm({
     const bold = isBold()
     const italicized = isItalicized()
     const styleColor = hasStyleColor()
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (bold || italicized || !styleColor) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    }
-    else {
-      setActiveOption('')
-    }
-    
     setUseBold(bold)
     setUseItalics(italicized)
     setRemoveColor(!styleColor)
+    
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (bold || italicized || !styleColor) {
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
+    }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {
@@ -81,7 +85,6 @@ export default function EmphasisForm({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -133,37 +136,43 @@ export default function EmphasisForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.ADD_EMPHASIS}
           labelText = {t('form.emphasis.label.select_emphasis')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_EMPHASIS && (
           <>
-            <div className="flex-row justify-content-start gap-1">
+            <div className="flex-row justify-content-start gap-2">
               <ToggleSwitch
                 labelId="boldCheckbox"
                 initialValue={useBold}
                 updateToggle={setUseBold}
                 disabled={isDisabled}
-                small={true} />
-              <label htmlFor="boldCheckbox" className="ufixit-instructions">{t('form.emphasis.label.bold')}</label>
+                small={false}
+              />
+              <label id="boldCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.bold')}</label>
             </div>
-            <div className="flex-row justify-content-start gap-1 mt-2">
+            <div className="flex-row justify-content-start gap-2 mt-2">
               <ToggleSwitch
                 labelId="italicCheckbox"
                 initialValue={useItalics}
                 updateToggle={setUseItalics}
                 disabled={isDisabled}
-                small={true} />
-              <label htmlFor="italicCheckbox" className="ufixit-instructions">{t('form.emphasis.label.italic')}</label>
+                small={false}
+              />
+              <label id="italicCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.italic')}</label>
             </div>
-            <div className="flex-row justify-content-start gap-1 mt-2">
+            <div className="flex-row justify-content-start gap-2 mt-2">
               <ToggleSwitch
                 labelId="removeColorCheckbox"
                 initialValue={removeColor}
                 updateToggle={setRemoveColor}
                 disabled={isDisabled}
-                small={true} />
-              <label htmlFor="removeColorCheckbox" className="ufixit-instructions">{t('form.emphasis.label.remove_color')}</label>
+                small={false}
+              />
+              <label id="removeColorCheckbox" className="ufixit-instructions align-self-center">{t('form.emphasis.label.remove_color')}</label>
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_EMPHASIS]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_EMPHASIS]}
+            />
           </>
         )}
       </div>
@@ -176,7 +185,7 @@ export default function EmphasisForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

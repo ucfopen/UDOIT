@@ -34,8 +34,8 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: var(--gray-light);
-        -webkit-transition: background-color (--transition-time);
+        background-color: var(--border-color);
+        -webkit-transition: background-color var(--transition-time);
         transition: background-color var(--transition-time);
         border-radius: var(--slider-height);
     
@@ -59,11 +59,11 @@
     }
 
     input:checked + .slider {
-        background-color: var(--pill-success-text);
+        background-color: var(--progress-bar-color);
     }
 
     input:focus + .slider {
-        box-shadow: 0 0 1px var(--pill-success-text);
+        box-shadow: 0 0 1px var(--progress-bar-color);
     }
 
     input:checked + .slider:before {

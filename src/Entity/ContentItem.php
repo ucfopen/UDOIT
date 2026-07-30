@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: "App\Repository\ContentItemRepository")]
+#[ORM\Table(name: 'content_item')]
 class ContentItem implements \JsonSerializable
 {
     // Private Members

@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import Combobox from '../Widgets/Combobox'
 import { validPrimaryLangs } from '../../Services/Lang'
 import * as Html from '../../Services/Html'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function LanguageForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -18,10 +18,10 @@ export default function LanguageForm ({
 }) {
 
   const FORM_OPTIONS = {
-    SELECT_LANGUAGE: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    ENTER_BCP47: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    REMOVE_LANGUAGE: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    SELECT_LANGUAGE: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    ENTER_BCP47: UFIXIT_OPTIONS.ADD_TEXT,
+    REMOVE_LANGUAGE: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   const [language, setLanguage] = useState("")
   const [textInputBCP47, setTextInputBCP47] = useState('')
@@ -278,29 +278,30 @@ export default function LanguageForm ({
     const langOption = (rawLanguage in primaryLanguages) ? rawLanguage : '' 
     let tempOptions = computeSelectOptions(langOption)
     let tempIsHtml = (activeIssue.scanRuleId !== "element_lang_valid" || tagName === "HTML")
-    
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (langOption !== '') {
-      setActiveOption(FORM_OPTIONS.SELECT_LANGUAGE)
-    }
-    else if (activeIssue.status !== 0 && rawLanguage !== '') {
-      setActiveOption(FORM_OPTIONS.ENTER_BCP47)
-    }
-    else if (!hasLangAttr && !tempIsHtml) {
-      setActiveOption(FORM_OPTIONS.REMOVE_LANGUAGE)
-    }
-    else {
-      setActiveOption('')
-    }
-
     setSelectOptions(tempOptions)
     setLanguage(langOption)
     setTextInputBCP47(rawLanguage)
     setIsHtml(tempIsHtml)
+    
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (langOption !== '') {
+        startingOption = FORM_OPTIONS.SELECT_LANGUAGE
+      }
+      else if (rawLanguage !== '') {
+        startingOption = FORM_OPTIONS.ENTER_BCP47
+      }
+      else if (!hasLangAttr && !tempIsHtml) {
+        startingOption = FORM_OPTIONS.REMOVE_LANGUAGE
+      }
+    }
+    setActiveOption(startingOption)
 
   }, [activeIssue])
 
@@ -311,7 +312,6 @@ export default function LanguageForm ({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -406,7 +406,7 @@ export default function LanguageForm ({
           option={FORM_OPTIONS.SELECT_LANGUAGE}
           labelId = 'combo-label-language-select'
           labelText = {t(`form.language.label.select_language`)} 
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (
           <>
             <Combobox 
@@ -415,9 +415,11 @@ export default function LanguageForm ({
               id='language-select'
               label=''
               options={selectOptions} 
-              settings={settings}
             />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]}
+            />
           </>
         )}
       </div>
@@ -431,7 +433,7 @@ export default function LanguageForm ({
           option={FORM_OPTIONS.ENTER_BCP47}
           labelId = 'add-text-label'
           labelText = {t(`form.language.label.useBCP`)}
-          />
+        />
 
         {activeOption === FORM_OPTIONS.ENTER_BCP47 && (
           <>
@@ -444,8 +446,12 @@ export default function LanguageForm ({
               className="w-100"
               value={textInputBCP47}
               disabled={isDisabled}
-              onChange={handleInput} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ENTER_BCP47]} />
+              onChange={handleInput}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ENTER_BCP47]}
+            />
           </>
         )}
       </div>
@@ -459,7 +465,7 @@ export default function LanguageForm ({
             setActiveOption={setActiveOption}
             option={FORM_OPTIONS.REMOVE_LANGUAGE}
             labelText = {t(`form.language.label.remove`)}
-            />
+          />
         </div>
       )}
 
@@ -471,7 +477,7 @@ export default function LanguageForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

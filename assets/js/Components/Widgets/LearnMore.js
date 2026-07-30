@@ -6,12 +6,11 @@ import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
 import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import { disabilityTypes, disabilitiesFromRule, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 
 export default function LearnMore ({
   t,
-  settings,
-
   tempActiveIssue,
   showLearnMore,
   hideLearnMore
@@ -27,7 +26,7 @@ export default function LearnMore ({
       return
     }
 
-    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
       setFormLearnMore(t(`form.file.${tempActiveIssue.fileData.fileType}.learn_more`))
       setDisabilities([disabilityTypes.COGNITIVE, disabilityTypes.VISUAL])
     }

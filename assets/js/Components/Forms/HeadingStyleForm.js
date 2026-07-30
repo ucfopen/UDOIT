@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import Combobox from '../Widgets/Combobox'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function HeadingStyleForm ({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -21,8 +21,8 @@ export default function HeadingStyleForm ({
   const tagOptions = ["H2", "H3", "H4", "H5", "H6"]
   const allHeadings = ["H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"]
   const FORM_OPTIONS = {
-    SELECT_LEVEL: settings.UFIXIT_OPTIONS.SELECT_TAG,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    SELECT_LEVEL: UFIXIT_OPTIONS.SELECT_TAG,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   
   const [selectOptions, setSelectOptions] = useState([])
@@ -40,7 +40,7 @@ export default function HeadingStyleForm ({
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
     const hasStyle = Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
-    const tagName = Html.getTagName(element).toUpperCase()
+    const tagName = Html.getTagName(element)?.toUpperCase()
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     
     const tagSelection = tagOptions.includes(tagName) ? tagName : ''
@@ -69,7 +69,6 @@ export default function HeadingStyleForm ({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -156,7 +155,7 @@ export default function HeadingStyleForm ({
           option={FORM_OPTIONS.SELECT_LEVEL}
           labelId = 'combo-label-heading-select'
           labelText = {t('form.heading_style.label.select')}
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_LEVEL && (
           <>
             <Combobox
@@ -165,7 +164,6 @@ export default function HeadingStyleForm ({
               isDisabled={isDisabled}
               label=''
               options={selectOptions}
-              settings={settings}
             />
             { hasStyling && (
               <div className="flex-row justify-content-start gap-1 mt-3">
@@ -174,11 +172,15 @@ export default function HeadingStyleForm ({
                   initialValue={removeStyling}
                   updateToggle={setRemoveStyling}
                   disabled={isDisabled}
-                  small={true} />
+                  small={true}
+                />
                 <label htmlFor="removeStylingCheckbox" className="ufixit-instructions">{t('form.heading_style.label.remove_styling')}</label>
               </div>
             )}
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_LEVEL]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_LEVEL]}
+            />
           </>
         )}
       </div>
@@ -191,7 +193,7 @@ export default function HeadingStyleForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

@@ -12,8 +12,15 @@ import PrintIcon from './Icons/PrintIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
+import { ISSUE_FILTER } from '../Services/Constants'
 
-export default function ReportsPage({t, report, settings, quickSearchTerm}) {
+export default function ReportsPage({
+  t,
+  preferences,
+  report, 
+  instanceInfo, 
+  quickSearchTerm
+}) {
 
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
@@ -21,7 +28,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
-    const api = new Api(settings)
+    const api = new Api(instanceInfo)
     api.getReportHistory()
       .then((responseStr) => responseStr.json())
       .then((response) => {
@@ -90,6 +97,11 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
               <button
                 className="btn-text btn-link btn-icon-right"
                 onClick={() => quickSearchTerm(searchTerm)}
+                onKeyDown={(e) => {
+                  if(e.key === 'Enter' || e.key === ' ') {
+                    quickSearchTerm(searchTerm)
+                  }
+                }}
               >
                 {t('report.label.view_barriers')}
                 <RightArrowIcon className='icon-sm' />
@@ -112,21 +124,21 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
       if (!labels.includes(issue.label_display)) {
         labels.push(issue.label_display)
         if(issue.type === 'error' || issue.type === 'issue') {
-          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.ISSUE}} />)
+          issue.type = (<StatusPill t={t} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.ISSUE}} />)
           issue.type_display = t('filter.label.severity.issue')
         }
         else if(issue.type === 'potential' || issue.type === 'suggestion') {
-          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.POTENTIAL}} />)
+          issue.type = (<StatusPill t={t} issue={{status: ISSUE_FILTER.ACTIVE, severity: ISSUE_FILTER.POTENTIAL}} />)
           issue.type_display = t('filter.label.severity.potential')
         }
-        issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
+        issue.handled = issue.total - issue.active
         mergedIssues.push(issue)
       }
       else {
         let index = mergedIssues.findIndex((i) => i.label_display === issue.label_display)
         mergedIssues[index].total += issue.total
         mergedIssues[index].active += issue.active
-        mergedIssues[index].handled += (issue.fixed + issue.resolved > 0 ? 1 : 0)
+        mergedIssues[index].handled = (mergedIssues[index].total - mergedIssues[index].active)
       }
     })
 
@@ -315,7 +327,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           <div className="flex-column">
             <div className="callout-container p-4 flex-column w-100 flex-shrink-1 flex-grow-1">
               <div id="resolutionsReport" className="graph-container">
-                <ResolutionsReport t={t} reports={reports}/>
+                <ResolutionsReport t={t} preferences={preferences} reports={reports}/>
               </div>
               <div className="flex-row justify-content-end">
                 <button 
@@ -339,7 +351,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
             <div className="mt-4">
               <IssuesTable
                 t={t}
-                settings={settings}
                 quickSearchTerm={quickSearchTerm}
                 issues={issues}/>
             </div>

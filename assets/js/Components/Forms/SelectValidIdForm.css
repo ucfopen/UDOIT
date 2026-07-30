@@ -1,41 +1,69 @@
-.attribute-header{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  background: #fafafa;
-  border-bottom: 1px solid #eee;
-}
+.attribute-container {
+  margin-top: .5em;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
 
-.attribute-label{
-  flex-grow: 1;
-  margin-left: 8px;
-  cursor: pointer;
-}
+  .attribute-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .5em .75em;
 
-.attribute-header.deactivated {
-  background: #fafafa;
-  opacity: 0.5;
-}
+    label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
 
-.attribute-label.deactivated {
-  text-decoration: line-through;
-}
+    .attribute-label.deactivated {
+      text-decoration: line-through;
+    }
+  }
 
+  .attribute-id-list {
+    background-color: var(--white);
+    border-top: 1px solid var(--border-color);
 
-.attribute-id-list {
-  background-color: #fafafa;
-}
+    .instructions {
+      padding: 1.5em .75em;
+    }
 
-.attribute-id {
-  padding: 5px;
-  border: 1px solid blue;
-  display: flex;
-  justify-content: space-between;
-}
+    .attribute-id {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .5em .25em .5em .75em;
 
-.truncate-inner-text{
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      p {
+        margin: 0;
+        font-size: .9em;
+        color: var(--text-color);
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .attribute-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border-color);
+
+    .footer-required {
+      font-size: .8em;
+      font-weight: 400;
+      padding: .5em 1em;
+      border: 1px solid transparent;
+      text-transform: uppercase;
+      color: var(--text-secondary-color);
+    }
+  }
 }

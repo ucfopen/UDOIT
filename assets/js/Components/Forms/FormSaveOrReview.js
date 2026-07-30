@@ -8,7 +8,6 @@ export default function FormSaveOrReview({
   t,
   handleSubmit = null,
   activeIssue = null,
-  settings = null,
   activeContentItem = null,
   isDisabled = false,
   formErrors = [],

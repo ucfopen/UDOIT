@@ -1,14 +1,16 @@
 import React, {useState, useEffect} from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
+import { formNames } from '../../Services/Ufixit'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function HeadingEmptyForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
+  doesIssueBelongToForm,
   handleActiveIssue,
   activeOption,
   setActiveOption,
@@ -17,9 +19,9 @@ export default function HeadingEmptyForm({
 }) {
 
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    DELETE_HEADING: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    DELETE_HEADING: UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [textInputValue, setTextInputValue] = useState('')
@@ -30,40 +32,54 @@ export default function HeadingEmptyForm({
       const element = Html.toElement(html)
 
       const initialText = (element ? element.innerText : '')
-      const deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
-      const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-      if (deleted) {
-        setActiveOption(FORM_OPTIONS.DELETE_HEADING)
-      }
-      else if (reviewed) {
-        setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-      }
-      else if (initialText !== '') {
-        setActiveOption(FORM_OPTIONS.ADD_TEXT)
-      }
-      else {
-        setActiveOption('')
-      }
-
       setTextInputValue(initialText)
+
+      const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+      const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+      const deleted = !activeIssue.newHtml
+      let startingOption = ''
+
+      if (reviewed) {
+        startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+      }
+      if (fixed) {
+        if (deleted) {
+          startingOption = FORM_OPTIONS.DELETE_HEADING
+        }
+        else if (initialText !== '') {
+          startingOption = FORM_OPTIONS.ADD_TEXT
+        }
+      }
+      handleOptionChange(startingOption)
+      
     }
     setFormErrors([])
   }, [activeIssue])
 
   useEffect(() => {
+    if(!doesIssueBelongToForm(formNames.HEADING_EMPTY, activeIssue?.issueData)) {
+      return
+    }
     updateHtmlContent()
     checkFormErrors()
-  }, [activeOption, textInputValue])
+  }, [textInputValue])
 
-  const updateHtmlContent = () => {
+  const handleOptionChange = (option) => {
+    if(!doesIssueBelongToForm(formNames.HEADING_EMPTY, activeIssue?.issueData)) {
+      return
+    }
+    updateHtmlContent(option)
+    checkFormErrors(option)
+    setActiveOption(option)
+  }
+
+  const updateHtmlContent = (optionOverride = activeOption) => {
     let issue = activeIssue
-    issue.isModified = true 
 
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
+    if (optionOverride === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
     }
-    else if (activeOption === FORM_OPTIONS.DELETE_HEADING) {
+    else if (optionOverride === FORM_OPTIONS.DELETE_HEADING) {
       issue.newHtml = ''
     }
     else {
@@ -71,16 +87,16 @@ export default function HeadingEmptyForm({
       issue.newHtml = Html.toString(Html.setInnerText(html, textInputValue))
     }
 
-    handleActiveIssue(issue)
+    handleActiveIssue(issue, optionOverride)
   }
 
-  const checkFormErrors = () => {
+  const checkFormErrors = (optionOverride = activeOption) => {
     let tempErrors = {
       [FORM_OPTIONS.ADD_TEXT]: [],
       [FORM_OPTIONS.DELETE_HEADING]: [],
     }
     
-    if (activeOption === FORM_OPTIONS.ADD_TEXT) {
+    if (optionOverride === FORM_OPTIONS.ADD_TEXT) {
       if(Text.isTextEmpty(textInputValue)) {
         tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
       }
@@ -100,11 +116,11 @@ export default function HeadingEmptyForm({
         <RadioSelector
           activeOption={activeOption}
           isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
+          setActiveOption={handleOptionChange}
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.heading_empty.label.text')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
             <input
@@ -116,8 +132,12 @@ export default function HeadingEmptyForm({
               value={textInputValue}
               onChange={handleInput}
               tabIndex="0"
-              disabled={isDisabled} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+              disabled={isDisabled}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -127,12 +147,15 @@ export default function HeadingEmptyForm({
         <RadioSelector
           activeOption={activeOption}
           isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
+          setActiveOption={handleOptionChange}
           option={FORM_OPTIONS.DELETE_HEADING}
           labelText = {t('form.heading_empty.label.remove_heading')}
-          />
+        />
         {activeOption === FORM_OPTIONS.DELETE_HEADING && (
-          <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]} />
+          <OptionFeedback
+            t={t}
+            feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]}
+          />
         )}
       </div>
       
@@ -141,10 +164,10 @@ export default function HeadingEmptyForm({
         <RadioSelector
           activeOption={activeOption}
           isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
+          setActiveOption={handleOptionChange}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

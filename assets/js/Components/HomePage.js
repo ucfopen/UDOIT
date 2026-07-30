@@ -7,12 +7,14 @@ import ProgressIcon from './Icons/ProgressIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import SeverityIcon from './Icons/SeverityIcon'
 import SummaryIcon from './Icons/SummaryIcon'
+import CheckIcon from './Icons/CheckIcon'
 import * as Html from '../Services/Html'
 import './HomePage.css'
+import { ISSUE_FILTER, ISSUE_STATE } from '../Services/Constants'
 
 export default function HomePage({
   t,
-  settings,
+  preferences,
   report,
   hasNewReport,
   quickIssues,
@@ -22,20 +24,19 @@ export default function HomePage({
 }) {
 
   const BARRIERS = {
-    ISSUE: settings.ISSUE_FILTER.ISSUE,
-    POTENTIAL: settings.ISSUE_FILTER.POTENTIAL,
-    FILE: settings.ISSUE_FILTER.FILE
+    ISSUE: ISSUE_FILTER.ISSUE,
+    POTENTIAL: ISSUE_FILTER.POTENTIAL,
+    FILE: ISSUE_FILTER.FILE
   }
 
   const [issueCount, setIssueCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [potentialCount, setPotentialCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [fileCount, setFileCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [combinedCount, setCombinedCount] = useState({"fixed": 0, "total": 0, "percent": 0})
-  const [dailyCount, setDailyCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [emphasis, setEmphasis] = useState('')
   
   const progressMeterRadius = () => {
-    switch (settings?.user?.roles?.font_size) {
+    switch (preferences.fontSize) {
       case 'font-small':
         return 40;
       case 'font-normal':
@@ -55,31 +56,6 @@ export default function HomePage({
     { step: 3, type: BARRIERS.FILE, translationKey: 'files', counter: fileCount }
   ]
 
-  useEffect(() => {
-    let totalIssuesFixed = 0
-    let dailyGoal = settings?.user?.roles?.daily_goal || 10
-    let percentComplete = 0
-    if(sessionIssues && Object.keys(sessionIssues).length > 0) {
-      for (const issueState of Object.values(sessionIssues)) {
-        if(issueState === settings.ISSUE_STATE.SAVED || issueState === settings.ISSUE_STATE.RESOLVED) {
-          totalIssuesFixed += 1
-        }
-      }
-    }
-
-    if(totalIssuesFixed >= dailyGoal) {
-      percentComplete = 100
-    }
-    else {
-      percentComplete = (totalIssuesFixed / dailyGoal) * 100
-    }
-
-    setDailyCount({
-      fixed: totalIssuesFixed,
-      total: dailyGoal,
-      percent: percentComplete
-    })
-  }, [settings?.user?.roles?.daily_goal])
 
   useEffect(() => {
     if (!hasNewReport) return
@@ -189,9 +165,17 @@ export default function HomePage({
           <div className={`resolution-container flex-column type-` + `${panel.type.toLowerCase()}` + `${emphasis === panel.type ? ' emphasis' : ''}`} key={"panel-" + panel.type}>
             
             <div className="flex-row gap-3 w-100">
-              <div className='summary-icon-container' aria-hidden="true">
-                <SeverityIcon type={panel.type} className='icon-lg' />
-              </div>
+              {panel.counter.percent === 100 ? (
+                <div className='summary-icon-container completed' aria-hidden="true">
+                  <CheckIcon className="icon-lg color-success"/>
+                 
+                </div>
+                ) : 
+                <div className='summary-icon-container' aria-hidden="true">
+                  <SeverityIcon type={panel.type} className='icon-lg' />
+                   
+                </div>
+              }
               <div className="summary-text-container">
                 <h2 className="mt-0">{t('summary.label.' + panel.translationKey)}</h2>
                 <div aria-label={Html.getTextContent('<p>' + t('summary.' + panel.translationKey + '.description', {count: panel.counter.total}) + '</p>')}>
@@ -208,9 +192,9 @@ export default function HomePage({
                 </div>
 
                 <div className="progress-bar-container mt-1">
-                  <div className="progress-bar-fill" style={{width: `${panel.counter.percent}%`}}></div>
+                  <div className={`progress-bar-fill ${panel.counter.percent === 100 ? `completed` : ``}`} style={{width: `${panel.counter.percent}%`}}></div>
                 </div>
-
+                      
                 <button className="btn-secondary btn-icon-right justify-content-center mt-2"
                   aria-label={t('summary.label.' + panel.translationKey)}
                   disabled={!syncComplete}
@@ -250,7 +234,7 @@ export default function HomePage({
           </div>
         </div>
 
-        <div className="callout-container filled-container feedback-container flex-column p-4 h-fit flex-grow-1 align-self-end">
+        <div className="callout-container feedback-container flex-column p-4 h-fit flex-grow-1 align-self-end">
           <h2 className="mt-0 mb-4">Help & Feedback</h2>
           <div className="flex-row mb-3">
             <InfoIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />

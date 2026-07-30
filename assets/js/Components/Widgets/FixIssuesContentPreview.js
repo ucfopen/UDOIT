@@ -3,19 +3,17 @@ import ScrollButton from './ScrollButton'
 import HtmlPreview from './HtmlPreview'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ProgressIcon from '../Icons/ProgressIcon'
-import InfoIcon from '../Icons/InfoIcon'
 import './FixIssuesContentPreview.css'
 
 export default function FixIssuesContentPreview({
   t,
-  settings,
-
   activeContentItem,
   activeIssue,
+  activeOption,
   contentItemsBeingScanned,
   clickedInfo,
   setClickedInfo,
-  liveUpdateToggle,
+  previewData,
   isErrorFoundInContent,
   setIsErrorFoundInContent,
   elementFocus
@@ -87,11 +85,13 @@ export default function FixIssuesContentPreview({
       <div className="live-preview-header">
         <h3 id="live-preview-label">Live Preview</h3>
         { activeIssue && (
-          <a href={activeIssue.contentUrl.includes("question") ? activeIssue.contentUrl.replace(/\/questions.*/, "/edit#questions_tab")  : activeIssue.contentUrl} target="_blank" rel="noreferrer">
+          <a
+            href={activeIssue.contentUrl.includes("question") ? activeIssue.contentUrl.replace(/\/questions.*/, "/edit#questions_tab")  : activeIssue.contentUrl}
+            className="udoit-link align-items-center"
+            target="_blank"
+            rel="noreferrer" >
             {activeIssue.contentTitle}
-            <div className="flex-column justify-content-center ps-2" aria-hidden="true">
-              <ExternalLinkIcon className="icon-sm link-color" alt="" />
-            </div>
+            <ExternalLinkIcon className="icon-sm link-color ps-2" alt="" aria-hidden="true" />
           </a>
         )}
       </div>
@@ -123,23 +123,21 @@ export default function FixIssuesContentPreview({
 
                   activeContentItem={activeContentItem}
                   activeIssue={activeIssue}
-                  liveUpdateToggle={liveUpdateToggle}
+                  activeOption={activeOption}
+                  isErrorFoundInContent={isErrorFoundInContent}
                   setIsErrorFoundInContent={setIsErrorFoundInContent}
                   clickedInfo={clickedInfo}
                   setClickedInfo={setClickedInfo}
+                  previewData={previewData}
                   handleScroll={handleScroll}
                   elementFocus={elementFocus}
                 />
               </>
             ) : (
-              <div className="flex-column h-100 flex-grow-1 justify-content-center">
-                <div className="flex-row justify-content-center mb-4">
-                  <div className="flex-column justify-content-center">
-                    <ProgressIcon className="icon-lg udoit-progress spinner" />
-                  </div>
-                  <div className="flex-column justify-content-center ms-3">
-                    <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
-                  </div>
+              <div className="flex-column h-100 flex-grow-1 justify-content-center ufixit-content-preview-loader">
+                <div className="flex-row justify-content-center align-items-center mb-4">
+                  <ProgressIcon className="icon-lg udoit-progress spinner" />
+                  <h2 className="ps-3 mt-0 mb-0">{t('fix.label.loading_content')}</h2>
                 </div>
               </div>
             )}

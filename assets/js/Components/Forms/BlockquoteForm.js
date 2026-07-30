@@ -4,10 +4,10 @@ import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function BlockquoteForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -18,9 +18,9 @@ export default function BlockquoteForm({
  }) {
   
   const FORM_OPTIONS = {
-    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    REMOVE_BLOCKQUOTE: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    REMOVE_BLOCKQUOTE: UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [textInputValue, setTextInputValue] = useState("")
@@ -37,7 +37,7 @@ export default function BlockquoteForm({
     let inlineCite = ""
     let elementCite = null
     let tempElement = Html.toElement(html)
-    const isBlockquote = tempElement && tempElement.tagName.toLowerCase() === 'blockquote'
+    const isBlockquote = tempElement && tempElement?.tagName?.toLowerCase() === 'blockquote'
     if(isBlockquote) {
       tempElement = embedTextOnlyInParagraph(tempElement)
       inlineCite = tempElement ? Html.getAttribute(tempElement, "cite") : ""
@@ -49,23 +49,27 @@ export default function BlockquoteForm({
         tempCitationText = tempCitationText.trim()
       }
     }
-    const removeBlockquote = (activeIssue.status === 1 || activeIssue.status === 3) && !isBlockquote
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (removeBlockquote) {
-      setActiveOption(FORM_OPTIONS.REMOVE_BLOCKQUOTE)
-    }
-    else if (tempCitationText && tempCitationText.length > 0) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    } else {
-      setActiveOption('')
-    }
 
     setTextInputValue(tempCitationText || "")
     setHideCitation(inlineCite && !elementCite)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (!isBlockquote) {
+        startingOption = FORM_OPTIONS.REMOVE_BLOCKQUOTE
+      }
+      else if (tempCitationText && tempCitationText.length > 0) {
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
+    }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {
@@ -75,7 +79,6 @@ export default function BlockquoteForm({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -102,7 +105,6 @@ export default function BlockquoteForm({
     setFormErrors(tempErrors)
   }
 
-  // If the blockquote only contains text, we return that text wrapped in a <p> tag
   const embedTextOnlyInParagraph = (element) => {
     const filteredNodes = Array.from(element.childNodes).filter(node => {
       // Filter out empty text nodes (happens with line breaks))
@@ -127,7 +129,7 @@ export default function BlockquoteForm({
       return ''
     }
 
-    const isBlockquote = updatedElement && updatedElement.tagName.toLowerCase() === 'blockquote'
+    const isBlockquote = updatedElement && updatedElement?.tagName?.toLowerCase() === 'blockquote'
     if (!isBlockquote && !(activeOption === FORM_OPTIONS.REMOVE_BLOCKQUOTE)) {
       // We need to wrap the content in a blockquote tag
       const newBlockquote = document.createElement('blockquote')
@@ -205,7 +207,7 @@ export default function BlockquoteForm({
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
           labelText = {t('form.blockquote.label.text')}
-          />
+        />
 
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
@@ -218,18 +220,23 @@ export default function BlockquoteForm({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleInput} />
+              onChange={handleInput}
+            />
             <div className="flex-row justify-content-start gap-1 mt-3">
               <ToggleSwitch
                 labelId="hideCitationToggle"
                 initialValue={hideCitation}
                 updateToggle={setHideCitation}
                 disabled={isDisabled}
-                small={true} />
+                small={true}
+              />
               <label htmlFor="hideCitationToggle" className="ufixit-instructions">{t('form.blockquote.label.hide_citation')}</label>
             </div>
             <div className="subtext">{t('form.blockquote.label.hide_citation_desc')}</div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
+            />
           </>
         )}
       </div>
@@ -242,7 +249,7 @@ export default function BlockquoteForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.REMOVE_BLOCKQUOTE}
           labelText = {t('form.blockquote.label.remove_blockquote')}
-          />
+        />
       </div>
 
       {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
@@ -253,7 +260,7 @@ export default function BlockquoteForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

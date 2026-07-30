@@ -34,13 +34,16 @@ abstract class ApiController extends AbstractController
         }
 
         $userCourseId = $userSession->get('lms_course_id');
+        $userRoles = $userSession->get('roles');
+        $isAdmin = in_array('Administrator', $userRoles);
+
 
         // No course ID found in the session
         if (!$userCourseId) {
             return false;
         }
 
-        if ($course->getLmsCourseId() !== $userCourseId) {
+        if ($course->getLmsCourseId() !== $userCourseId && !$isAdmin) {
             return false;
         }
 

@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import CloseIcon from '../Icons/CloseIcon'
-import DisabilityCognitiveIcon from '../Icons/DisabilityCognitiveIcon'
-import DisabilityHearingIcon from '../Icons/DisabilityHearingIcon'
-import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
-import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import FormClarification from '../Forms/FormClarification'
-import { disabilityTypes, disabilitiesFromRule, formNameFromRule } from '../../Services/Ufixit'
+import { formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 
 export default function BarrierInformation ({
   t,
-  settings,
-
   tempActiveIssue,
   handleLearnMoreClick
 }) {
@@ -46,7 +40,7 @@ export default function BarrierInformation ({
       return
     }
 
-    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
       setFormSummary(t('form.file.summary'))
       setShowLearnMore(true)
     }
@@ -77,16 +71,15 @@ export default function BarrierInformation ({
   return (
     <>
       <div className="callout-container help-container flex-shrink-0">
-        <div className="flex-row gap-2">
-          <div className="ufixit-instructions" 
-            dangerouslySetInnerHTML={{__html: formSummary}}
-          />
-        
+        <div>
           { showLearnMore && (
-            <button id="btn-learn-more-open" className="btn-secondary align-self-start flex-shrink-0" onClick={() => handleLearnMoreClick()} >
+            <button id="btn-learn-more-open" className="btn-secondary btn-small align-self-start flex-shrink-0" onClick={() => handleLearnMoreClick()} >
               <div>{t('fix.button.learn_more')}</div>
             </button>
           )}
+          <div className="ufixit-instructions" 
+            dangerouslySetInnerHTML={{__html: formSummary}}
+          />
         </div>
         <FormClarification
           t={t}

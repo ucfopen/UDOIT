@@ -189,7 +189,7 @@ export default function SortableTable({
                           <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
                         </div>
                         ) : (
-                          <div className="header-spacer" />
+                          <div className="header-spacer ps-2" />
                         )
                       }
                     </div>
@@ -202,13 +202,15 @@ export default function SortableTable({
           <tbody>
             {pagedRows.map((row, index) => {
               const isRowClickable = !!row.onClick;
+              const rowAriaLabel = row.name?.display || row.name || row.courseTitle || ''
               return (
                 <tr
                   id={row.id ? row.id : `row${index}`}
                   key={`row${index}`}
                   className={isRowClickable ? 'clickable' : ''}
+                  aria-label={rowAriaLabel}
                   onClick={isRowClickable ? row.onClick : undefined}
-                  tabIndex={isRowClickable ? 0 : undefined}
+                  tabIndex={isRowClickable && !row.noTabFocus && rowAriaLabel !== '' ? 0 : undefined}
                   onKeyDown={(e) => {
                     if(isRowClickable && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault()
@@ -217,15 +219,16 @@ export default function SortableTable({
                   }}
                   aria-label={row.label ? row.label : ''}
                 >
-                  {headers.map(({ id, alignText }) => (
+                  {headers.map(({ id, alignText, divider }) => (
                     <td
                       key={`row${row.id}cell${id}`}
                       className={
-                        alignText === 'center'
+                        (alignText === 'center'
                           ? 'text-center'
                           : alignText === 'end'
                           ? 'text-end'
-                          : 'text-start'
+                          : 'text-start') + 
+                        ((divider) ? ' divider' : '')
                       }
                     >
                       {(typeof row[id] === 'object' && row[id]?.display) ? row[id].display : row[id]}

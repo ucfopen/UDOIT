@@ -3,10 +3,10 @@ import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function EmbeddedContentTitleForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -17,8 +17,8 @@ export default function EmbeddedContentTitleForm({
  }) {
 
   const FORM_OPTIONS = {
-    ADD_LABEL: settings.UFIXIT_OPTIONS.ADD_TEXT,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    ADD_LABEL: UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [textInputValue, setTextInputValue] = useState("")
@@ -27,19 +27,22 @@ export default function EmbeddedContentTitleForm({
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
     const initialText = Html.getAccessibleName(element)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-
-    if(reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if(initialText !== '') {
-      setActiveOption(FORM_OPTIONS.ADD_LABEL)
-    }
-    else {
-      setActiveOption('')
-    }
-
     setTextInputValue(initialText)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if(initialText !== '') {
+        startingOption = FORM_OPTIONS.ADD_LABEL
+      }
+    }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {
@@ -50,7 +53,6 @@ export default function EmbeddedContentTitleForm({
   const updateHtmlContent = () => {
 
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -119,7 +121,7 @@ export default function EmbeddedContentTitleForm({
           option={FORM_OPTIONS.ADD_LABEL}
           labelId = 'add-label-label'
           labelText = {t('form.embedded_content_title.label.text')}
-          />
+        />
         {activeOption === FORM_OPTIONS.ADD_LABEL && (
           <>
             <input
@@ -131,8 +133,12 @@ export default function EmbeddedContentTitleForm({
               className="w-100"
               value={textInputValue}
               disabled={isDisabled}
-              onChange={handleInput} />
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_LABEL]} />
+              onChange={handleInput}
+            />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.ADD_LABEL]}
+            />
           </>
         )}
       </div>
@@ -145,7 +151,7 @@ export default function EmbeddedContentTitleForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

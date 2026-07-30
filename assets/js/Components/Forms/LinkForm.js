@@ -4,7 +4,6 @@ import * as Html from '../../Services/Html'
 
 export default function LinkForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleIssueSave,
@@ -113,7 +112,6 @@ export default function LinkForm({
       </div>
       <FormSaveOrReview
         t={t}
-        settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}

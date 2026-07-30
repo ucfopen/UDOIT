@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import DownloadIcon from '../Icons/DownloadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
-import ContentTypeIcon from '../Icons/ContentTypeIcon'
 import * as Text from '../../Services/Text'
 import './FixIssuesContentPreview.css'
-import SeverityIcon from '../Icons/SeverityIcon'
-import ContentPageIcon from '../Icons/ContentPageIcon'
 import FileInformation from './FileInformation'
-import FileStatus from './FileStatus'
 import ProgressIcon from '../Icons/ProgressIcon'
 import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
-import SeverityIssueIconFilled from '../Icons/SeverityIssueIconFilled'
+import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
 
 export default function FixIssuesContentPreview({
   t,
-  settings,
   activeIssue,
   getReadableFileType,
   isDisabled
 }) {
 
-  const [fileReferenceHolder, setFileReferenceHolder] = useState([])
+  const [fileReferenceHolder, setFileReferenceHolder] = useState({})
+  const [singleReferencesOnly, setSingleReferencesOnly] = useState(true)
   const [currentFile, setCurrentFile] = useState(null)
   const [oldFile, setOldFile] = useState(null)
+
+  const ORIGINAL_LABEL = "-original"
+  const REPLACED_LABEL = "-replaced"
 
   useEffect(() => {
     if(activeIssue){
@@ -31,6 +29,7 @@ export default function FixIssuesContentPreview({
         const tempCurrFile = {
           fileName: activeIssue.fileData.replacement.fileName,
           fileType: getReadableFileType(activeIssue.fileData.replacement.fileType),
+          fileIconType: activeIssue.fileData.replacement.fileType,
           fileSize: Text.getReadableFileSize(activeIssue.fileData.replacement.fileSize),
           fileLink: activeIssue.fileData.replacement.lmsUrl
         }  
@@ -39,11 +38,12 @@ export default function FixIssuesContentPreview({
       const tempCurrFile = {
         fileName: activeIssue.fileData.fileName,
         fileType: getReadableFileType(activeIssue.fileData.fileType),
+        fileIconType: activeIssue.fileData.fileType,
         fileSize: Text.getReadableFileSize(activeIssue.fileData.fileSize),
         fileLink: activeIssue.fileData.lmsUrl
       }
       if(!activeIssue.fileData.replacement){
-          setCurrentFile(tempCurrFile)
+        setCurrentFile(tempCurrFile)
       }
       setOldFile(tempCurrFile)
       
@@ -51,123 +51,146 @@ export default function FixIssuesContentPreview({
   }, [activeIssue])
 
   const handleFileReference = () => {
-          let tempReferences = []
-  
-          activeIssue.fileData.replacement?.references?.forEach((ref) => {
-              let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 1
-              tempReferences.push(tempRef)
-          })
-  
-          activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
-              let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 1
-              tempReferences.push(tempRef)
-          })
-  
-  
-          activeIssue.fileData.references?.forEach((ref) => {
-              let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 0
-              tempReferences.push(tempRef)
-          })
-  
-  
-          activeIssue.fileData.sectionRefs?.forEach((ref) => {
-              let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 0
-              tempReferences.push(tempRef)
-          })
-          
-          setFileReferenceHolder(tempReferences)
-       }
+    let tempReferences = {}
+
+    activeIssue.fileData.replacement?.references?.forEach((ref) => {
+      let tempRef = JSON.parse(JSON.stringify(ref))
+      tempRef.status  = 1
+      const refKey = tempRef.contentItemId + REPLACED_LABEL
+      if(!tempReferences[refKey]){
+        tempReferences[refKey] = []
+      }
+      tempReferences[refKey].push(tempRef)
+    })
+
+    activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
+      let tempRef = JSON.parse(JSON.stringify(ref))
+      tempRef.status  = 1
+      const refKey = tempRef.contentItemId + REPLACED_LABEL
+      if(!tempReferences[refKey]){
+        tempReferences[refKey] = []
+      }
+      tempReferences[refKey].push(tempRef)
+    })
+
+
+    activeIssue.fileData.references?.forEach((ref) => {
+      let tempRef = JSON.parse(JSON.stringify(ref))
+      tempRef.status  = 0
+      const refKey = tempRef.contentItemId + ORIGINAL_LABEL
+      if(!tempReferences[refKey]){
+        tempReferences[refKey] = []
+      }
+      tempReferences[refKey].push(tempRef)
+    })
+
+
+    activeIssue.fileData.sectionRefs?.forEach((ref) => {
+      let tempRef = JSON.parse(JSON.stringify(ref))
+      tempRef.status  = 0
+      const refKey = tempRef.contentItemId + ORIGINAL_LABEL
+      if(!tempReferences[refKey]){
+        tempReferences[refKey] = []
+      }
+      tempReferences[refKey].push(tempRef)
+    })
+
+    // If there are only single references (majority of use cases), don't bother showing the "Instances" column.
+    let tempSingleReferencesOnly = true
+    Object.keys(tempReferences)?.forEach((key) => {
+      if(tempReferences[key].length > 1) {
+        tempSingleReferencesOnly = false
+      }
+    })
     
-
-
+    setSingleReferencesOnly(tempSingleReferencesOnly)
+    setFileReferenceHolder(tempReferences)
+  }
 
   return (
     <>
-    {isDisabled ? 
-    <div className="flex-column h-100 flex-grow-1 justify-content-center">
-      <div className="flex-row justify-content-center mb-4">
-        <div className="flex-column justify-content-center">
-          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-        </div>
-        <div className="flex-column justify-content-center ms-3">
-          <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
-        </div>
-      </div>
-    </div> 
-    :
-    <div>
-    {activeIssue.fileData.replacement ? 
-      <div className='flex-column w-100 justify-content-center gap-1 align-items-center'>
-        <div className='file-accessibility-info-wrapper w-100'>
-          <div className='accessibility-info-container flex-column w-100'>
-            <div className='file-info p-2'>
-              <FileStatus t={t} fileStatus={0} fileTagText={t('form.file.current.label')}/>
-            </div>
-            <FileInformation t={t} file={oldFile} />
+      { isDisabled ? (
+        <div className="flex-column h-100 flex-grow-1 justify-content-center">
+          <div className="flex-row justify-content-center align-items-center mb-4">
+            <ProgressIcon className="icon-lg udoit-progress spinner" />
+            <h2 className="mt-0 mb-0 ps-3">{t('fix.label.loading_content')}</h2>
           </div>
-        </div>
-        <DownwardArrowIcon className="icon-md text-center" />        
-        <div className='file-accessibility-info-wrapper w-100'>
-          <div className='accessibility-info-container flex-column w-100'>
-            <div className='file-info p-2'>
-              <FileStatus t={t} fileStatus={1} fileTagText={t('form.file.new.label')}/>
-            </div>
-            <FileInformation t={t} file={currentFile} />
-          </div>
-        </div>
-      </div>
-    : currentFile && ( 
-      <div className='file-accessibility-info-wrapper w-100'>
-        <div className='accessibility-info-container flex-column w-100'>
-          <div className='file-info p-2'>
-            <FileStatus t={t} fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={t()}/>
-          </div>
-          <FileInformation t={t} file={currentFile} />
-        </div>
-      </div>)
-      }
+        </div> 
+      ) : (
+        <>
+          { activeIssue.fileData.replacement ? (
+            <>
+              <div className='file-label-pill'>{t('form.file.original.label')}</div>
+              <div className='callout-container w-100 mt-2'>
+                <FileInformation t={t} file={oldFile} />
+              </div>
+              <div className="flex-row w-100 justify-content-center mt-2">
+                <DownwardArrowIcon className="icon-md gray" />
+              </div>
+              <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
+              <div className='callout-container w-100 mt-2'>
+                <FileInformation t={t} file={currentFile} />
+              </div>
+            </>
+          ) : ( currentFile && ( 
+            <>
+              <div className="flex-row gap-2 align-items-center">
+                <div className="strong-caps">{t('form.file.current.label')}</div>
+                { activeIssue.fileData.replacement ? (
+                  <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
+                ) : (
+                  <div className='file-label-pill'>{t('form.file.original.label')}</div>
+                )}
+              </div>
+              <div className='callout-container w-100 mt-2'>
+                <FileInformation t={t} file={currentFile} />
+              </div>
+            </>
+          ))}
 
-     {fileReferenceHolder.length > 0 ? <div className="mt-3 rounded-table-wrapper">
-      <table className="file-reference-table">
-      <thead>
-        <tr>
-            <th>{t('form.file.content.label')}</th>
-            <th>{t('form.file.location.label')}</th>
-            <th>{t('form.file.status.label')}</th>
-        </tr>
-      </thead>
-      <tbody>
-          {fileReferenceHolder?.map((ref, index) => (
-                  <tr key={index}>
-                      <td className='content-title'>{ref.contentItemTitle}</td>
-                      <td>
-                          <a href={ref.contentType == "quiz_question" ? ref.contentItemUrl.replace(/\/questions.*/, "/edit#questions_tab") : ref.contentItemUrl} target='_blank' className='location-link flex-row align-items-center'>
-                              {t('form.file.external_url.label')}
-                              <ExternalLinkIcon />
+          { Object.keys(fileReferenceHolder).length > 0 ? (
+            <>
+              <div className="strong-caps mt-3">{t('form.file.instances.label')}</div>
+              <div className="mt-2 rounded-table-wrapper">
+                <table className="udoit-sortable-table first-column-wide">
+                  <thead>
+                    <tr>
+                      <th>{t('form.file.location.label')}</th>
+                      { !singleReferencesOnly && (<th>{t('fix.label.references')}</th>)}
+                      <th>{t('form.file.status.label')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    { Object.keys(fileReferenceHolder)?.map((key, index) => (
+                      <tr key={index}>
+                        <td>
+                          <a href={fileReferenceHolder[key][0].contentType == "quiz_question" ? fileReferenceHolder[key][0].contentItemUrl.replace(/\/questions.*/, "/edit#questions_tab") : fileReferenceHolder[key][0].contentItemUrl} target='_blank' className='location-link flex-row align-items-center'>
+                            {fileReferenceHolder[key][0].contentItemTitle}
+                            <ExternalLinkIcon className="link-color align-self-center ms-2 icon-sm"/>
                           </a>
-                      </td>
-                      <td>
-                          <span className={`status-badge ${activeIssue.fileData.replacement ? 'new-file-badge' : 'old-file-status'}`}>
-                              {ref.status == 1 ? t('form.file.new.label') : t('form.file.original.label')}
-                          </span>
-                      </td>
-                  </tr>
-              ))}
-      </tbody>
-      </table>
-     </div> : 
-      <div className='no-reference-container flex-row gap-1 justify-between align-items-center p-1 mt-3'>
-        <SeverityIssueIconFilled fill={'var(--issue-color)'} />
-        <div>{t('form.file.no_ref.label')}</div>
-      </div> 
-            }
-    </div> 
-    
-    }
+                        </td>
+                        { !singleReferencesOnly && (<td>{fileReferenceHolder[key]?.length}</td>)}
+                        <td>
+                          {key.includes(REPLACED_LABEL)  ? (
+                            <div className='file-label-pill file-new'>{t('form.file.new.label')}</div>
+                          ) : (
+                            <div className='file-label-pill'>{t('form.file.original.label')}</div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <div className="option-feedback feedback-warning mt-3">
+              <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2"/>
+              <div>{t('form.file.no_ref.label')}</div>
+            </div>
+          )}
+        </>
+      )}
     </>
   )
 }

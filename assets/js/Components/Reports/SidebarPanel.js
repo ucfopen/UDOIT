@@ -24,7 +24,6 @@ export default function SidebarPanel({
   setDateStart,
   dateEnd,
   setDateEnd,
-  minWidth = 280,
 }) {
   const DEFAULT_PRESET_DAYS = "14";
   const today = new Date();
@@ -38,7 +37,6 @@ export default function SidebarPanel({
     const endStr = todayStr;
     setDateStart(startStr);
     setDateEnd(endStr);
-    // eslint-disable-next-line
   }, []);
 
   const handlePreset = (daysStr) => {
@@ -68,9 +66,7 @@ export default function SidebarPanel({
   return (
     <div className="sidebar-panel-container">
       <div className="sidebar-panel-header">
-        <h3 className="sidebar-panel-title">
-          {t("report.label.filters")}
-        </h3>
+        <h3 className="sidebar-panel-title">{t("report.label.filters")}</h3>
         {showDateFilter && (
           <div className="sidebar-panel-date-filter">
             <div className="sidebar-panel-date-row">

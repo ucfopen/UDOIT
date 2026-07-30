@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import RadioSelector from '../Widgets/RadioSelector';
 import OptionFeedback from '../Widgets/OptionFeedback';
 import * as Html from '../../Services/Html';
+import { UFIXIT_OPTIONS } from '../../Services/Constants';
 
 export default function TableHeadersForm({
   t,
-  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
@@ -16,9 +16,9 @@ export default function TableHeadersForm({
  }) {
 
   const FORM_OPTIONS = {
-    SELECT_DIRECTION: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    MARK_DECORATIVE: settings.UFIXIT_OPTIONS.MARK_DECORATIVE,
-    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    SELECT_DIRECTION: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const radioOptions = [
@@ -37,22 +37,24 @@ export default function TableHeadersForm({
     const table = Html.toElement(html)
     const decorationOnly = (table.getAttribute('role') === 'presentation')
     const headerDirection = getTableHeaderDirection(table)
+    setSelectedValue(headerDirection)
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
 
     if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
     }
-    else if (decorationOnly) {
-      setActiveOption(FORM_OPTIONS.MARK_DECORATIVE)
+    if (fixed) {
+      if (decorationOnly) {
+        startingOption = FORM_OPTIONS.MARK_DECORATIVE
+      }
+      else if(headerDirection !== '') {
+        startingOption = FORM_OPTIONS.SELECT_DIRECTION
+      }
     }
-    else if(headerDirection !== '') {
-      setActiveOption(FORM_OPTIONS.SELECT_DIRECTION)
-    }
-    else {
-      setActiveOption('')
-    }
-
-    setSelectedValue(headerDirection)
+    setActiveOption(startingOption)
     
   }, [activeIssue])
 
@@ -131,10 +133,17 @@ export default function TableHeadersForm({
     }
 
     removeHeaders(table)
+    const decorationRoles = ['presentation', 'none']
 
     if (activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
       Html.setAttribute(table, 'role', 'presentation')
       return Html.toString(table)
+    }
+    else {
+      let role = Html.getAttribute(table, 'role')
+      if (role && typeof(role.toLowerCase) === "function" && decorationRoles.includes(role.toLowerCase())) {
+        Html.removeAttribute(table, 'role')
+      }
     }
 
     if ('col' === selectedValue || 'both' === selectedValue) {
@@ -161,7 +170,6 @@ export default function TableHeadersForm({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-    issue.isModified = true
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
@@ -205,7 +213,7 @@ export default function TableHeadersForm({
           option = {FORM_OPTIONS.SELECT_DIRECTION}
           labelId = "headerDirectionLabel"
           labelText = {t('form.table_headers.selection_description')}
-          />
+        />
         {activeOption === FORM_OPTIONS.SELECT_DIRECTION && (
           <>
             <div className="flex-column indented gap-1" role="radiogroup" aria-labelledby="headerDirectionLabel">
@@ -218,10 +226,13 @@ export default function TableHeadersForm({
                   setActiveOption = {handleChange}
                   option = {value}
                   labelText = {t(`form.table_headers.${value}`)}
-                  />
+                />
               ))}
             </div>
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]} />
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]}
+            />
           </>
         )}
       </div>
@@ -234,7 +245,7 @@ export default function TableHeadersForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_DECORATIVE}
           labelText = {t('form.table_headers.decoration_only')}
-          />
+        />
       </div>
 
       {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
@@ -245,7 +256,7 @@ export default function TableHeadersForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
-          />
+        />
       </div>
     </>
   )

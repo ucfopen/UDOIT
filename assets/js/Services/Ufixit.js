@@ -1,6 +1,5 @@
-import AltText from '../Components/Forms/AltText'
-import AnchorText from '../Components/Forms/AnchorText'
-// import AriaAttributeForm from '../Components/Forms/AriaAttributeForm'
+import AltTextForm from '../Components/Forms/AltTextForm'
+import AnchorTextForm from '../Components/Forms/AnchorTextForm'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
@@ -8,22 +7,15 @@ import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleFo
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
-// import InputLabelForm from '../Components/Forms/InputLabelForm'
-// import InvalidAttributeForm from '../Components/Forms/InvalidAttributeForm'
-// import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
+import InlineCSSForm from '../Components/Forms/InlineCSSForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
-import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
-// import MultiPartForm from '../Components/Forms/MultiPartForm'
-import QuoteForm from '../Components/Forms/QuoteForm'
 import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
-
-import InlineCSSForm from '../Components/Forms/InlineCSSForm'
 
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
@@ -50,7 +42,6 @@ export const formNames = {
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
   MULTI_PART: 'multi_part',
-  QUOTE: 'quote',
   SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
   TABLE_CAPTION: 'table_caption',
@@ -70,8 +61,8 @@ export const disabilityTypes = {
 }
 
 const formTypes = {
-  [formNames.ALT_TEXT]: AltText,
-  [formNames.ANCHOR_TEXT]: AnchorText,
+  [formNames.ALT_TEXT]: AltTextForm,
+  [formNames.ANCHOR_TEXT]: AnchorTextForm,
   // [formNames.ARIA_ATTRIBUTE]: AriaAttributeForm,
   [formNames.ARIA_ROLE]: AriaRoleForm,
   [formNames.BLOCKQUOTE]: BlockquoteForm,
@@ -86,11 +77,9 @@ const formTypes = {
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LANGUAGE]: LanguageForm,
-  [formNames.LINK]: LinkForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   // [formNames.MULTI_PART]: MultiPartForm,
-  [formNames.QUOTE]: QuoteForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
@@ -103,49 +92,44 @@ const formTypes = {
 
 // Classify forms by error types to use for helper elements
 export const FORM_CLASSIFICATIONS = {
-    ALT_TEXT_RELATED : [
-      formNames.ALT_TEXT,            
-      formNames.ANCHOR_TEXT,
-      formNames.BLOCKQUOTE,
-      formNames.EMBEDDED_CONTENT_TITLE,
-      formNames.LABEL,
-      formNames.LABEL_UNIQUE,
-      formNames.SELECT_VALID_ID
-    ],
-  
-    HEADINGS_RELATED : [
-      formNames.HEADING_EMPTY,
-      formNames.HEADING_STYLE
-    ],
+  ALT_TEXT_RELATED : [
+    formNames.ALT_TEXT,            
+    formNames.ANCHOR_TEXT,
+    formNames.BLOCKQUOTE,
+    formNames.EMBEDDED_CONTENT_TITLE,
+    formNames.LABEL,
+    formNames.LABEL_UNIQUE,
+    formNames.SELECT_VALID_ID
+  ],
 
-    CLICKABLE_RELATED: [
-      formNames.SELECT_VALID_ID
-    ]
+  AUTO_REVIEW_RELATED: [
+    formNames.SENSORY_MISUSE,
+  ],
+
+  CLICKABLE_RELATED: [
+    formNames.SELECT_VALID_ID
+  ],
+
+  CONTRAST_RELATED: [
+    formNames.CONTRAST,
+  ],
+
+  HEADINGS_RELATED : [
+    formNames.HEADING_EMPTY,
+    formNames.HEADING_STYLE
+  ],
+
+  LIST_RELATED: [
+    formNames.LIST
+  ],
+
+  VALID_ID_RELATED: [
+    formNames.SELECT_VALID_ID
+  ]
 }
 
 // Using the formNames as the only values prevents typos and other errors.
 const rulesToFormNameMap = {
-  // phpAlly rules
-  AnchorMustContainText: formNames.ANCHOR_TEXT,
-  AnchorSuspiciousLinkText: formNames.ANCHOR_TEXT,
-  BrokenLink: formNames.LINK,
-  CssTextHasContrast: formNames.CONTRAST,
-  CssTextStyleEmphasize: formNames.EMPHASIS,
-  HeadersHaveText: formNames.HEADING_EMPTY,
-  ImageAltIsDifferent: formNames.ALT_TEXT,
-  ImageAltIsTooLong: formNames.ALT_TEXT,
-  ImageAltNotEmptyInAnchor: formNames.ALT_TEXT,
-  ImageHasAlt: formNames.ALT_TEXT,
-  ImageHasAltDecorative: formNames.ALT_TEXT,
-  ParagraphNotUsedAsHeader: formNames.HEADING_STYLE,
-  RedirectedLink: formNames.LINK,
-  TableDataShouldHaveTableHeader: formNames.TABLE_HEADERS,
-  TableHeaderShouldHaveScope: formNames.TABLE_HEADERS,
-  ImageAltNotPlaceholder: formNames.ALT_TEXT,
-  VideoCaptionsMatchCourseLanguage: formNames.MEDIA_CAPTIONS,
-  VideosEmbeddedOrLinkedNeedCaptions: formNames.MEDIA_CAPTIONS,
-  VideosHaveAutoGeneratedCaptions: formNames.MEDIA_CAPTIONS,
-
   // Equal Access Rules
   aria_graphic_labelled: formNames.ALT_TEXT,
   aria_img_labelled: formNames.ALT_TEXT,
@@ -206,7 +190,7 @@ const rulesToFormNameMap = {
   // table_aria_descendants: formNames.INVALID_ATTRIBUTE,
   // table_scope_valid: formNames.INVALID_ATTRIBUTE,
 
-  // text_spacing_valid: formNames.INVALID_CSS,
+  text_spacing_valid: formNames.INVALID_CSS,
 
   // aria_activedescendant_tabindex_valid: formNames.KEYBOARD_TABBABLE,
   // element_scrollable_tabbable: formNames.KEYBOARD_TABBABLE,
@@ -383,9 +367,7 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.LANGUAGE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
-      case formNames.LINK:
       case formNames.LIST:
-      case formNames.QUOTE:
       case formNames.SELECT_VALID_ID:
       case formNames.TABLE_CAPTION:
       case formNames.TABLE_HEADERS:
