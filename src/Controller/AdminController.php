@@ -118,7 +118,8 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
  
-        $accounts = $accountRepo->getSubAccounts($user, 98184);
+        $accountId = 98184;
+        $accounts = $accountRepo->getSubAccounts($user, $accountId);
 
         return new JsonResponse([
             'messages'     => $util->getUnreadMessages(true),
@@ -160,7 +161,6 @@ class AdminController extends ApiController
 
             $results[] = $row;
         }
-        
         $apiResponse->addLogMessages($util->getUnreadMessages());
         $apiResponse->setData($results);
 

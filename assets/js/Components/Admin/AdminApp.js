@@ -14,9 +14,10 @@ import "../../../css/udoit4-theme.css";
 
 export default function AdminApp(initialData) {
   // If there are multiple accounts available, the first account is the selected accountId
-  let accountId = initialData.accountId;
+  let accountId = initialData?.accountId;
   if (initialData.accounts) {
-    const accountIds = Object.keys(initialData.accounts);
+    initialData?.accounts.sort((a, b) => a.depth - b.depth)
+    const accountIds = initialData.accounts;
     accountId = accountIds.shift();
   }
 
