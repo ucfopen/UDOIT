@@ -985,6 +985,40 @@
     margin: 0 auto;
     padding: 0 1rem 1rem 1rem;
   }
+
+  .admin-layout {
+    display: flex;
+    flex: 1 1 auto;
+    height: calc(100vh - 3em);
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .admin-sidebar {
+    flex: 0 0 22%;
+    min-height: 100%;
+    min-width: 20%;
+    max-width: 25%;
+    border-right: 1px solid var(--border-color);
+    background:
+      repeating-linear-gradient(
+        -45deg,
+        color-mix(in srgb, var(--container-color) 92%, var(--border-color)),
+        color-mix(in srgb, var(--container-color) 92%, var(--border-color)) 12px,
+        var(--container-color) 12px,
+        var(--container-color) 24px
+      );
+  }
+
+  main.admin-main {
+    flex: 1 1 78%;
+    height: auto;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
 }
 
 @layer udoit-modifier {

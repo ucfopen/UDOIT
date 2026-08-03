@@ -154,65 +154,56 @@ export default function AdminApp(initialData) {
         handleNavigation={handleNavigation}
       />
 
-      <AdminFilters
-        t={t}
-        preferences={preferences}
-        accounts={accounts}
-        termInfo={termInfo}
-        filters={filters}
-        handleFilter={handleFilter}
-        loadingContent={loadingCourses}
-        searchTerm={searchTerm}
-        handleSearchTerm={setSearchTerm}
-        navigation={navigation}
-      />
+      <div className="admin-layout">
+        <aside className="admin-sidebar" aria-hidden="true" />
 
-      <main role="main" className="pt-2">
-        {loadingCourses && (
-          <div className="mt-3 flex-row justify-content-center">
-            <div className="flex-column justify-content-center me-3">
-              <ProgressIcon className="icon-lg udoit-progress spinner" />
+        <main role="main" className="admin-main pt-2">
+          {loadingCourses && (
+            <div className="mt-3 flex-row justify-content-center">
+              <div className="flex-column justify-content-center me-3">
+                <ProgressIcon className="icon-lg udoit-progress spinner" />
+              </div>
+              <div className="flex-column justify-content-center">
+                <h2 className="mt-0 mb-0">{t("report.label.loading")}</h2>
+              </div>
             </div>
-            <div className="flex-column justify-content-center">
-              <h2 className="mt-0 mb-0">{t("report.label.loading")}</h2>
-            </div>
-          </div>
-        )}
+          )}
 
-        {!loadingCourses && (
-          <div className="scrollable">
-            {"dashboard" === navigation && (
-              <AdminDashboard
-                t={t}
-                preferences={preferences}
-                courses={courses}
-                handleNavigation={handleNavigation}
-                addMessage={addMessage}
-              />
-            )}
-            {"courses" === navigation && (
-              <CoursesPage
-                t={t}
-                courses={courses}
-                instanceInfo={instanceInfo}
-                searchTerm={searchTerm}
-                addMessage={addMessage}
-                handleCourseUpdate={handleCourseUpdate}
-                handleReportClick={handleReportClick}
-                handleNavigation={handleNavigation}
-              />
-            )}
-            {"reports" === navigation && (
-              <ReportsPage
-                t={t}
-                instanceInfo={instanceInfo}
-                filters={filters}
-                selectedCourse={selectedCourse}
-              />
-            )}
-          </div>
-        )}
-      </main>
+          {!loadingCourses && (
+            <div className="scrollable">
+              {"dashboard" === navigation && (
+                <AdminDashboard
+                  t={t}
+                  preferences={preferences}
+                  courses={courses}
+                  handleNavigation={handleNavigation}
+                  addMessage={addMessage}
+                />
+              )}
+              {"courses" === navigation && (
+                <CoursesPage
+                  t={t}
+                  courses={courses}
+                  instanceInfo={instanceInfo}
+                  searchTerm={searchTerm}
+                  addMessage={addMessage}
+                  handleCourseUpdate={handleCourseUpdate}
+                  handleReportClick={handleReportClick}
+                  handleNavigation={handleNavigation}
+                />
+              )}
+              {"reports" === navigation && (
+                <ReportsPage
+                  t={t}
+                  instanceInfo={instanceInfo}
+                  filters={filters}
+                  selectedCourse={selectedCourse}
+                />
+              )}
+            </div>
+          )}
+        </main>
+      </div>
       <MessageTray
         t={t}
         messages={messages}
