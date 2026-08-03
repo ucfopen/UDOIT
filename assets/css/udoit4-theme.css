@@ -1001,14 +1001,63 @@
     min-width: 20%;
     max-width: 25%;
     border-right: 1px solid var(--border-color);
-    background:
-      repeating-linear-gradient(
-        -45deg,
-        color-mix(in srgb, var(--container-color) 92%, var(--border-color)),
-        color-mix(in srgb, var(--container-color) 92%, var(--border-color)) 12px,
-        var(--container-color) 12px,
-        var(--container-color) 24px
-      );
+    background-color: var(--container-color);
+    box-sizing: border-box;
+    padding: 1rem;
+    overflow: hidden;
+  }
+
+  .admin-account-tree {
+    font-size: .95rem;
+  }
+
+  .admin-account-tree-root {
+    color: var(--text-color);
+    font-weight: 600;
+    margin-bottom: .5rem;
+  }
+
+  .admin-account-tree-list {
+    border-left: 1px solid var(--border-color);
+    max-height: calc(15 * 2rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 2px 2px 2px 0;
+  }
+
+  .admin-account-tree-item {
+    border-radius: var(--element-radius);
+    box-sizing: border-box;
+    color: var(--text-secondary-color);
+    cursor: pointer;
+    line-height: 1.3rem;
+    margin-left: .5rem;
+    margin-right: .25rem;
+    overflow-wrap: anywhere;
+    padding-bottom: .35rem;
+    padding-left: .5rem;
+    padding-right: .5rem;
+    padding-top: .35rem;
+    white-space: normal;
+  }
+
+  .admin-account-tree-item:hover,
+  .admin-account-tree-item:focus {
+    background-color: var(--link-color-light);
+    color: var(--text-color);
+    outline: none;
+  }
+
+  .admin-account-tree-item:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  .admin-account-tree-item.selected {
+    background-color: var(--link-color-light);
+    box-shadow: inset 0 0 0 2px var(--header-active-color);
+    color: var(--header-active-color);
+    font-weight: 600;
   }
 
   main.admin-main {

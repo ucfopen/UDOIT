@@ -15,11 +15,14 @@ import "../../../css/udoit4-theme.css";
 export default function AdminApp(initialData) {
   // If there are multiple accounts available, the first account is the selected accountId
   let accountId = initialData?.accountId;
+  let intialAccount = {}
+  let filteredAccounts = []
   if (initialData.accounts) {
-    initialData?.accounts.sort((a, b) => a.depth - b.depth)
-    const accountIds = initialData.accounts;
-    accountId = accountIds.shift();
+    intialAccount = initialData.accounts.find(a => a.lmsAccountId == accountId)
+    filteredAccounts = initialData.accounts.filter(a => a.lmsAccountId != accountId)
   }
+
+  console.log(intialAccount)
 
   let initialFilters = {
     accountId: accountId,
@@ -35,7 +38,8 @@ export default function AdminApp(initialData) {
   );
   const [termInfo, setTermInfo] = useState(initialData.termInfo || {});
   const [labels, setLabels] = useState(initialData.labels ?? []);
-  const [accounts, setAccounts] = useState(initialData.accounts);
+  const [parentAccounts, setParentAccounts] = useState({accountId: intialAccount})
+  const [accounts, setAccounts] = useState({accountId: filteredAccounts});
 
   const [courses, setCourses] = useState({});
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -46,6 +50,7 @@ export default function AdminApp(initialData) {
   const [modal, setModal] = useState(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [trayOpen, setTrayOpen] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
 
   const t = useCallback(
     (key, values = {}) => {
@@ -105,6 +110,19 @@ export default function AdminApp(initialData) {
     setFilters(tempFilters);
   };
 
+  const handleAccountSelect = (account) => {
+    setSelectedAccountId((currentAccountId) => {
+      const accountId = account.lmsAccountId;
+
+      if (currentAccountId === accountId) {
+        return null;
+      }
+
+      console.log(account.accountName);
+      return accountId;
+    });
+  };
+
   useEffect(() => {
     loadCourses(initialFilters);
   }, []);
@@ -155,7 +173,31 @@ export default function AdminApp(initialData) {
       />
 
       <div className="admin-layout">
-        <aside className="admin-sidebar" aria-hidden="true" />
+        <aside className="admin-sidebar">
+          {Object.entries(accounts).map(([key, accountList]) => (
+            <div className="admin-account-tree" key={key}>
+              <div className="admin-account-tree-root">{parentAccounts[key].accountName}</div>
+              <div className="admin-account-tree-list">
+                {accountList.map((account) => (
+                  <div
+                    className={`admin-account-tree-item ${selectedAccountId === account.lmsAccountId ? "selected" : ""}`}
+                    key={account.lmsAccountId}
+                    role="button"
+                    tabIndex="0"
+                    onClick={() => handleAccountSelect(account)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        handleAccountSelect(account);
+                      }
+                    }}
+                  >
+                    {account.accountName}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </aside>
 
         <main role="main" className="admin-main pt-2">
           {loadingCourses && (

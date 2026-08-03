@@ -128,6 +128,7 @@ class AdminController extends ApiController
             'labels'       => $initialStateService->getLabels($preferences),
             'accounts'     => $accounts,
             'termInfo'     => $this->getTermInfo($accounts),
+            'accountId'    => $accountId,
         ]);
     }
 
