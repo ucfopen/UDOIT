@@ -383,6 +383,7 @@ export default function AdminApp(initialData) {
             navigation={navigation}
             parentAccounts={parentAccounts}
             accountStack={accountStack}
+            handleAccountSelect={handleAccountSelect}
             />
           {loadingCourses && (
             <div className="mt-3 flex-row justify-content-center">
