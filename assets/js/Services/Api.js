@@ -16,6 +16,7 @@ export default class Api {
       updateContent: '/api/{file}/content',
       reportPdf: '/download/courses/{course}/reports/pdf',
       adminCourses: '/api/admin/courses/account/{account}/term/{term}',
+      adminSubAccounts: '/api/admin/accounts/{lmsAccountId}',
       scanContent: '/api/sync/content/{contentItem}?report={getReport}',
       scanCourse: '/api/sync/{course}',
       scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
@@ -209,6 +210,20 @@ export default class Api {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  getAdminSubAccounts(accountId) {
+    let url = `${this.apiUrl}${this.endpoints.adminSubAccounts}`;
+    url = url.replace("{lmsAccountId}", accountId)
+
+    return fetch(url, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
   }
 
   getAdminReport(courseId) {

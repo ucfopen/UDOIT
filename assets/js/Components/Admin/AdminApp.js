@@ -9,7 +9,6 @@ import AdminFilters from "../Admin/AdminFilters";
 import ProgressIcon from "../Icons/ProgressIcon";
 
 import { ISSUE_FILTER } from "../../Services/Settings";
-
 import "../../../css/udoit4-theme.css";
 
 export default function AdminApp(initialData) {
@@ -21,8 +20,6 @@ export default function AdminApp(initialData) {
     intialAccount = initialData.accounts.find(a => a.lmsAccountId == accountId)
     filteredAccounts = initialData.accounts.filter(a => a.lmsAccountId != accountId)
   }
-
-  console.log(intialAccount)
 
   let initialFilters = {
     accountId: accountId,
@@ -50,7 +47,7 @@ export default function AdminApp(initialData) {
   const [modal, setModal] = useState(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [trayOpen, setTrayOpen] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
 
   const t = useCallback(
     (key, values = {}) => {
@@ -110,18 +107,149 @@ export default function AdminApp(initialData) {
     setFilters(tempFilters);
   };
 
-  const handleAccountSelect = (account) => {
-    setSelectedAccountId((currentAccountId) => {
-      const accountId = account.lmsAccountId;
+  const removeAccountBranch = (
+    accountId,
+    tempAccounts,
+    tempParentAccounts,
+    visitedAccountIds = new Set(),
+  ) => {
+    if (accountId == null || visitedAccountIds.has(accountId)) {
+      return;
+    }
 
-      if (currentAccountId === accountId) {
-        return null;
+    const nextVisitedAccountIds = new Set(visitedAccountIds);
+    nextVisitedAccountIds.add(accountId);
+    const childAccounts = tempAccounts[accountId] || [];
+
+    childAccounts.forEach((childAccount) => {
+      removeAccountBranch(
+        childAccount.lmsAccountId,
+        tempAccounts,
+        tempParentAccounts,
+        nextVisitedAccountIds,
+      );
+    });
+
+    delete tempParentAccounts[accountId];
+    delete tempAccounts[accountId];
+  };
+
+  const handleAccountSelect = async (account, depth) => {
+     let tempParentAccounts = { ...parentAccounts }
+     let tempAccounts = { ...accounts }
+     let tempSelectedAccountsByDepth = { ...selectedAccountsByDepth }
+     const selectedAccountId = String(account.lmsAccountId);
+
+     if (tempSelectedAccountsByDepth[depth] === selectedAccountId) {
+        removeAccountBranch(
+          account.lmsAccountId,
+          tempAccounts,
+          tempParentAccounts,
+        )
+
+        Object.keys(tempSelectedAccountsByDepth).forEach((selectedDepth) => {
+          if (Number(selectedDepth) >= depth) {
+            delete tempSelectedAccountsByDepth[selectedDepth];
+          }
+        });
+     }
+     else{
+      let newAccs = await fetchSubAccounts(account.lmsAccountId)
+      if (!newAccs || newAccs?.length < 1){
+          return
       }
 
-      console.log(account.accountName);
-      return accountId;
-    });
+      if (tempSelectedAccountsByDepth[depth]) {
+        removeAccountBranch(
+          tempSelectedAccountsByDepth[depth],
+          tempAccounts,
+          tempParentAccounts,
+        )
+      }
+
+      Object.keys(tempSelectedAccountsByDepth).forEach((selectedDepth) => {
+        if (Number(selectedDepth) >= depth) {
+          delete tempSelectedAccountsByDepth[selectedDepth];
+        }
+      });
+
+      tempAccounts[account.lmsAccountId] = newAccs
+      tempParentAccounts[account.lmsAccountId] = account
+      tempSelectedAccountsByDepth[depth] = selectedAccountId
+     }
+     setParentAccounts(tempParentAccounts)
+     setAccounts(tempAccounts)
+     setSelectedAccountsByDepth(tempSelectedAccountsByDepth)
   };
+
+  const renderAccountTree = (
+    account,
+    depth = 0,
+    isRoot = false,
+    visitedAccountIds = new Set(),
+  ) => {
+    if (account?.lmsAccountId == null || visitedAccountIds.has(account.lmsAccountId)) {
+      return null;
+    }
+
+    const nextVisitedAccountIds = new Set(visitedAccountIds);
+    nextVisitedAccountIds.add(account.lmsAccountId);
+
+    const childAccounts = (isRoot
+      ? accounts.accountId || []
+      : accounts[account.lmsAccountId] || []
+    ).filter(
+      (childAccount) =>
+        childAccount?.lmsAccountId != null &&
+        !nextVisitedAccountIds.has(childAccount.lmsAccountId),
+    );
+    const isSelected = !isRoot && selectedAccountsByDepth[depth] === String(account.lmsAccountId);
+
+    return (
+      <div className="admin-account-tree-branch" key={account.lmsAccountId}>
+        <div
+          className={isRoot ? "admin-account-tree-root" : `admin-account-tree-item ${isSelected ? "selected" : ""}`}
+          role={isRoot ? undefined : "button"}
+          style={{ "--account-depth": depth }}
+          tabIndex={isRoot ? undefined : "0"}
+          onClick={isRoot ? undefined : () => handleAccountSelect(account, depth)}
+          onKeyDown={
+            isRoot
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleAccountSelect(account, depth);
+                  }
+                }
+          }
+        >
+          {account.accountName}
+        </div>
+        {childAccounts.map((childAccount) =>
+          renderAccountTree(
+            childAccount,
+            depth + 1,
+            false,
+            nextVisitedAccountIds,
+          ),
+        )}
+      </div>
+    );
+  };
+
+  const fetchSubAccounts = async (accountId) => {
+    const api = new Api(instanceInfo)
+    const res = await api.getAdminSubAccounts(accountId)
+    const response = await res.json()
+    if (response?.errors && response.errors.length > 0){
+      console.log("Failed to fetch subacocunts")
+      console.log(error)
+      return
+    }
+
+    return response.data
+
+  }
 
   useEffect(() => {
     loadCourses(initialFilters);
@@ -174,29 +302,9 @@ export default function AdminApp(initialData) {
 
       <div className="admin-layout">
         <aside className="admin-sidebar">
-          {Object.entries(accounts).map(([key, accountList]) => (
-            <div className="admin-account-tree" key={key}>
-              <div className="admin-account-tree-root">{parentAccounts[key].accountName}</div>
-              <div className="admin-account-tree-list">
-                {accountList.map((account) => (
-                  <div
-                    className={`admin-account-tree-item ${selectedAccountId === account.lmsAccountId ? "selected" : ""}`}
-                    key={account.lmsAccountId}
-                    role="button"
-                    tabIndex="0"
-                    onClick={() => handleAccountSelect(account)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        handleAccountSelect(account);
-                      }
-                    }}
-                  >
-                    {account.accountName}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="admin-account-tree">
+            {parentAccounts.accountId && renderAccountTree(parentAccounts.accountId, 0, true)}
+          </div>
         </aside>
 
         <main role="main" className="admin-main pt-2">

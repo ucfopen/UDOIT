@@ -1009,20 +1009,20 @@
 
   .admin-account-tree {
     font-size: .95rem;
+    border-left: 1px solid var(--border-color);
+    max-height: calc(15 * 2.25rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 2px 2px 2px 0;
   }
 
   .admin-account-tree-root {
     color: var(--text-color);
     font-weight: 600;
-    margin-bottom: .5rem;
-  }
-
-  .admin-account-tree-list {
-    border-left: 1px solid var(--border-color);
-    max-height: calc(15 * 2rem);
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 2px 2px 2px 0;
+    line-height: 1.3rem;
+    overflow-wrap: anywhere;
+    padding: .35rem .5rem .35rem calc(.5rem + (var(--account-depth) * 1rem));
+    white-space: normal;
   }
 
   .admin-account-tree-item {
@@ -1034,10 +1034,7 @@
     margin-left: .5rem;
     margin-right: .25rem;
     overflow-wrap: anywhere;
-    padding-bottom: .35rem;
-    padding-left: .5rem;
-    padding-right: .5rem;
-    padding-top: .35rem;
+    padding: .35rem .5rem .35rem calc(.5rem + (var(--account-depth) * 1rem));
     white-space: normal;
   }
 

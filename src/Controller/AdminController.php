@@ -104,6 +104,7 @@ class AdminController extends ApiController
         $this->lmsApi = $lmsApi;
         $this->courseRepo = $courseRepo;
         $this->accountRepo = $accountRepo;
+        $output = new ConsoleOutput();
 
         $user = $this->getUser();
         if (!$user) {
@@ -118,7 +119,7 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
  
-        $accountId = 98184;
+        $accountId = 89347;
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
 
         return new JsonResponse([
@@ -300,6 +301,28 @@ class AdminController extends ApiController
 
         return $this->json($apiResponse);
     }
+
+
+    #[Route('/api/admin/accounts/{lmsAccountId}', methods: ['GET'], name: 'admin_get_accounts')]
+    public function getSubAccounts(int $lmsAccountId, SessionService $sessionService, UtilityService $util, AccountRepository $accountRepo) {
+        $apiResponse = new ApiResponse();
+        $session = $sessionService->getSession();
+        $this->accountRepo = $accountRepo;
+        $output = new ConsoleOutput();
+
+         /** @var User $user */
+        $user = $this->getUser();
+        
+        if (!($accountId = $session->get('lms_account_id'))) {
+            $util->exitWithMessage('Account ID not found.');
+        }
+        $output->writeln($lmsAccountId);
+        $accounts = $accountRepo->getSubAccounts($user, $lmsAccountId);
+        $apiResponse->setData($accounts);
+
+        return $this->json($apiResponse);
+    }
+
 
     /** PROTECTED FUNCTIONS **/
 
