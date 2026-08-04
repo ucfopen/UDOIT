@@ -913,6 +913,21 @@
     }
   }
 
+  .navigation-breadcrumb {
+    font-size: calc(.8 * var(--font-size));
+    font-weight: 400;
+    margin-inline-start: calc(0.5 * var(--spacer)) !important;
+    margin-inline-end: calc(0.5 * var(--spacer)) !important;
+
+    &.linked{
+      &:hover{
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+
+  }
+
   .ufixit-widget code,
   .ufixit-widget-dialog code,
   .ufixit-learn-container code,
@@ -1037,6 +1052,8 @@
     overflow-wrap: anywhere;
     padding: .35rem .5rem .35rem calc(.5rem + (var(--account-depth) * 1rem));
     white-space: normal;
+    border-left: solid;
+    border-left-color: transparent;
   }
 
   .admin-account-tree-item:hover,
@@ -1048,7 +1065,7 @@
 
   .admin-account-tree-item.selected {
      border-left: solid;
-     border-left-color: var(--primary-color);
+     border-left-color: var(--selection-color);
      font-weight: 500;
   }
 

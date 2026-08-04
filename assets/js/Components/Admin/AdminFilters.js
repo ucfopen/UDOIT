@@ -28,8 +28,8 @@ export default function AdminFilters({
       <div className="account-navigator flex-row align-items-center">
         {accountStack.map((a, i) => (
           <div key={i} className="flex-row align-items-center">
-            <div className="info-pill replaced" >{a.accountName}</div>
-            {i < accountStack.length - 1 ? <RightArrowIcon className='icon-sm'/> : ""}
+            <div className={`navigation-breadcrumb ${i < accountStack.length - 1 ? "linked" : ""}`} >{a.accountName}</div>
+            {i < accountStack.length - 1 ? <RightArrowIcon className='icon-sm gray'/> : ""}
           </div>
         ))}
         
