@@ -49,6 +49,8 @@ export default function AdminApp(initialData) {
   const [trayOpen, setTrayOpen] = useState(false);
   const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
 
+  const [accountStack, setAccountStack] = useState([intialAccount])
+
   const t = useCallback(
     (key, values = {}) => {
       let translatedText = labels[key] ? labels[key] : key;
@@ -64,6 +66,25 @@ export default function AdminApp(initialData) {
     },
     [labels],
   );
+
+  const pushAccount = (account) => {
+    console.log("Runs")
+    const tempStack = JSON.parse(JSON.stringify(accountStack))
+    tempStack.push(account)
+    setAccountStack(tempStack)
+  }
+
+  const popAccount = (account) => {
+    const tempStack = accountStack
+    while (tempStack && (tempStack[tempStack.length - 1].depth >= account.depth)) {
+       tempStack.pop()
+    }
+    if(tempStack && account.lmsAccountId == tempStack[tempStack.length - 1].lmsAccountId){
+      tempStack.pop()
+    }
+  
+    setAccountStack(tempStack)
+  }
 
   const loadCourses = (filters) => {
     setLoadingCourses(true);
@@ -152,6 +173,7 @@ export default function AdminApp(initialData) {
             delete tempSelectedAccountsByDepth[selectedDepth];
           }
         });
+        popAccount(account)
      }
      else{
       let newAccs = await fetchSubAccounts(account.lmsAccountId)
@@ -176,7 +198,10 @@ export default function AdminApp(initialData) {
       tempAccounts[account.lmsAccountId] = newAccs
       tempParentAccounts[account.lmsAccountId] = account
       tempSelectedAccountsByDepth[depth] = selectedAccountId
+      popAccount(account)
+      pushAccount(account)
      }
+     
      setParentAccounts(tempParentAccounts)
      setAccounts(tempAccounts)
      setSelectedAccountsByDepth(tempSelectedAccountsByDepth)
@@ -308,6 +333,20 @@ export default function AdminApp(initialData) {
         </aside>
 
         <main role="main" className="admin-main pt-2">
+          <AdminFilters 
+            t={t}
+            preferences={preferences}
+            accounts={accounts}
+            termInfo={termInfo}
+            filters={filters}
+            handleFilter={handleFilter}
+            loadingContent={loadingCourses}
+            searchTerm={searchTerm}
+            handleSearchTerm={() => console.log("Search")}
+            navigation={navigation}
+            parentAccounts={parentAccounts}
+            accountStack={accountStack}
+            />
           {loadingCourses && (
             <div className="mt-3 flex-row justify-content-center">
               <div className="flex-column justify-content-center me-3">
