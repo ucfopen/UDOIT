@@ -35,8 +35,8 @@ export default function AdminApp(initialData) {
   );
   const [termInfo, setTermInfo] = useState(initialData.termInfo || {});
   const [labels, setLabels] = useState(initialData.labels ?? []);
-  const [parentAccounts, setParentAccounts] = useState({accountId: intialAccount})
-  const [accounts, setAccounts] = useState({accountId: filteredAccounts});
+  const [parentAccounts, setParentAccounts] = useState({[accountId]: intialAccount})
+  const [accounts, setAccounts] = useState({[accountId]: filteredAccounts});
 
   const [courses, setCourses] = useState({});
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -196,7 +196,7 @@ export default function AdminApp(initialData) {
     nextVisitedAccountIds.add(account.lmsAccountId);
 
     const childAccounts = (isRoot
-      ? accounts.accountId || []
+      ? accounts[accountId] || []
       : accounts[account.lmsAccountId] || []
     ).filter(
       (childAccount) =>
@@ -303,7 +303,7 @@ export default function AdminApp(initialData) {
       <div className="admin-layout">
         <aside className="admin-sidebar">
           <div className="admin-account-tree">
-            {parentAccounts.accountId && renderAccountTree(parentAccounts.accountId, 0, true)}
+            {parentAccounts[accountId] && renderAccountTree(parentAccounts[accountId], 0, true)}
           </div>
         </aside>
 
