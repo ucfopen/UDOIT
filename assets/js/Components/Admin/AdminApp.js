@@ -50,6 +50,7 @@ export default function AdminApp(initialData) {
   const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
 
   const [accountStack, setAccountStack] = useState([intialAccount])
+  const [accountSearch, setAccountSearch] = useState("")
 
   const t = useCallback(
     (key, values = {}) => {
@@ -207,6 +208,16 @@ export default function AdminApp(initialData) {
      setSelectedAccountsByDepth(tempSelectedAccountsByDepth)
   };
 
+  const accountMatchesSearch = (account) => {
+    const normalizedSearch = accountSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return true;
+    }
+
+    return account.accountName?.toLowerCase().includes(normalizedSearch);
+};
+
   const renderAccountTree = (
     account,
     depth = 0,
@@ -228,6 +239,26 @@ export default function AdminApp(initialData) {
         childAccount?.lmsAccountId != null &&
         !nextVisitedAccountIds.has(childAccount.lmsAccountId),
     );
+
+    const renderedChildren = childAccounts
+    .map((childAccount) =>
+      renderAccountTree(
+        childAccount,
+        depth + 1,
+        false,
+        nextVisitedAccountIds,
+      ),
+    )
+    .filter(Boolean);
+
+    
+    const matchesSearch = accountMatchesSearch(account);
+    if (!isRoot && accountSearch.trim() && !matchesSearch && renderedChildren.length === 0) {
+      return null;
+    }
+
+
+
     const isSelected = !isRoot && selectedAccountsByDepth[depth] === String(account.lmsAccountId);
 
     return (
@@ -284,6 +315,11 @@ export default function AdminApp(initialData) {
     loadCourses(filters, true);
   }, [filters]);
 
+  const handleAccountSearch = (e) => {
+    const term = e.target.value
+    setAccountSearch(term)
+  }
+
   const handleCourseUpdate = (courseData) => {
     let tempCourses = { ...courses };
 
@@ -327,6 +363,7 @@ export default function AdminApp(initialData) {
 
       <div className="admin-layout">
         <aside className="admin-sidebar">
+          <input type="text" value={accountSearch} onChange={(e) => handleAccountSearch(e)}></input>
           <div className="admin-account-tree">
             {parentAccounts[accountId] && renderAccountTree(parentAccounts[accountId], 0, true)}
           </div>
