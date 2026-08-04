@@ -1026,7 +1026,6 @@
   }
 
   .admin-account-tree-item {
-    border-radius: var(--element-radius);
     box-sizing: border-box;
     color: var(--text-secondary-color);
     cursor: pointer;
@@ -1040,21 +1039,15 @@
 
   .admin-account-tree-item:hover,
   .admin-account-tree-item:focus {
-    background-color: var(--link-color-light);
+    background-color: var(--primary-color-light);
     color: var(--text-color);
     outline: none;
   }
 
-  .admin-account-tree-item:focus {
-    outline: 2px solid var(--focus-color);
-    outline-offset: 2px;
-  }
-
   .admin-account-tree-item.selected {
-    background-color: var(--link-color-light);
-    box-shadow: inset 0 0 0 2px var(--header-active-color);
-    color: var(--header-active-color);
-    font-weight: 600;
+     border-left: solid;
+     border-left-color: var(--primary-color);
+     font-weight: 500;
   }
 
   main.admin-main {
