@@ -1043,6 +1043,7 @@
   }
 
   .admin-account-tree-item {
+    position: relative;
     box-sizing: border-box;
     color: var(--text-secondary-color);
     cursor: pointer;
@@ -1052,8 +1053,6 @@
     overflow-wrap: anywhere;
     padding: .35rem .5rem .35rem calc(.5rem + (var(--account-depth) * 1rem));
     white-space: normal;
-    border-left: solid;
-    border-left-color: transparent;
   }
 
   .admin-account-tree-item:hover,
@@ -1064,9 +1063,16 @@
   }
 
   .admin-account-tree-item.selected {
-     border-left: solid;
-     border-left-color: var(--selection-color);
      font-weight: 500;
+  }
+
+  .admin-account-tree-item.selected::before {
+    content: "";
+    position: absolute;
+    top: .25rem;
+    bottom: .25rem;
+    left: calc((var(--account-depth) * 1rem));
+    border-left: 3px solid var(--selection-color);
   }
 
   main.admin-main {
