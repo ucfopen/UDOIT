@@ -119,7 +119,7 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
  
-        $accountId = 89347;
+        $accountId = 99997;
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
 
         return new JsonResponse([
@@ -128,7 +128,7 @@ class AdminController extends ApiController
             'instanceInfo' => $initialStateService->getInstanceInfo($user),
             'labels'       => $initialStateService->getLabels($preferences),
             'accounts'     => $accounts,
-            'termInfo'     => $this->getTermInfo($accounts),
+            'termInfo'     => $this->getTermsByAccount($accountId),
             'accountId'    => $accountId,
         ]);
     }
@@ -392,6 +392,28 @@ class AdminController extends ApiController
         }
 
         return $courseTerms;
+    }
+
+    protected function getTermsByAccount($accountId) {
+        $user = $this->getUser();
+        $terms = [];
+        $termCourseMap = [];
+
+        $courses = $this->courseRepo->findCoursesByAccount($user, $accountId);
+        if ($courses){
+            foreach ($courses as $course) {
+                $term = $course->getTerm();
+                if(isset($termCourseMap[$term->getLmsTermId()])){
+                    $termCourseMap[$term->getLmsTermId()][] = $course;
+                }
+                else{
+                    $terms[] = $term;
+                    $termCourseMap[$term->getLmsTermId()][] = $course;
+                }
+                
+            }
+        }
+        return [$terms, $termCourseMap];
     }
 
     protected function getDefaultTerm($terms)
