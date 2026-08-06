@@ -119,7 +119,7 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
  
-        $accountId = 99997;
+        $accountId = 89347;
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
 
         return new JsonResponse([
@@ -323,6 +323,25 @@ class AdminController extends ApiController
         return $this->json($apiResponse);
     }
 
+    #[Route('/api/admin/terms/{lmsAccountId}', methods: ['GET'], name: 'admin_get_terms_courses')]
+    public function getTermsAndCourses(int $lmsAccountId, SessionService $sessionService, UtilityService $util, CourseRepository $courseRepo){
+        $apiResponse = new ApiResponse();
+        $session = $sessionService->getSession();
+        $this->courseRepo = $courseRepo;
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!($accountId = $session->get('lms_account_id'))) {
+            $util->exitWithMessage('Account ID not found.');
+        }
+
+        $courseTerms = $this->getTermsByAccount($lmsAccountId);
+        $apiResponse->setData($courseTerms);
+
+        return $this->json($apiResponse);
+    }
+
 
     /** PROTECTED FUNCTIONS **/
 
@@ -398,8 +417,9 @@ class AdminController extends ApiController
         $user = $this->getUser();
         $terms = [];
         $termCourseMap = [];
-
+        $output = new ConsoleOutput();
         $courses = $this->courseRepo->findCoursesByAccount($user, $accountId);
+        $output->writeln($accountId);
         if ($courses){
             foreach ($courses as $course) {
                 $term = $course->getTerm();

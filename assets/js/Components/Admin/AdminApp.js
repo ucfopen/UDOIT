@@ -201,6 +201,7 @@ export default function AdminApp(initialData) {
       tempSelectedAccountsByDepth[depth] = selectedAccountId
       popAccount(account)
       pushAccount(account)
+      fetchTermsAndCourses(account.lmsAccountId)
      }
      
      setParentAccounts(tempParentAccounts)
@@ -302,9 +303,20 @@ export default function AdminApp(initialData) {
       console.log(error)
       return
     }
-
     return response.data
+  }
 
+  const fetchTermsAndCourses = async (accountId) => {
+    const api = new Api(instanceInfo)
+    const res = await api.getAdminTermsCourses(accountId)
+    const response = await res.json()
+    if (response?.errors && response.errors.length > 0){
+      console.log("Failed to fetch terms and accounts")
+      console.log(error)
+      return
+    }
+    console.log(response)
+    return response.data
   }
 
   useEffect(() => {
