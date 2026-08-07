@@ -75,22 +75,24 @@ export default function AdminApp(initialData) {
     [labels],
   );
 
-  const pushAccount = (account) => {
-    const tempStack = structuredClone(accountStack)
-    tempStack.push(account)
-    setAccountStack(tempStack)
-  }
+  const updateAccountStack = (account, shouldPush = false) => {
+    setAccountStack((prevStack) => {
+      const tempStack = [...prevStack]
 
-  const popAccount = (account) => {
-    const tempStack = structuredClone(accountStack)
-    while (tempStack && (tempStack[tempStack.length - 1].depth >= account.depth)) {
-       tempStack.pop()
-    }
-    if(tempStack && account.lmsAccountId == tempStack[tempStack.length - 1].lmsAccountId){
-      tempStack.pop()
-    }
+      while (tempStack.length && tempStack[tempStack.length - 1].depth >= account.depth) {
+        tempStack.pop()
+      }
 
-    setAccountStack(tempStack)
+      if (tempStack.length && account.lmsAccountId == tempStack[tempStack.length - 1].lmsAccountId) {
+        tempStack.pop()
+      }
+
+      if (shouldPush) {
+        tempStack.push(account)
+      }
+
+      return tempStack
+    })
   }
 
   const loadCourses = () => {
@@ -181,7 +183,7 @@ export default function AdminApp(initialData) {
             delete tempSelectedAccountsByDepth[selectedDepth];
           }
         });
-        popAccount(account)
+        updateAccountStack(account)
      }
      else{
       let newAccs = await fetchSubAccounts(account.lmsAccountId)
@@ -206,8 +208,7 @@ export default function AdminApp(initialData) {
       tempAccounts[account.lmsAccountId] = newAccs
       tempParentAccounts[account.lmsAccountId] = account
       tempSelectedAccountsByDepth[depth] = selectedAccountId
-      popAccount(account)
-      pushAccount(account)
+      updateAccountStack(account, true)
      }
      
      setParentAccounts(tempParentAccounts)
@@ -421,7 +422,7 @@ export default function AdminApp(initialData) {
                 <AdminDashboard
                   t={t}
                   preferences={preferences}
-                  courses={[]}
+                  courses={courses}
                   handleNavigation={handleNavigation}
                   addMessage={addMessage}
                 />

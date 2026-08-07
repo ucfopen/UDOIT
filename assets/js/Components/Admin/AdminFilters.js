@@ -64,7 +64,7 @@ export default function AdminFilters({
     <div className="filter-container mb-2">    
       <div className="account-navigator flex-row align-items-center">
         {accountStack.map((a, i) => (
-          <div key={i} className="flex-row align-items-center">
+          <div key={a.lmsAccountId} className="flex-row align-items-center">
             <div className={`navigation-breadcrumb ${i < accountStack.length - 1 ? "linked" : ""}`} onClick={() => handleBreadcrumbNav(i)} >{a.accountName}</div>
             {i < accountStack.length - 1 ? <RightArrowIcon className='icon-sm gray'/> : ""}
           </div>
