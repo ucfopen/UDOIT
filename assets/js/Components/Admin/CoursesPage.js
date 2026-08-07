@@ -64,8 +64,7 @@ export default function CoursePage({
 
     // Note: The `courses` variable is ALREADY filtered by the Account and Term.
     // This ONLY needs to filter based on the search term.
-    Object.keys(courses).forEach((key) => {
-      const course = courses[key];
+    courses.forEach((course) => {
       let excludeCourse = false;
       if (searchTerm !== "") {
         const searchTerms = searchTerm.toLowerCase().split(" ");
@@ -384,7 +383,7 @@ export default function CoursePage({
       <div className="flex-row justify-content-center mt-3 mb-3">
         <h1 className="mt-0 mb-0 primary-dark">{t("report.header.courses")}</h1>
       </div>
-      {Object.keys(courses).length === 0 || filteredCourses.length === 0 ? (
+      {courses?.length === 0 || filteredCourses?.length === 0 ? (
         <div className="flex-column mt-3">
           <div className="flex-row justify-content-center">
             <h2 className="mt-0 mb-0">{t("report.label.no_results")}</h2>

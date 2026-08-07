@@ -18,8 +18,19 @@ export default function AdminFilters({
   navigation,
   parentAccounts,
   accountStack,
-  handleAccountSelect
+  handleAccountSelect,
+  selectedTerm,
+  setSelectedTerm
 }) {
+
+  const [termOptions, setTermOptions] = useState([])
+
+  useEffect(() => {
+    if(termInfo){
+      const tempOptions = computeSelectOptions(-1)
+      setTermOptions(tempOptions)
+    }
+  }, [termInfo])
 
   const handleBreadcrumbNav = (index) => {
    if(index >= accountStack.length - 1){
@@ -28,10 +39,27 @@ export default function AdminFilters({
    }
 
    handleAccountSelect(accountStack[index+1], accountStack[index+1].depth)
-
   }
 
-  
+  const computeSelectOptions = (currentSelection) => {
+    const tempOptions = [{ value: -1, name: "Select a Term", selected: currentSelection === -1}]
+     for (const term of termInfo[0]) {
+        tempOptions.push({
+          value: term.lmsTermId,
+          name: term.termName,
+          selected: currentSelection == term.lmsTermId
+        })
+     }
+     return tempOptions
+  }
+
+  const handleTermChange = (id, value) => {
+    setSelectedTerm(Number(value))
+
+    const tempSelectOptions = computeSelectOptions(value)
+    setTermOptions(tempSelectOptions)
+  }
+
   return (
     <div className="filter-container mb-2">    
       <div className="account-navigator flex-row align-items-center">
@@ -41,7 +69,15 @@ export default function AdminFilters({
             {i < accountStack.length - 1 ? <RightArrowIcon className='icon-sm gray'/> : ""}
           </div>
         ))}
-        
+      </div>
+      <div className="terms-filter flex-row me-3">
+        <Combobox 
+          handleChange={handleTermChange}
+          id="term-select"
+          isDisabled={false}
+          label=""
+          options={termOptions}
+        />
       </div>
     </div>
   );

@@ -51,6 +51,13 @@ export default function AdminApp(initialData) {
 
   const [accountStack, setAccountStack] = useState([intialAccount])
   const [accountSearch, setAccountSearch] = useState("")
+  const [selectedTerm, setSelectedTerm] = useState(-1)
+
+  useEffect(() => {
+    if(accountStack){
+      setTermsCourses(accountStack[accountStack.length - 1].lmsAccountId)
+    }
+  }, [accountStack])
 
   const t = useCallback(
     (key, values = {}) => {
@@ -69,7 +76,6 @@ export default function AdminApp(initialData) {
   );
 
   const pushAccount = (account) => {
-    console.log("Runs")
     const tempStack = JSON.parse(JSON.stringify(accountStack))
     tempStack.push(account)
     setAccountStack(tempStack)
@@ -87,24 +93,25 @@ export default function AdminApp(initialData) {
     setAccountStack(tempStack)
   }
 
-  const loadCourses = (filters) => {
-    setLoadingCourses(true);
-
-    const api = new Api(instanceInfo);
-    api
-      .getAdminCourses(filters)
-      .then((response) => response.json())
-      .then((data) => {
-        let courses = {};
-        if (Array.isArray(data.data)) {
-          data.data.forEach((course) => {
-            courses[course.id] = course;
-          });
-          setCourses(courses);
-        }
-        setLoadingCourses(false);
-      });
+  const loadCourses = () => {
+    setLoadingCourses(true)
+    if (selectedTerm == -1) {
+      const tempCourses = []
+      for (const c of Object.values(termInfo[1])){
+        tempCourses.push(c)
+      }
+      setCourses(tempCourses.flat())
+    }
+    else if(selectedTerm > -1){
+     setCourses(termInfo[1][selectedTerm])
+    }
+    setLoadingCourses(false)
   };
+
+  const setTermsCourses = async (accountId) => {
+    const termsCourses = await fetchTermsAndCourses(accountId)
+    setTermInfo(termsCourses)
+  }
 
   const handleNavigation = (navigation) => {
     setSelectedCourse(null);
@@ -201,7 +208,6 @@ export default function AdminApp(initialData) {
       tempSelectedAccountsByDepth[depth] = selectedAccountId
       popAccount(account)
       pushAccount(account)
-      fetchTermsAndCourses(account.lmsAccountId)
      }
      
      setParentAccounts(tempParentAccounts)
@@ -315,17 +321,8 @@ export default function AdminApp(initialData) {
       console.log(error)
       return
     }
-    console.log(response)
     return response.data
   }
-
-  useEffect(() => {
-    loadCourses(initialFilters);
-  }, []);
-
-  useEffect(() => {
-    loadCourses(filters, true);
-  }, [filters]);
 
   const handleAccountSearch = (e) => {
     const term = e.target.value
@@ -362,6 +359,14 @@ export default function AdminApp(initialData) {
     setCourses(tempCourses);
   };
 
+  useEffect(() => {
+    loadCourses(initialFilters);
+  }, []);
+
+  useEffect(() => {
+    loadCourses();
+  }, [termInfo, selectedTerm]);
+
   return (
     <div
       id="app-container"
@@ -396,6 +401,8 @@ export default function AdminApp(initialData) {
             parentAccounts={parentAccounts}
             accountStack={accountStack}
             handleAccountSelect={handleAccountSelect}
+            selectedTerm={selectedTerm}
+            setSelectedTerm={setSelectedTerm}
             />
           {loadingCourses && (
             <div className="mt-3 flex-row justify-content-center">
@@ -414,7 +421,7 @@ export default function AdminApp(initialData) {
                 <AdminDashboard
                   t={t}
                   preferences={preferences}
-                  courses={courses}
+                  courses={[]}
                   handleNavigation={handleNavigation}
                   addMessage={addMessage}
                 />
