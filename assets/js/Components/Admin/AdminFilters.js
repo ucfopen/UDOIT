@@ -71,6 +71,17 @@ export default function AdminFilters({
         ))}
       </div>
       <div className="terms-filter flex-row me-3">
+        {navigation === "courses" && (
+          <div className="search-group">
+            <input
+              value={searchTerm}
+              type="text"
+              placeholder={t("filter.label.search")}
+              onChange={(e) => handleSearchTerm(e.target.value)}
+            />
+            <SearchIcon className="search-icon icon-sm" />
+          </div>
+        )}
         <Combobox 
           handleChange={handleTermChange}
           id="term-select"

@@ -106,7 +106,7 @@ export default function AdminApp(initialData) {
      setCourses(termInfo[1][selectedTerm])
     }
     setLoadingCourses(false)
-  };
+  }
 
   const setTermsCourses = async (accountId) => {
     const termsCourses = await fetchTermsAndCourses(accountId)
@@ -396,7 +396,7 @@ export default function AdminApp(initialData) {
             handleFilter={handleFilter}
             loadingContent={loadingCourses}
             searchTerm={searchTerm}
-            handleSearchTerm={() => console.log("Search")}
+            handleSearchTerm={setSearchTerm}
             navigation={navigation}
             parentAccounts={parentAccounts}
             accountStack={accountStack}
