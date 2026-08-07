@@ -76,20 +76,20 @@ export default function AdminApp(initialData) {
   );
 
   const pushAccount = (account) => {
-    const tempStack = JSON.parse(JSON.stringify(accountStack))
+    const tempStack = structuredClone(accountStack)
     tempStack.push(account)
     setAccountStack(tempStack)
   }
 
   const popAccount = (account) => {
-    const tempStack = accountStack
+    const tempStack = structuredClone(accountStack)
     while (tempStack && (tempStack[tempStack.length - 1].depth >= account.depth)) {
        tempStack.pop()
     }
     if(tempStack && account.lmsAccountId == tempStack[tempStack.length - 1].lmsAccountId){
       tempStack.pop()
     }
-  
+
     setAccountStack(tempStack)
   }
 
