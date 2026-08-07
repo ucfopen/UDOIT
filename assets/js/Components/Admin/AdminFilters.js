@@ -70,7 +70,7 @@ export default function AdminFilters({
           </div>
         ))}
       </div>
-      <div className="terms-filter flex-row me-3">
+      <div className="terms-filter flex-row gap-2 mt-2">
         {navigation === "courses" && (
           <div className="search-group">
             <input
