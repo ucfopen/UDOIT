@@ -42,7 +42,7 @@ export default function AdminFilters({
   }
 
   const computeSelectOptions = (currentSelection) => {
-    const tempOptions = [{ value: -1, name: "Select a Term", selected: currentSelection === -1}]
+    const tempOptions = [{ value: -1, name: "All Terms", selected: currentSelection === -1}]
      for (const term of termInfo[0]) {
         tempOptions.push({
           value: term.lmsTermId,
