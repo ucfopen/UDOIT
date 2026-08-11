@@ -119,7 +119,6 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
  
-        $accountId = 89347;
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
 
         return new JsonResponse([

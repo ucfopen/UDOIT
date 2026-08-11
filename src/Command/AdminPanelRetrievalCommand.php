@@ -39,6 +39,16 @@ class AdminPanelRetrievalCommand extends Command
         );
     }
 
+    protected function calculateDepth($accountId, $rootAccountId, $accountParentMap)
+    {
+        $depth = 0;
+        while ($accountId && $accountId != $rootAccountId) {
+            $depth += 1;
+            $accountId = $accountParentMap[$accountId];
+        }
+        return $depth;
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $batchSize = 500;
@@ -86,12 +96,22 @@ class AdminPanelRetrievalCommand extends Command
         $subAccounts = $canvas->apiGet("accounts/{$rootAccount['id']}/sub_accounts?recursive=true")->getContent();
         $subAccounts[] = $rootAccount;
 
+        $accountParentMap = [];
+        foreach($subAccounts as $account){
+            $accountParentMap[$account['id']] = $account['parent_account_id'];
+        }
+        
         if ($syncAccounts) {
             $output->writeln('<info>Syncing accounts...</info>');
             foreach ($subAccounts as $account) {
                 $existing = $this->em->getRepository(Account::class)->find($account['id']);
                 if (!$existing) {
-                    $accountModel = new Account($institution, $account['id'], $account['name']);
+                    $depth = $this->calculateDepth($account['id'], $account['parent_account_id'], $accountParentMap);
+                    $parentId = $account['parent_account_id'];
+                    if (!$parentId){
+                        $parentId = -1;
+                    }
+                    $accountModel = new Account($institution, $account['id'], $account['name'], $parentId, $depth);
                     $this->em->persist($accountModel);
                 }
             }
