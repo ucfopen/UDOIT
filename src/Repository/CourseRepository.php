@@ -82,7 +82,7 @@ class CourseRepository extends ServiceEntityRepository
         $institution = $user->getInstitution();
 
         $qb = $this->createQueryBuilder('c')
-            ->select('COUNT(c.id)');
+            ->select('c.id');
 
         $qb->andWhere('c.institution = :institution')
             ->setParameter('institution', $institution);
@@ -95,7 +95,8 @@ class CourseRepository extends ServiceEntityRepository
                 ->setParameter('term', $termId);
         }
 
-        return $qb->getQuery()->getSingleScalarResult();
+        return $qb->getQuery()->getSingleColumnResult();    
+    
     }
 
     /*
