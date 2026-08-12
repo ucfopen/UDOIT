@@ -73,6 +73,31 @@ class CourseRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function getCourseCount(User $user, $accountIds, $termId)
+    {
+        if (empty($accountIds)) {
+            return 0;
+        }
+
+        $institution = $user->getInstitution();
+
+        $qb = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)');
+
+        $qb->andWhere('c.institution = :institution')
+            ->setParameter('institution', $institution);
+
+        $qb->andWhere('c.account IN (:ids)')
+            ->setParameter('ids', $accountIds);
+
+        if ($termId) {
+            $qb->andWhere('c.term = :term')
+                ->setParameter('term', $termId);
+        }
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
     /*
     public function findOneBySomeField($value): ?Course
     {

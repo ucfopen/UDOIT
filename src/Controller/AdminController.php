@@ -120,6 +120,7 @@ class AdminController extends ApiController
         }
  
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
+        $stats = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $accountId, null);
 
         return new JsonResponse([
             'messages'     => $util->getUnreadMessages(true),
@@ -129,6 +130,7 @@ class AdminController extends ApiController
             'accounts'     => $accounts,
             'termInfo'     => $this->getTermsByAccount($accountId),
             'accountId'    => $accountId,
+            'stats'        => $stats, 
         ]);
     }
 
@@ -532,6 +534,21 @@ class AdminController extends ApiController
 
         $em->flush();
 
+    }
+
+    protected function calculateDashboardStats(
+        User $user,
+        AccountRepository $accountRepo,
+        CourseRepository $courseRepo,
+        $accountId,
+        $termId
+    ) 
+    {
+        $output = new ConsoleOutput();
+        $accountIds = $accountRepo->getAccountTree($user, $accountId);
+        $courseCount = $courseRepo->getCourseCount($user, $accountIds, $termId);
+
+        return $courseCount;
     }
 
 }
