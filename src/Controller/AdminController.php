@@ -10,6 +10,7 @@ use App\Entity\Report;
 use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
 use App\Repository\AccountRepository;
+use App\Repository\ReportRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
@@ -97,13 +98,15 @@ class AdminController extends ApiController
         LmsApiService $lmsApi,
         CourseRepository $courseRepo,
         InitialStateService $initialStateService,
-        AccountRepository $accountRepo
+        AccountRepository $accountRepo,
+        ReportRepository $reportRepo
     ): JsonResponse {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
         $this->courseRepo = $courseRepo;
         $this->accountRepo = $accountRepo;
+        $this->reportRepo = $reportRepo;
         $output = new ConsoleOutput();
 
         $user = $this->getUser();
@@ -120,7 +123,7 @@ class AdminController extends ApiController
         }
  
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
-        $stats = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $accountId, null);
+        $stats = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $accountId, null);
 
         return new JsonResponse([
             'messages'     => $util->getUnreadMessages(true),
@@ -540,15 +543,21 @@ class AdminController extends ApiController
         User $user,
         AccountRepository $accountRepo,
         CourseRepository $courseRepo,
+        ReportRepository $reportRepo,
         $accountId,
         $termId
     ) 
     {
         $output = new ConsoleOutput();
+        $stats = [];
         $accountIds = $accountRepo->getAccountTree($user, $accountId);
-        $courseCount = $courseRepo->getCourseCount($user, $accountIds, $termId);
+        $courseIds = $courseRepo->getCourseCount($user, $accountIds, $termId);
+        $reports = $reportRepo->findLatestByCourseIds($courseIds);
 
-        return $courseCount;
+        $stats["totalCourses"] = count($courseIds);
+        $stats["scannedCourses"] = count($reports);
+
+        return $stats;
     }
 
 }
