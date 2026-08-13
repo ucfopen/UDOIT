@@ -309,10 +309,12 @@ class AdminController extends ApiController
 
 
     #[Route('/api/admin/accounts/{lmsAccountId}', methods: ['GET'], name: 'admin_get_accounts')]
-    public function getSubAccounts(int $lmsAccountId, SessionService $sessionService, UtilityService $util, AccountRepository $accountRepo) {
+    public function getSubAccounts(int $lmsAccountId, SessionService $sessionService, UtilityService $util, AccountRepository $accountRepo, CourseRepository $courseRepo, ReportRepository $reportRepo) {
         $apiResponse = new ApiResponse();
         $session = $sessionService->getSession();
         $this->accountRepo = $accountRepo;
+        $this->courseRepo = $courseRepo;
+        $this->reportRepo = $reportRepo;
 
          /** @var User $user */
         $user = $this->getUser();
@@ -322,7 +324,13 @@ class AdminController extends ApiController
         }
 
         $accounts = $accountRepo->getSubAccounts($user, $lmsAccountId);
-        $apiResponse->setData($accounts);
+        $stats = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $lmsAccountId, null);
+        $data = [
+            "accounts" => $accounts,
+            "stats" => $stats
+        ];
+
+        $apiResponse->setData($data);
 
         return $this->json($apiResponse);
     }

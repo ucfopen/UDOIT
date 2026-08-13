@@ -329,7 +329,8 @@ export default function AdminApp(initialData) {
       console.log(error)
       return
     }
-    return response.data
+    setDashboardStats(response.data.stats)
+    return response.data.accounts
   }
 
   const fetchTermsAndCourses = async (accountId) => {
