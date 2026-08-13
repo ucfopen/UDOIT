@@ -551,8 +551,18 @@ class AdminController extends ApiController
     {
         $output = new ConsoleOutput();
         $stats = [];
-        $accountIds = $accountRepo->getAccountTree($user, $accountId);
-        $courseIds = $courseRepo->getCourseCount($user, $accountIds, $termId);
+        $accounts = $accountRepo->getAccountTree($user, $accountId); // Returns an array of key value mapping of {accountId: accountName}
+        $accountBreakdown = [];
+
+        foreach ($accounts as $accountName) {
+            $accountBreakdown[$accountName] = ["total" => 0, "scanned" => 0, "errors" => 0];
+        }
+
+        $courses = $courseRepo->getCourseCount($user, array_keys($accounts), $termId); // Returns an array of key value mapping of {lms_course_id: lms_account_id}
+        $courseIds = array_keys($courses);
+        foreach($courses as $course){
+            $accountBreakdown[$accounts[$course]]["total"] += 1;
+        }
         $totalInstructors = $courseRepo->getProfessorCount($user, $courseIds);
         $reports = $reportRepo->findLatestByCourseIds($courseIds);
         $thirtyDaysAgo = new DateTime('-30 days');
@@ -568,8 +578,10 @@ class AdminController extends ApiController
         $newestScan = '';
 
         foreach($reports as $report){
-            $scannedCourseIds[] = $report->getCourse()->getId();
+            $scannedCourseIds[] = $report->getCourse()->getLmsCourseId();
             $totalErrors += $report->getErrors();
+            $accountBreakdown[$accounts[$courses[$report->getCourse()->getLmsCourseId()]]]["scanned"] += 1;
+            $accountBreakdown[$accounts[$courses[$report->getCourse()->getLmsCourseId()]]]["errors"] += $report->getErrors();
             $totalSuggestions += $report->getSuggestions();
             $totalResolved += $report->getContentResolved();
             $totalFilesReviewed += $report->getFilesReviewed();
@@ -588,7 +600,7 @@ class AdminController extends ApiController
 
         $uniqueInstructorsUsingUdoit = $courseRepo->getProfessorCount($user, $scannedCourseIds);
 
-        $stats["totalCourses"] = count($courseIds);
+        $stats["totalCourses"] = count($courses);
         $stats["scannedCourses"] = count($reports);
         $stats["totalInstructors"] = $totalInstructors;
         $stats["uniqueInstructorsUsingUdoit"] = $uniqueInstructorsUsingUdoit;
@@ -600,6 +612,7 @@ class AdminController extends ApiController
         $stats["recentScans"] = $recentScans;
         $stats["oldestScan"] = $oldestScan;
         $stats["newestScan"] = $newestScan;
+        $stats["accountBreakdown"] = $accountBreakdown;
 
         return $stats;
     }

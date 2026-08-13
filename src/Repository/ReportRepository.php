@@ -44,10 +44,10 @@ class ReportRepository extends ServiceEntityRepository
 
         return $qb
             ->join('r.course', 'c')
-            ->where('c.id IN (:courseIds)')
+            ->where('c.lmsCourseId IN (:courseIds)')
             ->andWhere($qb->expr()->not($qb->expr()->exists($subQb->getDQL())))
             ->setParameter('courseIds', $courseIds)
-            ->orderBy('c.id', 'ASC')
+            ->orderBy('c.lmsCourseId', 'ASC')
             ->getQuery()
             ->getResult();
     }

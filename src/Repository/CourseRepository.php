@@ -76,13 +76,14 @@ class CourseRepository extends ServiceEntityRepository
     public function getCourseCount(User $user, $accountIds, $termId)
     {
         if (empty($accountIds)) {
-            return 0;
+            return [];
         }
 
         $institution = $user->getInstitution();
 
         $qb = $this->createQueryBuilder('c')
-            ->select('c.id');
+            ->select('c.lmsCourseId', 'a.lmsAccountId')
+            ->join('c.account', 'a');
 
         $qb->andWhere('c.institution = :institution')
             ->setParameter('institution', $institution);
@@ -95,7 +96,13 @@ class CourseRepository extends ServiceEntityRepository
                 ->setParameter('term', $termId);
         }
 
-        return $qb->getQuery()->getSingleColumnResult();    
+        $courses = [];
+
+        foreach ($qb->getQuery()->getArrayResult() as $course) {
+            $courses[$course['lmsCourseId']] = $course['lmsAccountId'];
+        }
+
+        return $courses;    
     
     }
 
@@ -110,7 +117,7 @@ class CourseRepository extends ServiceEntityRepository
         $professors = $this->createQueryBuilder('c')
             ->select('c.courseProfessors')
             ->andWhere('c.institution = :institution')
-            ->andWhere('c.id IN (:courseIds)')
+            ->andWhere('c.lmsCourseId IN (:courseIds)')
             ->setParameter('institution', $institution)
             ->setParameter('courseIds', $courseIds)
             ->getQuery()

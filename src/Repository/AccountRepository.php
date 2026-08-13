@@ -45,7 +45,7 @@ class AccountRepository extends ServiceEntityRepository
     {
         $institution = $user->getInstitution();
         $visitedAccountIds = [];
-        $accounts = [$accountId];
+        $accounts = [];
         $parentAccounts = [$accountId];
         $includeRootAccount = true;
 
@@ -72,7 +72,7 @@ class AccountRepository extends ServiceEntityRepository
                 }
 
                 $visitedAccountIds[$lmsAccountId] = true;
-                $accounts[] = $lmsAccountId;
+                $accounts[$lmsAccountId] = $account->getAccountName();
                 $parentAccounts[] = $lmsAccountId;
             }
         }

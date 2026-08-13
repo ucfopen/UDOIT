@@ -2,23 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProgressCircle from "../Widgets/ProgressCircle";
 import "../HomePage.css";
 
-export default function AdminDashboard({ t, preferences, courses }) {
-  const [dashboardStats, setDashboardStats] = useState({
-    loading: true,
-    totalCourses: 0,
-    scannedCourses: 0,
-    totalInstructors: 0,
-    uniqueInstructorsUsingUdoit: 0,
-    totalErrors: 0,
-    totalSuggestions: 0,
-    totalFixed: 0,
-    totalResolved: 0,
-    totalFilesReviewed: 0,
-    recentScans: 0,
-    accountBreakdown: {},
-    oldestScan: null,
-    newestScan: null,
-  });
+export default function AdminDashboard({ t, preferences, dashboardStats }) {
 
   const progressMeterRadius = () => {
     switch (preferences.fontSize) {
@@ -35,107 +19,6 @@ export default function AdminDashboard({ t, preferences, courses }) {
     }
   };
 
-  useEffect(() => {
-    calculateStats();
-  }, [courses]);
-
-  const calculateStats = () => {
-    if (!courses || Object.keys(courses).length === 0) {
-      setDashboardStats((prev) => ({ ...prev, loading: false }));
-      return;
-    }
-
-    const stats = {
-      loading: false,
-      totalCourses: 0,
-      scannedCourses: 0,
-      totalInstructors: 0,
-      uniqueInstructorsUsingUdoit: 0,
-      totalErrors: 0,
-      totalSuggestions: 0,
-      totalFixed: 0,
-      totalResolved: 0,
-      totalFilesReviewed: 0,
-      recentScans: 0,
-      accountBreakdown: {},
-      oldestScan: null,
-      newestScan: null,
-    };
-
-    const allInstructors = new Set();
-    const udoitInstructors = new Set();
-    const accountStats = {};
-    const scanDates = [];
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    Object.keys(courses).forEach((key) => {
-      const course = courses[key];
-      stats.totalCourses++;
-
-      // Track instructors
-      if (Array.isArray(course.instructors)) {
-        course.instructors.forEach((instructor) => {
-          allInstructors.add(instructor);
-          if (course.hasReport) {
-            udoitInstructors.add(instructor);
-          }
-        });
-      }
-
-      // Account breakdown
-      const accountName = course.accountName || "Unknown";
-      if (!accountStats[accountName]) {
-        accountStats[accountName] = { total: 0, scanned: 0, errors: 0 };
-      }
-      accountStats[accountName].total++;
-
-      if (course.hasReport) {
-        stats.scannedCourses++;
-        accountStats[accountName].scanned++;
-
-        // Aggregate report data
-        if (course.latestReport) {
-          stats.totalErrors +=
-            parseInt(course.latestReport.scanCounts.errors) || 0;
-          stats.totalSuggestions +=
-            parseInt(course.latestReport.scanCounts.potential) +
-              parseInt(course.latestReport.scanCounts.suggestions) || 0;
-          stats.totalFixed += parseInt(course.latestReport.contentFixed) || 0;
-          stats.totalResolved +=
-            parseInt(course.latestReport.contentResolved) || 0;
-          stats.totalFilesReviewed +=
-            parseInt(course.latestReport.filesReviewed) || 0;
-          accountStats[accountName].errors +=
-            parseInt(course.latestReport.errors) || 0;
-        }
-
-        // Track scan dates
-        if (course.lastUpdated && course.lastUpdated !== "---") {
-          const scanDate = new Date(course.lastUpdated);
-          scanDates.push(scanDate);
-
-          if (scanDate > thirtyDaysAgo) {
-            stats.recentScans++;
-          }
-        }
-      }
-    });
-
-    stats.totalInstructors = allInstructors.size;
-    stats.uniqueInstructorsUsingUdoit = udoitInstructors.size;
-    stats.accountBreakdown = accountStats;
-    stats.accountNumber = Object.keys(accountStats).length;
-
-    // Find oldest and newest scans
-    if (scanDates.length > 0) {
-      scanDates.sort((a, b) => a - b);
-      stats.oldestScan = scanDates[0];
-      stats.newestScan = scanDates[scanDates.length - 1];
-    }
-
-    setDashboardStats(stats);
-  };
 
   if (dashboardStats.loading) {
     return <div className="p-3">Loading dashboard...</div>;
@@ -219,7 +102,7 @@ export default function AdminDashboard({ t, preferences, courses }) {
                 {dashboardStats.oldestScan && (
                   <p className="m-0">
                     <span className="progress-text me-3">
-                      {dashboardStats.oldestScan.toLocaleDateString()}
+                      {dashboardStats.oldestScan}
                     </span>{" "}
                     Oldest Scan
                   </p>
@@ -227,7 +110,7 @@ export default function AdminDashboard({ t, preferences, courses }) {
                 {dashboardStats.newestScan && (
                   <p className="m-0">
                     <span className="progress-text me-3">
-                      {dashboardStats.newestScan.toLocaleDateString()}
+                      {dashboardStats.newestScan}
                     </span>{" "}
                     Most Recent Scan
                   </p>
@@ -264,7 +147,7 @@ export default function AdminDashboard({ t, preferences, courses }) {
           </section>
         </div>
 
-        {dashboardStats.accountNumber > 1 && (
+        {Object.keys(dashboardStats.accountBreakdown).length > 1 && (
           <section className="callout-container">
             <h2 className="callout-heading mt-1">
               Department/Account Breakdown

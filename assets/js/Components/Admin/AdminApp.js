@@ -64,6 +64,7 @@ export default function AdminApp(initialData) {
       totalFixed: 0,
       totalResolved: 0,
       totalFilesReviewed: 0,
+      accountBreakdown: {},
       recentScans: 0,
       oldestScan: null,
       newestScan: null,
@@ -440,7 +441,7 @@ export default function AdminApp(initialData) {
                 <AdminDashboard
                   t={t}
                   preferences={preferences}
-                  courses={courses}
+                  dashboardStats={dashboardStats}
                   handleNavigation={handleNavigation}
                   addMessage={addMessage}
                 />
