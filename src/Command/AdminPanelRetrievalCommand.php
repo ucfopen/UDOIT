@@ -106,13 +106,24 @@ class AdminPanelRetrievalCommand extends Command
             foreach ($subAccounts as $account) {
                 $existing = $this->em->getRepository(Account::class)->find($account['id']);
                 if (!$existing) {
-                    $depth = $this->calculateDepth($account['id'], $account['parent_account_id'], $accountParentMap);
+                    $depth = $this->calculateDepth($account['id'], $rootAccount['id'], $accountParentMap);
                     $parentId = $account['parent_account_id'];
                     if (!$parentId){
                         $parentId = -1;
                     }
                     $accountModel = new Account($institution, $account['id'], $account['name'], $parentId, $depth);
                     $this->em->persist($accountModel);
+                }
+                else{
+                    $existing->setLmsAccountId( $account['id']);
+                    $parentId = $account['parent_account_id'];
+                    if (!$parentId){
+                        $parentId = -1;
+                    }
+                    $existing->setAccountName($account['name']);
+                    $existing->setParentAccountId($parentId);
+                    $depth = $this->calculateDepth($account['id'], $rootAccount['id'], $accountParentMap);
+                    $existing->setDepth($depth);
                 }
             }
             $this->em->flush();
