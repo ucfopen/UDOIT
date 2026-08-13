@@ -11,6 +11,7 @@ use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
 use App\Repository\AccountRepository;
 use App\Repository\ReportRepository;
+use App\Repository\TermRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
@@ -100,7 +101,8 @@ class AdminController extends ApiController
         CourseRepository $courseRepo,
         InitialStateService $initialStateService,
         AccountRepository $accountRepo,
-        ReportRepository $reportRepo
+        ReportRepository $reportRepo,
+        TermRepository $termRepo,
     ): JsonResponse {
         $this->util = $util;
         $this->session = $sessionService->getSession();
@@ -108,6 +110,7 @@ class AdminController extends ApiController
         $this->courseRepo = $courseRepo;
         $this->accountRepo = $accountRepo;
         $this->reportRepo = $reportRepo;
+        $this->termRepo = $termRepo;
         $output = new ConsoleOutput();
 
         $user = $this->getUser();
@@ -124,6 +127,7 @@ class AdminController extends ApiController
         }
  
         $accounts = $accountRepo->getSubAccounts($user, $accountId);
+        $terms = $termRepo->getAllTerms($user);
         $stats = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $accountId, null);
 
         return new JsonResponse([
@@ -132,7 +136,7 @@ class AdminController extends ApiController
             'instanceInfo' => $initialStateService->getInstanceInfo($user),
             'labels'       => $initialStateService->getLabels($preferences),
             'accounts'     => $accounts,
-            'termInfo'     => $this->getTermsByAccount($accountId),
+            'termInfo'     => $terms,
             'accountId'    => $accountId,
             'stats'        => $stats, 
         ]);

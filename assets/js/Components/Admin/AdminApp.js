@@ -72,12 +72,6 @@ export default function AdminApp(initialData) {
 
   const [dashboardStats, setDashboardStats] = useState(initialData.stats || stats)
 
-  useEffect(() => {
-    if(accountStack){
-      setTermsCourses(accountStack[accountStack.length - 1].lmsAccountId)
-    }
-  }, [accountStack])
-
   const t = useCallback(
     (key, values = {}) => {
       let translatedText = labels[key] ? labels[key] : key;
