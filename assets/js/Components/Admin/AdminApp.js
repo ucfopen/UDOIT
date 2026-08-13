@@ -45,7 +45,7 @@ export default function AdminApp(initialData) {
   const [accountData, setAccountData] = useState([]);
   const [navigation, setNavigation] = useState("dashboard");
   const [modal, setModal] = useState(null);
-  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [loadingCourses, setLoadingCourses] = useState(false);
   const [trayOpen, setTrayOpen] = useState(false);
   const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
 
@@ -106,21 +106,6 @@ export default function AdminApp(initialData) {
 
       return tempStack
     })
-  }
-
-  const loadCourses = () => {
-    setLoadingCourses(true)
-    if (selectedTerm == -1) {
-      const tempCourses = []
-      for (const c of Object.values(termInfo[1])){
-        tempCourses.push(c)
-      }
-      setCourses(tempCourses.flat())
-    }
-    else if(selectedTerm > -1){
-     setCourses(termInfo[1][selectedTerm])
-    }
-    setLoadingCourses(false)
   }
 
   const setTermsCourses = async (accountId) => {
@@ -344,44 +329,6 @@ export default function AdminApp(initialData) {
     setAccountSearch(term)
   }
 
-  const handleCourseUpdate = (courseData) => {
-    let tempCourses = { ...courses };
-
-    // If there's an oldId, this is a newly scanned course that needs the old entry removed
-    if (courseData.oldId && courseData.oldId !== courseData.id) {
-      // Remove the old unscanned course entry
-      if (tempCourses[courseData.oldId]) {
-        delete tempCourses[courseData.oldId];
-      }
-
-      // Add the new scanned course entry
-      const updatedCourse = { ...courseData };
-      delete updatedCourse.oldId; // Remove the signal flag
-      tempCourses[courseData.id] = updatedCourse;
-    }
-    // If updating an existing course, just update its data
-    else if (tempCourses[courseData.id]) {
-      tempCourses[courseData.id] = {
-        ...tempCourses[courseData.id],
-        ...courseData,
-      };
-    }
-    // If it's a new course, add it
-    else {
-      tempCourses[courseData.id] = courseData;
-    }
-
-    setCourses(tempCourses);
-  };
-
-  useEffect(() => {
-    loadCourses(initialFilters);
-  }, []);
-
-  useEffect(() => {
-    loadCourses();
-  }, [termInfo, selectedTerm]);
-
   return (
     <div
       id="app-container"
@@ -448,7 +395,6 @@ export default function AdminApp(initialData) {
                   instanceInfo={instanceInfo}
                   searchTerm={searchTerm}
                   addMessage={addMessage}
-                  handleCourseUpdate={handleCourseUpdate}
                   handleReportClick={handleReportClick}
                   handleNavigation={handleNavigation}
                 />
