@@ -313,7 +313,6 @@ class AdminController extends ApiController
         $apiResponse = new ApiResponse();
         $session = $sessionService->getSession();
         $this->accountRepo = $accountRepo;
-        $output = new ConsoleOutput();
 
          /** @var User $user */
         $user = $this->getUser();
@@ -321,7 +320,7 @@ class AdminController extends ApiController
         if (!($accountId = $session->get('lms_account_id'))) {
             $util->exitWithMessage('Account ID not found.');
         }
-        $output->writeln($lmsAccountId);
+
         $accounts = $accountRepo->getSubAccounts($user, $lmsAccountId);
         $apiResponse->setData($accounts);
 
