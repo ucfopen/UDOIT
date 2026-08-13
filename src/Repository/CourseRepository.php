@@ -99,6 +99,37 @@ class CourseRepository extends ServiceEntityRepository
     
     }
 
+    public function getProfessorCount(User $user, array $courseIds): int
+    {
+        if (empty($courseIds)) {
+            return 0;
+        }
+
+        $institution = $user->getInstitution();
+
+        $professors = $this->createQueryBuilder('c')
+            ->select('c.courseProfessors')
+            ->andWhere('c.institution = :institution')
+            ->andWhere('c.id IN (:courseIds)')
+            ->setParameter('institution', $institution)
+            ->setParameter('courseIds', $courseIds)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        $count = 0;
+
+       foreach ($professors as $courseProfessors) {
+            if (is_string($courseProfessors)) {
+                $courseProfessors = json_decode($courseProfessors, true);
+            }
+
+            if (is_array($courseProfessors)) {
+                $count += count($courseProfessors);
+            }
+        }
+        return $count;
+    }
+
     /*
     public function findOneBySomeField($value): ?Course
     {

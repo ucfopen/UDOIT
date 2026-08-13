@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Doctrine\ORM\EntityManagerInterface;
+use DateTime;
 
 class AdminController extends ApiController
 {
@@ -552,10 +553,53 @@ class AdminController extends ApiController
         $stats = [];
         $accountIds = $accountRepo->getAccountTree($user, $accountId);
         $courseIds = $courseRepo->getCourseCount($user, $accountIds, $termId);
+        $totalInstructors = $courseRepo->getProfessorCount($user, $courseIds);
         $reports = $reportRepo->findLatestByCourseIds($courseIds);
+        $thirtyDaysAgo = new DateTime('-30 days');
+
+        $scannedCourseIds = [];
+        $totalErrors = 0;
+        $totalSuggestions = 0;
+        $totalResolved = 0;
+        $totalFilesReviewed = 0;
+        $totalFixed = 0;
+        $recentScans = 0;
+        $oldestScan = '';
+        $newestScan = '';
+
+        foreach($reports as $report){
+            $scannedCourseIds[] = $report->getCourse()->getId();
+            $totalErrors += $report->getErrors();
+            $totalSuggestions += $report->getSuggestions();
+            $totalResolved += $report->getContentResolved();
+            $totalFilesReviewed += $report->getFilesReviewed();
+            $totalFixed += $report->getContentFixed();
+            $currDate = $report->getCreated();
+            if($currDate >= $thirtyDaysAgo){
+                  $recentScans += 1;
+            }
+            if(!$oldestScan || new DateTime($oldestScan) > $currDate){
+                $oldestScan = $currDate->format($_ENV['DATE_FORMAT']);
+            }
+            if (!$newestScan || new DateTime($newestScan) < $currDate ){
+                $newestScan = $currDate->format($_ENV['DATE_FORMAT']);
+            }
+        }
+
+        $uniqueInstructorsUsingUdoit = $courseRepo->getProfessorCount($user, $scannedCourseIds);
 
         $stats["totalCourses"] = count($courseIds);
         $stats["scannedCourses"] = count($reports);
+        $stats["totalInstructors"] = $totalInstructors;
+        $stats["uniqueInstructorsUsingUdoit"] = $uniqueInstructorsUsingUdoit;
+        $stats["totalFixed"] = $totalFixed;
+        $stats["totalErrors"] = $totalErrors;
+        $stats["totalSuggestions"] = $totalSuggestions;
+        $stats["totalResolved"] = $totalResolved;
+        $stats["totalFilesReviewed"] = $totalFilesReviewed;
+        $stats["recentScans"] = $recentScans;
+        $stats["oldestScan"] = $oldestScan;
+        $stats["newestScan"] = $newestScan;
 
         return $stats;
     }

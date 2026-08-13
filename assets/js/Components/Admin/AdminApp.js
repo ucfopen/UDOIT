@@ -53,6 +53,24 @@ export default function AdminApp(initialData) {
   const [accountSearch, setAccountSearch] = useState("")
   const [selectedTerm, setSelectedTerm] = useState(-1)
 
+  const stats = {
+      loading: false,
+      totalCourses: 0,
+      scannedCourses: 0,
+      totalInstructors: 0,
+      uniqueInstructorsUsingUdoit: 0,
+      totalErrors: 0,
+      totalSuggestions: 0,
+      totalFixed: 0,
+      totalResolved: 0,
+      totalFilesReviewed: 0,
+      recentScans: 0,
+      oldestScan: null,
+      newestScan: null,
+    };
+
+  const [dashboardStats, setDashboardStats] = useState(initialData.stats || stats)
+
   useEffect(() => {
     if(accountStack){
       setTermsCourses(accountStack[accountStack.length - 1].lmsAccountId)
