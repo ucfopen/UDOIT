@@ -194,11 +194,16 @@ export default class Api {
     });
   }
 
-  getAdminCourses(accountId, termId) {
+  getAdminCourses(accountId, termId, params = {}) {
     let url = `${this.apiUrl}${this.endpoints.adminCourses}`;
     url = url
       .replace("{account}", accountId)
       .replace("{term}", termId);
+
+    const query = new URLSearchParams(params).toString();
+    if (query) {
+      url += `?${query}`;
+    }
 
     return fetch(url, {
       method: "GET",

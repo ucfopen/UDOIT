@@ -154,7 +154,8 @@ class AdminController extends ApiController
         LmsApiService $lmsApi,
         UserRepository $userRepo,
         CourseUserRepository $courseUserRepo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        Request $request
     ) {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -170,9 +171,25 @@ class AdminController extends ApiController
             $lmsTermId = null;
         }
 
+        $page = max(1, $request->query->getInt('page', 1));
+        $perPage = min(100, max(1, $request->query->getInt('perPage', 10)));
+        $search = trim((string) $request->query->get('search', ''));
+        $sortBy = (string) $request->query->get('sortBy', 'lastUpdated');
+        $direction = (string) $request->query->get('direction', 'desc');
         $accounts = $accountRepo->getAccountTree($user, $lmsAccountId);
 
-        $courses = $courseRepo->findCoursesByAccount($user, $accounts, $lmsTermId);
+        $paginatedCourses = $courseRepo->findCoursesByAccountPaginated(
+            $user,
+            $accounts,
+            $lmsTermId,
+            $page,
+            $perPage,
+            $search ?: null,
+            $sortBy,
+            $direction
+        );
+        $courses = $paginatedCourses['courses'];
+        $totalCourses = $paginatedCourses['total'];
         $stats  = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $lmsAccountId, $lmsTermId);
 
         $results = [];
@@ -189,7 +206,13 @@ class AdminController extends ApiController
         
         $data = [
             "courses" => $results,
-            "stats" => $stats
+            "stats" => $stats,
+            "pagination" => [
+                "page" => $page,
+                "perPage" => $perPage,
+                "total" => $totalCourses,
+                "totalPages" => (int) ceil($totalCourses / $perPage),
+            ],
         ];
 
         $apiResponse->addLogMessages($util->getUnreadMessages());

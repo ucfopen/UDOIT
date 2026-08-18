@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Course;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -71,6 +72,61 @@ class CourseRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findCoursesByAccountPaginated(
+        User $user,
+        $accountId,
+        $termId = null,
+        int $page = 1,
+        int $perPage = 10,
+        ?string $search = null,
+        string $sortBy = 'lastUpdated',
+        string $direction = 'DESC'
+    ): array {
+        $institution = $user->getInstitution();
+
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('c.institution = :institution')
+            ->setParameter('institution', $institution);
+
+        if (is_array($accountId)) {
+            $accountIds = array_keys($accountId);
+            $qb->andWhere('c.account IN (:ids)')
+                ->setParameter('ids', $accountIds);
+        } else {
+            $qb->andWhere('c.account = :id')
+                ->setParameter('id', $accountId);
+        }
+
+        if ($termId) {
+            $qb->andWhere('c.term = :term')
+                ->setParameter('term', $termId);
+        }
+
+        if ($search) {
+            $qb->andWhere('LOWER(c.title) LIKE :search')
+                ->setParameter('search', '%' . strtolower($search) . '%');
+        }
+
+        $sortColumns = [
+            'courseName' => 'c.title',
+            'lastUpdated' => 'c.lastUpdated',
+        ];
+        $sortColumn = $sortColumns[$sortBy] ?? 'c.lastUpdated';
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+        $qb->orderBy($sortColumn, $direction)
+            ->addOrderBy('c.id', 'ASC')
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage);
+
+        $paginator = new Paginator($qb->getQuery());
+
+        return [
+            'courses' => iterator_to_array($paginator),
+            'total' => count($paginator),
+        ];
     }
 
     public function getCourseCount(User $user, $accountIds, $termId)

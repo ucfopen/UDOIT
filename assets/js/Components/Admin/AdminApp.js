@@ -52,6 +52,20 @@ export default function AdminApp(initialData) {
   const [accountStack, setAccountStack] = useState([intialAccount])
   const [accountSearch, setAccountSearch] = useState("")
   const [selectedTerm, setSelectedTerm] = useState(-1)
+  const [courseTableSettings, setCourseTableSettings] = useState({
+    sortBy: "lastUpdated",
+    ascending: false,
+    pageNum: 0,
+    rowsPerPage: localStorage.getItem("rowsPerPage")
+      ? localStorage.getItem("rowsPerPage")
+      : "10",
+  })
+  const [coursePagination, setCoursePagination] = useState({
+    page: 1,
+    perPage: parseInt(courseTableSettings.rowsPerPage),
+    total: 0,
+    totalPages: 0,
+  })
 
   const stats = {
       loading: false,
@@ -74,7 +88,7 @@ export default function AdminApp(initialData) {
 
   useEffect(() => {
     retriveCoursesAndStats()
-  }, [accountStack, selectedTerm])
+  }, [accountStack, selectedTerm, searchTerm, courseTableSettings])
 
   const t = useCallback(
     (key, values = {}) => {
@@ -93,6 +107,7 @@ export default function AdminApp(initialData) {
   );
 
   const updateAccountStack = (account, shouldPush = false) => {
+    resetCoursePage()
     setAccountStack((prevStack) => {
       const tempStack = [...prevStack]
 
@@ -117,28 +132,74 @@ export default function AdminApp(initialData) {
       return
     }
     const data = await fetchCourses(accountStack[accountStack.length - 1].lmsAccountId, selectedTerm)
+    if (!data) {
+      return
+    }
+
+    console.log(data)
     setDashboardStats(data.stats)
     setCourses(data.courses)
+    setCoursePagination(data.pagination)
   }
 
   const fetchCourses = async (accountId, termId) => {
     setLoadingCourses(true)
     const api = new Api(instanceInfo)
     try{
-      const retrivedCourses = await api.getAdminCourses(accountId, termId)
+      const retrivedCourses = await api.getAdminCourses(accountId, termId, {
+        page: courseTableSettings.pageNum + 1,
+        perPage: courseTableSettings.rowsPerPage,
+        search: searchTerm,
+        sortBy: courseTableSettings.sortBy,
+        direction: courseTableSettings.ascending ? "asc" : "desc",
+      })
       const normalizedCourses = await retrivedCourses.json()
 
       if (!normalizedCourses){
         console.log("Failed to fetch data.")
       }
 
-      setLoadingCourses(false)
       return normalizedCourses.data
     }
     catch(e){
       console.error(e)
+    } finally {
+      setLoadingCourses(false)
     }
 
+  }
+
+  const handleCourseSearchTerm = (term) => {
+    resetCoursePage()
+    setSearchTerm(term)
+  }
+
+  const handleSelectedTerm = (term) => {
+    resetCoursePage()
+    setSelectedTerm(term)
+  }
+
+  const resetCoursePage = () => {
+    setCourseTableSettings((previousSettings) => ({
+      ...previousSettings,
+      pageNum: 0,
+    }))
+  }
+
+  const handleCourseTableSettings = (newSettings) => {
+    setCourseTableSettings((previousSettings) => {
+      const nextSettings = { ...previousSettings, ...newSettings }
+
+      if (
+        newSettings.rowsPerPage !== undefined ||
+        newSettings.sortBy !== undefined ||
+        newSettings.ascending !== undefined
+      ) {
+        nextSettings.pageNum = 0
+      }
+
+      return nextSettings
+    })
   }
 
   const handleNavigation = (navigation) => {
@@ -373,13 +434,13 @@ export default function AdminApp(initialData) {
             handleFilter={handleFilter}
             loadingContent={loadingCourses}
             searchTerm={searchTerm}
-            handleSearchTerm={setSearchTerm}
+            handleSearchTerm={handleCourseSearchTerm}
             navigation={navigation}
             parentAccounts={parentAccounts}
             accountStack={accountStack}
             handleAccountSelect={handleAccountSelect}
             selectedTerm={selectedTerm}
-            setSelectedTerm={setSelectedTerm}
+            setSelectedTerm={handleSelectedTerm}
             />
           {loadingCourses && (
             <div className="mt-3 flex-row justify-content-center">
@@ -409,6 +470,9 @@ export default function AdminApp(initialData) {
                   courses={courses}
                   instanceInfo={instanceInfo}
                   searchTerm={searchTerm}
+                  tableSettings={courseTableSettings}
+                  handleTableSettings={handleCourseTableSettings}
+                  pagination={coursePagination}
                   addMessage={addMessage}
                   handleReportClick={handleReportClick}
                   handleNavigation={handleNavigation}
