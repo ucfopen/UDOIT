@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Account;
 use App\Entity\Course;
 use App\Entity\Institution;
 use App\Entity\Issue;
@@ -142,11 +143,13 @@ class AdminController extends ApiController
         ]);
     }
 
-    #[Route('/api/admin/courses/account/{accountId}/term/{termId}', methods: ['GET'], name: 'admin_courses')]
+    #[Route('/api/admin/courses/account/{lmsAccountId}/term/{lmsTermId}', methods: ['GET'], name: 'admin_courses')]
     public function getCoursesData(
-        $accountId,
-        $termId,
+        int $lmsAccountId,
+        int $lmsTermId,
+        AccountRepository $accountRepo,
         CourseRepository $courseRepo,
+        ReportRepository $reportRepo,
         UtilityService $util,
         LmsApiService $lmsApi,
         UserRepository $userRepo,
@@ -155,11 +158,22 @@ class AdminController extends ApiController
     ) {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
+        
+        $this->accountRepo = $accountRepo;
+        $this->courseRepo = $courseRepo;
+        $this->reportRepo = $reportRepo;
 
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
 
-        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId);
+        if($lmsTermId == -1) {
+            $lmsTermId = null;
+        }
+
+        $accounts = $accountRepo->getAccountTree($user, $lmsAccountId);
+
+        $courses = $courseRepo->findCoursesByAccount($user, $accounts, $lmsTermId);
+        $stats  = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $lmsAccountId, $lmsTermId);
 
         $results = [];
         foreach ($courses as $course) {
@@ -172,8 +186,14 @@ class AdminController extends ApiController
 
             $results[] = $row;
         }
+        
+        $data = [
+            "courses" => $results,
+            "stats" => $stats
+        ];
+
         $apiResponse->addLogMessages($util->getUnreadMessages());
-        $apiResponse->setData($results);
+        $apiResponse->setData($data);
 
         return new JsonResponse($apiResponse);
     }
@@ -328,13 +348,8 @@ class AdminController extends ApiController
         }
 
         $accounts = $accountRepo->getSubAccounts($user, $lmsAccountId);
-        $stats = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $lmsAccountId, null);
-        $data = [
-            "accounts" => $accounts,
-            "stats" => $stats
-        ];
 
-        $apiResponse->setData($data);
+        $apiResponse->setData($accounts);
 
         return $this->json($apiResponse);
     }
@@ -385,16 +400,12 @@ class AdminController extends ApiController
     protected function getCourseData(Course $course, User $user)
     {
         $reportRepository = $this->doctrine->getRepository(Report::class);
-        $accountRepository = $this->doctrine->getRepository(Account::class);
         $updatedDate = $course->getLastUpdated();
-        $accountId = $course->getAccount()->getLmsAccountId();
-        $accounts = $accountRepository->getSubAccounts($user, $accountId);
+        $account = $course->getAccount();
+        $accountId = $account?->getLmsAccountId();
 
 
-        $accountName = $accountId;
-        if (!empty($accounts[$accountId])) {
-            $accountName = "{$accounts[$accountId]['name']} ({$accounts[$accountId]['id']})";
-        }
+        $accountName = $account ? "{$account->getAccountName()} ({$accountId})" : '---';
 
         return [
             'id' => $course->getId(),
@@ -406,7 +417,7 @@ class AdminController extends ApiController
             'issues' => $course->getAllIssues(),
             'lastUpdated' => !empty($updatedDate) ? $updatedDate->format($this->util->getDateFormat()) : '---',
             'publicUrl' => $this->lms->getCourseUrl($course, $user),
-            'termId' => $course->getTerm()->getLmsTermId(),
+            'termId' => $course->getTerm()?->getLmsTermId(),
             'hasReport' => (bool) $course->getLatestReport(),
             'canScan' => true,
         ];

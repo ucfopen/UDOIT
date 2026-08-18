@@ -194,15 +194,11 @@ export default class Api {
     });
   }
 
-  getAdminCourses(filters) {
+  getAdminCourses(accountId, termId) {
     let url = `${this.apiUrl}${this.endpoints.adminCourses}`;
     url = url
-      .replace("{account}", filters.accountId)
-      .replace("{term}", filters.termId);
-
-    if (filters.includeSubaccounts) {
-      url += "?subaccounts=true";
-    }
+      .replace("{account}", accountId)
+      .replace("{term}", termId);
 
     return fetch(url, {
       method: "GET",

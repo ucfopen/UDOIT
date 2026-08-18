@@ -72,6 +72,11 @@ export default function AdminApp(initialData) {
 
   const [dashboardStats, setDashboardStats] = useState(initialData.stats || stats)
 
+  useEffect(() => {
+    retriveCoursesAndStats()
+
+  }, [accountStack, selectedTerm])
+
   const t = useCallback(
     (key, values = {}) => {
       let translatedText = labels[key] ? labels[key] : key;
@@ -108,9 +113,31 @@ export default function AdminApp(initialData) {
     })
   }
 
-  const setTermsCourses = async (accountId) => {
-    const termsCourses = await fetchTermsAndCourses(accountId)
-    setTermInfo(termsCourses)
+  const retriveCoursesAndStats = async () => {
+    if (!accountStack){
+      return
+    }
+    const data = await fetchCourses(accountStack[accountStack.length - 1].lmsAccountId, selectedTerm)
+    setDashboardStats(data.stats)
+    setCourses(data.courses)
+  }
+
+  const fetchCourses = async (accountId, termId) => {
+    const api = new Api(instanceInfo)
+    try{
+      const retrivedCourses = await api.getAdminCourses(accountId, termId)
+      const normalizedCourses = await retrivedCourses.json()
+
+      if (!normalizedCourses){
+        console.log("Failed to fetch data.")
+      }
+
+      return normalizedCourses.data
+    }
+    catch(e){
+      console.error(e)
+    }
+
   }
 
   const handleNavigation = (navigation) => {
@@ -305,19 +332,6 @@ export default function AdminApp(initialData) {
     const response = await res.json()
     if (response?.errors && response.errors.length > 0){
       console.log("Failed to fetch subacocunts")
-      console.log(error)
-      return
-    }
-    setDashboardStats(response.data.stats)
-    return response.data.accounts
-  }
-
-  const fetchTermsAndCourses = async (accountId) => {
-    const api = new Api(instanceInfo)
-    const res = await api.getAdminTermsCourses(accountId)
-    const response = await res.json()
-    if (response?.errors && response.errors.length > 0){
-      console.log("Failed to fetch terms and accounts")
       console.log(error)
       return
     }
