@@ -45,7 +45,7 @@ export default function AdminApp(initialData) {
   const [accountData, setAccountData] = useState([]);
   const [navigation, setNavigation] = useState("dashboard");
   const [modal, setModal] = useState(null);
-  const [loadingCourses, setLoadingCourses] = useState(false);
+  const [loadingCourses, setLoadingCourses] = useState(true);
   const [trayOpen, setTrayOpen] = useState(false);
   const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
 
@@ -74,7 +74,6 @@ export default function AdminApp(initialData) {
 
   useEffect(() => {
     retriveCoursesAndStats()
-
   }, [accountStack, selectedTerm])
 
   const t = useCallback(
@@ -123,6 +122,7 @@ export default function AdminApp(initialData) {
   }
 
   const fetchCourses = async (accountId, termId) => {
+    setLoadingCourses(true)
     const api = new Api(instanceInfo)
     try{
       const retrivedCourses = await api.getAdminCourses(accountId, termId)
@@ -132,6 +132,7 @@ export default function AdminApp(initialData) {
         console.log("Failed to fetch data.")
       }
 
+      setLoadingCourses(false)
       return normalizedCourses.data
     }
     catch(e){
