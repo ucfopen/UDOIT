@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
-import ToggleSwitch from './Widgets/ToggleSwitch'
-import SortableTable from './Widgets/SortableTable'
+import React, { useState, useEffect, useRef } from 'react'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
 import LearnMore from './Widgets/LearnMore.js'
+import MediaCaptionsEditor from './Captions/MediaCaptionsEditor.js'
+import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
+import SortableTable from './Widgets/SortableTable'
 import StatusPill from './Widgets/StatusPill'
+import ToggleSwitch from './Widgets/ToggleSwitch'
 
 import CloseIcon from './Icons/CloseIcon.js'
 import DeleteIcon from './Icons/DeleteIcon'
@@ -15,7 +16,9 @@ import ProgressIcon from './Icons/ProgressIcon.js'
 import RightArrowIcon from './Icons/RightArrowIcon'
 
 import Api from '../Services/Api'
+import { parseVTT, buildVttText, vttToMS, formatTimeVTT, formatVTTTime, computeVTTDuration } from "../Services/Captions";
 import * as Html from '../Services/Html.js'
+import { primaryLanguages } from '../Services/Lang'
 import * as Text from '../Services/Text'
 import { FILE_FILTER as FILTER, FILE_TYPES, FILE_TYPE_MAP, ISSUE_STATE, WIDGET_STATE } from '../Services/Constants'
 
@@ -95,17 +98,23 @@ export default function ReviewFilesPage({
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [mostRecentFileId, setMostRecentFileId] = useState(null)
 
-  // Form States
+  // Form states
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
   const [markDelete, setMarkDelete] = useState(false)
   const [markRevert, setMarkRevert] = useState(false)
 
-
+  const [modalTitle, setModalTitle] = useState('')
   const [formInvalid, setFormInvalid] = useState(true)
   const [uploadedFile, setUploadedFile] = useState(null)
 
+  // For files that get replaced (.pdf, .docx, .pptx, .xlsx)
   const [fileContentReferences, setFileContentReferences] = useState([])
   const [fileSectionReferences, setFileSectionReferences] = useState([])
+
+  // For media files
+  const [vttArray, setVttArray] = useState([]);
+  const [vttActiveIndex, setVttActiveIndex] = useState(-1);
+  const cachedMediaURLs = useRef({});
 
   const [isDisabled, setIsDisabled] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
@@ -376,7 +385,7 @@ export default function ReviewFilesPage({
   
     setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
-    if(activeIssue.fileData){
+    if (activeIssue.fileData) {
       let tempContentReferences = []
       let tempSectionRefereces = []
 
@@ -398,7 +407,9 @@ export default function ReviewFilesPage({
 
       setFileContentReferences(tempContentReferences)
       setFileSectionReferences(tempSectionRefereces)
-
+      setModalTitle(getModalTitle(activeIssue.fileData?.fileType))
+      setVttArray([])
+      setVttActiveIndex(-1)
     }
 
     setTempActiveIssue(activeIssueClone)
@@ -423,14 +434,7 @@ export default function ReviewFilesPage({
     setIsDisabled(tempIsDisabled)
   }, [sessionFiles])
 
-  const handleEscapeKey = (e) => {
-    if(e.key === 'Escape' && widgetState === WIDGET_STATE.FIXIT) {
-      e.preventDefault()
-      closeDialog()
-    }
-  }
-
-useEffect(() => {
+  useEffect(() => {
     if(showLearnMore) {
       document.getElementById('btn-learn-more-back')?.focus()
     }
@@ -447,22 +451,14 @@ useEffect(() => {
         dialog = document.getElementById(unusedFileDialogId)
       }
       if (dialog) {
-        dialog.addEventListener('keydown', handleEscapeKey)
-        const title = dialog.querySelector('#ufixit-dialog-title')
-        if(title) {
-          title.focus()
-        }
+        dialog.focus()
       }
     }
     else if(widgetState === WIDGET_STATE.LIST) {
       if(mostRecentFileId) {
         const fileElement = document.getElementById(`udoit-file-${mostRecentFileId}`)
         if(fileElement) {
-          fileElement.focus() 
-        }
-        const dialog = document.getElementById(dialogId)
-        if (dialog) {
-          dialog.removeEventListener('keydown', handleEscapeKey)
+          fileElement.focus()
         }
       }
     }
@@ -511,6 +507,14 @@ useEffect(() => {
     }
 
     setDeleteFileQueue(unusedFiles.map((file) => `files/${file.lmsFileId}`))
+  }
+
+  const getModalTitle = (fileType) => {
+    if(fileType === 'video' || fileType === 'audio') {
+      return t('form.media.title')
+    }
+    
+    return t('form.file.title')
   }
 
   const getFileTypeDisplay = (fileType) => {
@@ -655,22 +659,22 @@ useEffect(() => {
   }
 
   const extractUrl = (url, contentType) => {
-  if(!url) return ''
-  
-  const idx = url.indexOf('courses/');
-  if (idx !== -1) {
-    // slice from "courses/" onward and strip any leading slashes (defensive)
-    let slicedUrl = url.slice(idx).replace(/^\/+/, '');
-    if(contentType == "syllabus"){
-      const parts = slicedUrl.split("/")
-      slicedUrl = `${parts[0]}/${parts[1]}?include[]=syllabus_body`
+    if(!url) return ''
+    
+    const idx = url.indexOf('courses/');
+    if (idx !== -1) {
+      // slice from "courses/" onward and strip any leading slashes (defensive)
+      let slicedUrl = url.slice(idx).replace(/^\/+/, '');
+      if(contentType == "syllabus"){
+        const parts = slicedUrl.split("/")
+        slicedUrl = `${parts[0]}/${parts[1]}?include[]=syllabus_body`
+      }
+      return slicedUrl
     }
-    return slicedUrl
-  }
 
-  // if no "courses/" found, remove leading slashes and return the remainder
-  return url.replace(/^\/+/, '');
-}
+    // if no "courses/" found, remove leading slashes and return the remainder
+    return url.replace(/^\/+/, '');
+  }
 
   const updateFile = (tempFile, copiedReport, newFile = null, ) => {
     const tempReport = Object.assign({}, copiedReport)
@@ -1073,6 +1077,60 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
   }
 
+  const handleCaptionSave = () => {
+    
+    if(!activeIssue?.fileData?.metadata?.media_entry_id) {
+      addMessage({ message: "File is missing Media ID. Cannot save captions to Canvas.", severity: "error", visible: true });
+      return;
+    }
+
+    if(vttArray && vttArray.length === 0){
+      addMessage({ message: "No captions found. Cannot save to Canvas.", severity: "error", visible: true });
+      return;
+    }
+
+    const mediaEntryId = activeIssue?.fileData?.metadata?.media_entry_id;
+
+    if(!mediaEntryId) {
+      addMessage({ message: "No media id found. Cannot save to Canvas. Export your captions to save your work.", severity: "error", visible: true });
+      return;
+    }
+
+    // Canvas only allows for one track per language, so if you try to save English captions and English subtitles,
+    // only the last one in the array stays. So I need to create false locales, like "English-subtitles" to keep both.
+    let saveVttArray = structuredClone(vttArray);
+    saveVttArray.forEach((track) => {
+      if(track.kind !== "captions" && primaryLanguages[track.locale]) {
+        track.locale = primaryLanguages[track.locale] + '-' + track.kind;
+      }
+    })
+    const api = new Api(instanceInfo)
+    api.setMediaTracks(mediaEntryId, saveVttArray)
+      .then((responseStr) => responseStr.json())
+      .then((response) => {
+        if(Array.isArray(response) && response.length === vttArray.length) {
+          addMessage({ message: "Tracks applied to media file.", severity: "success", visible: true });
+          const existingTracks = response
+          setVttArray(existingTracks);
+        }
+      })
+  }
+
+  const updateMediaURL = (fileId, blobURL) => {
+    cachedMediaURLs.current = {...cachedMediaURLs.current, [fileId]: blobURL};
+  }
+
+  const clearCachedMedia = () => {
+    try {
+      Object.keys(cachedMediaURLs.current).forEach((key) => {
+        let tempURL = cachedMediaURLs.current[key];
+        URL.revokeObjectURL(tempURL);
+      })
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -1124,6 +1182,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         return t('label.mime.unknown')
     }
   }
+
+  useEffect(() => {
+    // Runs when the component closes...
+    return () => {
+      console.log("Clearing cached media...");
+      clearCachedMedia();
+    }
+  }, [])
 
   // This outputs 'true' initially because the unfilteredFiles array is initially empty, but 
   // the widget state check (WIDGET_STATE.LOADING ?) prevents this false-positive from causing unexpected behavior
@@ -1200,65 +1266,82 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       <div className={`dialog-backdrop ${widgetState === WIDGET_STATE.FIXIT ? 'open' : 'hidden'}`} />
       <div
         id={dialogId}
+        tabIndex="-1"
         role="dialog"
         aria-modal="true"
         className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && !unusedDialogModal ? 'open' : 'hidden'}`}
-        onClose={closeDialog}
         aria-labelledby="ufixit-dialog-title"
         >
         <div className='flex-column h-100'>
           <div className='dialog-header'>
-            <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
+            <h2 id="ufixit-dialog-title" tabIndex="-1">{modalTitle}</h2>
             <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-md" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
-           <div className="dialog-content">
-            <div className="dialog-content-row-wrap">
-              <section className='ufixit-widget-container'>
-                { tempActiveIssue ? ( 
-                  <>
-                  <LearnMore
-                    t={t}
-                    tempActiveIssue={tempActiveIssue}
-                    showLearnMore={showLearnMore}
-                    hideLearnMore={() => setShowLearnMore(false)}
-                    />
-                    <FileFixitWidget
+          <div className="dialog-content">
+            {activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio' ? (
+              <MediaCaptionsEditor
+                t={t}
+                preferences={preferences}
+                instanceInfo={instanceInfo}
+                file={activeIssue}
+                addMessage={addMessage}
+                vttArray={vttArray}
+                setVttArray={setVttArray}
+                vttActiveIndex={vttActiveIndex}
+                setVttActiveIndex={setVttActiveIndex}
+                setFormInvalid={setFormInvalid}
+                cachedMediaURLs={cachedMediaURLs.current}
+                updateMediaURL={updateMediaURL}
+              />
+            ) : (
+
+              <div className="dialog-content-row-wrap">
+                <section className='ufixit-widget-container'>
+                  { tempActiveIssue ? ( 
+                    <>
+                      <LearnMore
+                        t={t}
+                        tempActiveIssue={tempActiveIssue}
+                        showLearnMore={showLearnMore}
+                        hideLearnMore={() => setShowLearnMore(false)}
+                        />
+                      <FileFixitWidget
+                        t={t}
+                        sessionFiles={sessionFiles}
+                        tempActiveIssue={tempActiveIssue}
+                        uploadedFile={uploadedFile}
+                        setUploadedFile={setUploadedFile}
+                        isDisabled={isDisabled}
+                        setIsDisabled={setIsDisabled}
+                        markAsReviewed={markAsReviewed}
+                        setMarkAsReviewed={setMarkAsReviewed}
+                        setFormInvalid={setFormInvalid}
+                        handleFileResolveWrapper={handleFileResolveWrapper}
+                        setMarkDelete={setMarkDelete}
+                        setMarkRevert={setMarkRevert}
+                        markDelete={markDelete}
+                        markRevert={markRevert}
+                        handleLearnMoreClick={() => setShowLearnMore(true)}
+                        showLearnMore={showLearnMore}
+                      />
+                    </>
+                  ) : ''}
+                </section>
+                <section className="ufixit-content-container">
+                  {filteredFiles.length > 0 && tempActiveIssue && (
+                    <FileReviewPreview
                       t={t}
-                      sessionFiles={sessionFiles}
-                      tempActiveIssue={tempActiveIssue}
-                      uploadedFile={uploadedFile}
-                      setUploadedFile={setUploadedFile}
-                      isDisabled={isDisabled}
-                      setIsDisabled={setIsDisabled}
-                      markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed}
-                      setFormInvalid={setFormInvalid}
                       getReadableFileType={getReadableFileType}
-                      handleFileResolveWrapper={handleFileResolveWrapper}
-                      setMarkDelete={setMarkDelete}
-                      setMarkRevert={setMarkRevert}
-                      markDelete={markDelete}
-                      markRevert={markRevert}
-                      handleLearnMoreClick={() => setShowLearnMore(true)}
-                      showLearnMore={showLearnMore}
+                      activeIssue={tempActiveIssue}
+                      isDisabled={isDisabled}
                     />
-                  </>
-                ) : ''}
-              </section>
-              <section className="ufixit-content-container">
-                {filteredFiles.length > 0 && tempActiveIssue && (
-                  <FileReviewPreview
-                    t={t}
-                    getReadableFileType={getReadableFileType}
-                    activeIssue={tempActiveIssue}
-                    isDisabled={isDisabled}
-                  />
-                )}
-              </section>
-            </div>
+                  )}
+                </section>
+              </div>
+            )}
           </div>
           <div className='dialog-footer'>
-            <div className="flex-row gap-2">
+            <div className="flex-row gap-2 flex-wrap">
               <button
                 className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextFile(true)}
@@ -1278,9 +1361,16 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </button>
             </div>
               <button
-                onClick={handleFileSave}
+                onClick={() => {
+                  if (activeIssue?.fileData?.fileType === 'video' || activeIssue?.fileData?.fileType === 'audio') {
+                    handleCaptionSave();
+                  }
+                  else {
+                    handleFileSave();
+                  }
+                }}
                 className={`btn btn-icon-left ${markDelete ? 'btn-danger' : 'btn-primary'}`}
-                disabled={formInvalid || isDisabled }
+                disabled={formInvalid || isDisabled}
                 tabIndex='0'
               > 
               {markDelete ? t('form.delete') : t(`form.submit`)}

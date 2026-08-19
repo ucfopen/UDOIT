@@ -45,7 +45,7 @@ export default function SliderSelect({
           key={option.value + '-key'}
           className={`flex-row slider-option-container${activeOption === option.value ? ' active' : ''}`}
           tabIndex="0"
-          aria-label={option.name}
+          aria-label={typeof option.name === 'string' ? option.name : option.value}
           aria-selected={activeOption === option.value}
           onClick={() => {
             setActiveOption(option.value)

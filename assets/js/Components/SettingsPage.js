@@ -92,7 +92,7 @@ export default function SettingsPage({
 
   return (
   <div className="flex-column settings-page-container h-100">
-    <h1 className="pageTitle pb-2">{t('menu.settings')}</h1>
+    <h1 id="pageTitle" className="pageTitle pb-2">{t('menu.settings')}</h1>
 
     <div className="page-container">
       <div className="settings-column">

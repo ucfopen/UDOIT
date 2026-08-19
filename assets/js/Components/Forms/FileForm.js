@@ -15,7 +15,6 @@ export default function FileForm ({
   setIsDisabled,
   markAsReviewed,
   setMarkAsReviewed,
-  getReadableFileType,
   handleFileResolveWrapper,
   setFormInvalid,
   setMarkDelete,
@@ -34,10 +33,6 @@ export default function FileForm ({
     const [activeOption, setActiveOption] = useState('')
     const [formErrors, setFormErrors] = useState([])
 
-    const [copiedActiveFile, setCopiedActiveFile] = useState(null)
-    const [copiedUploadedFile, setCopiedUploadedFile] = useState(null)
-    const [copiedReplacementFile, setCopiedReplacementFile] = useState(null)
-
     const [nonReferenced, setNonReferenced] = useState(false)
 
     useEffect(() => { 
@@ -50,8 +45,6 @@ export default function FileForm ({
       setMarkAsReviewed(false)
 
       if(activeFile){
-        normalizeActiveFile()
-        normalizeReplacementFile()
         if(!activeFile.replacement && activeFile?.references?.length == 0 && activeFile?.sectionRefs?.length == 0){
           setNonReferenced(true)
         }
@@ -59,7 +52,6 @@ export default function FileForm ({
     }, [activeFile])
 
     useEffect(() => {
-      normalizeUploadedFile()
       if(markAsReviewed || uploadedFile || markDelete || markRevert){
         setFormInvalid(false)
       }
@@ -67,40 +59,6 @@ export default function FileForm ({
         setFormInvalid(true)
       }
     }, [markAsReviewed, uploadedFile, markDelete, markRevert])
-
-    const normalizeActiveFile = () => {
-      const tempFile =  {
-        fileName: activeFile.fileName,        
-        fileType: getReadableFileType(activeFile.fileType),
-        fileSize: Text.getReadableFileSize(activeFile.fileSize),
-      }
-      setCopiedActiveFile(tempFile)
-    }
-
-    const normalizeUploadedFile = () => {
-      if(!uploadedFile){
-        return
-      }
-      const tempFile = {
-        fileName: uploadedFile.name,
-        fileType: getReadableFileType(uploadedFile.type),
-        fileSize: Text.getReadableFileSize(uploadedFile.size),
-      }
-      setCopiedUploadedFile(tempFile)
-    }
-
-    const normalizeReplacementFile = () => {
-      if (!activeFile?.replacement){
-        return
-      }
-      const tempFile = {
-        fileName: activeFile.replacement.fileName,
-        fileType: getReadableFileType(activeFile.replacement.fileType),
-        fileSize: Text.getReadableFileSize(activeFile.replacement.fileSize),
-      }
-
-      setCopiedReplacementFile(tempFile)
-    }
 
   const handleDrop = (event) => {
     if(uploadedFile){
@@ -186,7 +144,6 @@ export default function FileForm ({
 
   const removeUploadedFile = () => {
     setUploadedFile(null)
-    setCopiedUploadedFile(null)
   }
 
   const checkCanDelete = (e) => {
@@ -331,14 +288,7 @@ export default function FileForm ({
             </label>
             {activeOption == FORM_OPTIONS.REPLACE_FILE && (
               <div className='flex-column align-items-center justify-content-center'>
-                {/* <div className='file-label-pill'>{t('form.file.original.label')}</div>
-                <div className='callout-container w-100 mt-1'>
-                  <FileInformation t={t} file={copiedActiveFile} />
-                </div>
 
-                <DownwardArrowIcon className="icon-md gray m-3" aria-hidden="true" />
-
-                <div className='file-label-pill file-new'>{t('form.file.new.label')}</div> */}
                 <div className={`file-upload-container mt-1 ${uploadedFile ? 'uploaded' : 'p-3 flex-column text-center jusitify-content-center align-items-center'}`}
                   onDrop={handleDrop}
                   onClick={handleFileSelect}
@@ -346,9 +296,9 @@ export default function FileForm ({
                   onKeyDown={handleKeyPress}
                   tabIndex='0'
                 >
-                  { uploadedFile && copiedUploadedFile ? (
+                  { uploadedFile ? (
                     <div className='flex-row align-items-center justify-content-between'>
-                      <FileInformation t={t} file={copiedUploadedFile} />
+                      <FileInformation t={t} fileData={uploadedFile} />
                       <div className='ps-2 pe-1 align-self-start'>
                         <CloseIcon onClick={removeUploadedFile} onKeyDown={(e) => e.key == "Enter" ? removeUploadedFile() : ""} className='close-icon icon-sm' tabIndex='0' />
                       </div>

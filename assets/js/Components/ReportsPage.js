@@ -297,7 +297,7 @@ export default function ReportsPage({
   return (
     <div className="report-page-container scrollable">
       <div className="pageTitleRow">
-        <h1 className="pageTitle">{t('report.title')}</h1>
+        <h1 id="pageTitle" className="pageTitle">{t('report.title')}</h1>
         { (fetchedReports && reports.length > 0) && (
           <button className="btn-small btn-icon-left btn-secondary" onClick={()=> printReport()}>
             <PrintIcon className="icon-md" />

@@ -78,6 +78,7 @@
     --selection-color-background: #F7FEF9;
 
     --background-color: var(--gray-lightest);
+    --background-color-transparent: #F9FAFBB0;
     --container-color: #FFFFFF; /* #F2F4F7; */
     --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
@@ -183,6 +184,7 @@
       --button-secondary-background-color: #1E2230;
 
       --background-color: #0F1117;
+      --background-color-transparent: #0F1117A0;
       --container-color: #161923;
       --border-color: #3A4155;
       --progress-bar-background-color: #272c3f;
@@ -406,6 +408,10 @@
 
   .btn-small {
     font-size: 0.8em;
+
+    &:not(.btn-link){
+      padding: .4rem .8rem;
+    }
   }
 
   .btn-large {
@@ -765,13 +771,22 @@
     box-shadow: 0 0 10px var(--shadow-color);
 
     &.dialog-full-screen {
-      width: 95%;
-      max-width: calc(var(--content-max-width) * 0.95);
-      height: 95%;
-      max-height: 95%;
+      width: calc(100% - 2rem);
+      max-width: var(--content-max-width);
+      height: calc(100% - 2.5rem);
+      max-height: calc(100% - 2.5rem);
       position: absolute;
-      top: 2.5%;
-      left: calc(max((((100% - var(--content-max-width)) * .5) + (var(--content-max-width) * 0.025)), 2.5%));
+      top: 1.25rem;
+
+      @media screen and (max-width: 450px) {
+        width: calc(100% - 1rem);
+        max-width: calc(100% - 1rem);
+        height: calc(100% - 1rem);
+        max-height: calc(100% - 1rem);
+        position: absolute;
+        top: .5rem;
+        left: .5rem;
+      }
     }
 
     > * {
@@ -808,6 +823,7 @@
       flex-direction: column;
       flex-grow: 1;
       overflow: auto;
+      position: relative;
     }
 
     .dialog-footer {
@@ -984,6 +1000,11 @@
     overflow-y: auto;
     margin: 0 auto;
     padding: 0 1rem 1rem 1rem;
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: -2px;
+    }
   }
 }
 
@@ -1387,6 +1408,10 @@
   .font-smaller {
     font-size: .9em;
   }
+
+  .font-normal {
+    font-size: 1em;
+  }
   
   .font-larger {
     font-size: 1.25em;
@@ -1489,6 +1514,18 @@
     transform: rotate(270deg);
   }
 
+  a {
+    line-height: normal;
+    &.no-default-underline {
+      text-decoration: none;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
+    }
+  }
+
   .udoit-issue,
   .color-issue,
   .udoit-issue-highlight {
@@ -1537,6 +1574,47 @@
     }
     100% {
       transform: rotate(360deg);
+    }
+  }
+
+  /* Adapted from https://css-loaders.com/progress/ (#16) */
+  .loader {
+    height: 0.5em;
+    border-radius: 0.25em;
+    width: 100%;
+    --c: no-repeat linear-gradient(var(--progress-bar-color) 0 0);
+    background: var(--c), var(--c), var(--progress-bar-background-color);
+    background-size: 60% 100%;
+    animation: l16 5s infinite;
+
+    &.complete {
+      animation: none;
+      background: var(--selection-color);
+    }
+  }
+
+  @keyframes l16 {
+    0%   {background-position:-150% 0,-150% 0}
+    66%  {background-position: 250% 0,-150% 0}
+    100% {background-position: 250% 0, 250% 0}
+  }
+
+  .progress-bar-container {
+    background-color: var(--border-color);
+    width: var(--progress-bar-width);
+    max-width: 100%;
+    height: .5rem;
+    border-radius: 1rem;
+    position: relative;
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 1rem;
+      min-width: .5rem;
     }
   }
 

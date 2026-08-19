@@ -11,7 +11,7 @@ import SettingsPage from "./SettingsPage";
 import Api from "../Services/Api";
 import MessageTray from "./Widgets/MessageTray";
 import { analyzeReport } from "../Services/Report";
-import { ISSUE_STATE } from "../Services/Constants";
+import { DEFAULT_USER_SETTINGS, ISSUE_STATE } from "../Services/Constants";
 
 export default function App(initialData) {
   const [nextMessage, setNextMessage] = useState("");
@@ -431,8 +431,12 @@ export default function App(initialData) {
             handleNavigation={handleNavigation}
             syncComplete={syncComplete}
           />
-
-          <main role="main" id="main-content">
+          <main
+            role="main"
+            id="main-content"
+            aria-labelledby="pageTitle"
+            tabIndex="-1"
+            >
             {"summary" === navigation && (
               <HomePage
                 t={t}
@@ -504,11 +508,19 @@ export default function App(initialData) {
                 setTextSpacing={setTextSpacing}
               />
             )}
-            {"modal" === navigation && <div className="modal">{modal}</div>}
+            {('modal' === navigation) && (
+              <div className="modal">
+                {modal}
+              </div>
+            )}
           </main>
         </>
       )}
-      <MessageTray t={t} preferences={preferences} nextMessage={nextMessage} />
+      <MessageTray
+        t={t}
+        preferences={preferences}
+        nextMessage={nextMessage}
+      />
     </div>
   );
 }

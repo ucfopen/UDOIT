@@ -344,4 +344,10 @@ class LmsFetchService {
         return $lms->updateFileItem($course, $file);
 
     }
+
+    public function getMediaTracks($mediaId, $user)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->getMediaTracks($mediaId, $user);
+    }
 }

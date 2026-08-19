@@ -960,7 +960,7 @@ export default function FixIssuesPage({
         <></>
       ) : (
         <div inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}>
-          <h1 className="pageTitle">{t('barriers.title')}</h1>
+          <h1 id="pageTitle" className="pageTitle">{t('barriers.title')}</h1>
           <p className="pageSubtitle">{t('barriers.subtitle')}</p>
           <FixIssuesFilters
             t={t}
@@ -1067,7 +1067,7 @@ export default function FixIssuesPage({
             </div>
           </div>
           <div className="dialog-footer">
-            <div className="flex-row gap-2 align-items-center">
+            <div className="flex-row gap-2 align-items-center flex-wrap">
               <button
                 className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextIssue(true)}

@@ -377,6 +377,7 @@ dialog::backdrop {
   pointer-events: none;
   background: var(--backdrop-color);
   backdrop-filter: blur(1.5px);
+  border-radius: var(--window-radius);
 }
 
 .file-review-status-container{

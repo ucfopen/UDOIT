@@ -1,33 +1,37 @@
 export default class Api {
 
-  constructor(instanceInfo) {
-    this.apiUrl = `https://${window.location.hostname}`;
-    this.endpoints = {
-      getReport: '/api/courses/{course}/reports/{report}',
-      getReportHistory: '/api/courses/{course}/reports',
-      setReportData: '/api/reports/{report}/setdata',
-      updateAndGetReport: '/api/courses/{course}/reports/update',
-      getIssueContent: '/api/issues/{issue}/content',
-      saveIssue: '/api/issues/{issue}/save',
-      reviewFile: '/api/files/{file}/review',
-      postFile: '/api/files/{file}/post',
-      deleteFile: '/api/files/{file}/delete',
-      batchDelete: '/api/{course}/files/delete',
-      updateContent: '/api/{file}/content',
-      reportPdf: '/download/courses/{course}/reports/pdf',
-      adminCourses: '/api/admin/courses/account/{account}/term/{term}',
-      scanContent: '/api/sync/content/{contentItem}?report={getReport}',
-      scanCourse: '/api/sync/{course}',
-      scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
-      fullRescan: '/api/sync/rescan/{course}',
-      adminReport: '/api/admin/courses/{course}/reports/latest',
-      adminCourseReport: '/api/admin/courses/{course}/reports/full',
-      adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
-      adminUser: '/api/admin/users',
-      updatePreferences: '/api/users/{user}/preferences'
-    }
-    this.instanceInfo = instanceInfo;
+    constructor(instanceInfo) {
+      this.apiUrl = `https://${window.location.hostname}`;
+      this.endpoints = {
+        adminCourses: '/api/admin/courses/account/{account}/term/{term}',
+        adminCourseReport: '/api/admin/courses/{course}/reports/full',
+        adminReport: '/api/admin/courses/{course}/reports/latest',
+        adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
+        adminUser: '/api/admin/users',
 
+        getMediaTracks: '/api/media/{mediaId}/tracks',
+        getIssueContent: '/api/issues/{issue}/content',
+        getReport: '/api/courses/{course}/reports/{report}',
+        getReportHistory: '/api/courses/{course}/reports',
+        updateAndGetReport: '/api/courses/{course}/reports/update',
+
+        batchDelete: '/api/{course}/files/delete',
+        deleteFile: '/api/files/{file}/delete',
+        downloadFile: '/api/files/{file}/download',
+        fullRescan: '/api/sync/rescan/{course}',
+        postFile: '/api/files/{file}/post',
+        saveIssue: '/api/issues/{issue}/save',
+        reviewFile: '/api/files/{file}/review',
+        scanContent: '/api/sync/content/{contentItem}?report={getReport}',
+        scanCourse: '/api/sync/{course}',
+        scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
+        setMediaTracks: '/api/media/{mediaId}/settracks',
+        setReportData: '/api/reports/{report}/setdata',
+        updateContent: '/api/{file}/content',
+        updatePreferences: '/api/users/{user}/preferences'
+      }
+      this.instanceInfo = instanceInfo;
+  
     if (instanceInfo && instanceInfo.apiUrl) {
       this.apiUrl = instanceInfo.apiUrl;
     }
@@ -39,6 +43,110 @@ export default class Api {
 
   getUserId() {
     return this.instanceInfo.user.id;
+  }
+
+  getMediaTracks(mediaId) {
+      let url = `${this.apiUrl}${this.endpoints.getMediaTracks}`
+      url = url.replace('{mediaId}', mediaId)
+
+      return fetch(url, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      })
+  }
+
+  setMediaTracks(mediaId, newTracks) {
+      let url = `${this.apiUrl}${this.endpoints.setMediaTracks}`
+      url = url.replace('{mediaId}', mediaId)
+
+      return fetch(url, {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'include',
+          body: JSON.stringify({
+              tracks: newTracks
+          })
+      })
+  }
+
+  updateContent(contentOptions, sectionOptions, fileId){
+      let url = `${this.apiUrl}${this.endpoints.updateContent}`
+      url = url.replace('{file}', fileId)
+
+      return fetch(url, {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'include',
+          body: JSON.stringify({
+              content: contentOptions,
+              section: sectionOptions
+          })
+      })
+  }
+
+  getAdminCourses(filters) {
+      let url = `${this.apiUrl}${this.endpoints.adminCourses}`
+      url = url.replace('{account}', filters.accountId)
+          .replace('{term}', filters.termId)
+
+      if (filters.includeSubaccounts) {
+          url += '?subaccounts=true'
+      }
+
+      return fetch(url, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+  }
+
+  getAdminReportHistory(filters) {
+      let url = `${this.apiUrl}${this.endpoints.adminReportHistory}`
+      url = url.replace('{account}', filters.accountId)
+          .replace('{term}', filters.termId)
+
+      if (filters.includeSubaccounts) {
+          url += '?subaccounts=true'
+      }
+
+      return fetch(url, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+  }
+
+  getAdminReport(courseId) {
+      let url = `${this.apiUrl}${this.endpoints.adminReport}`
+      url = url.replace('{course}', courseId)
+
+      return fetch(url, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+  }
+
+  getCourseReport(courseId) {
+      let url = `${this.apiUrl}${this.endpoints.adminCourseReport}`
+      url = url.replace('{course}', courseId)
+
+      return fetch(url, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
   }
 
   getReport(reportId) {
@@ -162,6 +270,25 @@ export default class Api {
       method: "DELETE",
       credentials: "include",
     });
+  }
+
+  async downloadFile(fileId, contentType = "video/mp4") {
+    let url = `${this.apiUrl}${this.endpoints.downloadFile}`;
+    url = url.replace("{file}", fileId);
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": contentType,
+        },
+      });
+      return response;
+
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   batchDelete(urlList) {
