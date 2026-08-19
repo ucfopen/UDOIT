@@ -5,6 +5,8 @@ import "../Widgets/FixIssuesFilters.css";
 import Combobox from "../Widgets/Combobox";
 import RightArrowIcon from "../Icons/RightArrowIcon";
 
+const SEARCH_DEBOUNCE_MS = 500;
+
 export default function AdminFilters({
   t,
   preferences,
@@ -24,6 +26,23 @@ export default function AdminFilters({
 }) {
 
   const [termOptions, setTermOptions] = useState([])
+  const [pendingSearchTerm, setPendingSearchTerm] = useState(searchTerm)
+
+  useEffect(() => {
+    setPendingSearchTerm(searchTerm)
+  }, [searchTerm])
+
+  useEffect(() => {
+    if (pendingSearchTerm === searchTerm) {
+      return
+    }
+
+    const timeoutId = setTimeout(() => {
+      handleSearchTerm(pendingSearchTerm)
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => clearTimeout(timeoutId)
+  }, [pendingSearchTerm, searchTerm, handleSearchTerm])
 
   useEffect(() => {
     if(termInfo){
@@ -74,10 +93,10 @@ export default function AdminFilters({
         {navigation === "courses" && (
           <div className="search-group">
             <input
-              value={searchTerm}
+              value={pendingSearchTerm}
               type="text"
               placeholder={t("filter.label.search")}
-              onChange={(e) => handleSearchTerm(e.target.value)}
+              onChange={(e) => setPendingSearchTerm(e.target.value)}
             />
             <SearchIcon className="search-icon icon-sm" />
           </div>
