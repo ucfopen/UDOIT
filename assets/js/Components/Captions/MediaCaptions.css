@@ -30,6 +30,10 @@
     }
   }
 
+  .progress-bar-text {
+    font-variant-numeric: tabular-nums;
+  }
+
   span {
     color: var(--text-secondary-color);
     font-size: smaller;

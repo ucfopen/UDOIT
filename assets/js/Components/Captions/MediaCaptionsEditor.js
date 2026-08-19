@@ -239,6 +239,13 @@ export default function MediaCaptionsEditor({
 
   const downloadVideoFromLMS = async (lmsFileId, contentType = 'video/mp4', fileSize = 0) => {
     setFileLoadedSize(0);
+    // Canvas media are sometimes saved as stubs. Meaning a large, 100+ MB video can have a
+    // metadata fileSize of ~12 K. The media is buffered as it loads. Not sure if this is a
+    // Kaltura or Canvas issue, but if a media file is less than 50K, we'll set the fileSize
+    // to 0 (unknown) and just run the download without it.
+    if (fileSize && fileSize < 50000) {
+      fileSize = 0;
+    }
     setFileTotalSize(fileSize);
     try {
       let api = new Api(instanceInfo);

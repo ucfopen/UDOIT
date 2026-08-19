@@ -23,7 +23,7 @@ export default function MediaCaptionsLoadingProgress({
         { fileTotalSize === 0 ? (
           <>
             <div className='loader' />
-            <div className="flex-row justify-content-center mt-2">
+            <div className="progress-bar-text flex-row justify-content-center mt-2">
               {fileLoadedSize === 0 ? (
                 <span>{t('form.media.label.retrieving_info')}</span>
               ) : (
@@ -34,9 +34,9 @@ export default function MediaCaptionsLoadingProgress({
         ) : (
           <>
             <div className="progress-bar-container">
-              <div className="progress-bar-fill" style={{width: `${(fileLoadedSize / fileTotalSize) * 100}%`}}></div>
+              <div className="progress-bar-fill" style={{width: `min(${(fileLoadedSize / fileTotalSize) * 100}%, 100%)`}}></div>
             </div>
-            <div className="flex-row justify-content-between mt-2">
+            <div className="progress-bar-text flex-row justify-content-between mt-2">
               <span>{t('form.media.label.loaded')} {Text.getReadableFileSize(fileLoadedSize)}</span>
               <span>{t('form.media.label.total_size')} {Text.getReadableFileSize(fileTotalSize)}</span>
             </div>
