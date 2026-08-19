@@ -179,18 +179,31 @@ class CourseRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleColumnResult();
 
-        $count = 0;
+        $uniqueProfessors = [];
 
-       foreach ($professors as $courseProfessors) {
+        foreach ($professors as $courseProfessors) {
             if (is_string($courseProfessors)) {
                 $courseProfessors = json_decode($courseProfessors, true);
             }
 
             if (is_array($courseProfessors)) {
-                $count += count($courseProfessors);
+                foreach ($courseProfessors as $professor) {
+                    if (!is_string($professor)) {
+                        continue;
+                    }
+
+                    $professor = trim($professor);
+
+                    if ($professor === '') {
+                        continue;
+                    }
+
+                    $uniqueProfessors[strtolower($professor)] = true;
+                }
             }
         }
-        return $count;
+
+        return count($uniqueProfessors);
     }
 
     /*
