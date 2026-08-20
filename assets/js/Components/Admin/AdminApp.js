@@ -135,9 +135,10 @@ export default function AdminApp(initialData) {
     if (!data) {
       return
     }
-
-    console.log(data)
-    setDashboardStats(data.stats)
+    
+    if(data.stats){
+      setDashboardStats(data.stats)
+    }
     setCourses(data.courses)
     setCoursePagination(data.pagination)
   }

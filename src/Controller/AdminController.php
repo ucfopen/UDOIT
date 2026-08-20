@@ -190,7 +190,10 @@ class AdminController extends ApiController
         );
         $courses = $paginatedCourses['courses'];
         $totalCourses = $paginatedCourses['total'];
-        $stats  = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $lmsAccountId, $lmsTermId);
+        $stats = null;
+        if ($search == null){
+            $stats  = $this->calculateDashboardStats($user, $accountRepo, $courseRepo, $reportRepo, $lmsAccountId, $lmsTermId);
+        }
 
         $results = [];
         foreach ($courses as $course) {
