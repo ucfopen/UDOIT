@@ -597,53 +597,17 @@ class AdminController extends ApiController
         $termId
     ) 
     {
-        $output = new ConsoleOutput();
         $stats = [];
         $accounts = $accountRepo->getAccountTree($user, $accountId); // Returns an array of key value mapping of {accountId: accountName}
-        $accountBreakdown = [];
-
-        foreach ($accounts as $accountName) {
-            $accountBreakdown[$accountName] = ["total" => 0, "scanned" => 0, "errors" => 0];
-        }
-
         $courses = $courseRepo->getCourseCount($user, array_keys($accounts), $termId); // Returns an array of key value mapping of {lms_course_id: lms_account_id}
         $courseIds = array_keys($courses);
-        foreach($courses as $course){
-            $accountBreakdown[$accounts[$course]]["total"] += 1;
-        }
         $totalInstructors = $courseRepo->getProfessorCount($user, $courseIds);
         $reports = $reportRepo->findLatestByCourseIds($courseIds);
-        $thirtyDaysAgo = new DateTime('-30 days');
 
         $scannedCourseIds = [];
-        $totalErrors = 0;
-        $totalSuggestions = 0;
-        $totalResolved = 0;
-        $totalFilesReviewed = 0;
-        $totalFixed = 0;
-        $recentScans = 0;
-        $oldestScan = '';
-        $newestScan = '';
 
         foreach($reports as $report){
             $scannedCourseIds[] = $report->getCourse()->getLmsCourseId();
-            $totalErrors += $report->getErrors();
-            $accountBreakdown[$accounts[$courses[$report->getCourse()->getLmsCourseId()]]]["scanned"] += 1;
-            $accountBreakdown[$accounts[$courses[$report->getCourse()->getLmsCourseId()]]]["errors"] += $report->getErrors();
-            $totalSuggestions += $report->getSuggestions();
-            $totalResolved += $report->getContentResolved();
-            $totalFilesReviewed += $report->getFilesReviewed();
-            $totalFixed += $report->getContentFixed();
-            $currDate = $report->getCreated();
-            if($currDate >= $thirtyDaysAgo){
-                  $recentScans += 1;
-            }
-            if(!$oldestScan || new DateTime($oldestScan) > $currDate){
-                $oldestScan = $currDate->format($_ENV['DATE_FORMAT']);
-            }
-            if (!$newestScan || new DateTime($newestScan) < $currDate ){
-                $newestScan = $currDate->format($_ENV['DATE_FORMAT']);
-            }
         }
 
         $uniqueInstructorsUsingUdoit = $courseRepo->getProfessorCount($user, $scannedCourseIds);
@@ -652,15 +616,6 @@ class AdminController extends ApiController
         $stats["scannedCourses"] = count($reports);
         $stats["totalInstructors"] = $totalInstructors;
         $stats["uniqueInstructorsUsingUdoit"] = $uniqueInstructorsUsingUdoit;
-        $stats["totalFixed"] = $totalFixed;
-        $stats["totalErrors"] = $totalErrors;
-        $stats["totalSuggestions"] = $totalSuggestions;
-        $stats["totalResolved"] = $totalResolved;
-        $stats["totalFilesReviewed"] = $totalFilesReviewed;
-        $stats["recentScans"] = $recentScans;
-        $stats["oldestScan"] = $oldestScan;
-        $stats["newestScan"] = $newestScan;
-        $stats["accountBreakdown"] = $accountBreakdown;
 
         return $stats;
     }

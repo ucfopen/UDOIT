@@ -89,93 +89,9 @@ export default function AdminDashboard({ t, preferences, dashboardStats }) {
                   </div>
                 </div>
               </div>
-
-              <div className="separator mt-3 mb-3"></div>
-
-              <div className="flex-column w-100 mb-2 gap-1">
-                <p className="m-0">
-                  <span className="progress-text me-3">
-                    {dashboardStats.recentScans}
-                  </span>{" "}
-                  Courses Scanned in Last 30 Days
-                </p>
-                {dashboardStats.oldestScan && (
-                  <p className="m-0">
-                    <span className="progress-text me-3">
-                      {dashboardStats.oldestScan}
-                    </span>{" "}
-                    Oldest Scan
-                  </p>
-                )}
-                {dashboardStats.newestScan && (
-                  <p className="m-0">
-                    <span className="progress-text me-3">
-                      {dashboardStats.newestScan}
-                    </span>{" "}
-                    Most Recent Scan
-                  </p>
-                )}
-              </div>
             </div>
           </section>
-
-          <section className="callout-container">
-            <p>
-              Total Accessibility Issues Found: {dashboardStats.totalErrors}
-            </p>
-            <p>Total Suggestions Made: {dashboardStats.totalSuggestions}</p>
-            <p>Total Items Fixed: {dashboardStats.totalFixed}</p>
-            <p>Total Items Resolved: {dashboardStats.totalResolved}</p>
-            <p>Total Files Reviewed: {dashboardStats.totalFilesReviewed}</p>
-            {dashboardStats.scannedCourses > 0 && (
-              <>
-                <p>
-                  Average Issues per Scanned Course:{" "}
-                  {(
-                    dashboardStats.totalErrors / dashboardStats.scannedCourses
-                  ).toFixed(1)}
-                </p>
-                <p>
-                  Average Files Reviewed per Course:{" "}
-                  {(
-                    dashboardStats.totalFilesReviewed /
-                    dashboardStats.scannedCourses
-                  ).toFixed(1)}
-                </p>
-              </>
-            )}
-          </section>
         </div>
-
-        {Object.keys(dashboardStats.accountBreakdown).length > 1 && (
-          <section className="callout-container">
-            <h2 className="callout-heading mt-1">
-              Department/Account Breakdown
-            </h2>
-            {Object.entries(dashboardStats.accountBreakdown).map(
-              ([account, stats]) => (
-                <div key={account}>
-                  <p>
-                    <strong>{account}:</strong>
-                  </p>
-                  <p style={{ marginLeft: "20px" }}>
-                    Total Courses: {stats.total}
-                  </p>
-                  <p style={{ marginLeft: "20px" }}>
-                    Scanned: {stats.scanned} (
-                    {stats.total > 0
-                      ? ((stats.scanned / stats.total) * 100).toFixed(1)
-                      : 0}
-                    %)
-                  </p>
-                  <p style={{ marginLeft: "20px" }}>
-                    Total Issues: {stats.errors}
-                  </p>
-                </div>
-              ),
-            )}
-          </section>
-        )}
       </div>
     </>
   );
