@@ -1116,8 +1116,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       })
   }
 
-  const updateMediaURL = (fileId, blobURL) => {
-    cachedMediaURLs.current = {...cachedMediaURLs.current, [fileId]: blobURL};
+  const updateMediaURL = (fileId, blobURL, blobSize) => {
+    cachedMediaURLs.current = {...cachedMediaURLs.current, [fileId]: { blobURL, blobSize }};
   }
 
   const clearCachedMedia = () => {

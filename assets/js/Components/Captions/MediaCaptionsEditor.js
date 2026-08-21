@@ -132,7 +132,8 @@ export default function MediaCaptionsEditor({
 
     getExistingTracks();
     if (cachedMediaURLs[fileData.id]) {
-      setVideoUrl(cachedMediaURLs[fileData.id])
+      setFileTotalSize(cachedMediaURLs[fileData.id].blobSize);
+      setVideoUrl(cachedMediaURLs[fileData.id].blobURL);
     }
     else {
       downloadVideoFromLMS(fileData.id, fileData?.metadata?.content-type || '', fileData?.metadata?.fileSize || 0);
@@ -267,10 +268,11 @@ export default function MediaCaptionsEditor({
         setFileLoadedSize(tempFileLoadedSize);
       }
 
+      setFileTotalSize(tempFileLoadedSize);
       const blob = new Blob(chunks);
       let tempURL = URL.createObjectURL(blob);
       setVideoUrl(tempURL);
-      updateMediaURL(lmsFileId, tempURL);
+      updateMediaURL(lmsFileId, tempURL, tempFileLoadedSize);
     }
     catch (error) {
       console.error(error);
@@ -989,7 +991,10 @@ export default function MediaCaptionsEditor({
 
         <div id="captions-editor-info-row">
           <div className="flex-row gap-2 align-items-center">
-            <FileInformation t={t} fileData={file.fileData} />
+            <FileInformation
+              t={t}
+              fileData={ Object.assign({}, file.fileData, { fileSize: fileTotalSize })}
+            />
           </div>
           
           {/* TRACK SELECTION */}
@@ -1062,7 +1067,7 @@ export default function MediaCaptionsEditor({
                       title={t('form.media.button.export_vtt')}
                       disabled={cues.length === 0}
                       onClick={handleExport}>
-                      <UploadIcon className="icon-md" />
+                      <DownloadIcon className="icon-md" />
                     </button>
                   </div>
                 </div>
@@ -1090,7 +1095,7 @@ export default function MediaCaptionsEditor({
                           <button
                             className="btn-secondary btn-small btn-icon-left flex-shrink-0"
                             onClick={() => handleImport()}>
-                            <DownloadIcon className="icon-md" />
+                            <UploadIcon className="icon-md" />
                             <div>{t('form.media.button.import_vtt')}</div>
                           </button>
                           <button
