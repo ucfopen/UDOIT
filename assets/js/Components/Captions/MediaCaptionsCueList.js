@@ -124,12 +124,10 @@ export default function MediaCaptionsCueList({
                 </div>
               )}
               <div className="flex-row gap-1 w-100 align-items-center">
-                <input
+                <textarea
                   id={`input-${cue.id}`}
-                  type="text"
                   defaultValue={cue.text}
                   disabled={isDisabled || error !== ""}
-                  style={{ flex: 2, minWidth: 0 }}
                   aria-label={t('form.media.label.caption_text', { captionNumber: i + 1 })}
                   onBlur={(e) => setCueText(cue.id, e.target.value)}
                   onFocus={(e) => {

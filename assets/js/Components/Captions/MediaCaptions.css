@@ -166,8 +166,22 @@
               border: 1px solid transparent;
               box-sizing: border-box;
 
-              input {
+              textarea {
                 border-radius: calc(var(--element-radius) * .5);
+                border: 1px solid var(--border-color);
+                flex: 2 1 0%;
+                field-sizing: content;
+                resize: none;
+                line-height: inherit;
+                min-height: 1lh;
+                padding: .25em .5em;
+                font-family: inherit;
+                font-weight: 300;
+
+                &:focus-visible {
+                  outline-offset: 1px;
+                  outline: 2px solid var(--focus-color);
+                }
               }
 
               .btn-icon-only {

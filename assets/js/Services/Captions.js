@@ -1,6 +1,13 @@
 // Update parseVTT to only use align and map position accordingly
 export function parseVTT(data) {
-  const lines = String(data || "").split(/\r?\n/);
+  if(!data || data === "") {
+    return [];
+  }
+  
+  data = String(data || "");
+  // When Canvas transfers VTT files via the API, it turns ">" characters to "\u003E".
+  data.replaceAll("\u003E", ">");
+  const lines = data.split(/\r?\n/);
   const out = [];
   let i = 0;
 
@@ -29,7 +36,8 @@ export function parseVTT(data) {
       continue;
     }
 
-    const [start, restRaw] = line.split("-->").map((s) => s.trim());
+    // SRT files have a comma instead of a period: hh:mm:ss,mmm
+    const [start, restRaw] = line.replaceAll(",", ".").split("-->").map((s) => s.trim());
     let end = restRaw;
     let align = "center";
 
