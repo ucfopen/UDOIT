@@ -16,7 +16,7 @@ COMPOSE := docker compose -f docker-compose.nginx.yml
 
 ## Spin up the containers
 start:
-	$(COMPOSE) up
+	./scripts/start-app.sh
 
 ## Bring down the containers
 down:

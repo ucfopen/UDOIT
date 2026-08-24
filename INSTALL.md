@@ -45,6 +45,7 @@ This command copies the `.env.example` into `.env`, creating the `.env` file in 
    	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
    - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
    	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+    - `TELEMETRY_ENABLED`: (optional) `true` to enable telemetry. It is empty by default, and you can disable it on app startup. More information can be found in the [Telemetry](#telemetry) section.
 
 ## Installation
 
@@ -64,7 +65,8 @@ UDOIT uses Composer to install PHP dependencies. Running the following command w
     make start
 ```
 
-*Note: This may take a while to fully initiate. This is normal.*
+*Note: Upon startup UDOIT will ask if it is okay to gather data that helps us determine general tool usage. See what information we store in [Telemetry](#Telemetry).*
+
 #### 4. Set Up Database
 
 The following command applies migrations necessary to set up the database to store all UDOIT data. Please make sure the containers have fully spun up before running this command.
@@ -151,3 +153,19 @@ To configure it fully within your LMS, follow the installation instructions belo
 
 ## Encountering Errors
 Please resort to the [wiki page](https://github.com/ucfopen/UDOIT/wiki) for some commonly found errors when setting up UDOIT.
+
+## Telemetry
+UDOIT collects telemetry data to help us understand at a global scale, where instances are being launched. This data is collected anonymous and uses the IP address of the requesting user to determine:
+- The country of the user
+- Region of the user (i.e. state)
+- The city of the user
+
+This information allows us to understand where best to focus our resources, for the potential future of UDOIT.
+
+Additional information is sent that helps narrow down what kind of UDOIT instance it is. This includes:
+- The version of UDOIT being used
+- The LMS that UDOIT is being used with (i.e. Canvas, D2L, Moodle, etc.)
+
+This can be changed in the `docker-compose.nginx.yml`, and additional information can be sent in the form of a json object.
+
+*Reminder: All of the telemetry collection is optional and can be disabled on app startup.*
