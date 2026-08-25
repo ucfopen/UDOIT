@@ -19,46 +19,48 @@ class Report implements \JsonSerializable
     #[ORM\JoinColumn(nullable: false)]
     private $course;
 
-    #[ORM\Column(type: "text", nullable: true)]
-    private $data;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "reports")]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
 
     #[ORM\Column(type: "datetime")]
     private $created;
 
     #[ORM\Column(type: "integer", nullable: true)]
-    private $errors;
+    private $issues;
 
     #[ORM\Column(type: "integer", nullable: true)]
-    private $suggestions;
+    private $potential_issues;
 
-    #[ORM\Column(type: "boolean")]
-    private $ready;
-
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "reports")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $author;
-
+    
     #[ORM\Column(type: "integer", nullable: true)]
-
-    private $contentFixed;
-
-    #[ORM\Column(type: "integer", nullable: true)]
-    private $contentResolved;
+    private $unreviewed_files;
 
 
     #[ORM\Column(type: "integer", nullable: true)]
+    private $issues_fixed;
 
-    private $filesReviewed;
+    #[ORM\Column(type: "integer", nullable: true)]
+    private $issues_reviewed;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private $potential_issues_fixed;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private $potential_issues_reviewed;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private $reviewed_files;
+
+    #[ORM\Column(type: "string", length: 255)]
+    private $highest_scan_rule;
 
     private $queueItems;
-
-    private $issues;
 
     // Constructor
     public function __construct()
     {
         $this->queueItems = new ArrayCollection();
-        $this->issues = new ArrayCollection();
     }
 
 
@@ -70,38 +72,19 @@ class Report implements \JsonSerializable
 
     public function toArray(): array
     {
-        $scanCounts = false;
-        $itemsScanned = 0;
-        $tempData = $this->getData();
-        if ($tempData) {
-            $tempData = json_decode($tempData, true);
-            if (isset($tempData['scanCounts'])) {
-                $scanCounts = $tempData['scanCounts'];
-            }
-            if (isset($tempData['scanRules'])) {
-                $scanRules = $tempData['scanRules'];
-            }
-            if (isset($tempData['itemsScanned'])) {
-                $itemsScanned = $tempData['itemsScanned'];
-            }
-        }
-
-        $result = [
+        return [
             "id" => $this->id,
-            "courseId" => $this->course->getId(),
-            "ready" => $this->ready,
             "created" => $this->created->format($_ENV['DATE_FORMAT']),
-            "errors" => $this->getErrors(),
-            "scanCounts" => $scanCounts,
-            "scanRules" => $scanRules,
-            "itemsScanned" => $itemsScanned,
-            "suggestions" => $this->getSuggestions(),
-            "contentFixed" => $this->getContentFixed(),
-            'contentResolved' => $this->getContentResolved(),
-            'filesReviewed' => $this->getFilesReviewed(),
+            "issues" => $this->getIssues(),
+            "potentialIssues" => $this->getPotentialIssues(),
+            "unreviewedFiles" => $this->getUnreviewedFiles(),
+            "issuesFixed" => $this->getIssuesFixed(),
+            "issuesReviewed" => $this->getIssuesReviewed(),
+            "potentialIssuesFixed" => $this->getPotentialIssuesFixed(),
+            "potentialIssuesReviewed" => $this->getPotentialIssuesReviewed(),
+            "reviewedFiles" => $this->getReviewedFiles(),
+            "highestScanRule" => $this->getHighestScanRule(),
         ];
-
-        return $result;
     }
 
 
@@ -109,18 +92,6 @@ class Report implements \JsonSerializable
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getData(): ?string
-    {
-        return $this->data;
-    }
-
-    public function setData(?string $data): self
-    {
-        $this->data = $data;
-
-        return $this;
     }
 
     public function getCreated(): ?\DateTimeInterface
@@ -135,51 +106,6 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-    public function getErrors(): int
-    {
-        return ($this->errors) ?: 0;
-    }
-
-    public function setErrors(int $errors): self
-    {
-        $this->errors = $errors;
-
-        return $this;
-    }
-
-    public function getSuggestions(): int
-    {
-        return ($this->suggestions) ?: 0;
-    }
-
-    public function setSuggestions(int $suggestions): self
-    {
-        $this->suggestions = $suggestions;
-
-        return $this;
-    }
-
-    public function addToErrorCount()
-    {
-        $this->errors++;
-
-        return $this;
-    }
-
-    public function addToSuggestionCount()
-    {
-        $this->suggestions++;
-
-        return $this;
-    }
-
-    public function getIssueCount()
-    {
-        return ($this->getSuggestions() + $this->getErrors() + $this->getContentFixed() + $this->getContentResolved());
-    }
-
-
-    // Undocumented function
     public function getCourse(): ?Course
     {
         return $this->course;
@@ -193,62 +119,158 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-    public function isReady(): ?bool
+    public function getUser(): ?User
     {
-        return $this->ready;
+        return $this->user;
     }
 
-    public function setReady(bool $ready): self
+    public function setUser(?User $user): self
     {
-        $this->ready = $ready;
+        $this->user = $user;
 
         return $this;
     }
 
-    public function getAuthor(): ?User
+    public function getIssues(): int
     {
-        return $this->author;
+        return ($this->issues) ?: 0;
     }
 
-    public function setAuthor(?User $author): self
+    public function setIssues(?int $issues): self
     {
-        $this->author = $author;
+        $this->issues = $issues;
 
         return $this;
     }
 
-    public function getContentFixed(): ?int
+    public function addToIssueCount(): self
     {
-        return ($this->contentFixed) ?: 0;
-    }
-
-    public function setContentFixed(?int $contentFixed): self
-    {
-        $this->contentFixed = $contentFixed;
+        $this->issues = $this->getIssues() + 1;
 
         return $this;
     }
 
-    public function getContentResolved(): ?int
+    public function getPotentialIssues(): int
     {
-        return ($this->contentResolved) ?: 0;
+        return ($this->potential_issues) ?: 0;
     }
 
-    public function setContentResolved(?int $contentResolved): self
+    public function setPotentialIssues(?int $potentialIssues): self
     {
-        $this->contentResolved = $contentResolved;
+        $this->potential_issues = $potentialIssues;
 
         return $this;
     }
 
-    public function getFilesReviewed(): ?int
+    public function addToPotentialIssueCount(): self
     {
-        return ($this->filesReviewed) ?: 0;
+        $this->potential_issues = $this->getPotentialIssues() + 1;
+
+        return $this;
     }
 
-    public function setFilesReviewed(?int $filesReviewed): self
+    public function getUnreviewedFiles(): int
     {
-        $this->filesReviewed = $filesReviewed;
+        return ($this->unreviewed_files) ?: 0;
+    }
+
+    public function setUnreviewedFiles(?int $unreviewedFiles): self
+    {
+        $this->unreviewed_files = $unreviewedFiles;
+
+        return $this;
+    }
+
+    public function getIssuesFixed(): int
+    {
+        return ($this->issues_fixed) ?: 0;
+    }
+
+    public function setIssuesFixed(?int $issuesFixed): self
+    {
+        $this->issues_fixed = $issuesFixed;
+
+        return $this;
+    }
+
+    public function getIssuesReviewed(): int
+    {
+        return ($this->issues_reviewed) ?: 0;
+    }
+
+    public function setIssuesReviewed(?int $issuesReviewed): self
+    {
+        $this->issues_reviewed = $issuesReviewed;
+
+        return $this;
+    }
+
+    public function getPotentialIssuesFixed(): int
+    {
+        return ($this->potential_issues_fixed) ?: 0;
+    }
+
+    public function setPotentialIssuesFixed(?int $potentialIssuesFixed): self
+    {
+        $this->potential_issues_fixed = $potentialIssuesFixed;
+
+        return $this;
+    }
+
+    public function getPotentialIssuesReviewed(): int
+    {
+        return ($this->potential_issues_reviewed) ?: 0;
+    }
+
+    public function setPotentialIssuesReviewed(?int $potentialIssuesReviewed): self
+    {
+        $this->potential_issues_reviewed = $potentialIssuesReviewed;
+
+        return $this;
+    }
+
+    public function getReviewedFiles(): int
+    {
+        return ($this->reviewed_files) ?: 0;
+    }
+
+    public function setReviewedFiles(?int $reviewedFiles): self
+    {
+        $this->reviewed_files = $reviewedFiles;
+
+        return $this;
+    }
+
+    public function getHighestScanRule(): ?string
+    {
+        return $this->highest_scan_rule;
+    }
+
+    public function setHighestScanRule(string $highestScanRule): self
+    {
+        $this->highest_scan_rule = $highestScanRule;
+
+        return $this;
+    }
+
+    public function getIssueCount(): int
+    {
+        return $this->getIssues()
+            + $this->getPotentialIssues()
+            + $this->getIssuesFixed()
+            + $this->getIssuesReviewed()
+            + $this->getPotentialIssuesFixed()
+            + $this->getPotentialIssuesReviewed();
+    }
+
+    public function getQueueItems()
+    {
+        return $this->queueItems;
+    }
+
+    public function setQueueItems($queueItems): self
+    {
+        $this->queueItems = $queueItems;
 
         return $this;
     }
