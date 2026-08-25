@@ -263,6 +263,12 @@ class Report implements \JsonSerializable
             + $this->getPotentialIssuesReviewed();
     }
 
+    public function getActiveIssueCount(): int
+    {
+            return $this->getIssues()
+            + $this->getPotentialIssues();
+    }
+
     public function getQueueItems()
     {
         return $this->queueItems;

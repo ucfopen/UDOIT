@@ -597,6 +597,8 @@ class AdminController extends ApiController
         $termId
     ) 
     {
+        $N_COURSES = 5;
+
         $stats = [];
         $accounts = $accountRepo->getAccountTree($user, $accountId); // Returns an array of key value mapping of {accountId: accountName}
         $courses = $courseRepo->getCourseCount($user, array_keys($accounts), $termId); // Returns an array of key value mapping of {lms_course_id: lms_account_id}
@@ -605,9 +607,17 @@ class AdminController extends ApiController
         $reports = $reportRepo->findLatestByCourseIds($courseIds);
 
         $scannedCourseIds = [];
+        $n_courses = [];
+
+        usort($reports, fn($a, $b) => $b->getActiveIssueCount() <=> $a->getActiveIssueCount());
 
         foreach($reports as $report){
             $scannedCourseIds[] = $report->getCourse()->getLmsCourseId();
+            if (count($n_courses) < $N_COURSES){
+                $retrived_course = $report->getCourse()->jsonSerialize();
+                $retrived_course['totalActiveIssues'] = $report->getActiveIssueCount();
+                $n_courses[] = $retrived_course;
+            }
         }
 
         $uniqueInstructorsUsingUdoit = $courseRepo->getProfessorCount($user, $scannedCourseIds);
@@ -616,6 +626,7 @@ class AdminController extends ApiController
         $stats["scannedCourses"] = count($reports);
         $stats["totalInstructors"] = $totalInstructors;
         $stats["uniqueInstructorsUsingUdoit"] = $uniqueInstructorsUsingUdoit;
+        $stats["showcaseCourses"] = $n_courses;
 
         return $stats;
     }
