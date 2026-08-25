@@ -107,7 +107,7 @@ class LmsFetchService {
 
             $output->writeln("Updating report now...");
             /* Step 5: Update report from all active issues */
-            $this->updateReport($course, $user, count($contentItems));
+            $this->updateReport($course, $user);
 
             /* Save last_updated date on course */
             $course->setLastUpdated($this->util->getCurrentTime());
@@ -127,30 +127,38 @@ class LmsFetchService {
     }
 
     // Update report, or create new one for a new day
-    public function updateReport(Course $course, User $user, $itemsScannedCount): Report
+    public function updateReport(Course $course, User $user): Report
     {
-        $contentFixed = $contentResolved = $filesReviewed = $errors = $potentials = $suggestions = 0;
+        $issues = $potentialIssues = $issuesFixed = $issuesReviewed = $potentialIssuesFixed = $potentialIssuesReviewed = $filesReviewed = 0;
         $scanRules = [];
 
         /** @var \App\Entity\ContentItem[] $contentItems */
         $contentItems = $course->getContentItems();
 
         foreach ($contentItems as $contentItem) {
-            /** @var \App\Entity\Issue[] $issues */
-            $issues = $contentItem->getIssues()->toArray();
+            /** @var \App\Entity\Issue[] $contentIssues */
+            $contentIssues = $contentItem->getIssues()->toArray();
 
-            foreach ($issues as $issue) {
+            foreach ($contentIssues as $issue) {
+                $isIssue = Issue::$issueError === $issue->getType();
+
                 if (Issue::$issueStatusFixed === $issue->getStatus()) {
-                    $contentFixed++;
-                } else if (Issue::$issueStatusResolved === $issue->getStatus()) {
-                    $contentResolved++;
-                } else {
-                    if (Issue::$issueError === $issue->getType()) {
-                        $errors++;
-                    } else if (Issue::$issuePotential === $issue->getType()) {
-                        $potentials++;
+                    if ($isIssue) {
+                        $issuesFixed++;
                     } else {
-                        $suggestions++;
+                        $potentialIssuesFixed++;
+                    }
+                } else if (Issue::$issueStatusResolved === $issue->getStatus()) {
+                    if ($isIssue) {
+                        $issuesReviewed++;
+                    } else {
+                        $potentialIssuesReviewed++;
+                    }
+                } else {
+                    if ($isIssue) {
+                        $issues++;
+                    } else {
+                        $potentialIssues++;
                     }
                 }
 
@@ -176,15 +184,18 @@ class LmsFetchService {
             }
         }
 
-        $scanCounts = (object) [
-          'errors' => $errors,
-          'potentials' => $potentials,
-          'suggestions' => $suggestions,
-          'files' => $unreviewedFiles
-        ];
+        $highestScanRule = '';
+        if (!empty($scanRules)) {
+            arsort($scanRules);
+            $highestScanRule = (string) array_key_first($scanRules);
+        }
 
         $output = new ConsoleOutput();
-        $output->writeln(json_encode($scanCounts));
+        $output->writeln(json_encode([
+          'issues' => $issues,
+          'potentialIssues' => $potentialIssues,
+          'unreviewedFiles' => $unreviewedFiles,
+        ]));
         $latestReport = $course->getLatestReport();
         $now = $this->util->getCurrentTime();
 
@@ -193,24 +204,21 @@ class LmsFetchService {
         }
         else {
             $report = new Report();
-            $report->setAuthor($user);
+            $report->setUser($user);
             $report->setCourse($course);
             $this->doctrine->getManager()->persist($report);
         }
 
         $report->setCreated($now);
-        $report->setReady(false);
-        $report->setErrors($errors);
-        $report->setSuggestions($suggestions);
-        $report->setContentFixed($contentFixed);
-        $report->setContentResolved($contentResolved);
-        $report->setFilesReviewed($filesReviewed);
-        $report->setData(\json_encode([
-          'scanRules' => $scanRules, 
-          'scanCounts' => $scanCounts,
-          'itemsScanned' => $itemsScannedCount,
-          'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : ''
-        ]));
+        $report->setIssues($issues);
+        $report->setPotentialIssues($potentialIssues);
+        $report->setUnreviewedFiles($unreviewedFiles);
+        $report->setIssuesFixed($issuesFixed);
+        $report->setIssuesReviewed($issuesReviewed);
+        $report->setPotentialIssuesFixed($potentialIssuesFixed);
+        $report->setPotentialIssuesReviewed($potentialIssuesReviewed);
+        $report->setReviewedFiles($filesReviewed);
+        $report->setHighestScanRule($highestScanRule);
 
         $this->doctrine->getManager()->flush();
 

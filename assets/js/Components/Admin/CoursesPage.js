@@ -42,17 +42,17 @@ export default function CoursePage({
       alignText: "center",
     },
     {
-      id: "contentFixed",
+      id: "issuesFixed",
       text: t("report.header.items_fixed"),
       alignText: "center",
     },
     {
-      id: "contentResolved",
+      id: "issuesReviewed",
       text: t("report.header.items_resolved"),
       alignText: "center",
     },
     {
-      id: "filesReviewed",
+      id: "reviewedFiles",
       text: t("report.header.files_reviewed"),
       alignText: "center",
     },
@@ -94,9 +94,8 @@ export default function CoursePage({
           course.publicUrl !== "---" && course.publicUrl !== "-"
             ? course.publicUrl
             : null;
-        const scanCounts = course.latestReport?.scanCounts || {};
-        const barriers = scanCounts.errors || 0;
-        const suggestions = scanCounts.suggestions || 0;
+        const latestReport = course.latestReport || {};
+        const barriers = latestReport.issues || 0;
         let row = {
           id: course.id,
           course,
@@ -112,20 +111,20 @@ export default function CoursePage({
           lastUpdated: course.lastUpdated || "---",
           barriers: hasReport && course.latestReport ? barriers : "---",
           potentialBarriers:
-            hasReport && course.latestReport.scanCounts?.potentials
-              ? course.latestReport.scanCounts.potentials
-              : "---",
-          contentFixed:
             hasReport && course.latestReport
-              ? course.latestReport.contentFixed
+              ? latestReport.potentialIssues
               : "---",
-          contentResolved:
+          issuesFixed:
             hasReport && course.latestReport
-              ? course.latestReport.contentResolved
+              ? (latestReport.issuesFixed || 0) + (latestReport.potentialIssuesFixed || 0)
               : "---",
-          filesReviewed:
+          issuesReviewed:
             hasReport && course.latestReport
-              ? course.latestReport.filesReviewed
+              ? (latestReport.issuesReviewed || 0) + (latestReport.potentialIssuesReviewed || 0)
+              : "---",
+          reviewedFiles:
+            hasReport && course.latestReport
+              ? latestReport.reviewedFiles
               : "---",
           action: (
             <div className="flex-row gap-1">
