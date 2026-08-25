@@ -165,8 +165,6 @@ export default function App(initialData) {
     let api = new Api(instanceInfo);
     api
       .setReportData(tempReport.id, {
-        scanCounts: tempReport.scanCounts,
-        scanRules: tempReport.scanRules,
         ignoredIssues: tempReport.ignoredIssues,
       })
       .then((response) => response.json())

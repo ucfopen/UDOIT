@@ -35,7 +35,9 @@ export default function ReportsPage({
 
     for (const report of reports) {
       courseObject[selectedCourse.title][report.created] = {
-        scanCounts: report.scanCounts,
+        issues: report.issues,
+        potentialIssues: report.potentialIssues,
+        unreviewedFiles: report.unreviewedFiles,
       };
     }
 

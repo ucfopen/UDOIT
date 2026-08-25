@@ -31,19 +31,19 @@ export default function CoursePage({
       sortable: false,
     },
     {
-      id: "contentFixed",
+      id: "issuesFixed",
       text: t("report.header.items_fixed"),
       alignText: "center",
       sortable: false,
     },
     {
-      id: "contentResolved",
+      id: "issuesReviewed",
       text: t("report.header.items_resolved"),
       alignText: "center",
       sortable: false,
     },
     {
-      id: "filesReviewed",
+      id: "reviewedFiles",
       text: t("report.header.files_reviewed"),
       alignText: "center",
       sortable: false,

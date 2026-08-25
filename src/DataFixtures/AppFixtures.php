@@ -161,21 +161,22 @@ class AppFixtures extends Fixture
       for ($i = 0; $i < $reportCount; $i++) {
         $report = new Report();
         $report->setCourse($course);
-        $report->setErrors(0);
-        $report->setSuggestions(0);
-        $report->setSuggestions(0);
+        $report->setIssues(0);
+        $report->setPotentialIssues(0);
+        $report->setUnreviewedFiles(0);
+        $report->setIssuesFixed(0);
+        $report->setIssuesReviewed(0);
+        $report->setPotentialIssuesFixed(0);
+        $report->setPotentialIssuesReviewed(0);
+        $report->setReviewedFiles(0);
+        $report->setHighestScanRule('');
         $report->setCreated(date_sub(
           new DateTime(),
           date_interval_create_from_date_string($i . " days")
         ));
-        if ($i === 0) {
-          $report->setReady(false);
-        } else {
-          $report->setReady(true);
-        }
         $user_idx = array_rand($this->users);
         $user = $this->users[$user_idx];
-        $report->setAuthor($user);
+        $report->setUser($user);
 
         $this->manager->persist($report);
         $this->reports[] = $report;
@@ -217,11 +218,9 @@ class AppFixtures extends Fixture
             $issue->setType($type);
             $issue->setStatus(0);
             if ($type == "error") {
-              $reportErrorCount = $report->getErrors();
-              $report->setErrors($reportErrorCount + 1);
+              $report->addToIssueCount();
             } else {
-              $reportSuggestionCount = $report->getSuggestions();
-              $report->setSuggestions($reportSuggestionCount + 1);
+              $report->addToPotentialIssueCount();
             }
 
             $this->manager->persist($issue);

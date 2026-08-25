@@ -79,7 +79,6 @@ class ReportsController extends ApiController
             $reportArr['files'] = $course->getFileItems();
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
-            $reportArr['scanRules'] = $report->getData();
             $apiResponse->setData($reportArr);
 
             $prevReport = $course->getPreviousReport();
@@ -116,13 +115,6 @@ class ReportsController extends ApiController
             }
 
             $data = json_decode($request->getContent(), true);
-            $newData = json_decode($report->getData(), true);
-            foreach ($data as $key => $value) {
-                if (isset($newData[$key]) && $key != 'ignoredIssues') {
-                    $newData[$key] = $value;
-                }
-            }
-
             if (isset($data['ignoredIssues'])) {
                 $issueIds = [];
                 foreach ($data['ignoredIssues'] as $issue) {
@@ -131,7 +123,6 @@ class ReportsController extends ApiController
                 $this->deleteIssuesById($issueIds);
             }
 
-            $report->setData(json_encode($newData));
             $this->doctrine->getManager()->flush();
 
             $apiResponse->setData($report);
