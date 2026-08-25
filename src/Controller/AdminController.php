@@ -609,7 +609,10 @@ class AdminController extends ApiController
         $scannedCourseIds = [];
         $n_courses = [];
 
+        $scanCounter = [];
+
         usort($reports, fn($a, $b) => $b->getActiveIssueCount() <=> $a->getActiveIssueCount());
+
 
         foreach($reports as $report){
             $scannedCourseIds[] = $report->getCourse()->getLmsCourseId();
@@ -618,6 +621,13 @@ class AdminController extends ApiController
                 $retrived_course['totalActiveIssues'] = $report->getActiveIssueCount();
                 $n_courses[] = $retrived_course;
             }
+            if (isset($scanCounter[$report->getHighestScanRule()])){
+                $scanCounter[$report->getHighestScanRule()] += 1;
+            }
+            else{
+                $scanCounter[$report->getHighestScanRule()] = 1;
+            }
+
         }
 
         $uniqueInstructorsUsingUdoit = $courseRepo->getProfessorCount($user, $scannedCourseIds);
@@ -627,6 +637,7 @@ class AdminController extends ApiController
         $stats["totalInstructors"] = $totalInstructors;
         $stats["uniqueInstructorsUsingUdoit"] = $uniqueInstructorsUsingUdoit;
         $stats["showcaseCourses"] = $n_courses;
+        $stats["scanRanked"] = $scanCounter;
 
         return $stats;
     }
