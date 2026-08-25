@@ -96,18 +96,16 @@ export default function AdminDashboard({ t, preferences, courses }) {
 
         // Aggregate report data
         if (course.latestReport) {
-          stats.totalErrors +=
-            parseInt(course.latestReport.scanCounts.errors) || 0;
-          stats.totalSuggestions +=
-            parseInt(course.latestReport.scanCounts.potential) +
-              parseInt(course.latestReport.scanCounts.suggestions) || 0;
-          stats.totalFixed += parseInt(course.latestReport.contentFixed) || 0;
+          stats.totalErrors += parseInt(course.latestReport.issues) || 0;
+          stats.totalSuggestions += parseInt(course.latestReport.potentialIssues) || 0;
+          stats.totalFixed +=
+            (parseInt(course.latestReport.issuesFixed) || 0) +
+            (parseInt(course.latestReport.potentialIssuesFixed) || 0);
           stats.totalResolved +=
-            parseInt(course.latestReport.contentResolved) || 0;
-          stats.totalFilesReviewed +=
-            parseInt(course.latestReport.filesReviewed) || 0;
-          accountStats[accountName].errors +=
-            parseInt(course.latestReport.errors) || 0;
+            (parseInt(course.latestReport.issuesReviewed) || 0) +
+            (parseInt(course.latestReport.potentialIssuesReviewed) || 0);
+          stats.totalFilesReviewed += parseInt(course.latestReport.reviewedFiles) || 0;
+          accountStats[accountName].errors += parseInt(course.latestReport.issues) || 0;
         }
 
         // Track scan dates

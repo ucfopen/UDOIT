@@ -264,39 +264,66 @@ class Course implements \JsonSerializable
 
     public function getUpdatedReport()
     {
-        $errors = $suggestions = $fixed = $resolved = $filesReviewed = 0;
+        $issues = $potentialIssues = $issuesFixed = $issuesReviewed = $potentialIssuesFixed = $potentialIssuesReviewed = $filesReviewed = $unreviewedFiles = 0;
+        $scanRules = [];
 
         $report = $this->getLatestReport();
-        /** @var \App\Entity\Issue[] $issues */
-        $issues = $this->getAllIssues();
+        /** @var \App\Entity\Issue[] $courseIssues */
+        $courseIssues = $this->getAllIssues();
 
-        foreach ($issues as $issue) {
+        foreach ($courseIssues as $issue) {
+            $isIssue = Issue::$issueError === $issue->getType();
+
             if ($issue->getStatus() === Issue::$issueStatusFixed) {
-                $fixed++;
-            } elseif ($issue->getStatus() === Issue::$issueStatusResolved) {
-                $resolved++;
-            } else {
-                if ('error' === $issue->getType()
-                ) {
-                    $errors++;
+                if ($isIssue) {
+                    $issuesFixed++;
                 } else {
-                    $suggestions++;
+                    $potentialIssuesFixed++;
+                }
+            } elseif ($issue->getStatus() === Issue::$issueStatusResolved) {
+                if ($isIssue) {
+                    $issuesReviewed++;
+                } else {
+                    $potentialIssuesReviewed++;
+                }
+            } else {
+                if ($isIssue) {
+                    $issues++;
+                } else {
+                    $potentialIssues++;
                 }
             }
+
+            $ruleId = $issue->getScanRuleId();
+            if (!isset($scanRules[$ruleId])) {
+                $scanRules[$ruleId] = 0;
+            }
+            $scanRules[$ruleId]++;
         }
 
         $files = $this->getFileItems();
         foreach ($files as $file) {
             if ($file->getReviewed()) {
                 $filesReviewed++;
+            } else {
+                $unreviewedFiles++;
             }
         }
 
-        $report->setErrors($errors);
-        $report->setSuggestions($suggestions);
-        $report->setContentFixed($fixed);
-        $report->setContentResolved($resolved);
-        $report->setFilesReviewed($filesReviewed);
+        $report->setIssues($issues);
+        $report->setPotentialIssues($potentialIssues);
+        $report->setUnreviewedFiles($unreviewedFiles);
+        $report->setIssuesFixed($issuesFixed);
+        $report->setIssuesReviewed($issuesReviewed);
+        $report->setPotentialIssuesFixed($potentialIssuesFixed);
+        $report->setPotentialIssuesReviewed($potentialIssuesReviewed);
+        $report->setReviewedFiles($filesReviewed);
+        if (!empty($scanRules)) {
+            arsort($scanRules);
+            $report->setHighestScanRule((string) array_key_first($scanRules));
+        } else {
+            $report->setHighestScanRule('');
+        }
 
         return $report;
     }

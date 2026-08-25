@@ -272,16 +272,24 @@ const getReferenceFromSection = (contentSections, sectionId) => {
 
 export function analyzeReport(report) {
   let tempReport = {
-    contentFixed: report.contentFixed || 0,
-    contentResolved: report.contentResolved || 0,
-    contentHandled: (report.contentFixed || 0) + (report.contentResolved || 0),
+    issues: report.issues || 0,
+    potentialIssues: report.potentialIssues || 0,
+    unreviewedFiles: report.unreviewedFiles || 0,
+    issuesFixed: report.issuesFixed || 0,
+    issuesReviewed: report.issuesReviewed || 0,
+    potentialIssuesFixed: report.potentialIssuesFixed || 0,
+    potentialIssuesReviewed: report.potentialIssuesReviewed || 0,
+    reviewedFiles: report.reviewedFiles || 0,
+    highestScanRule: report.highestScanRule || '',
+    contentHandled:
+      (report.issuesFixed || 0) +
+      (report.issuesReviewed || 0) +
+      (report.potentialIssuesFixed || 0) +
+      (report.potentialIssuesReviewed || 0),
     contentSections: [...report.contentSections],
     created: report.created || 0,
     files: { ...report.files },
-    filesReviewed: report.filesReviewed || 0,
     id: report.id || 0,
-    itemsScanned: report.itemsScanned || 0,
-    ready: report.ready || false,
   };
 
   let usedContentItems = {};
@@ -523,8 +531,9 @@ export function analyzeReport(report) {
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
   tempReport.sessionFiles = sessionFiles
-  tempReport.filesReviewed = tempFilesReviewed
+  tempReport.reviewedFiles = tempFilesReviewed
   tempReport.contentHandled = tempContentResolved
+  tempReport.ignoredIssues = ignoredIssues
 
   return tempReport
 }
