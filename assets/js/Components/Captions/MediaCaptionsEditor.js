@@ -96,11 +96,13 @@ export default function MediaCaptionsEditor({
   const [inputFocus, setInputFocus] = useState(false);
   const [selectedCueId, setSelectedCueId] = useState(-1);
   const [waveError, setWaveError] = useState("");
+  const [noAudioTrack, setNoAudioTrack] = useState(false);
   
   const videoElRef = useRef(null);
   const wavesurferRef = useRef(null);
   const timelineRef = useRef(null);
   const waveformFocusRef = useRef(null);
+  const silentWaveformRef = useRef(false);
 
   // Unique id counter for cues
   const [cueIdCounter, setCueIdCounter] = useState(1);
@@ -115,6 +117,8 @@ export default function MediaCaptionsEditor({
     setVttArray([]);
     setIsLoading(true);
     setWaveError("");
+    setNoAudioTrack(false);
+    silentWaveformRef.current = false;
     setError("");
     setErrorDetails("");
     setCues([]);
@@ -499,18 +503,24 @@ export default function MediaCaptionsEditor({
       const onPlay = () => {
         if (!video.duration) return;
         ws.seekTo(video.currentTime / video.duration);
-        ws.play();
+        if (!silentWaveformRef.current) ws.play();
+      };
+      const onTimeUpdate = () => {
+        if (silentWaveformRef.current) ws.setTime(video.currentTime);
       };
 
       video.addEventListener("pause", onPause);
       video.addEventListener("play", onPlay);
+      video.addEventListener("timeupdate", onTimeUpdate);
 
       // cleanup listener if ws re-inits
       ws.once?.("destroy", () => {
         video.removeEventListener("pause", onPause);
         video.removeEventListener("play", onPlay);
+        video.removeEventListener("timeupdate", onTimeUpdate);
       });
 
+      setWaveError("");
       setIsLoading(false);
     },
     [cues, handleWaveformClick]
@@ -582,8 +592,19 @@ export default function MediaCaptionsEditor({
     setVttArray(tempVttArray);
   }
 
-  const handleWaveformError = (e) => {
-    console.error("Error loading waveform: ", e);
+  const handleWaveformError = async (ws, error) => {
+    console.error("Error loading waveform: ", error);
+    const duration = videoElRef.current?.duration;
+    if (!silentWaveformRef.current && Number.isFinite(duration) && duration > 0) {
+      silentWaveformRef.current = true;
+      try {
+        await ws.load("", [new Float32Array(1024)], duration);
+        setNoAudioTrack(true);
+        return;
+      } catch (fallbackError) {
+        console.error("Error loading silent waveform: ", fallbackError);
+      }
+    }
     setWaveError(t('form.media.label.error_waveform'));
     setIsLoading(false);
   }
@@ -1225,9 +1246,12 @@ export default function MediaCaptionsEditor({
                 progressColor={preferences.darkMode ? "#5BA1FF" : "#81acd0"}
                 plugins={plugins}
                 onReady={onWsReady}
-                onError={(e) => handleWaveformError(e)}
+                onError={handleWaveformError}
                 onClick={(self, e) => { handleWaveformClick(e) }}
               />
+              {noAudioTrack && cues.length === 0 && (
+                <div className="waveform-no-audio-note">{t('form.media.label.no_audio_track')}</div>
+              )}
               <div ref={timelineRef} />
             </div>
           </div>

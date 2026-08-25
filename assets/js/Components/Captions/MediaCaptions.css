@@ -297,6 +297,16 @@
     border-top: 1px solid var(--border-color);
     padding: 1rem 1.5rem;
     background-color: var(--white);
+    position: relative;
+
+    .waveform-no-audio-note {
+      position: absolute;
+      top: 1.25rem;
+      right: 2rem;
+      font-size: .8em;
+      color: var(--text-secondary-color);
+      pointer-events: none;
+    }
 
     #waveform {
       border: 1px solid var(--border-color);

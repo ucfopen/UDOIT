@@ -1,4 +1,4 @@
-// Update parseVTT to only use align and map position accordingly
+// Tested: position moves captions in standard browser <track> rendering; align/line do not, and none of them move captions in Canvas.
 export function parseVTT(data) {
   if(!data || data === "") {
     return [];
@@ -81,7 +81,7 @@ export function parseVTT(data) {
   return out;
 }
 
-// Update buildVttText to only use position based on align, always align:center
+// Emit position (not align) since that's the only setting that actually shifts captions outside of Canvas.
 export function buildVttText(cues, includeFormat = true) {
   return (
     (includeFormat ? "WEBVTT\n\n" : "") +

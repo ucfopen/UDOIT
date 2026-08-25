@@ -167,6 +167,9 @@ export default function mediaCaptionsProcessing({
     track.default = true;
     video.appendChild(track);
 
+    // Firefox doesn't always honor 'default' attribute to auto-show a track, so force explicitly
+    track.track.mode = "showing";
+
     setVideoTracksUrl(blobUrl);
   };
 

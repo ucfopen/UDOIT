@@ -728,6 +728,7 @@
   "form.media.label.retrieving_info": "Retrieving File Information...",
   "form.media.label.loaded": "Loaded: ",
   "form.media.label.error_waveform": "Error loading audio track",
+  "form.media.label.no_audio_track": "This video does not have an audio track. You can still add and adjust captions using the timeline below.",
   "form.media.label.error_lms_download": "Unable to download media from LMS.",
   "form.media.label.error_lms_cors": "UDOIT cannot access the media file, probably because it is restricted to only being accessed inside the course content. In the Files section of your LMS, please adjust the sharing settings to allow access. In Canvas, this is in the \"Actions\" menu under \"Edit Permissions\".",
   "form.media.label.total_size": "File Size: ",
