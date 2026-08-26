@@ -10,7 +10,7 @@
         "@babel/plugin-transform-class-properties": "^7.27.1",
         "@babel/preset-env": "^7.28.0",
         "@babel/preset-react": "^7.27.1",
-        "@eslint/js": "^10.0.1",
+        "@eslint/js": "^9.39.4",
         "@symfony/webpack-encore": "5.1.0",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/jest-dom": "^6.6.3",
@@ -18,11 +18,13 @@
         "@testing-library/user-event": "^14.6.1",
         "copy-webpack-plugin": "13.0.0",
         "eslint": "^9.39.4",
+        "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^7.1.1",
         "globals": "^17.4.0",
         "jest": "^30.0.4",
         "msw": "^2.10.4",
-        "prettier": "^3.8.1",
+        "prettier": "3.8.1",
         "regenerator-runtime": "^0.14.1",
         "webpack-cli": "^5.1.4",
         "webpack-notifier": "^1.15.0"
@@ -41,7 +43,7 @@
         "lint": "eslint --cache --cache-location \"node_modules/.cache/.eslintcache\"",
         "lint-all": "eslint . --cache --cache-location \"node_modules/.cache/.eslintcache\"",
         "lint:fix-all": "eslint . --cache --cache-location \"node_modules/.cache/.eslintcache\" --fix",
-        "pretty": "prettier --write"
+        "pretty": "prettier --write ."
     },
     "dependencies": {
         "chart.js": "^4.5.0",

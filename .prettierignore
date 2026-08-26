@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+
+# Package manager lockfiles
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Generated files
+*.min.js
+*.min.css
+*.generated.*
+generated/
+
+# Cache directories
+.var/
+
+# IDE files
+.vscode/
+.idea/

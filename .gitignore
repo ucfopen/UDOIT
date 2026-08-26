@@ -9,9 +9,10 @@
 !/assets/js/Components/Icons/
 ###< symfony/framework-bundle ###
 
-###> php linter cache ###
-.php-cs-fixer.*
-###> php linter cache ###
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
 
 ###> symfony/phpunit-bridge ###
 .phpunit
@@ -48,5 +49,9 @@ yarn-error.log
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
 
 *.env
