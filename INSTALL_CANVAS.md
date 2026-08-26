@@ -115,36 +115,58 @@ Follow the steps below, replacing `<YOUR_UDOIT_BASE_URL>` with the `BASE_URL` va
 4. Click Save.
 5. Click `ON` to enable  the newly created key.
 
-## Update the Institutions Table
-UDOIT is built to support more than one LMS instance. For this purpose, we have an `institution` table that must be populated with the LMS information.
+## Add institution data to the database
 
-1. Inside the UDOIT directory, run `cp .ins.env.example .ins.env`
-2. open `.ins.env` with a text editor (i.e. Notepad, VS Code, etc.)
+UDOIT is built to support more than one LMS instance. There are two supported methods to populating the database with institution data.
+
+### Method 1 (recommended): Create a configuration file
+
+1. Inside the UDOIT directory, run
+   ```bash
+   cp institution.example.yaml institution.secret.yaml
+   ```
+2. Open `institution.secret.yaml` in a text editor (i.e. Notepad, VS Code, etc.)
 3. Fill in the fields with the appropriate values
-- `TITLE` = Your institution's name
-- `LMS_DOMAIN` = The Canvas domain name of your institution (i.e. `myschool.instructure.com`)
-- `LMS_ID` = `canvas`
-- `LMS_ACCOUNT_ID` = The Canvas account ID (as a string) where UDOIT will be installed
-- `CREATED` = Date in this format: `2021-06-08`
-- `STATUS` = `1` if you are using MySQL or MariaDB (or Docker), `true` if you are using PostgreSQL
-- `VANITY_URL` = Your LMS vanity URL (i.e. `canvas.myschool.edu`)
-- `METADATA` = Optional. Institution-specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"en"}`)
-- `API_CLIENT_ID` = The ID of the developer API key you created earlier
-- `API_CLIENT_SECRET` = The secret for the API key you created earlier
 
-With all the values now set up, you're ready to run the command that will automate the creation of your `institutions` table! Run the following command if you have a MySQL database setup:
-```
-make ins-mysql
-```
-Or this one if you have a PostgreSQL setup:
-```
-make ins-psql
-```
-Your database should now show a new row in the `institution` table, containing all the values you input above.
+- `title`: Your institution's name
+- `lms_domain`: The Canvas domain name of your institution (i.e. `myschool.instructure.com`)
+- `vanity_url`: Your LMS vanity URL (i.e. `canvas.myschool.edu`)
+- `lms_id`: MUST be `canvas`
+- `lms_account_id`: The Canvas account ID (as a string) where UDOIT will be installed
+- `lti_client_id`: The ID of the developer LTI key you created earlier
+- `api_client_id`: The ID of the developer API key you created earlier
+- `api_client_secret`: The secret for the API key you created earlier
+- `platform`: Can be one of two options
+  - Manual entry; specify the following fields
+    - `issuer` - The token issuer of your LMS (usually `https://canvas.instructure.com` unless in a test or beta environment)
+    - `login_auth_endpoint` - The redirect endpoint specified in your LMS (usually `https://sso.canvaslms.com/api/lti/authorize_redirect` if hosted by Canvas)
+    - `service_auth_endpoint` - The OAuth token endpoint of your LMS (usually `https://sso.canvaslms.com/login/oauth2/token` if hosted by Canvas)
+    - `service_login_endpoint` - The OAuth login endpoint of your LMS (usually `https://sso.canvaslms.com/login/oauth2/auth` if hosted by Canvas). This is the endpoint that the user will be redirected to during the OAuth process to request consent to use their Canvas API key with the tool
+    - `jwk_endpoint` - The JWK endpoint of your LMS (usually `https://sso.canvaslms.com/api/lti/security/jwks` if hosted by Canvas)
+  - Use a preset
+    - Add a single field called `preset` and populate it with one of the following supported preset options: `Production Canvas`, `Test Canvas`, `Beta Canvas`
+    - For example, your `platform` field may look like:
+      ```yaml
+      platform:
+        preset: Test Canvas
+      ```
+- `keyset` Can be one of two options
+  - Specify the following field
+    - `generate`: If this field is set to `true`, a new signing keyset will be generated without exception. If it is `false`, the institution's keyset will be set to the keyset in the database with the smallest ID. If no keyset exists, a new one will be created. Use `generate: false` for every institution if you do not want different signing key sets for every institution
+    - `existing_id`: The database ID of the keyset that you want to reuse
+1. Run the following command in the UDOIT directory to populate the databse with your institution data
+   ```bash
+   make create-registration FILE="institution.secret.yaml"
+   ```
 
+### Method 2: Manual entry through the CLI
 
-## .ENV Setup
-For cloud-hosted canvas instances, the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
+1. Inside the UDOIT directory, run
+
+```bash
+make create-registration
+```
+2. Follow the prompts and input required information. You will have to input the same information as required in the file-based initialization but will not have easy access to previously entered information both during and after the process, so using this option is not recommended. It remains an option for temporary or testing purposes.
 
 ---
 ## Install the App

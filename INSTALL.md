@@ -43,7 +43,6 @@ This command copies the `.env.example` into `.env`, creating the `.env` file in 
    - `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
    - `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
    	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
-   - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
    	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
 
 ## Installation

@@ -49,4 +49,9 @@ yarn-error.log
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 
+###> YAML ###
+*.secret.yaml
+*.secret.yml
+###< YAML ###
+
 *.env

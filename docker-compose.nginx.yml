@@ -40,6 +40,9 @@ services:
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.php.pdo.mysql
+      depends_on:
+        db:
+          condition: service_started
       volumes:
         - ./:/var/www/html
         - type: bind

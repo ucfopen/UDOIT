@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use App\Entity\User;
+use App\Services\Encryption\RegistrationEncryptionService;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\HttpClient\HttpClient;
 
 
 class LmsUserService {
@@ -21,11 +21,18 @@ class LmsUserService {
     /** @var UtilityService $util */
     protected $util;
 
-    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util)
-    {
+    protected RegistrationEncryptionService $registrationEncryptionService;
+
+    public function __construct(
+        LmsApiService $lmsApi,
+        ManagerRegistry $doctrine,
+        UtilityService $util,
+        RegistrationEncryptionService $registrationEncryptionService
+    ) {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
         $this->util = $util;
+        $this->registrationEncryptionService = $registrationEncryptionService;
     }
 
     public static function getOauthRedirectUri()
@@ -72,7 +79,8 @@ class LmsUserService {
     public function refreshApiKey(User $user)
     {
         $refreshToken = $user->getRefreshToken();
-        $institution = $user->getInstitution();;
+        $institution = $user->getInstitution();
+        $registration = $institution->getRegistration();
         $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($refreshToken)) {
@@ -82,9 +90,9 @@ class LmsUserService {
         $options = [
             'body' => [
                 'grant_type'    => 'refresh_token',
-                'client_id'     => $institution->getApiClientId(),
+                'client_id'     => $registration->getApiClientId(),
                 'redirect_uri'  => self::getOauthRedirectUri(),
-                'client_secret' => $institution->getApiClientSecret(),
+                'client_secret' => $this->registrationEncryptionService->getClientSecret($registration),
                 'refresh_token' => $refreshToken,
             ],
             'headers' => [
@@ -99,7 +107,7 @@ class LmsUserService {
         }
 
         $client = HttpClient::create();
-        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
+        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($registration);
         try {
             $response = $client->request('POST', $requestUrl, $options);
             $contentStr = $response->getContent(false);

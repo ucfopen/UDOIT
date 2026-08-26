@@ -26,10 +26,6 @@
 		"description": "Full URL to your instance.",
 		"value": "https://your.herokuapp.com"
 	  },
-	  "JWK_BASE_URL": {
-		"description": "Overrides `iss` to use an alternative url for JWK. Leave empty if using cloud hosted Canvas.",
-		"value": ""
-	  },
 	  "HEROKU_TIMEOUT": {
 		"description": "Web requests time out at 30 seconds causing the app to crash. Value should be significantly less than 30 to prevent this.",
 		"value": "15"

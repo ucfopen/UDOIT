@@ -1,0 +1,16 @@
+title: My School
+lms_domain: myschool.instructure.com
+vanity_url: webcourses.myschool.edu
+lms_id: canvas
+lms_account_id: "123"
+lti_client_id: my_lti_client_id
+api_client_id: my_api_client_id
+api_client_secret: super_secret_client_secret
+platform:
+  issuer: https://canvas.instructure.com
+  login_auth_endpoint: https://sso.canvaslms.com/api/lti/authorize_redirect
+  service_auth_endpoint: https://sso.canvaslms.com/login/oauth2/token
+  service_login_endpoint: https://sso.canvaslms.com/login/oauth2/auth
+  jwk_endpoint: https://sso.canvaslms.com/api/lti/security/jwks
+keyset:
+  generate: false

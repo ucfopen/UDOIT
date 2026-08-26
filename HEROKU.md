@@ -17,8 +17,7 @@ Click the Heroku button and follow the instructions below:
    * `canvas` if you are using the Canvas LMS.
    * `d2l` if you are using the D2l Brightspace LMS.
 5. Fill out the `BASE_URL` field with `https://yourapp.herokuapp.com`. (Replace 'yourapp' with the name you gave in step 1.2.)
-6. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified if your JWK configuration is hosted at a different domain than `iss`.
-7. Click the Deploy button and wait for the process to complete.
+6. Click the Deploy button and wait for the process to complete.
 
 The above deploy uses the Heroku Postgres Mini plan by default. Please check `https://elements.heroku.com/addons/heroku-postgresql` for Heroku Postgresql plan details. You can upgrade Postgresql plan inside Heroku UI later.
 
@@ -36,15 +35,7 @@ php bin/console doctrine:migrations:migrate
 php bin/console cache:warmup --env=prod
 ```
 6. Set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
-7. Access the Postgres database by running the following command in the Console:
-```sql
-psql <the DATABASE_URL located in your config vars under the Settings tab>
-```
-6. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.  It may be something like:
-```sql
-INSERT INTO institution (id, title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) VALUES (0, 'Canvas', 'myinstitution.instructure.com', 'canvas', '1', '2021-10-21', true, 'vanity.example.com', '{"lang":"en"}', '123456', 'abcdefghijklmnopqrstuvwxyz');
-```
-(DO NOT copy that command and use it as-is!)
+7. Insert your institution data into the database as described in INSTALL_\<LMS\>.md.
 
 ### Step 3: Finish
 Install the app following the instructions described in INSTALL_\<LMS\>.md.
