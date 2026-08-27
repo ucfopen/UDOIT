@@ -23,6 +23,14 @@
   }
 }
 
+.admin-dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  width: 100%;
+  align-items: stretch;
+}
+
 .resolution-container {
   --progress-bar-width: 14rem;
   --potential-border: #FFEDD5;
