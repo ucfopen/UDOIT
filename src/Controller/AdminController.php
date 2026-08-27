@@ -619,6 +619,7 @@ class AdminController extends ApiController
             if (count($n_courses) < $N_COURSES){
                 $retrived_course = $report->getCourse()->jsonSerialize();
                 $retrived_course['totalActiveIssues'] = $report->getActiveIssueCount();
+                $retrived_course['scanRule'] = $report->getHighestScanRule();
                 $n_courses[] = $retrived_course;
             }
             if (isset($scanCounter[$report->getHighestScanRule()])){
