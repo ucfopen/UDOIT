@@ -1,6 +1,8 @@
 import React from "react";
 import ProgressBarCard from "../Widgets/ProgressBarCard";
 import "../HomePage.css";
+import ResolutionsReport from "../Reports/ResolutionsReport";
+import DashboardCourseTable from "../Widgets/DashboardCourseTable";
 
 export default function AdminDashboard({ t, dashboardStats }) {
   if (dashboardStats.loading) {
@@ -20,17 +22,8 @@ export default function AdminDashboard({ t, dashboardStats }) {
       : 0;
 
   return (
-    <div className="admin-dashboard-stats-grid">
-      <ProgressBarCard
-        title={t("Courses Scanned")}
-        percent={scanPercentage}
-        caption={`${dashboardStats.scannedCourses} of ${dashboardStats.totalCourses} courses scanned`}
-      />
-      <ProgressBarCard
-        title={t("Instructor Adoption")}
-        percent={instructorAdoption}
-        caption={`${dashboardStats.uniqueInstructorsUsingUdoit} of ${dashboardStats.totalInstructors} instructors using UDOIT`}
-      />
+    <div className="report-page-container scrollable">
+        <DashboardCourseTable t={t} courses={dashboardStats.showcaseCourses} />      
     </div>
   );
 }

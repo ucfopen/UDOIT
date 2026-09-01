@@ -419,7 +419,7 @@ export default function AdminApp(initialData) {
 
       <div className="admin-layout">
         <aside className="admin-sidebar">
-          <input type="text" value={accountSearch} onChange={(e) => handleAccountSearch(e)} placeholder="Search for an account" className="mb-1 p-1"></input>
+          <input type="text" value={accountSearch} onChange={(e) => handleAccountSearch(e)} placeholder="Search for an account" className="mb-1 p-2"></input>
           <div className="admin-account-tree">
             {parentAccounts[accountId] && renderAccountTree(parentAccounts[accountId], 0, true)}
           </div>
