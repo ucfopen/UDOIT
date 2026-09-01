@@ -79,18 +79,18 @@ export default function CoursePage({
         instructors: names.length ? names.join(", ") : "---",
         courseTitle: course.title,
         lastUpdated: course.lastUpdated || "---",
-        barriers: hasReport && course.latestReport ? barriers : "---",
+        barriers: hasReport && course.latestReport ? course.latestReport.issues : "---",
         potentialBarriers:
-          hasReport && course.latestReport.scanCounts?.potentials
-            ? course.latestReport.scanCounts.potentials
+          hasReport && course.latestReport
+            ? course.latestReport.potentialIssues
             : "---",
         contentFixed:
           hasReport && course.latestReport
-            ? course.latestReport.contentFixed
+            ? course.latestReport.issuesFixed + course.latestReport.potentialIssuesFixed
             : "---",
         contentResolved:
           hasReport && course.latestReport
-            ? course.latestReport.contentResolved
+            ? course.latestReport.issuesReviewed + course.latestReport.potentialIssuesReviewed
             : "---",
         filesReviewed:
           hasReport && course.latestReport
