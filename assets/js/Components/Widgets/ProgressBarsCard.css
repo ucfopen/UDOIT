@@ -1,0 +1,46 @@
+.progress-bars-card-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: .5rem;
+  width: 100%;
+}
+
+.progress-bars-card-label-row {
+  align-items: baseline;
+  display: flex;
+  gap: .75rem;
+  justify-content: space-between;
+  margin-bottom: .45rem;
+}
+
+.progress-bars-card-label {
+  font-weight: 600;
+}
+
+.progress-bars-card-track {
+  background-color: var(--progress-bar-background-color);
+  border-radius: 1rem;
+  height: .75rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-bars-card-fill {
+  background-color: var(--primary-color);
+  border-radius: 1rem;
+  height: 100%;
+  min-width: .25rem;
+}
+
+.progress-bars-card-fill.type-issue {
+  background-color: var(--error-color);
+}
+
+.progress-bars-card-fill.type-potential {
+  background-color: var(--potential-color);
+}
+
+.progress-bars-card-fill.type-file {
+  background-color: var(--file-color);
+}

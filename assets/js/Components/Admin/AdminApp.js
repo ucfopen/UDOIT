@@ -10,6 +10,7 @@ import ProgressIcon from "../Icons/ProgressIcon";
 
 import { ISSUE_FILTER } from "../../Services/Settings";
 import "../../../css/udoit4-theme.css";
+import "./AdminPage.css";
 
 export default function AdminApp(initialData) {
   // If there are multiple accounts available, the first account is the selected accountId

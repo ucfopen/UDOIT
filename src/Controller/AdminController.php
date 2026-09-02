@@ -613,6 +613,14 @@ class AdminController extends ApiController
 
         usort($reports, fn($a, $b) => $b->getActiveIssueCount() <=> $a->getActiveIssueCount());
 
+        $issueCount = 0;
+        $potentialIssueCount = 0;
+        $fileCount = 0;
+
+        $issueFixCount = 0;
+        $potentialIssueFixCount = 0;
+        $fileReviewCount = 0; 
+
 
         foreach($reports as $report){
             $scannedCourseIds[] = $report->getCourse()->getLmsCourseId();
@@ -629,6 +637,14 @@ class AdminController extends ApiController
                 $scanCounter[$report->getHighestScanRule()] = 1;
             }
 
+            $issueCount += $report->getIssues();
+            $potentialIssueCount += $report->getPotentialIssues();     
+            $fileCount += $report->getUnreviewedFiles();
+            
+            $issueFixCount += $report->getIssuesFixed() + $report->getIssuesReviewed();
+            $potentialIssueFixCount += $report->getPotentialIssuesFixed() + $report->getPotentialIssuesReviewed();
+            $fileReviewCount += $report->getReviewedFiles();
+
         }
 
         $uniqueInstructorsUsingUdoit = $courseRepo->getProfessorCount($user, $scannedCourseIds);
@@ -639,6 +655,12 @@ class AdminController extends ApiController
         $stats["uniqueInstructorsUsingUdoit"] = $uniqueInstructorsUsingUdoit;
         $stats["showcaseCourses"] = $n_courses;
         $stats["scanRanked"] = $scanCounter;
+        $stats["issueCount"] = $issueCount;
+        $stats["potentialIssueCount"] = $potentialIssueCount;
+        $stats["fileCount"] = $fileCount;
+        $stats["issueFixCount"] = $issueFixCount;
+        $stats["potentialIssueFixCount"] = $potentialIssueFixCount;
+        $stats["fileReviewCount"] = $fileReviewCount;
 
         return $stats;
     }

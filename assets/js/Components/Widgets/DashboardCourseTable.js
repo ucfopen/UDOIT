@@ -21,7 +21,6 @@ const DashboardCourseTable = ({t, courses}) => {
     const sortContent = () => {
     let tempRows = courses ? [...courses] : []
     const { sortBy, ascending } = tableSettings
-    console.log(tempRows)
 
     tempRows.sort((a, b) => {
       let aValue = a[sortBy] ?? ''
