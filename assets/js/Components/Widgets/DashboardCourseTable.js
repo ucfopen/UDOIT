@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import SortableTable from './SortableTable'
+import { formNameFromRule } from '../../Services/Ufixit'
 
 const DashboardCourseTable = ({t, courses}) => {
     const [rows, setRows] = useState([])
 
     const [tableSettings, setTableSettings] = useState({
-        sortBy: 'barriers',
-        ascending: true,
+        sortBy: 'totalActiveIssues',
+        ascending: false,
         pageNum: 0,
       })
     
@@ -17,9 +18,14 @@ const DashboardCourseTable = ({t, courses}) => {
         {id: "lastUpdated", text: "Last Updated"}
     ]
 
-
+  
     const sortContent = () => {
-    let tempRows = courses ? [...courses] : []
+    let tempRows = courses ? courses.map((course) => ({
+      ...course,
+      scanRule: t(`form.${formNameFromRule(course.scanRule)}.title`),
+      lastUpdated: (new Date(course.lastUpdated)).toDateString(),
+    })) : []
+
     const { sortBy, ascending } = tableSettings
 
     tempRows.sort((a, b) => {
