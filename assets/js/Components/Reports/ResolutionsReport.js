@@ -36,7 +36,7 @@ export default function ResolutionsReport({
   const [dateStart, setDateStart] = useState(null);
   const [dateEnd, setDateEnd] = useState(null);
   const [selectedPreset, setSelectedPreset] = useState('all');
-  const darkMode = preferences.darkMode
+  const darkMode = preferences?.darkMode
   const courseLimit = 5;
 
   // Colors for multi course line graph
@@ -321,7 +321,7 @@ export default function ResolutionsReport({
   }
 
   const getFontSize = () => {
-    let fontSize = preferences.fontSize;
+    let fontSize = preferences?.fontSize;
     switch (fontSize) {
       case 'font-small':
         return '14';
