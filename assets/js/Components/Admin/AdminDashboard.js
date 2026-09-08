@@ -68,7 +68,7 @@ export default function AdminDashboard({ t, dashboardStats }) {
   ]
 
   return (
-    <div className="">
+    <div className="scrollable p-2 m-2">
       <div className="admin-dashboard-stats-grid mt-3">
           <ProgressCircleCard
             title="Courses using UDOIT"
