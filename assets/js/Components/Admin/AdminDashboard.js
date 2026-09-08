@@ -12,18 +12,18 @@ export default function AdminDashboard({ t, dashboardStats }) {
   useEffect(() => {
     if(dashboardStats?.scanRanked){
       const tempRanked = []
-      for(const k in dashboardStats.scanRanked){
-        if(k){ 
+      for(const rule in dashboardStats.scanRanked){
+        if(rule){ 
           tempRanked.push({
-            rawRule: k,
-            normalizedRule: t(`form.${formNameFromRule(k)}.title`),
-            count: dashboardStats.scanRanked[k]
+            rawRule: rule,
+            normalizedRule: t(`form.${formNameFromRule(rule)}.title`),
+            count: dashboardStats.scanRanked[rule]
           })
         }
       }
       const sorted = tempRanked.sort((a,b) => b.count - a.count)
-      for (const rule in sorted){
-        sorted[rule].rank = Number(rule) + 1;
+      for (const index in sorted){
+        sorted[index].rank = Number(index) + 1;
       }
       setScanRuleRanked(sorted)
     }
