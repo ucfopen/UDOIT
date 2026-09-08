@@ -1145,7 +1145,6 @@ export default function MediaCaptionsEditor({
                         selectedIndex={selectedCueId}
                         selectCue={selectCue}
                         setActiveSettingsIndex={setActiveSettingsIndex}
-                        setCueAlign={setCueAlign}
                         setCueEnd={setCueEnd}
                         setCueStart={setCueStart}
                         setCueText={setCueText}

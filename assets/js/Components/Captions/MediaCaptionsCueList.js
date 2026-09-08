@@ -1,19 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AddIcon from "../Icons/AddIcon";
-import AlignCenterIcon from "../Icons/AlignCenterIcon";
-import AlignLeftIcon from "../Icons/AlignLeftIcon";
-import AlignRightIcon from "../Icons/AlignRightIcon";
 import ArrowIcon from "../Icons/ArrowIcon";
 import CloseIcon from "../Icons/CloseIcon";
 import InsertAfterIcon from "../Icons/InsertAfterIcon";
 import InsertBeforeIcon from "../Icons/InsertBeforeIcon";
 import DeleteIcon from "../Icons/DeleteIcon";
-import SettingsIcon from "../Icons/SettingsIcon";
 import TimeIcon from "../Icons/TimeIcon";
 
 import { vttToMS } from "../../Services/Captions";
-import SliderSelect from "../Widgets/SliderSelect";
 
 
 export default function MediaCaptionsCueList({
@@ -29,7 +24,6 @@ export default function MediaCaptionsCueList({
   selectCue,
   selectedIndex,
   setActiveSettingsIndex,
-  setCueAlign,
   setCueEnd,
   setCueStart,
   setCueText,
@@ -67,22 +61,6 @@ export default function MediaCaptionsCueList({
             >
               { (activeSettingsIndex === cue.id) && (
                 <div className="flex-row w-100 justify-content-between">
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation()
-                    }}
-                  >
-                    <SliderSelect
-                      activeOption = {cue?.align || "center"}
-                      setActiveOption={setCueAlign}
-                      options = {[
-                        { name: (<AlignLeftIcon className="icon-md" alt={t('form.media.label.align_left')} title={t('form.media.label.align_left')} />), value: "left" },
-                        { name: (<AlignCenterIcon className="icon-md" alt={t('form.media.label.align_center')} title={t('form.media.label.align_center')} />), value: "center" },
-                        { name: (<AlignRightIcon className="icon-md" alt={t('form.media.label.align_right')} title={t('form.media.label.align_right')} />), value: "right" },
-                      ]}
-                    />
-                  </div>
-
                   <div className="flex-row gap-2 align-items-center">
                     <div className="flex-row gap-1 align-items-center">
                       <TimeIcon className="icon-sm gray" aria-hidden="true" />
@@ -176,7 +154,7 @@ export default function MediaCaptionsCueList({
                       }}
                       disabled={isDisabled || error !== ""}
                     >
-                      <SettingsIcon aria-hidden="true" className="icon-md" />
+                      <TimeIcon aria-hidden="true" className="icon-md" />
                     </button>
                     <button
                       className="btn-small btn-icon-only btn-link font-normal"
