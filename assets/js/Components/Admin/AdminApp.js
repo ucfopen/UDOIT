@@ -146,7 +146,6 @@ export default function AdminApp(initialData) {
 
   const fetchCourses = async (accountId, termId) => {
     setLoadingCourses(true)
-    const api = new Api(instanceInfo)
     try{
       const retrivedCourses = await api.getAdminCourses(accountId, termId, {
         page: courseTableSettings.pageNum + 1,
@@ -391,7 +390,6 @@ export default function AdminApp(initialData) {
   };
 
   const fetchSubAccounts = async (accountId) => {
-    const api = new Api(instanceInfo)
     const res = await api.getAdminSubAccounts(accountId)
     const response = await res.json()
     if (response?.errors && response.errors.length > 0){
