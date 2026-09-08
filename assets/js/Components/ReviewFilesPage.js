@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
-import ToggleSwitch from './Widgets/ToggleSwitch'
-import SortableTable from './Widgets/SortableTable'
-import FileFixitWidget from './Widgets/FileFixitWidget'
-import FileReviewPreview from './Widgets/FileReviewPreview'
-import LearnMore from './Widgets/LearnMore.js'
-import StatusPill from './Widgets/StatusPill'
+import React, { useState, useEffect } from 'react';
+import ReviewFilesFilters from './Widgets/ReviewFilesFilters';
+import ToggleSwitch from './Widgets/ToggleSwitch';
+import SortableTable from './Widgets/SortableTable';
+import FileFixitWidget from './Widgets/FileFixitWidget';
+import FileReviewPreview from './Widgets/FileReviewPreview';
+import LearnMore from './Widgets/LearnMore.js';
+import StatusPill from './Widgets/StatusPill';
 
-import CloseIcon from './Icons/CloseIcon.js'
-import DeleteIcon from './Icons/DeleteIcon'
-import FileTypeIcon from './Icons/FileTypeIcon'
-import LeftArrowIcon from './Icons/LeftArrowIcon'
-import ProgressIcon from './Icons/ProgressIcon.js'
-import RightArrowIcon from './Icons/RightArrowIcon'
+import CloseIcon from './Icons/CloseIcon.js';
+import DeleteIcon from './Icons/DeleteIcon';
+import FileTypeIcon from './Icons/FileTypeIcon';
+import LeftArrowIcon from './Icons/LeftArrowIcon';
+import ProgressIcon from './Icons/ProgressIcon.js';
+import RightArrowIcon from './Icons/RightArrowIcon';
 
-import Api from '../Services/Api'
-import * as Html from '../Services/Html.js'
-import * as Text from '../Services/Text'
-import { FILE_FILTER as FILTER, FILE_TYPES, FILE_TYPE_MAP, ISSUE_STATE, WIDGET_STATE } from '../Services/Constants'
+import { api } from "../Services/Api";
+import * as Html from '../Services/Html.js';
+import * as Text from '../Services/Text';
+import { FILE_FILTER as FILTER, FILE_TYPES, FILE_TYPE_MAP, ISSUE_STATE, WIDGET_STATE } from '../Services/Constants';
 
-import './FixIssuesPage.css'
-import './ReviewFilesPage.css'
-import './Widgets/SortableTable.css'
+import './FixIssuesPage.css';
+import './ReviewFilesPage.css';
+import './Widgets/SortableTable.css';
 
 export default function ReviewFilesPage({
   t,
@@ -33,114 +33,114 @@ export default function ReviewFilesPage({
   addMessage,
   sessionFiles,
   updateSessionFiles,
-  setModalActive
-})
-{
-
+  setModalActive,
+}) {
   // Define the kinds of filters that will be available to the user
   const defaultFilters = {
     [FILTER.TYPE.UTILIZATION]: FILTER.USED,
     [FILTER.TYPE.FILE_TYPE]: FILTER.ALL,
     [FILTER.TYPE.RESOLUTION]: FILTER.UNREVIEWED,
     [FILTER.TYPE.MODULE]: FILTER.ALL,
-  }
+  };
 
-  const dialogId = "udoit-file-dialog"
-  const unusedFileDialogId = "unused-files-dialog"
+  const dialogId = "udoit-file-dialog";
+  const unusedFileDialogId = "unused-files-dialog";
 
   const headers = [
-    { id: "name", text: t('fix.label.file_name') },
-    { id: "type", text: t('fix.label.file_type')},
-    { id: "references", text: t('fix.label.references')},
-    { id: "date", text: t('fix.label.file_updated')},
-    { id: "status", text: t('fix.label.status')},
-  ]
+    { id: "name", text: t("fix.label.file_name") },
+    { id: "type", text: t("fix.label.file_type") },
+    { id: "references", text: t("fix.label.references") },
+    { id: "date", text: t("fix.label.file_updated") },
+    { id: "status", text: t("fix.label.status") },
+  ];
 
   const unusedFilesHeaders = [
-    { id: "action", text: '', alignText: 'center' },
-    { id: "name", text: t('fix.label.file_name') },
-    { id: "type", text: t('fix.label.file_type') },
-    { id: "size", text: t('fix.label.file_size'), alignText: 'start' },
-    { id: "date", text: t('fix.label.file_updated') },
-  ]
+    { id: "action", text: "", alignText: "center" },
+    { id: "name", text: t("fix.label.file_name") },
+    { id: "type", text: t("fix.label.file_type") },
+    { id: "size", text: t("fix.label.file_size"), alignText: "start" },
+    { id: "date", text: t("fix.label.file_updated") },
+  ];
 
   const [tableSettings, setTableSettings] = useState({
-      sortBy: 'name',
-      ascending: false,
-      pageNum: 0,
-  })
-
-  const [unusedTableSettings, setUnusedTableSettings] = useState({
-    sortBy: 'date',
+    sortBy: "name",
     ascending: false,
     pageNum: 0,
-  })
+  });
+
+  const [unusedTableSettings, setUnusedTableSettings] = useState({
+    sortBy: "date",
+    ascending: false,
+    pageNum: 0,
+  });
 
   const handleTableSettings = (setting) => {
-    setTableSettings(Object.assign({}, tableSettings, setting))
-  }
+    setTableSettings(Object.assign({}, tableSettings, setting));
+  };
 
   const handleUnusedTableSettings = (setting) => {
-    setUnusedTableSettings(Object.assign({}, unusedTableSettings, setting))
-  }
+    setUnusedTableSettings(Object.assign({}, unusedTableSettings, setting));
+  };
 
-  const [rows, setRows] = useState([])
-  const [unusedRows, setUnusedRows] = useState([])
-  const [activeIssue, setActiveIssue] = useState(null)
-  const [tempActiveIssue, setTempActiveIssue] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [activeFilters, setActiveFilters] = useState(defaultFilters)
-  const [unfilteredFiles, setUnfilteredFiles] = useState([])
-  const [filteredFiles, setFilteredFiles] = useState([])
-  const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
-  const [mostRecentFileId, setMostRecentFileId] = useState(null)
+  const [rows, setRows] = useState([]);
+  const [unusedRows, setUnusedRows] = useState([]);
+  const [activeIssue, setActiveIssue] = useState(null);
+  const [tempActiveIssue, setTempActiveIssue] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState(defaultFilters);
+  const [unfilteredFiles, setUnfilteredFiles] = useState([]);
+  const [filteredFiles, setFilteredFiles] = useState([]);
+  const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING);
+  const [mostRecentFileId, setMostRecentFileId] = useState(null);
 
   // Form States
-  const [markAsReviewed, setMarkAsReviewed] = useState(false)
-  const [markDelete, setMarkDelete] = useState(false)
-  const [markRevert, setMarkRevert] = useState(false)
+  const [markAsReviewed, setMarkAsReviewed] = useState(false);
+  const [markDelete, setMarkDelete] = useState(false);
+  const [markRevert, setMarkRevert] = useState(false);
 
+  const [formInvalid, setFormInvalid] = useState(true);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
-  const [formInvalid, setFormInvalid] = useState(true)
-  const [uploadedFile, setUploadedFile] = useState(null)
+  const [fileContentReferences, setFileContentReferences] = useState([]);
+  const [fileSectionReferences, setFileSectionReferences] = useState([]);
 
-  const [fileContentReferences, setFileContentReferences] = useState([])
-  const [fileSectionReferences, setFileSectionReferences] = useState([])
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [showLearnMore, setShowLearnMore] = useState(false);
 
-  const [isDisabled, setIsDisabled] = useState(false)
-  const [showLearnMore, setShowLearnMore] = useState(false)
-
-  const [unusedFiles, setUnusedFiles] = useState([])
-  const [deleteFileQueue, setDeleteFileQueue] = useState([])
-  const [unusedDialogModal, setUnusedDialogModal] = useState(false) // Keeps track of if we need to use unused files modal or the default file modal
-
+  const [unusedFiles, setUnusedFiles] = useState([]);
+  const [deleteFileQueue, setDeleteFileQueue] = useState([]);
+  const [unusedDialogModal, setUnusedDialogModal] = useState(false); // Keeps track of if we need to use unused files modal or the default file modal
 
   const formatFileData = (fileData) => {
+    let fileId = fileData.id;
 
-    let fileId = fileData.id
+    let issueResolution =
+      fileData.reviewed ? FILTER.REVIEWED : FILTER.UNREVIEWED;
 
-    let issueResolution = (fileData.reviewed ? FILTER.REVIEWED : FILTER.UNREVIEWED)
+    let formLabel = t(`form.file.title`);
 
-    let formLabel = t(`form.file.title`)
+    let fileType = FILTER.FILE_UNKNOWN;
+    let fileTypeLabel = t(`label.mime.unknown`);
 
-    let fileType = FILTER.FILE_UNKNOWN
-    let fileTypeLabel = t(`label.mime.unknown`)
-    
     // Guarantee that the keywords include the word "file" in each language
-    let keywords = [ fileData.fileName ? fileData.fileName.toLowerCase() : fileData.display_name.toLowerCase() ]
-    
+    let keywords = [
+      fileData.fileName ?
+        fileData.fileName.toLowerCase()
+      : fileData.display_name.toLowerCase(),
+    ];
+
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
-    if(FILE_TYPES.includes(fileData.fileType)) {
-      fileType = FILE_TYPE_MAP[fileData.fileType]
-      fileTypeLabel = t(`label.mime.${fileData.fileType}`)
-      keywords.push[fileTypeLabel.toLowerCase()]
+    if (FILE_TYPES.includes(fileData.fileType)) {
+      fileType = FILE_TYPE_MAP[fileData.fileType];
+      fileTypeLabel = t(`label.mime.${fileData.fileType}`);
+      keywords.push[fileTypeLabel.toLowerCase()];
     }
 
-    keywords = keywords.join(' ')
+    keywords = keywords.join(" ");
 
-    let currentState = ISSUE_STATE.UNCHANGED
-    if(sessionFiles && sessionFiles[fileId]) {
-      currentState = sessionFiles[fileId]
+    let currentState = ISSUE_STATE.UNCHANGED;
+    if (sessionFiles && sessionFiles[fileId]) {
+      currentState = sessionFiles[fileId];
     }
 
     return {
@@ -150,382 +150,431 @@ export default function ReviewFilesPage({
       status: issueResolution,
       published: true,
       fileType: fileType,
-      sectionIds: fileData?.sectionRefs?.map((section) => section.moduleId.toString()) || [],
+      sectionIds:
+        fileData?.sectionRefs?.map((section) => section.moduleId.toString()) ||
+        [],
       keywords: keywords,
-      scanRuleId: 'verify_file_accessibility',
+      scanRuleId: "verify_file_accessibility",
       formLabel: formLabel,
       contentId: fileData.lmsFileId,
       contentType: FILTER.FILE_OBJECT,
       contentTitle: fileData.fileName,
       contentUrl: fileData.lmsUrl,
       currentState: currentState,
-    }
-  }
+    };
+  };
 
   // When the filters or search term changes, update the filtered issues list
   useEffect(() => {
+    let tempFilteredFiles = getFilteredContent(unfilteredFiles);
+    let tempTableSettings = Object.assign({}, tableSettings);
 
-    let tempFilteredFiles = getFilteredContent(unfilteredFiles)
-    let tempTableSettings = Object.assign({}, tableSettings)
-
-    if(tempFilteredFiles.length !== filteredFiles.length) {
-      tempTableSettings.pageNum = 0
-      handleTableSettings({ pageNum: 0 })
+    if (tempFilteredFiles.length !== filteredFiles.length) {
+      tempTableSettings.pageNum = 0;
+      handleTableSettings({ pageNum: 0 });
     }
 
-    setFilteredFiles(tempFilteredFiles)
-    setWidgetState(WIDGET_STATE.LIST)
-
-  }, [activeFilters, searchTerm])
+    setFilteredFiles(tempFilteredFiles);
+    setWidgetState(WIDGET_STATE.LIST);
+  }, [activeFilters, searchTerm]);
 
   const getContent = () => {
     if (filteredFiles.length === 0) {
-      return []
+      return [];
     }
 
-    let tempRows = []
+    let tempRows = [];
     filteredFiles.forEach((tempFile) => {
       tempRows.push({
         id: `udoit-file-${tempFile.id}`,
-        name: tempFile.contentTitle ? { value: tempFile.contentTitle, display: getFileNameDisplay(tempFile)} : t('label.unknown'),
-        type: tempFile.fileData.fileType ? { value: tempFile.fileData.fileType, display: getFileTypeDisplay(tempFile.fileData.fileType)}: t('label.mime.unknown'),
-        date: tempFile.fileData.updated ? { value: tempFile.fileData.updated, display: Text.getReadableDateTime(tempFile.fileData.updated)} : t('label.unknown'),
+        name:
+          tempFile.contentTitle ?
+            {
+              value: tempFile.contentTitle,
+              display: getFileNameDisplay(tempFile),
+            }
+          : t("label.unknown"),
+        type:
+          tempFile.fileData.fileType ?
+            {
+              value: tempFile.fileData.fileType,
+              display: getFileTypeDisplay(tempFile.fileData.fileType),
+            }
+          : t("label.mime.unknown"),
+        date:
+          tempFile.fileData.updated ?
+            {
+              value: tempFile.fileData.updated,
+              display: Text.getReadableDateTime(tempFile.fileData.updated),
+            }
+          : t("label.unknown"),
         /* size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'), */
-        references: (tempFile.fileData?.references.length) || 0,
-        status: tempFile.status ? { value: t('fix.label.status.' + (tempFile.status.toLowerCase())), display: getFileStatusDisplay(tempFile.status)} : '',
-        onClick: () => { jumpToFile(tempFile.id) },
+        references: tempFile.fileData?.references.length || 0,
+        status:
+          tempFile.status ?
+            {
+              value: t("fix.label.status." + tempFile.status.toLowerCase()),
+              display: getFileStatusDisplay(tempFile.status),
+            }
+          : "",
+        onClick: () => {
+          jumpToFile(tempFile.id);
+        },
         onKeyDown: (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            jumpToFile(tempFile.id)
+          if (e.key === "Enter" || e.key === " ") {
+            jumpToFile(tempFile.id);
           }
         },
-        label: tempFile.contentTitle + ' - ' + t('fix.label.status.' + (tempFile.status.toLowerCase()))
-      })
-    })
+        label:
+          tempFile.contentTitle +
+          " - " +
+          t("fix.label.status." + tempFile.status.toLowerCase()),
+      });
+    });
 
-    const { sortBy, ascending } = tableSettings
+    const { sortBy, ascending } = tableSettings;
 
     tempRows.sort((a, b) => {
-      let aSort = a[sortBy]
-      if(typeof aSort === 'object' && aSort.value) {
-        aSort = aSort.value
+      let aSort = a[sortBy];
+      if (typeof aSort === "object" && aSort.value) {
+        aSort = aSort.value;
       }
-      
-      let bSort = b[sortBy]
-      if(typeof bSort === 'object' && bSort.value) {
-        bSort = bSort.value
+
+      let bSort = b[sortBy];
+      if (typeof bSort === "object" && bSort.value) {
+        bSort = bSort.value;
       }
 
       if (isNaN(aSort) || isNaN(bSort)) {
-        return (aSort.toLowerCase() > bSort.toLowerCase()) ? -1 : 1
+        return aSort.toLowerCase() > bSort.toLowerCase() ? -1 : 1;
+      } else {
+        return Number(aSort) < Number(bSort) ? -1 : 1;
       }
-      else {
-        return (Number(aSort) < Number(bSort)) ? -1 : 1
-      }
-    })
+    });
 
     if (!ascending) {
-      tempRows.reverse()
+      tempRows.reverse();
     }
 
-    return tempRows
-  }
+    return tempRows;
+  };
 
   const getUnusedFilesTableContent = () => {
-    if(unusedFiles.length === 0) {
-      return []
+    if (unusedFiles.length === 0) {
+      return [];
     }
 
-    let tempRows = []
+    let tempRows = [];
     unusedFiles.forEach((unusedFile) => {
-      const fileName = unusedFile.fileName || unusedFile.display_name || t('label.unknown')
-      const fileType = unusedFile.fileType || 'unknown'
-      const fileSize = parseInt(unusedFile.fileSize, 10)
-      const isSelected = deleteFileQueue.includes(`files/${unusedFile.lmsFileId}`)
+      const fileName =
+        unusedFile.fileName || unusedFile.display_name || t("label.unknown");
+      const fileType = unusedFile.fileType || "unknown";
+      const fileSize = parseInt(unusedFile.fileSize, 10);
+      const isSelected = deleteFileQueue.includes(
+        `files/${unusedFile.lmsFileId}`,
+      );
 
       tempRows.push({
         id: unusedFile.id,
         name: { value: fileName.toLowerCase(), display: fileName },
-        type: { value: fileType.toLowerCase(), display: getFileTypeDisplay(fileType) },
-        size: !isNaN(fileSize)
-          ? { value: fileSize, display: Text.getReadableFileSize(fileSize) }
-          : { value: -1, display: t('label.unknown') },
-        date: unusedFile.updated
-          ? { value: unusedFile.updated, display: Text.getReadableDateTime(unusedFile.updated) }
-          : { value: '', display: t('label.unknown') },
+        type: {
+          value: fileType.toLowerCase(),
+          display: getFileTypeDisplay(fileType),
+        },
+        size:
+          !isNaN(fileSize) ?
+            { value: fileSize, display: Text.getReadableFileSize(fileSize) }
+          : { value: -1, display: t("label.unknown") },
+        date:
+          unusedFile.updated ?
+            {
+              value: unusedFile.updated,
+              display: Text.getReadableDateTime(unusedFile.updated),
+            }
+          : { value: "", display: t("label.unknown") },
         action: (
           <input
             id={`unused-file-${unusedFile.id}`}
             type="checkbox"
             checked={isSelected}
             onChange={() => toggleDeleteFileQueue(unusedFile.lmsFileId)}
-            aria-label={t('files.button.delete_selected') + ': ' + fileName}
+            aria-label={t("files.button.delete_selected") + ": " + fileName}
           />
         ),
         onClick: () => {
           toggleDeleteFileQueue(unusedFile.lmsFileId)
         },
         noTabFocus: true
-      })
-    })
+      });
+    });
 
-    const { sortBy, ascending } = unusedTableSettings
+    const { sortBy, ascending } = unusedTableSettings;
 
     tempRows.sort((a, b) => {
-      let aSort = a[sortBy]
-      if(typeof aSort === 'object' && aSort?.value !== undefined) {
-        aSort = aSort.value
+      let aSort = a[sortBy];
+      if (typeof aSort === "object" && aSort?.value !== undefined) {
+        aSort = aSort.value;
       }
 
-      let bSort = b[sortBy]
-      if(typeof bSort === 'object' && bSort?.value !== undefined) {
-        bSort = bSort.value
+      let bSort = b[sortBy];
+      if (typeof bSort === "object" && bSort?.value !== undefined) {
+        bSort = bSort.value;
       }
 
-      if(typeof aSort === 'string' || typeof bSort === 'string') {
-        const aText = String(aSort || '').toLowerCase()
-        const bText = String(bSort || '').toLowerCase()
-        return (aText > bText) ? -1 : 1
+      if (typeof aSort === "string" || typeof bSort === "string") {
+        const aText = String(aSort || "").toLowerCase();
+        const bText = String(bSort || "").toLowerCase();
+        return aText > bText ? -1 : 1;
       }
 
-      return (Number(aSort) < Number(bSort)) ? -1 : 1
-    })
+      return Number(aSort) < Number(bSort) ? -1 : 1;
+    });
 
-    if(!ascending) {
-      tempRows.reverse()
+    if (!ascending) {
+      tempRows.reverse();
     }
 
-    return tempRows
-  }
+    return tempRows;
+  };
 
   useEffect(() => {
-    setRows(getContent())
-  }, [tableSettings, filteredFiles])
+    setRows(getContent());
+  }, [tableSettings, filteredFiles]);
 
   useEffect(() => {
-    setUnusedRows(getUnusedFilesTableContent())
-  }, [unusedTableSettings, unusedFiles, deleteFileQueue])
+    setUnusedRows(getUnusedFilesTableContent());
+  }, [unusedTableSettings, unusedFiles, deleteFileQueue]);
 
   // The report object is updated whenever a scan or rescan is completed. At this point, the list of issues
   // needs to be rebuilt and the activeIssue may need to be updated. For instance, if an issue is marked as
   // unreviewed then it will be deleted during the rescan and a new issue with a new id will take its place.
   useEffect(() => {
-    let tempUnfilteredIssues = []
+    let tempUnfilteredIssues = [];
 
-    let tempFiles = Object.assign({}, report.files)
-    let tempUnusedFiles = []
+    let tempFiles = Object.assign({}, report.files);
+    let tempUnusedFiles = [];
     for (const [key, value] of Object.entries(tempFiles)) {
-      let tempFile = formatFileData(value)
-      tempUnfilteredIssues.push(tempFile)
-      if((!tempFile?.fileData?.references || tempFile?.fileData?.references?.length === 0)
-        && (!tempFile?.fileData?.sectionRefs || tempFile?.fileData?.sectionRefs?.length === 0)) {
-        tempUnusedFiles.push(tempFile.fileData)
+      let tempFile = formatFileData(value);
+      tempUnfilteredIssues.push(tempFile);
+      if (
+        (!tempFile?.fileData?.references ||
+          tempFile?.fileData?.references?.length === 0) &&
+        (!tempFile?.fileData?.sectionRefs ||
+          tempFile?.fileData?.sectionRefs?.length === 0)
+      ) {
+        tempUnusedFiles.push(tempFile.fileData);
       }
     }
 
-    setUnusedFiles(tempUnusedFiles)
-    setDeleteFileQueue((oldQueue) => oldQueue.filter((fileId) => tempUnusedFiles.some((file) => file.id === fileId)))
+    setUnusedFiles(tempUnusedFiles);
+    setDeleteFileQueue((oldQueue) =>
+      oldQueue.filter((fileId) =>
+        tempUnusedFiles.some((file) => file.id === fileId),
+      ),
+    );
 
     tempUnfilteredIssues.sort((a, b) => {
-      return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
-    })
+      return a.formLabel.toLowerCase() < b.formLabel.toLowerCase() ? -1 : 1;
+    });
 
     // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
     // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
     // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
-    let holdoverActiveIssue = null
+    let holdoverActiveIssue = null;
 
     // If there is an activeIssue, we need to connect it to something in the new list of issues.
-    if(activeIssue) {  
+    if (activeIssue) {
       // Quick check: is the old activeIssue still in the list?
       tempUnfilteredIssues.forEach((issue) => {
-        if(issue.id === activeIssue.id) {
-          holdoverActiveIssue = issue
+        if (issue.id === activeIssue.id) {
+          holdoverActiveIssue = issue;
         }
-      })
+      });
 
       // If not, we need to do a more thorough check.
-      if(holdoverActiveIssue === null) {
+      if (holdoverActiveIssue === null) {
         tempUnfilteredIssues.forEach((issue) => {
-          if(issue.contentId === activeIssue.contentId) {
-            holdoverActiveIssue = issue
+          if (issue.contentId === activeIssue.contentId) {
+            holdoverActiveIssue = issue;
           }
-        })
+        });
       }
 
-      if(holdoverActiveIssue === null) {
-        setWidgetState(WIDGET_STATE.LIST)
+      if (holdoverActiveIssue === null) {
+        setWidgetState(WIDGET_STATE.LIST);
       }
     }
 
-    setUnfilteredFiles(tempUnfilteredIssues)
-    let tempFilteredContent = getFilteredContent(tempUnfilteredIssues, holdoverActiveIssue?.id || null)
+    setUnfilteredFiles(tempUnfilteredIssues);
+    let tempFilteredContent = getFilteredContent(
+      tempUnfilteredIssues,
+      holdoverActiveIssue?.id || null,
+    );
 
-    setFilteredFiles(tempFilteredContent)
-    setActiveIssue(holdoverActiveIssue)
-  }, [report])
-
+    setFilteredFiles(tempFilteredContent);
+    setActiveIssue(holdoverActiveIssue);
+  }, [report]);
 
   // When a new activeIssue is set, get the content for that issue
   useEffect(() => {
-    if(activeIssue === null) {
-      setTempActiveIssue(null)
-      setWidgetState(WIDGET_STATE.LIST)
-      return
+    if (activeIssue === null) {
+      setTempActiveIssue(null);
+      setWidgetState(WIDGET_STATE.LIST);
+      return;
     }
-  
-    setWidgetState(WIDGET_STATE.FIXIT)
-    const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
-    if(activeIssue.fileData){
-      let tempContentReferences = []
-      let tempSectionRefereces = []
+
+    setWidgetState(WIDGET_STATE.FIXIT);
+    const activeIssueClone = JSON.parse(JSON.stringify(activeIssue));
+    if (activeIssue.fileData) {
+      let tempContentReferences = [];
+      let tempSectionRefereces = [];
 
       activeIssue.fileData.references.forEach((ref) => {
-        tempContentReferences.push(ref)
-      })
+        tempContentReferences.push(ref);
+      });
 
       activeIssue.fileData.sectionRefs?.forEach((ref) => {
-        tempSectionRefereces.push(ref)
-      })
+        tempSectionRefereces.push(ref);
+      });
 
-     activeIssue.fileData.replacement?.references?.forEach((ref) => {
-        tempContentReferences.push(ref)
-      })
+      activeIssue.fileData.replacement?.references?.forEach((ref) => {
+        tempContentReferences.push(ref);
+      });
 
       activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
-        tempSectionRefereces.push(ref)
-      })
+        tempSectionRefereces.push(ref);
+      });
 
-      setFileContentReferences(tempContentReferences)
-      setFileSectionReferences(tempSectionRefereces)
-
+      setFileContentReferences(tempContentReferences);
+      setFileSectionReferences(tempSectionRefereces);
     }
 
-    setTempActiveIssue(activeIssueClone)
-  }, [activeIssue])
+    setTempActiveIssue(activeIssueClone);
+  }, [activeIssue]);
 
   useEffect(() => {
-    if(!activeIssue){
-      return 
+    if (!activeIssue) {
+      return;
     }
 
-    let tempIsDisabled = false
+    let tempIsDisabled = false;
     // If there are any unresolved issues in this file, we disable the resolve button.
-    if(activeIssue.fileData && sessionFiles) {
+    if (activeIssue.fileData && sessionFiles) {
       Object.keys(sessionFiles).forEach((key) => {
-        if(key == activeIssue.fileData.id) {
-          if(sessionFiles[key] === ISSUE_STATE.SAVING || sessionFiles[key] === ISSUE_STATE.RESOLVING) {
-            tempIsDisabled = true
+        if (key == activeIssue.fileData.id) {
+          if (
+            sessionFiles[key] === ISSUE_STATE.SAVING ||
+            sessionFiles[key] === ISSUE_STATE.RESOLVING
+          ) {
+            tempIsDisabled = true;
           }
         }
-      })
+      });
     }
-    setIsDisabled(tempIsDisabled)
-  }, [sessionFiles])
+    setIsDisabled(tempIsDisabled);
+  }, [sessionFiles]);
 
   const handleEscapeKey = (e) => {
-    if(e.key === 'Escape' && widgetState === WIDGET_STATE.FIXIT) {
-      e.preventDefault()
-      closeDialog()
+    if (e.key === "Escape" && widgetState === WIDGET_STATE.FIXIT) {
+      e.preventDefault();
+      closeDialog();
     }
-  }
+  };
 
-useEffect(() => {
-    if(showLearnMore) {
-      document.getElementById('btn-learn-more-back')?.focus()
-    }
-    else {
-      document.getElementById('btn-learn-more-open')?.focus()
-    }
-  }, [showLearnMore])
-
-// Pull focus into the dialog when it opens, and return focus to the most recently clicked issue when it closes
   useEffect(() => {
-    if(widgetState === WIDGET_STATE.FIXIT) {
-      let dialog = document.getElementById(dialogId)
-      if(unusedDialogModal){
-        dialog = document.getElementById(unusedFileDialogId)
+    if (showLearnMore) {
+      document.getElementById("btn-learn-more-close")?.focus();
+    } else {
+      document.getElementById("btn-learn-more-open")?.focus();
+    }
+  }, [showLearnMore]);
+
+  // Pull focus into the dialog when it opens, and return focus to the most recently clicked issue when it closes
+  useEffect(() => {
+    if (widgetState === WIDGET_STATE.FIXIT) {
+      let dialog = document.getElementById(dialogId);
+      if (unusedDialogModal) {
+        dialog = document.getElementById(unusedFileDialogId);
       }
       if (dialog) {
-        dialog.addEventListener('keydown', handleEscapeKey)
-        const title = dialog.querySelector('#ufixit-dialog-title')
-        if(title) {
-          title.focus()
+        dialog.addEventListener("keydown", handleEscapeKey);
+        const title = dialog.querySelector("#ufixit-dialog-title");
+        if (title) {
+          title.focus();
         }
       }
-    }
-    else if(widgetState === WIDGET_STATE.LIST) {
-      if(mostRecentFileId) {
-        const fileElement = document.getElementById(`udoit-file-${mostRecentFileId}`)
-        if(fileElement) {
-          fileElement.focus() 
+    } else if (widgetState === WIDGET_STATE.LIST) {
+      if (mostRecentFileId) {
+        const fileElement = document.getElementById(
+          `udoit-file-${mostRecentFileId}`,
+        );
+        if (fileElement) {
+          fileElement.focus();
         }
-        const dialog = document.getElementById(dialogId)
+        const dialog = document.getElementById(dialogId);
         if (dialog) {
-          dialog.removeEventListener('keydown', handleEscapeKey)
+          dialog.removeEventListener("keydown", handleEscapeKey);
         }
       }
     }
-  }, [widgetState])
+  }, [widgetState]);
 
   const openDialog = (currDialogId) => {
-    setWidgetState(WIDGET_STATE.FIXIT)
-    setModalActive(true)
-    if(currDialogId == dialogId){
-      setUnusedDialogModal(false)
+    setWidgetState(WIDGET_STATE.FIXIT);
+    setModalActive(true);
+    if (currDialogId == dialogId) {
+      setUnusedDialogModal(false);
+    } else {
+      setUnusedDialogModal(true);
     }
-    else{
-      setUnusedDialogModal(true)
-    }
-  }
+  };
 
   const closeDialog = () => {
-    setWidgetState(WIDGET_STATE.LIST)
-    setModalActive(false)
-    setActiveIssue(null)
-    setUnusedDialogModal(false)
-  }
+    setWidgetState(WIDGET_STATE.LIST);
+    setModalActive(false);
+    setActiveIssue(null);
+    setUnusedDialogModal(false);
+  };
 
   const toggleDeleteFileQueue = (fileId) => {
-    if(!fileId) {
-      return
+    if (!fileId) {
+      return;
     }
 
-    const url = `files/${fileId}`
+    const url = `files/${fileId}`;
 
-    let tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
-    if(tempQueue.includes(url)){
-      tempQueue = tempQueue.filter((q_url) => q_url != url)
-    }
-    else{
-      tempQueue.push(url)
+    let tempQueue = JSON.parse(JSON.stringify(deleteFileQueue));
+    if (tempQueue.includes(url)) {
+      tempQueue = tempQueue.filter((q_url) => q_url != url);
+    } else {
+      tempQueue.push(url);
     }
 
-    setDeleteFileQueue(tempQueue)
-  }
+    setDeleteFileQueue(tempQueue);
+  };
 
   const updateSelectAllUnusedFilesToggle = (newValue) => {
-    if(newValue === false) {
-      setDeleteFileQueue([])
-      return
+    if (newValue === false) {
+      setDeleteFileQueue([]);
+      return;
     }
 
-    setDeleteFileQueue(unusedFiles.map((file) => `files/${file.lmsFileId}`))
-  }
+    setDeleteFileQueue(unusedFiles.map((file) => `files/${file.lmsFileId}`));
+  };
 
   const getFileTypeDisplay = (fileType) => {
-    const fileTypeText = t(`label.mime.${fileType}`)
+    const fileTypeText = t(`label.mime.${fileType}`);
 
     return (
       <div className="table-pill" title={fileTypeText}>
         {fileType}
       </div>
-    )
-  }
+    );
+  };
 
   const getFileNameDisplay = (tempFile) => {
-    const fileName = tempFile.contentTitle
-    const fileType = tempFile.fileData.fileType
+    const fileName = tempFile.contentTitle;
+    const fileType = tempFile.fileData.fileType;
 
     return (
       <div className="flex-row gap-2" aria-label={fileName}>
@@ -534,236 +583,268 @@ useEffect(() => {
           {fileName}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const getFileStatusDisplay = (status) => {
-    return (
-      <StatusPill
-        t={t}
-        issue={{ status: status, severity: ''}}
-        />
-    )
-    
-  }
+    return <StatusPill t={t} issue={{ status: status, severity: "" }} />;
+  };
 
   const getFilteredContent = (allIssues, includedIssueId = null) => {
-    let filteredList = []
-    const tempFilters = Object.assign({}, activeFilters)
+    let filteredList = [];
+    const tempFilters = Object.assign({}, activeFilters);
 
     for (const issue of allIssues) {
-
       // When we have just saved or resolved an issue, we want to keep that one in the list
       // even if it doesn't match the filters. This is used to show the user that their changes
       // were successful.
-      if(includedIssueId && issue.id === includedIssueId) {
-        filteredList.push(issue)
-        continue
+      if (includedIssueId && issue.id === includedIssueId) {
+        filteredList.push(issue);
+        continue;
       }
 
-      if(tempFilters[FILTER.TYPE.UTILIZATION] !== FILTER.ALL) {
-        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED && issue?.fileData?.references?.length === 0 && issue?.fileData?.sectionRefs?.length == 0) {
-          continue
+      if (tempFilters[FILTER.TYPE.UTILIZATION] !== FILTER.ALL) {
+        if (
+          tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED &&
+          issue?.fileData?.references?.length === 0 &&
+          issue?.fileData?.sectionRefs?.length == 0
+        ) {
+          continue;
         }
-        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED && (issue?.fileData?.references?.length > 0 || issue?.fileData?.sectionRefs?.length > 0)) {
-          continue
+        if (
+          tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED &&
+          (issue?.fileData?.references?.length > 0 ||
+            issue?.fileData?.sectionRefs?.length > 0)
+        ) {
+          continue;
         }
       }
-      
-      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
-        continue
+
+      if (
+        tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL &&
+        tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status
+      ) {
+        continue;
       }
 
       // Do not include this issue if it doesn't match the module filter
       if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL) {
-        let sectionId = tempFilters[FILTER.TYPE.MODULE].toString().replace('section-', '')
+        let sectionId = tempFilters[FILTER.TYPE.MODULE]
+          .toString()
+          .replace("section-", "");
         if (!issue.sectionIds.includes(sectionId)) {
-          continue
+          continue;
         }
       }
 
-      if (tempFilters[FILTER.TYPE.FILE_TYPE] !== FILTER.ALL && issue.fileType !== tempFilters[FILTER.TYPE.FILE_TYPE]) {
-        continue
+      if (
+        tempFilters[FILTER.TYPE.FILE_TYPE] !== FILTER.ALL &&
+        issue.fileType !== tempFilters[FILTER.TYPE.FILE_TYPE]
+      ) {
+        continue;
       }
 
       // Do not include this issue if it doesn't contain the search term/s
-      if (searchTerm !== '') {
-        const searchTerms = searchTerm.toLowerCase().split(' ')
-        let containsAllTerms = true
+      if (searchTerm !== "") {
+        const searchTerms = searchTerm.toLowerCase().split(" ");
+        let containsAllTerms = true;
         if (Array.isArray(searchTerms)) {
           for (let term of searchTerms) {
             if (!issue.keywords.includes(term)) {
-              containsAllTerms = false
+              containsAllTerms = false;
             }
           }
         }
         if (!containsAllTerms) {
-          continue
+          continue;
         }
       }
 
       // If the issue passes all filters, add it to the list!
-      filteredList.push(issue)
+      filteredList.push(issue);
     }
 
     filteredList.sort((a, b) => {
-      return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
-    })
+      return a.formLabel.toLowerCase() < b.formLabel.toLowerCase() ? -1 : 1;
+    });
 
-    return filteredList
-  }
+    return filteredList;
+  };
 
   // All local information must be updated to match the new issue state:
   // - activeIssue
   // - unfilteredIssues
   // - filteredIssues
   // This does NOT change the report object, which updates when the issue's data changes.
-  const updateActiveSessionFile = (fileId, state = null, contentItemId = null) => {
-    if(state === null) {
-      state = ISSUE_STATE.UNCHANGED
+  const updateActiveSessionFile = (
+    fileId,
+    state = null,
+    contentItemId = null,
+  ) => {
+    if (state === null) {
+      state = ISSUE_STATE.UNCHANGED;
     }
 
     // This updates the counter for the daily progress
-    updateSessionFiles(fileId, state, contentItemId)
+    updateSessionFiles(fileId, state, contentItemId);
 
     // Only update the whole list if the issue is saved, resolved, or marked as unresolved.
-    if(state === ISSUE_STATE.SAVED
-      || state === ISSUE_STATE.RESOLVED
-      || state === ISSUE_STATE.UNCHANGED) {
-
-        let tempUnfilteredIssues = unfilteredFiles.map((issue) => {
-          if(issue.id === fileId) {
-            let tempIssue = Object.assign({}, issue)
-            tempIssue.currentState = state
-            return tempIssue
-          }
-          return issue
-        })
-        setUnfilteredFiles(tempUnfilteredIssues)
-        setFilteredFiles(getFilteredContent(tempUnfilteredIssues, activeIssue?.id || null))
+    if (
+      state === ISSUE_STATE.SAVED ||
+      state === ISSUE_STATE.RESOLVED ||
+      state === ISSUE_STATE.UNCHANGED
+    ) {
+      let tempUnfilteredIssues = unfilteredFiles.map((issue) => {
+        if (issue.id === fileId) {
+          let tempIssue = Object.assign({}, issue);
+          tempIssue.currentState = state;
+          return tempIssue;
+        }
+        return issue;
+      });
+      setUnfilteredFiles(tempUnfilteredIssues);
+      setFilteredFiles(
+        getFilteredContent(tempUnfilteredIssues, activeIssue?.id || null),
+      );
     }
 
     // This updates the active issue to the current state, which allows the proper UI to show
     // (like "Processing..." which disables the buttons).
-    if(activeIssue) {
-      let tempIssue = JSON.parse(JSON.stringify(activeIssue))
-      if(tempIssue.id === fileId) {
-        tempIssue.currentState = state
-
+    if (activeIssue) {
+      let tempIssue = JSON.parse(JSON.stringify(activeIssue));
+      if (tempIssue.id === fileId) {
+        tempIssue.currentState = state;
       }
     }
-  }
+  };
 
   const extractUrl = (url, contentType) => {
-  if(!url) return ''
-  
-  const idx = url.indexOf('courses/');
-  if (idx !== -1) {
-    // slice from "courses/" onward and strip any leading slashes (defensive)
-    let slicedUrl = url.slice(idx).replace(/^\/+/, '');
-    if(contentType == "syllabus"){
-      const parts = slicedUrl.split("/")
-      slicedUrl = `${parts[0]}/${parts[1]}?include[]=syllabus_body`
-    }
-    return slicedUrl
-  }
+    if(!url) return '';
 
-  // if no "courses/" found, remove leading slashes and return the remainder
-  return url.replace(/^\/+/, '');
-}
+    const idx = url.indexOf('courses/');
+    if (idx !== -1) {
+      // slice from "courses/" onward and strip any leading slashes (defensive)
+      let slicedUrl = url.slice(idx).replace(/^\/+/, '');
+      if(contentType == "syllabus") {
+        const parts = slicedUrl.split("/")
+        slicedUrl = `${parts[0]}/${parts[1]}?include[]=syllabus_body`
+      }
+      return slicedUrl;
+    }
 
-  const updateFile = (tempFile, copiedReport, newFile = null, ) => {
-    const tempReport = Object.assign({}, copiedReport)
-    if(!Array.isArray(tempReport.files)){
-      tempReport.files = Object.values(tempReport.files)
+    // if no "courses/" found, remove leading slashes and return the remainder
+    return url.replace(/^\/+/, '');
+  };
+
+  const updateFile = (tempFile, copiedReport, newFile = null) => {
+    const tempReport = Object.assign({}, copiedReport);
+    if (!Array.isArray(tempReport.files)) {
+      tempReport.files = Object.values(tempReport.files);
     }
-    if(newFile){
-      tempReport.push(newFile)
+    if (newFile) {
+      tempReport.push(newFile);
     }
-    for(let i = 0; i < tempReport.files.length; i++){
-      if(tempReport.files[i].lmsFileId.toString() == tempFile.lmsFileId.toString()){
-        tempReport.files[i] = tempFile
+    for (let i = 0; i < tempReport.files.length; i++) {
+      if (
+        tempReport.files[i].lmsFileId.toString() ==
+        tempFile.lmsFileId.toString()
+      ) {
+        tempReport.files[i] = tempFile;
       }
     }
-    
-    return tempReport
-  }
+
+    return tempReport;
+  };
 
   // Given a html returns updated html with all file links replaced
   const replaceFileInHtml = (contentItemBody, fileId, newUrl) => {
-    const parser = new DOMParser()
-    const tempBody = parser.parseFromString(contentItemBody, 'text/html')
-    let links = tempBody.getElementsByTagName('a')
-    const fileUrlPattern = /\/files\/(\d+)/
-    for(let i = 0; i < links.length; i++) {
-      let link = links[i]
-      let href = link.getAttribute('href')
-      if(href){
-        let match = href.match(fileUrlPattern)
-        if(match && match[1] && match[1] == fileId){
-            link.setAttribute('href', newUrl) 
+    const parser = new DOMParser();
+    const tempBody = parser.parseFromString(contentItemBody, "text/html");
+    let links = tempBody.getElementsByTagName("a");
+    const fileUrlPattern = /\/files\/(\d+)/;
+    for (let i = 0; i < links.length; i++) {
+      let link = links[i];
+      let href = link.getAttribute("href");
+      if (href) {
+        let match = href.match(fileUrlPattern);
+        if (match && match[1] && match[1] == fileId) {
+          link.setAttribute("href", newUrl);
         }
       }
     }
-    return Html.toString(tempBody.body)
-  }
+    return Html.toString(tempBody.body);
+  };
 
   const handleFileDelete = async () => {
-    setIsDisabled(true)
-    try{
-      let api = new Api(instanceInfo)
-      const responseStr = await api.deleteFile(activeIssue.fileData)
-      const response = await responseStr.json()
-      if(response?.errors && response.errors.length > 0){
-         response.errors.forEach((err) => addMessage(err))
-         return
+    setIsDisabled(true);
+    try {
+      const responseStr = await api.deleteFile(activeIssue.fileData);
+      const response = await responseStr.json();
+      if (response?.errors && response.errors.length > 0) {
+        response.errors.forEach((err) => addMessage(err));
+        return;
       }
 
-      const tempReport = JSON.parse(JSON.stringify(report))
-      if(!Array.isArray(tempReport.files)){
-        tempReport.files = Object.values(tempReport.files)
+      const tempReport = JSON.parse(JSON.stringify(report));
+      if (!Array.isArray(tempReport.files)) {
+        tempReport.files = Object.values(tempReport.files);
       }
 
       // Move over to the next file as we are deleting the current one
-      let nextFileIndex = tempReport.files.findIndex((file) => file.id == activeIssue.fileData.id) + 1
-      nextFileIndex = nextFileIndex >= report.files.length ? 0 : nextFileIndex
-      const tempNext = tempReport.files[nextFileIndex]
-       
+      let nextFileIndex =
+        tempReport.files.findIndex(
+          (file) => file.id == activeIssue.fileData.id,
+        ) + 1;
+      nextFileIndex = nextFileIndex >= report.files.length ? 0 : nextFileIndex;
+      const tempNext = tempReport.files[nextFileIndex];
+
       // Remove the current file from the list and adjust active issue
-      tempReport.files = tempReport.files.filter((file) => file.id != activeIssue.fileData.id)
-      if(tempNext){
-        const tempFileIssue = formatFileData(tempNext)
-        setActiveIssue(tempFileIssue)
-      }
-      else{
-        closeDialog()
+      tempReport.files = tempReport.files.filter(
+        (file) => file.id != activeIssue.fileData.id,
+      );
+      if (tempNext) {
+        const tempFileIssue = formatFileData(tempNext);
+        setActiveIssue(tempFileIssue);
+      } else {
+        closeDialog();
       }
 
-      // Add success messages 
-      response.messages.forEach((msg) => addMessage(msg))
-      processNewReport(tempReport)
+      // Add success messages
+      response.messages.forEach((msg) => addMessage(msg));
+      processNewReport(tempReport);
+    } catch (error) {
+      addMessage(error);
+      console.error(error);
+      return;
     }
-    catch(error){
-      addMessage(error)
-      console.error(error)
-      return
-    }
-    setIsDisabled(false)
-  }
+    setIsDisabled(false);
+  };
 
-  const createContentItemPostOptions = (fullPageHtml, contentUrl, contentId, contentType, sectionIds) => {
+  const createContentItemPostOptions = (
+    fullPageHtml,
+    contentUrl,
+    contentId,
+    contentType,
+    sectionIds,
+  ) => {
     const contentItemOption = {
-        fullPageHtml: fullPageHtml,
-        contentUrl: contentUrl,
-        contentId: contentId,
-        contentType: contentType,
-        sectionIds: sectionIds?.length > 0 ? sectionIds : [],
-      }
+      fullPageHtml: fullPageHtml,
+      contentUrl: contentUrl,
+      contentId: contentId,
+      contentType: contentType,
+      sectionIds: sectionIds?.length > 0 ? sectionIds : [],
+    };
 
-      return contentItemOption
-  }
+    return contentItemOption;
+  };
 
-  const createSectionPostOptions = (newFile, moduleId, position, itemId, indent) => {
+  const createSectionPostOptions = (
+    newFile,
+    moduleId,
+    position,
+    itemId,
+    indent,
+  ) => {
     const sectionIdOption = {
       fileName: newFile.fileName,
       fileId: newFile.lmsFileId,
@@ -771,359 +852,475 @@ useEffect(() => {
       position: position,
       itemid: itemId,
       indent: indent,
-      courseId: instanceInfo.course.lmsCourseId
-    }
-    return sectionIdOption
-  }
+      courseId: instanceInfo.course.lmsCourseId,
+    };
+    return sectionIdOption;
+  };
 
   const getContentPostItems = (file, newFile, contentReferences) => {
-    const postContentItemOptions = []
-    if(contentReferences?.length > 0){
+    const postContentItemOptions = [];
+    if (contentReferences?.length > 0) {
       contentReferences.map((reference) => {
-        let newFullPageHtml = ""
-        if(reference.contentItemBody){
-          newFullPageHtml = replaceFileInHtml(reference.contentItemBody, file.lmsFileId, newFile.metadata.url)
+        let newFullPageHtml = "";
+        if (reference.contentItemBody) {
+          newFullPageHtml = replaceFileInHtml(
+            reference.contentItemBody,
+            file.lmsFileId,
+            newFile.metadata.url,
+          );
         }
-        postContentItemOptions.push(createContentItemPostOptions(newFullPageHtml, extractUrl(reference.contentItemUrl, reference.contentType), reference.contentItemId, reference.contentType, reference.sectionIds))
+        postContentItemOptions.push(
+          createContentItemPostOptions(
+            newFullPageHtml,
+            extractUrl(reference.contentItemUrl, reference.contentType),
+            reference.contentItemId,
+            reference.contentType,
+            reference.sectionIds
+          )
+        );
       })
     }
-    return postContentItemOptions
-  }
+    return postContentItemOptions;
+  };
 
-const getSectionPostOptions = (newFile, sectionReferences) => {
-    const postSectionOptions = []
-    if(sectionReferences?.length > 0){
+  const getSectionPostOptions = (newFile, sectionReferences) => {
+    const postSectionOptions = [];
+    if (sectionReferences?.length > 0) {
       sectionReferences.map((sectionRef) => {
-         postSectionOptions.push(createSectionPostOptions(newFile, sectionRef.moduleId, sectionRef.itemPosition, sectionRef.itemId, sectionRef.indent))
-      })
+        postSectionOptions.push(
+          createSectionPostOptions(
+            newFile,
+            sectionRef.moduleId,
+            sectionRef.itemPosition,
+            sectionRef.itemId,
+            sectionRef.indent,
+          ),
+        );
+      });
     }
-    return postSectionOptions
-  }
+    return postSectionOptions;
+  };
 
-  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption, fileId) => {
-    const responseStatus = []
-    try{
-      let api = new Api(instanceInfo)
-      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption, fileId)
-      const response = await responseStr.json()
+  const updateAndScanContent = async (
+    postContentItemOptions,
+    postSectionItemOption,
+    fileId,
+  ) => {
+    const responseStatus = [];
+    try {
+      const responseStr = await api.updateContent(
+        postContentItemOptions,
+        postSectionItemOption,
+        fileId,
+      );
+      const response = await responseStr.json();
       if (response.errors && response.errors.length > 0) {
-      response.errors.forEach((error) => {
-        responseStatus.push({ status: "error", message: error })
-      })
-      return responseStatus;
-    }
+        response.errors.forEach((error) => {
+          responseStatus.push({ status: "error", message: error });
+        });
+        return responseStatus;
+      }
       const newContent = response?.data?.content;
       let contentIndex = 1;
       for (const content of newContent) {
         const isLastContent = contentIndex == newContent.length;
         contentIndex++;
-        if(content.status == 200){
-          if(content.type != 'section'){
-              const scanResponseStr = await api.scanContent(content.id, false);
-              const scanResponse = await scanResponseStr.json();
-              if (scanResponse?.messages[0]?.severity != "success") {
-                responseStatus.push({ status: "error", message: "Failure to scan content" });
-                return responseStatus;
-              }
-          }
-        }
-        if(isLastContent) {
-            const reportResponseStr = await api.updateAndGetReport(instanceInfo.course.id)
-            const reportResponse = await reportResponseStr.json()
-            if(reportResponse){
-              if(reportResponse.messages[0].severity == 'success'){
-                const newReport = reportResponse.data
-                responseStatus.push({ status: "success", message: newReport});
-                return responseStatus;
-              }
-              else{
-                responseStatus.push({ status: "error", message:"Failed to retrive new report" });
-                return responseStatus;
-              }
+        if (content.status == 200) {
+          if (content.type != "section") {
+            const scanResponseStr = await api.scanContent(content.id, false);
+            const scanResponse = await scanResponseStr.json();
+            if (scanResponse?.messages[0]?.severity != "success") {
+              responseStatus.push({
+                status: "error",
+                message: "Failure to scan content",
+              });
+              return responseStatus;
             }
           }
+        }
+        if (isLastContent) {
+          const reportResponseStr = await api.updateAndGetReport(
+            instanceInfo.course.id,
+          );
+          const reportResponse = await reportResponseStr.json();
+          if (reportResponse) {
+            if (reportResponse.messages[0].severity == "success") {
+              const newReport = reportResponse.data;
+              responseStatus.push({ status: "success", message: newReport });
+              return responseStatus;
+            } else {
+              responseStatus.push({
+                status: "error",
+                message: "Failed to retrive new report",
+              });
+              return responseStatus;
+            }
+          }
+        }
       }
+    } catch (error) {
+      responseStatus.push({ type: "error", message: error });
+      return responseStatus;
     }
-    catch(error){
-      responseStatus.push({type: "error", message: error})
-      return responseStatus
-    }
-  }
+  };
 
-  const handleFileUpload  = async (newFileData, contentReferences, sectionReferences) => {
-    if(markAsReviewed){
-      handleFileResolve(activeIssue.fileData)
-      return
+  const handleFileUpload = async (
+    newFileData,
+    contentReferences,
+    sectionReferences,
+  ) => {
+    if (markAsReviewed) {
+      handleFileResolve(activeIssue.fileData);
+      return;
     }
 
-    const tempFile = Object.assign({}, activeIssue.fileData)
-    updateActiveSessionFile(tempFile.id, ISSUE_STATE.SAVING)
-    try{
+    const tempFile = Object.assign({}, activeIssue.fileData);
+    updateActiveSessionFile(tempFile.id, ISSUE_STATE.SAVING);
+    try {
       // File Upload to Canvas
-      let api = new Api(instanceInfo)
-      const responseStr = await api.postFile(tempFile, newFileData)
-      const response = await responseStr.json()
-      if(response.errors && response.errors.length > 0) {
-        response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
-        updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR)
-        return
+      const responseStr = await api.postFile(tempFile, newFileData);
+      const response = await responseStr.json();
+      if (response.errors && response.errors.length > 0) {
+        response.errors.forEach((err) =>
+          addMessage({ message: t(err), severity: "error", visible: true }),
+        );
+        updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR);
+        return;
       }
 
       // Setting data for new file and adjusting old file
-      const updatedFileData = response?.data?.newFile
-      let metadataObj = tempFile?.metadata || {}
-      metadataObj.replacementFileId = updatedFileData?.metadata.id
-      tempFile.replacement = updatedFileData
+      const updatedFileData = response?.data?.newFile;
+      let metadataObj = tempFile?.metadata || {};
+      metadataObj.replacementFileId = updatedFileData?.metadata.id;
+      tempFile.replacement = updatedFileData;
 
       // Copying and pushing new file onto report
-      let tempReport = JSON.parse(JSON.stringify(report))
-      if(!Array.isArray(tempReport.files)){
-        tempReport.files = Object.values(tempReport.files)
+      let tempReport = JSON.parse(JSON.stringify(report));
+      if (!Array.isArray(tempReport.files)) {
+        tempReport.files = Object.values(tempReport.files);
       }
-      tempReport.files.push(updatedFileData)
-      let canMarkReview = false // Use this to track if the file should be marked as 'reviewed'/'resolved' 
+      tempReport.files.push(updatedFileData);
+      let canMarkReview = false; // Use this to track if the file should be marked as 'reviewed'/'resolved'
 
       // Build content and section items POST data
-      const postContentItemOptions = getContentPostItems(tempFile, updatedFileData, contentReferences)
-      const postSectionOptions = getSectionPostOptions(updatedFileData, sectionReferences)
+      const postContentItemOptions = getContentPostItems(
+        tempFile,
+        updatedFileData,
+        contentReferences,
+      );
+      const postSectionOptions = getSectionPostOptions(
+        updatedFileData,
+        sectionReferences,
+      );
 
-      if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, updatedFileData.id)
-        if(responseStatus && responseStatus[0]?.type == "error"){
-          responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
-          updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR)
-          return
-        }
-        else if(responseStatus && responseStatus[0]?.status == "success"){
-          tempReport = responseStatus[0].message
-          tempReport = processNewReport(tempReport)
+      if (
+        (postContentItemOptions && postContentItemOptions.length > 0) ||
+        (postSectionOptions && postSectionOptions.length > 0)
+      ) {
+        const responseStatus = await updateAndScanContent(
+          postContentItemOptions,
+          postSectionOptions,
+          updatedFileData.id,
+        );
+        if (responseStatus && responseStatus[0]?.type == "error") {
+          responseStatus.forEach((err) =>
+            addMessage({
+              message: err.message,
+              severity: "error",
+              visible: true,
+            }),
+          );
+          updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR);
+          return;
+        } else if (responseStatus && responseStatus[0]?.status == "success") {
+          tempReport = responseStatus[0].message;
+          tempReport = processNewReport(tempReport);
         }
       }
 
-      if(!Array.isArray(tempReport.files)){
-        tempReport.files = Object.values(tempReport.files)
+      if (!Array.isArray(tempReport.files)) {
+        tempReport.files = Object.values(tempReport.files);
       }
-      const currentFile = tempReport.files.find((file) => file.id == activeIssue.id) 
-      canMarkReview = currentFile ? (currentFile?.references?.length == 0 && currentFile?.sectionRefs?.length == 0) : false
-      if(canMarkReview){
-          const resolvedReport = await handleFileResolve(tempFile, true, tempReport, true, false)
-          tempReport = resolvedReport ? resolvedReport : tempReport
-          updateActiveSessionFile(tempFile.id, ISSUE_STATE.SAVED)
-      }
-      else{
-        updateActiveSessionFile(tempFile.id, ISSUE_STATE.UNCHANGED)
+      const currentFile = tempReport.files.find(
+        (file) => file.id == activeIssue.id,
+      );
+      canMarkReview =
+        currentFile ?
+          currentFile?.references?.length == 0 &&
+          currentFile?.sectionRefs?.length == 0
+        : false;
+      if (canMarkReview) {
+        const resolvedReport = await handleFileResolve(
+          tempFile,
+          true,
+          tempReport,
+          true,
+          false,
+        );
+        tempReport = resolvedReport ? resolvedReport : tempReport;
+        updateActiveSessionFile(tempFile.id, ISSUE_STATE.SAVED);
+      } else {
+        updateActiveSessionFile(tempFile.id, ISSUE_STATE.UNCHANGED);
       }
       // Our file upload process is done at this point so we can add the messages
-      response.messages.forEach((msg) => addMessage(msg))     
-      processNewReport(tempReport)
+      response.messages.forEach((msg) => addMessage(msg));
+      processNewReport(tempReport);
+    } catch (error) {
+      console.error(error);
+      updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR);
     }
-    catch (error) {
-      console.error(error)
-      updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR)
+  };
+
+  const handleFileResolve = async (
+    fileData,
+    getReport = false,
+    copiedReport = report,
+    forceReview = false,
+    replace = false,
+  ) => {
+    updateActiveSessionFile(fileData.id, ISSUE_STATE.RESOLVING);
+    fileData.reviewed = !fileData.reviewed || forceReview;
+    if (replace) {
+      fileData.replacement = null;
+      fileData.metadata.replacementFileId = -1;
     }
-  }
+    try {
+      const responseStr = await api.reviewFile(fileData, replace);
+      const response = await responseStr.json();
 
-  const handleFileResolve = async (fileData, getReport = false, copiedReport = report, forceReview = false, replace = false) => {
-    updateActiveSessionFile(fileData.id, ISSUE_STATE.RESOLVING)
-    fileData.reviewed = !(fileData.reviewed) || forceReview
-    if(replace){
-        fileData.replacement = null
-        fileData.metadata.replacementFileId = -1
-      }
-    try{
-      let api = new Api(instanceInfo)
-      const responseStr = await api.reviewFile(fileData, replace)
-      const response = await responseStr.json()
+      const reviewed =
+        response?.data?.file && "reviewed" in response.data.file ?
+          response.data.file.reviewed
+        : false;
+      fileData.reviewed = reviewed;
 
-      const reviewed = (response?.data?.file && ('reviewed' in response.data.file)) ? response.data.file.reviewed : false
-      fileData.reviewed = reviewed
-
-       // Set messages
-      response.messages.forEach((msg) => addMessage(msg))
+      // Set messages
+      response.messages.forEach((msg) => addMessage(msg));
 
       // Update the local report and activeIssue
-      if(reviewed) {
-        updateActiveSessionFile(fileData.id, ISSUE_STATE.RESOLVED)
+      if (reviewed) {
+        updateActiveSessionFile(fileData.id, ISSUE_STATE.RESOLVED);
+      } else {
+        updateActiveSessionFile(fileData.id, ISSUE_STATE.UNCHANGED);
       }
-      else {
-        updateActiveSessionFile(fileData.id, ISSUE_STATE.UNCHANGED)
+      const newReport = updateFile(fileData, copiedReport);
+      if (getReport) {
+        return newReport;
       }
-      const newReport = updateFile(fileData, copiedReport)
-      if(getReport){
-        return newReport
-      }
-      processNewReport(newReport)
+      processNewReport(newReport);
+    } catch (error) {
+      console.warn(error);
+      updateActiveSessionFile(fileData.id, ISSUE_STATE.ERROR);
     }
-    catch(error){
-      console.warn(error)
-      updateActiveSessionFile(fileData.id, ISSUE_STATE.ERROR)
-    }
-  }
+  };
 
   const removeFileFromReport = (fileIds) => {
-    const tempReport = Object.assign({}, report)
+    const tempReport = Object.assign({}, report);
 
-    if(!Array.isArray(tempReport.files)){
-      tempReport.files = Object.values(tempReport.files)
+    if (!Array.isArray(tempReport.files)) {
+      tempReport.files = Object.values(tempReport.files);
     }
 
-    if(!tempReport || !tempReport.files || tempReport.files.length == 0){
-      return tempReport
-    }
-    
-    for(const id of fileIds){
-      tempReport.files = tempReport.files.filter((file) => parseInt(file.lmsFileId) != id)
+    if (!tempReport || !tempReport.files || tempReport.files.length == 0) {
+      return tempReport;
     }
 
-    return tempReport
-  }
+    for (const id of fileIds) {
+      tempReport.files = tempReport.files.filter(
+        (file) => parseInt(file.lmsFileId) != id,
+      );
+    }
+
+    return tempReport;
+  };
 
   const deleteSelectedFiles = async (payload) => {
-    if(!deleteFileQueue || deleteFileQueue?.length == 0){
-      return
+    if (!deleteFileQueue || deleteFileQueue?.length == 0) {
+      return;
     }
 
-    setIsDisabled(true)
-    const reomovedFileId = []
-    const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue))
-    try{
-      const api = new Api(instanceInfo)
-      while(tempQueue.length > 0){
-        let payloadTracker = 0
-        let paths = []
-        while(tempQueue.length > 0 && payloadTracker < payload){
-          paths.push(tempQueue.pop())
-          payloadTracker++
+    setIsDisabled(true);
+    const reomovedFileId = [];
+    const tempQueue = JSON.parse(JSON.stringify(deleteFileQueue));
+    try {
+      while (tempQueue.length > 0) {
+        let payloadTracker = 0;
+        let paths = [];
+        while (tempQueue.length > 0 && payloadTracker < payload) {
+          paths.push(tempQueue.pop());
+          payloadTracker++;
         }
-        const respone_str = await api.batchDelete(paths)
-        const response = await respone_str.json()
-        for(const r of response){
-          reomovedFileId.push(r?.content?.id)
+        const respone_str = await api.batchDelete(paths);
+        const response = await respone_str.json();
+        for (const r of response) {
+          reomovedFileId.push(r?.content?.id);
         }
       }
-    }
-    catch(e){
-      console.error(e)
+    } catch (e) {
+      console.error(e);
     }
 
-    const newReport = removeFileFromReport(reomovedFileId)
-    setDeleteFileQueue(tempQueue)
-    processNewReport(newReport)
-    setIsDisabled(false)
-
-  }
+    const newReport = removeFileFromReport(reomovedFileId);
+    setDeleteFileQueue(tempQueue);
+    processNewReport(newReport);
+    setIsDisabled(false);
+  };
 
   const deleteSelectedFilesWrapper = () => {
-    const payload = 10
-    deleteSelectedFiles(payload)
-  }
+    const payload = 10;
+    deleteSelectedFiles(payload);
+  };
 
-  // Wrapper to pass to file form for unreviewing 
+  // Wrapper to pass to file form for unreviewing
   const handleFileResolveWrapper = () => {
-    handleFileResolve(activeIssue.fileData)
-  }
+    handleFileResolve(activeIssue.fileData);
+  };
 
-  const handleFileRevert = async (activeFile, contentReferences, sectionReferences) => {
-    updateActiveSessionFile(activeFile.id, ISSUE_STATE.SAVING)
-    let tempReport = JSON.parse(JSON.stringify(report))
-    if(!Array.isArray(tempReport.files)){
-      tempReport.files = Object.values(tempReport.files)
+  const handleFileRevert = async (
+    activeFile,
+    contentReferences,
+    sectionReferences,
+  ) => {
+    updateActiveSessionFile(activeFile.id, ISSUE_STATE.SAVING);
+    let tempReport = JSON.parse(JSON.stringify(report));
+    if (!Array.isArray(tempReport.files)) {
+      tempReport.files = Object.values(tempReport.files);
     }
-    const postContentItemOptions = getContentPostItems(activeFile.replacement, activeFile, contentReferences)
-    const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
+    const postContentItemOptions = getContentPostItems(
+      activeFile.replacement,
+      activeFile,
+      contentReferences,
+    );
+    const postSectionOptions = getSectionPostOptions(
+      activeFile,
+      sectionReferences,
+    );
 
-
-    if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
-        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions, activeFile.id)
-        if(responseStatus && responseStatus[0]?.type == "error"){
-          responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
-          updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR)
-          return
-        }
-        else if(responseStatus && responseStatus[0]?.status == "success"){
-          tempReport = responseStatus[0].message
-          tempReport = processNewReport(tempReport)
-        }
+    if (
+      (postContentItemOptions && postContentItemOptions.length > 0) ||
+      (postSectionOptions && postSectionOptions.length > 0)
+    ) {
+      const responseStatus = await updateAndScanContent(
+        postContentItemOptions,
+        postSectionOptions,
+        activeFile.id,
+      );
+      if (responseStatus && responseStatus[0]?.type == "error") {
+        responseStatus.forEach((err) =>
+          addMessage({
+            message: err.message,
+            severity: "error",
+            visible: true,
+          }),
+        );
+        updateActiveSessionFile(tempFile.id, ISSUE_STATE.ERROR);
+        return;
+      } else if (responseStatus && responseStatus[0]?.status == "success") {
+        tempReport = responseStatus[0].message;
+        tempReport = processNewReport(tempReport);
       }
-    
-    if(!Array.isArray(tempReport.files)){
-        tempReport.files = Object.values(tempReport.files)
     }
-    let currentFile = tempReport.files.find((file) => file.id == activeIssue.id)
-    const resolvedReport = await handleFileResolve(currentFile, true, tempReport, false, true)
-    updateActiveSessionFile(currentFile.id, ISSUE_STATE.UNCHANGED)
-    processNewReport(resolvedReport)
-  }
+
+    if (!Array.isArray(tempReport.files)) {
+      tempReport.files = Object.values(tempReport.files);
+    }
+    let currentFile = tempReport.files.find(
+      (file) => file.id == activeIssue.id,
+    );
+    const resolvedReport = await handleFileResolve(
+      currentFile,
+      true,
+      tempReport,
+      false,
+      true,
+    );
+    updateActiveSessionFile(currentFile.id, ISSUE_STATE.UNCHANGED);
+    processNewReport(resolvedReport);
+  };
 
   const handleFileSave = () => {
-    if(markRevert){
-      handleFileRevert(activeIssue.fileData, fileContentReferences, fileSectionReferences)
-      return
+    if (markRevert) {
+      handleFileRevert(
+        activeIssue.fileData,
+        fileContentReferences,
+        fileSectionReferences,
+      );
+      return;
     }
-    if(markDelete){
-      handleFileDelete()
-      return
+    if (markDelete) {
+      handleFileDelete();
+      return;
     }
-    if (markAsReviewed){
-      handleFileResolve(activeIssue.fileData)
-      return
+    if (markAsReviewed) {
+      handleFileResolve(activeIssue.fileData);
+      return;
     }
 
-    handleFileUpload(uploadedFile, fileContentReferences, fileSectionReferences)
-
-  }
+    handleFileUpload(
+      uploadedFile,
+      fileContentReferences,
+      fileSectionReferences,
+    );
+  };
 
   const updateActiveFilters = (filter, value) => {
-    setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
-  }
+    setActiveFilters(Object.assign({}, activeFilters, { [filter]: value }));
+  };
 
   const jumpToFile = (fileId) => {
-    let filteredFileIndex = filteredFiles.findIndex((issue) => issue.id === fileId)
-    if(filteredFileIndex === -1) {
-      return
+    let filteredFileIndex = filteredFiles.findIndex(
+      (issue) => issue.id === fileId,
+    );
+    if (filteredFileIndex === -1) {
+      return;
     }
 
-    setActiveIssue(filteredFiles[filteredFileIndex])
-    setMostRecentFileId(fileId)
-    openDialog(dialogId)
-  }
+    setActiveIssue(filteredFiles[filteredFileIndex]);
+    setMostRecentFileId(fileId);
+    openDialog(dialogId);
+  };
 
   const nextFile = (previous = false) => {
-    if (!activeIssue || filteredFiles.length < 2) { return }
-    let activeIndex = filteredFiles.findIndex((issue) => issue.id === activeIssue.id)
+    if (!activeIssue || filteredFiles.length < 2) {
+      return;
+    }
+    let activeIndex = filteredFiles.findIndex(
+      (issue) => issue.id === activeIssue.id,
+    );
 
-    if(activeIndex === -1) { return }
+    if (activeIndex === -1) {
+      return;
+    }
 
     // If we've reached the first or last issue, loop around
-    let newIndex = activeIndex + (previous ? -1 : 1)
+    let newIndex = activeIndex + (previous ? -1 : 1);
     if (newIndex < 0) {
-      newIndex = filteredFiles.length - 1
+      newIndex = filteredFiles.length - 1;
+    } else if (newIndex >= filteredFiles.length) {
+      newIndex = 0;
     }
-    else if (newIndex >= filteredFiles.length) {
-      newIndex = 0
-    }
-    setMostRecentFileId(filteredFiles[newIndex].id)
-    setActiveIssue(filteredFiles[newIndex])
-  }
+    setMostRecentFileId(filteredFiles[newIndex].id);
+    setActiveIssue(filteredFiles[newIndex]);
+  };
 
   const getReadableFileType = (fileType) => {
     switch (fileType) {
-      case 'doc':
-        return t('label.mime.doc')
-      case 'ppt':
-        return t('label.mime.ppt')
-      case 'xls':
-        return t('label.mime.xls')
-      case 'pdf':
-        return t('label.mime.pdf')
-      case 'audio':
-        return t('label.mime.audio')
-      case 'video':
-        return t('label.mime.video')
+      case "doc":
+        return t("label.mime.doc");
+      case "ppt":
+        return t("label.mime.ppt");
+      case "xls":
+        return t("label.mime.xls");
+      case "pdf":
+        return t("label.mime.pdf");
+      case "audio":
+        return t("label.mime.audio");
+      case "video":
+        return t("label.mime.video");
       default:
-        return t('label.mime.unknown')
+        return t("label.mime.unknown");
     }
-  }
+  };
 
   // This outputs 'true' initially because the unfilteredFiles array is initially empty, but 
   // the widget state check (WIDGET_STATE.LOADING ?) prevents this false-positive from causing unexpected behavior
@@ -1133,30 +1330,30 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
   return (
     <>
-      { widgetState === WIDGET_STATE.LOADING ? (
+      {widgetState === WIDGET_STATE.LOADING ? (
         <></>
       ) : (
         <div
           inert={widgetState === WIDGET_STATE.FIXIT ? "inert" : undefined}
           aria-hidden={widgetState === WIDGET_STATE.FIXIT}
-          >
+        >
           <div className="pageTitleRow">
-            <h1 className="pageTitle">{t('files.title')}</h1>
+            <h1 className="pageTitle">{t("files.title")}</h1>
             <button
               type="button"
               className="btn-small btn-icon-left btn-secondary"
               tabIndex="0"
               disabled={unusedFiles.length === 0}
               onClick={() => openDialog(unusedFileDialogId)}
-              aria-label={t('files.button.delete_unused_files')}>
+              aria-label={t("files.button.delete_unused_files")}
+            >
               <DeleteIcon className="icon-md" />
               <div className="flex-column justify-content-center">
-                {t('files.button.delete_unused_files')}
+                {t("files.button.delete_unused_files")}
               </div>
             </button>
           </div>
-          <p className="pageSubtitle">{t('files.subtitle')}</p>
-
+          <p className="pageSubtitle">{t("files.subtitle")}</p>
 
           <ReviewFilesFilters
             t={t}
@@ -1167,7 +1364,12 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             sections={sections}
             updateActiveFilters={updateActiveFilters}
           />
-          <div className="mt-1 subtext align-self-end">{t('fix.label.files_shown_count', { shown: filteredFiles?.length || 0, total: unfilteredFiles?.length || 0 })}</div>
+          <div className="mt-1 subtext align-self-end">
+            {t("fix.label.files_shown_count", {
+              shown: filteredFiles?.length || 0,
+              total: unfilteredFiles?.length || 0,
+            })}
+          </div>
           <div className="mt-1">
             { (filesResolved && rows.length === 0 ) ? (
               <div className="flex-column gap-3 mt-3">
@@ -1187,10 +1389,12 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             /> : (
               <div className="flex-column gap-3 mt-3">
                 <div className="flex-row align-self-center ms-3 me-3">
-                  <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
+                  <h2 className="mt-0 mb-0 primary-dark">
+                    {t("report.label.no_results")}
+                  </h2>
                 </div>
                 <div className="flex-row align-self-center ms-3 me-3">
-                  {t('report.msg.no_results')}
+                  {t("report.msg.no_results")}
                 </div>
               </div>
             )}
@@ -1202,25 +1406,34 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         id={dialogId}
         role="dialog"
         aria-modal="true"
-        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && !unusedDialogModal ? 'open' : 'hidden'}`}
+        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && !unusedDialogModal ? "open" : "hidden"}`}
         onClose={closeDialog}
         aria-labelledby="ufixit-dialog-title"
-        >
-        <div className='flex-column h-100'>
-          <div className='dialog-header'>
-            <h2 id="ufixit-dialog-title" tabIndex="-1">{t(`form.file.title`)}</h2>
-            <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-md" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+      >
+        <div className="flex-column h-100">
+          <div className="dialog-header">
+            <h2 id="ufixit-dialog-title" tabIndex="-1">
+              {t(`form.file.title`)}
+            </h2>
+            <CloseIcon
+              onClick={closeDialog}
+              onKeyDown={(e) => (e.key == "Enter" ? closeDialog() : "")}
+              className="close-icon icon-lg"
+              tabIndex="0"
+              alt={t("fix.button.close")}
+              title={t("fix.button.close")}
+            />
           </div>
-           <div className="dialog-content">
+          <div className="dialog-content">
             <div className="dialog-content-row-wrap">
-              <section className='ufixit-widget-container'>
-                { tempActiveIssue ? ( 
+              <section className="ufixit-widget-container">
+                {tempActiveIssue ?
                   <>
-                  <LearnMore
-                    t={t}
-                    tempActiveIssue={tempActiveIssue}
-                    showLearnMore={showLearnMore}
-                    hideLearnMore={() => setShowLearnMore(false)}
+                    <LearnMore
+                      t={t}
+                      tempActiveIssue={tempActiveIssue}
+                      showLearnMore={showLearnMore}
+                      hideLearnMore={() => setShowLearnMore(false)}
                     />
                     <FileFixitWidget
                       t={t}
@@ -1243,7 +1456,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       showLearnMore={showLearnMore}
                     />
                   </>
-                ) : ''}
+                : ""}
               </section>
               <section className="ufixit-content-container">
                 {filteredFiles.length > 0 && tempActiveIssue && (
@@ -1257,10 +1470,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </section>
             </div>
           </div>
-          <div className='dialog-footer'>
+          <div className="dialog-footer">
             <div className="flex-row gap-2">
               <button
-                className='btn btn-small btn-link btn-icon-left'
+                className="btn btn-small btn-link btn-icon-left"
                 onClick={() => nextFile(true)}
                 disabled={filteredFiles.length < 2}
                 tabIndex="0">
@@ -1269,7 +1482,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </button>
 
               <button
-                className='btn btn-small btn-link btn-icon-right'
+                className="btn btn-small btn-link btn-icon-right"
                 onClick={() => nextFile()}
                 disabled={filteredFiles.length < 2}
                 tabIndex="0">
@@ -1288,19 +1501,26 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           </div>
         </div>
       </div>
-     
-     <div
+
+      <div
         id={unusedFileDialogId}
         role="dialog"
         aria-modal="true"
-        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && unusedDialogModal ? 'open' : 'hidden'}`}
+        className={`dialog-full-screen ${widgetState === WIDGET_STATE.FIXIT && unusedDialogModal ? "open" : "hidden"}`}
         onClose={closeDialog}
         aria-labelledby="ufixit-dialog-title"
-        >        
-        <div className='flex-column h-100'> 
-          <div className='dialog-header'>
-            <h2>{t('files.button.delete_unused_files')}</h2>
-            <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+      >
+        <div className="flex-column h-100">
+          <div className="dialog-header">
+            <h2>{t("files.button.delete_unused_files")}</h2>
+            <CloseIcon
+              onClick={closeDialog}
+              onKeyDown={(e) => (e.key == "Enter" ? closeDialog() : "")}
+              className="close-icon icon-lg"
+              tabIndex="0"
+              alt={t("fix.button.close")}
+              title={t("fix.button.close")}
+            />
           </div>
           <div className="dialog-content">
             <div className="unused-files-list-container">
@@ -1311,7 +1531,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       <ProgressIcon className="icon-lg udoit-progress spinner" />
                     </div>
                     <div className="flex-column justify-content-center ms-3">
-                      <h2 className="mt-0 mb-0">{t('fix.label.deleting_files')}</h2>
+                      <h2 className="mt-0 mb-0">
+                        {t("fix.label.deleting_files")}
+                      </h2>
                     </div>
                   </div>
                 </div>
@@ -1320,29 +1542,40 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 <div className="select-all-unused-toggle-row">
                   <ToggleSwitch
                     labelId="selectAllUnusedFiles"
-                    initialValue={unusedFiles.length > 0 && deleteFileQueue.length === unusedFiles.length}
+                    initialValue={
+                      unusedFiles.length > 0 &&
+                      deleteFileQueue.length === unusedFiles.length
+                    }
                     updateToggle={updateSelectAllUnusedFilesToggle}
                   />
-                  <div id="selectAllUnusedFiles" className="align-self-center subtext">
-                    {t('files.label.select_all_unused_files')}
+                  <div
+                    id="selectAllUnusedFiles"
+                    className="align-self-center subtext"
+                  >
+                    {t("files.label.select_all_unused_files")}
                   </div>
                 </div>
               )}
-              {unusedFiles.length === 0 ? (
+              {unusedFiles.length === 0 ?
                 <div className="flex-column gap-2 p-3 text-center">
-                  <h3 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h3>
-                  <div className="subtext">{t('files.msg.no_unused_files')}</div>
+                  <h3 className="mt-0 mb-0 primary-dark">
+                    {t("report.label.no_results")}
+                  </h3>
+                  <div className="subtext">
+                    {t("files.msg.no_unused_files")}
+                  </div>
                 </div>
-              ) : !isDisabled && (
-                <SortableTable
-                  t={t}
-                  caption=""
-                  headers={unusedFilesHeaders}
-                  rows={unusedRows}
-                  tableSettings={unusedTableSettings}
-                  handleTableSettings={handleUnusedTableSettings}
-                />
-              )}
+              : !isDisabled && (
+                  <SortableTable
+                    t={t}
+                    caption=""
+                    headers={unusedFilesHeaders}
+                    rows={unusedRows}
+                    tableSettings={unusedTableSettings}
+                    handleTableSettings={handleUnusedTableSettings}
+                  />
+                )
+              }
             </div>
           </div>
           <div className='dialog-footer'>
@@ -1363,5 +1596,5 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         </div>
       </div>
     </>
-  )
+  );
 }

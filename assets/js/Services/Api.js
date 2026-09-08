@@ -1,5 +1,4 @@
 export default class Api {
-
   constructor(instanceInfo) {
     this.apiUrl = `https://${window.location.hostname}`;
     this.endpoints = {
@@ -33,6 +32,28 @@ export default class Api {
     if (instanceInfo && instanceInfo.apiUrl) {
       this.apiUrl = instanceInfo.apiUrl;
     }
+
+    this.responseListeners = new Set();
+  }
+
+  addResponseListener(callback) {
+    this.responseListeners.add(callback);
+  }
+
+  removeResponseListener(callback) {
+    this.responseListeners.delete(callback);
+  }
+
+  callResponseListeners(response) {
+    for (let listener of this.responseListeners) {
+      listener(response);
+    }
+  }
+
+  async fetchWithListeners(...args) {
+    const response = await fetch(...args);
+    this.callResponseListeners(response);
+    return response;
   }
 
   getCourseId() {
@@ -41,6 +62,11 @@ export default class Api {
 
   getUserId() {
     return this.instanceInfo.user.id;
+  }
+
+  setInstanceInfo(instanceInfo) {
+    this.instanceInfo = instanceInfo;
+    this.apiUrl = instanceInfo.apiUrl;
   }
 
   getReport(reportId) {
@@ -53,7 +79,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.getReport}`;
     url = url.replace("{course}", courseId).replace("{report}", reportId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -68,7 +94,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.getReportHistory}`;
     url = url.replace("{course}", courseId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -81,7 +107,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.setReportData}`;
     url = url.replace("{report}", reportId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "POST",
       cache: "no-cache",
       credentials: "include",
@@ -96,7 +122,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.updateAndGetReport}`;
     url = url.replace("{course}", courseId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -109,7 +135,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.saveIssue}`;
     url = url.replace("{issue}", issue.id);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "POST",
       cache: "no-cache",
       credentials: "include",
@@ -127,7 +153,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.reviewFile}`;
     url = url.replace("{file}", file.id);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "POST",
       cache: "no-cache",
       credentials: "include",
@@ -148,7 +174,7 @@ export default class Api {
     let formData = new FormData();
     formData.append("file", fileObj);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "POST",
       cache: "no-cache",
       credentials: "include",
@@ -160,30 +186,30 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.deleteFile}`;
     url = url.replace("{file}", activeFile.id);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "DELETE",
       credentials: "include",
     });
   }
 
   batchDelete(urlList) {
-    let url = `${this.apiUrl}${this.endpoints.batchDelete}`
-    url = url.replace('{course}', this.getCourseId())
+    let url = `${this.apiUrl}${this.endpoints.batchDelete}`;
+    url = url.replace("{course}", this.getCourseId());
 
-    return fetch(url, {
-      method: 'DELETE',
+    return this.fetchWithListeners(url, {
+      method: "DELETE",
       credentials: "include",
       body: JSON.stringify({
-        paths: urlList
-      })
-    })
+        paths: urlList,
+      }),
+    });
   }
 
   updateContent(contentOptions, sectionOptions, fileId) {
     let url = `${this.apiUrl}${this.endpoints.updateContent}`;
     url = url.replace("{file}", fileId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "POST",
       cache: "no-cache",
       credentials: "include",
@@ -205,7 +231,7 @@ export default class Api {
       url += `?${query}`;
     }
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -246,7 +272,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.adminReport}`;
     url = url.replace("{course}", courseId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -258,7 +284,7 @@ export default class Api {
   getAdminUser() {
     let url = `${this.apiUrl}${this.endpoints.adminUser}`;
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -271,7 +297,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.scanCourse}`;
     url = url.replace("{course}", courseId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -284,7 +310,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.scanLmsCourse}`;
     url = url.replace("{lmsCourseId}", lmsCourseId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -297,7 +323,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.fullRescan}`;
     url = url.replace("{course}", courseId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -311,7 +337,7 @@ export default class Api {
     url = url.replace("{contentItem}", contentId);
     url = url.replace("{getReport}", getReport);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -324,7 +350,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.getIssueContent}`;
     url = url.replace("{issue}", issueId);
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -337,7 +363,7 @@ export default class Api {
     let url = `${this.apiUrl}${this.endpoints.updatePreferences}`;
     url = url.replace("{user}", this.getUserId());
 
-    return fetch(url, {
+    return this.fetchWithListeners(url, {
       method: "PATCH",
       cache: "no-cache",
       credentials: "include",
@@ -348,3 +374,5 @@ export default class Api {
     });
   }
 }
+
+export const api = new Api();
