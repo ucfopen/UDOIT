@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS report;
+DROP TABLE IF EXISTS issue;
+DROP TABLE IF EXISTS content_item;
+DROP TABLE IF EXISTS file_item;
+DROP TABLE IF EXISTS lms_provider_config;
+DROP TABLE IF EXISTS lms_user_credential;
+DROP TABLE IF EXISTS lti_course_link;
+DROP TABLE IF EXISTS course;
+DROP TABLE IF EXISTS lti_user_link;
+DROP TABLE IF EXISTS registration;
+DROP TABLE IF EXISTS user_session;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS tenant;

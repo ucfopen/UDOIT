@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UDOIT Rewrite Mock LTI Tool</title>
+    <link rel="stylesheet" href="/mock-lti-tool/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header class="hero">
+        <p class="eyebrow">UDOIT Rewrite</p>
+        <h1>Mock LTI Tool Console</h1>
+        <p>
+          Standalone tool frontend for launch and API workflow testing during rewrite
+          development.
+        </p>
+      </header>
+
+      <section class="card" id="launch-context">
+        <div class="card-title-row">
+          <h2>Launch Context</h2>
+          <span class="chip" id="launch-mode">Unknown</span>
+        </div>
+        <p class="muted">
+          This page is intentionally resilient when launch is partial. If your redirect URI
+          points here, the tool still loads.
+        </p>
+        <dl class="details" id="launch-details"></dl>
+      </section>
+
+      <section class="card">
+        <h2>Session Check</h2>
+        <p class="muted">
+          Uses same-origin cookies to verify whether the backend recognizes your current
+          authenticated session.
+        </p>
+        <div class="inline-row">
+          <button type="button" id="check-auth">Check Session</button>
+          <span class="status" id="auth-status">Not checked</span>
+        </div>
+      </section>
+      
+      <section class="card">
+        <h2>Scan Course</h2>
+        <p class="muted">
+          Scan the course
+        </p>
+        <div class="inline-row">
+          <button type="button" id="scan-course">Scan Course</button>
+          <input type="number" id="course-id-input" min="1" aria-label="Course ID" />
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Preferences Update</h2>
+        <p class="muted">Exercise an authenticated write path in the rewrite backend.</p>
+        <form id="prefs-form" class="form-grid">
+          <label>
+            User ID
+            <input type="number" name="userId" min="1" required />
+          </label>
+          <label>
+            Theme
+            <select name="theme">
+              <option value="light">light</option>
+              <option value="dark">dark</option>
+            </select>
+          </label>
+          <label>
+            Language
+            <input type="text" name="lang" value="en" />
+          </label>
+          <label>
+            Text Spacing
+            <input type="number" name="textSpacing" min="0" max="200" value="100" />
+          </label>
+          <div class="inline-row">
+            <button type="submit">PATCH /users/:id/preferences</button>
+            <button type="button" class="ghost" id="save-defaults">Save Defaults</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Files API Smoke Tests</h2>
+        <div class="inline-row">
+          <button type="button" id="hello-files">GET /files/hello</button>
+          <button type="button" id="delete-file">DELETE /files/:id</button>
+          <input id="file-id" type="number" min="1" value="1" aria-label="File ID" />
+        </div>
+      </section>
+
+      <section class="card response-card">
+        <div class="card-title-row">
+          <h2>Request Inspector</h2>
+          <button type="button" class="ghost" id="replay">Replay Last Request</button>
+        </div>
+        <p class="muted" id="last-request">No request sent yet.</p>
+        <pre id="response-output" aria-live="polite">Waiting for request...</pre>
+      </section>
+    </main>
+    <script src="/mock-lti-tool/app.js" type="module"></script>
+  </body>
+</html>

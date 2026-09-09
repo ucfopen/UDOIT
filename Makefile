@@ -9,6 +9,7 @@ endif
 # ──────────────────────────────────────────────
 
 COMPOSE := docker compose -f docker-compose.nginx.yml
+SQLC_IMAGE := sqlc/sqlc:1.31.0
 
 # ──────────────────────────────────────────────
 # Container Management
@@ -66,6 +67,26 @@ migrate-to:
 migrate-down:
 	$(COMPOSE) run --rm php php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version$(VERSION)' --down
 
+
+migrate-go:
+	$(COMPOSE) run --rm migrate \
+		-path /migrations \
+		-database "mysql://root:root@tcp(db-new:3306)/udoit3" \
+		up
+
+migrate-go-down:
+	$(COMPOSE) run --rm migrate \
+		-path /migrations \
+		-database "mysql://root:root@tcp(db-new:3306)/udoit3" \
+		down 1
+
+migrate-go-force:
+	$(COMPOSE) run --rm migrate \
+		-path /migrations \
+		-database "mysql://root:root@tcp(db-new:3306)/udoit3" \
+		force 1
+
+
 # ──────────────────────────────────────────────
 # Utilities
 # ──────────────────────────────────────────────
@@ -108,3 +129,25 @@ ins-psql:
 			(title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) \
 			VALUES \
 			('$(TITLE)', '$(LMS_DOMAIN)', '$(LMS_ID)', '$(LMS_ACCOUNT_ID)', '$(CREATED)', '$(STATUS)', '$(VANITY_URL)', '$(API_CLIENT_ID)', '$(API_CLIENT_SECRET)');"
+
+
+go-fmt:
+	cd ./go-rewrite && \
+	go tool gofumpt -w $$(find . -name '*.go')
+
+sqlc-generate:
+	docker run --rm -v "$(PWD)/go-rewrite:/src" -w /src $(SQLC_IMAGE) generate -f sqlc.yaml
+
+sqlc-vet:
+	docker run --rm -v "$(PWD)/go-rewrite:/src" -w /src $(SQLC_IMAGE) vet -f sqlc.yaml
+
+sqlc-verify:
+	@if [ -z "$(SQLC_PROJECT_ID)" ]; then \
+		printf "sqlc-verify requires SQLC_PROJECT_ID (sqlc Cloud project).\n"; \
+		printf "Run with: make sqlc-verify SQLC_PROJECT_ID=<project-id>\n"; \
+	else \
+		docker run --rm -v "$(PWD)/go-rewrite:/src" -w /src $(SQLC_IMAGE) verify --project "$(SQLC_PROJECT_ID)" -f sqlc.yaml; \
+	fi
+
+register-tenant:
+	$(COMPOSE) run --rm register-tenant

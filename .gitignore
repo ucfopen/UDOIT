@@ -50,3 +50,12 @@ yarn-error.log
 ###< phpunit/phpunit ###
 
 *.env
+
+###> sqlc ###
+# Ignore all generated sqlc Go files in rewrite modules
+go-rewrite/internal/**/infrastructure/sqlc/*.go
+###< sqlc ###
+
+###> Tenant secrets ###
+/go-rewrite/config/register-tenant.secret.yaml
+###< Tenant secrets ###

@@ -1,0 +1,99 @@
+version: "2"
+
+sql:
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/auth/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "authsqlc"
+        out: "internal/auth/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/courses/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "coursessqlc"
+        out: "internal/courses/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/files/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "filessqlc"
+        out: "internal/files/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/lms/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "lmssqlc"
+        out: "internal/lms/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/lti/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "ltisqlc"
+        out: "internal/lti/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/users/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "userssqlc"
+        out: "internal/users/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/tenants/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "tenantssqlc"
+        out: "internal/tenants/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/content/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "contentsqlc"
+        out: "internal/content/internal/infrastructure/sqlc"
+        sql_package: "database/sql"
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/accessibility/internal/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "accessibilitysqlc"
+        out: "internal/accessibility/internal/infrastructure/sqlc"
+        sql_package: "database/sql"

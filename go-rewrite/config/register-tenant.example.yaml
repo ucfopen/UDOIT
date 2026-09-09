@@ -1,0 +1,16 @@
+tenant:
+  lms_key: canvas
+
+lti:
+  issuer: https://canvas.instructure.com
+  client_id: your-client-id
+  login_auth_endpoint: https://sso.canvaslms.com/api/lti/authorize_redirect
+  jwk_endpoint: https://sso.canvaslms.com/api/lti/security/jwks
+  service_auth_endpoint: https://sso.canvaslms.com/login/oauth2/token
+  service_login_endpoint: https://sso.canvaslms.com/logout
+
+lms: 
+  lms_key: canvas
+  client_id: your-client-id
+  client_secret: your-client-secret
+  base_url: https://sso.canvaslms.com

@@ -1,0 +1,9 @@
+PATCH http://127.0.0.1:8000/go/users/1/preferences
+Content-Type: application/json
+
+{
+  "darkMode": true,
+  "textSpacing": 2,
+  "fontSize": 14,
+  "lang": "es"
+}
