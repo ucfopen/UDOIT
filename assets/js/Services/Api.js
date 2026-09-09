@@ -16,12 +16,9 @@ export default class Api {
       reportPdf: '/download/courses/{course}/reports/pdf',
       adminCourses: '/api/admin/courses/account/{account}/term/{term}',
       adminSubAccounts: '/api/admin/accounts/{lmsAccountId}',
-      adminTermsAndCourses: '/api/admin/terms/{lmsAccountId}',
       scanContent: '/api/sync/content/{contentItem}?report={getReport}',
       scanCourse: '/api/sync/{course}',
-      scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
       fullRescan: '/api/sync/rescan/{course}',
-      adminReport: '/api/admin/courses/{course}/reports/latest',
       adminCourseReport: '/api/admin/courses/{course}/reports/full',
       adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
       adminUser: '/api/admin/users',
@@ -254,32 +251,6 @@ export default class Api {
 
   }
 
-  getAdminTermsCourses(accountId) {
-    let url = `${this.apiUrl}${this.endpoints.adminTermsAndCourses}`;
-    url = url.replace("{lmsAccountId}", accountId)
-
-    return fetch(url, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-  }
-
-  getAdminReport(courseId) {
-    let url = `${this.apiUrl}${this.endpoints.adminReport}`;
-    url = url.replace("{course}", courseId);
-
-    return this.fetchWithListeners(url, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
 
   getAdminUser() {
     let url = `${this.apiUrl}${this.endpoints.adminUser}`;
@@ -296,19 +267,6 @@ export default class Api {
   scanCourse(courseId) {
     let url = `${this.apiUrl}${this.endpoints.scanCourse}`;
     url = url.replace("{course}", courseId);
-
-    return this.fetchWithListeners(url, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  scanLmsCourse(lmsCourseId) {
-    let url = `${this.apiUrl}${this.endpoints.scanLmsCourse}`;
-    url = url.replace("{lmsCourseId}", lmsCourseId);
 
     return this.fetchWithListeners(url, {
       method: "GET",
