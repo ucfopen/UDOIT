@@ -10,7 +10,7 @@ type EncryptedBlob struct {
 	// Data is the opaque encrypted data created and read solely by the cipher.
 	// Currently, only one cipher implementation is allowed per database instance,
 	// so no field specifying the cipher implementation is necessary.
-	Data	[]byte
+	Data []byte
 }
 
 type Cipher interface {

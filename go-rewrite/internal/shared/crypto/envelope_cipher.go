@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/binary"
+
 	"rewritetest/internal/shared/apperr"
 )
 
@@ -162,7 +163,7 @@ func encryptAESGCM(key, plaintext []byte) (ciphertext []byte, nonce []byte, err 
 		return nil, nil, err
 	}
 
-	// A random nonce is used. Because a duplicate nonce in the database 
+	// A random nonce is used. Because a duplicate nonce in the database
 	nonce = make([]byte, aesgcm.NonceSize())
 	_, err = rand.Read(nonce)
 	if err != nil {

@@ -49,8 +49,8 @@ type HashedContentItem struct {
 }
 
 type ScanCourseUseCase struct {
-	htmlIssueRepository					domain.HTMLIssueRepository
-	fileIssueRepository					domain.FileIssueRepository
+	htmlIssueRepository      domain.HTMLIssueRepository
+	fileIssueRepository      domain.FileIssueRepository
 	courseRetriever          CourseRetriever
 	contentItemService       ContentItemService
 	externalContentRetriever ExternalContentRetriever
@@ -70,8 +70,8 @@ func NewScanCourseUseCase(
 	scanner domain.Scanner,
 ) *ScanCourseUseCase {
 	return &ScanCourseUseCase{
-		htmlIssueRepository: 				htmlIssueRepository,
-		fileIssueRepository: 				fileIssueRepository,
+		htmlIssueRepository:      htmlIssueRepository,
+		fileIssueRepository:      fileIssueRepository,
 		courseRetriever:          courseRetriever,
 		contentItemService:       contentItemService,
 		externalContentRetriever: externalContentRetriever,
@@ -160,10 +160,10 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(ctx context.Context, external
 			HTML:          item.HTML,
 		}
 	}
-	
+
 	scanResults, err := u.scanner.ScanContent(ctx, scanItems)
 	if err != nil {
-		return err 
+		return err
 	}
 
 	changedContentItemIDs := make([]int64, len(changedContentItems))
@@ -212,7 +212,6 @@ func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64
 	return nil
 }
 
-
 type ChangedContentItem struct {
 	ID           int64
 	CourseID     int64
@@ -222,7 +221,6 @@ type ChangedContentItem struct {
 	Type         string
 	HTML         string
 }
-
 
 // getChangedContentItems compares the current content items with the external
 // content items and returns a list of content items that have a different hash

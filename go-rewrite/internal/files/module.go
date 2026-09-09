@@ -15,8 +15,8 @@ import (
 )
 
 type Module struct {
-	handler            		*internal.Handler
-	fileRepository       	domain.FileRepository
+	handler        *internal.Handler
+	fileRepository domain.FileRepository
 }
 
 func New(db *sql.DB, fileDeleter application.LMSFileDeleter) *Module {
@@ -26,8 +26,8 @@ func New(db *sql.DB, fileDeleter application.LMSFileDeleter) *Module {
 	handler := internal.NewHandler(getFileUseCase, deleteFileUseCase)
 
 	return &Module{
-		handler:                handler,
-		fileRepository:         fileRepository,
+		handler:        handler,
+		fileRepository: fileRepository,
 	}
 }
 

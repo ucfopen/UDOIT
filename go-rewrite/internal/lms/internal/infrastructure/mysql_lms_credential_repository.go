@@ -8,17 +8,20 @@ import (
 
 	"rewritetest/internal/lms/internal/domain"
 	lmssqlc "rewritetest/internal/lms/internal/infrastructure/sqlc"
+	"rewritetest/internal/shared/crypto"
 )
 
 type MySQLLMSCredentialRepository struct {
 	db      *sql.DB
 	queries *lmssqlc.Queries
+	cipher  crypto.Cipher
 }
 
-func NewMySQLLMSCredentialRepository(db *sql.DB) *MySQLLMSCredentialRepository {
+func NewMySQLLMSCredentialRepository(db *sql.DB, cipher crypto.Cipher) *MySQLLMSCredentialRepository {
 	return &MySQLLMSCredentialRepository{
 		db:      db,
 		queries: lmssqlc.New(db),
+		cipher:  cipher,
 	}
 }
 
@@ -28,44 +31,24 @@ func (r *MySQLLMSCredentialRepository) UpsertActive(ctx context.Context, credent
 		return err
 	}
 
+	encryptedCredential, err := r.cipher.Encrypt(ctx, payloadJSON)
+	if err != nil {
+		return err
+	}
+
 	err = r.queries.UpsertLMSUserCredential(ctx, lmssqlc.UpsertLMSUserCredentialParams{
-		UserID:         uint64(credential.UserID()),
-		LmsKey:         string(credential.LMSKey()),
-		SchemaName:     "",
-		CredentialJson: payloadJSON,
-		ExpiresAt:      nullableTime(credential.ExpiresAt()),
+		UserID:                    uint64(credential.UserID()),
+		LmsKey:                    string(credential.LMSKey()),
+		CredentialEncryptionKeyID: encryptedCredential.KeyID,
+		EncryptedCredential:       encryptedCredential.Data,
+		ExpiresAt:                 nullableTime(credential.ExpiresAt()),
 	})
 
 	return err
 }
 
 func (r *MySQLLMSCredentialRepository) GetActiveByUser(ctx context.Context, userID int64) (*domain.LMSCredential, error) {
-	query := `
-		SELECT user_id, lms_key, credential_json, expires_at, is_active, created_at, updated_at
-		FROM lms_user_credential
-		WHERE user_id = ? AND is_active = 1
-		LIMIT 1
-	`
-
-	var (
-		resultUserID int64
-		resultLMSKey string
-		payloadRaw   []byte
-		expiresAt    sql.NullTime
-		isActive     bool
-		createdAt    time.Time
-		updatedAt    time.Time
-	)
-
-	err := r.db.QueryRowContext(ctx, query, userID).Scan(
-		&resultUserID,
-		&resultLMSKey,
-		&payloadRaw,
-		&expiresAt,
-		&isActive,
-		&createdAt,
-		&updatedAt,
-	)
+	result, err := r.queries.GetActiveLMSUserCredentialByUserID(ctx, uint64(userID))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -74,20 +57,28 @@ func (r *MySQLLMSCredentialRepository) GetActiveByUser(ctx context.Context, user
 	}
 
 	payload := map[string]any{}
-	if len(payloadRaw) > 0 {
-		if err := json.Unmarshal(payloadRaw, &payload); err != nil {
+	if len(result.EncryptedCredential) > 0 {
+		decryptedPayloadRaw, err := r.cipher.Decrypt(ctx, crypto.EncryptedBlob{
+			KeyID: result.CredentialEncryptionKeyID,
+			Data:  result.EncryptedCredential,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		if err := json.Unmarshal(decryptedPayloadRaw, &payload); err != nil {
 			return nil, err
 		}
 	}
 
 	credential, err := domain.RehydrateLMSCredential(
-		resultUserID,
-		resultLMSKey,
+		int64(result.UserID),
+		result.LmsKey,
 		payload,
-		nullTimePtr(expiresAt),
-		isActive,
-		createdAt,
-		updatedAt,
+		nullTimePtr(result.ExpiresAt),
+		result.IsActive,
+		result.CreatedAt,
+		result.UpdatedAt,
 	)
 	if err != nil {
 		return nil, err

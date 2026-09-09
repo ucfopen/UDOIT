@@ -58,7 +58,15 @@ func main() {
 	fmt.Println("Redis client successfully connected")
 
 	// Initialize modules
-	lmsModule := lms.New(db, client, fmt.Sprintf("%s/lms", os.Getenv("GO_BASE_URL")))
+	lmsEncryptionKey := strings.TrimSpace(os.Getenv("GO_LMS_ENCRYPTION_KEY_B64"))
+	if lmsEncryptionKey == "" {
+		log.Fatal("missing GO_LMS_ENCRYPTION_KEY_B64")
+	}
+
+	lmsModule, err := lms.New(db, client, fmt.Sprintf("%s/lms", os.Getenv("GO_BASE_URL")), lmsEncryptionKey)
+	if err != nil {
+		log.Fatal(err)
+	}
 	authModule := auth.New(client, db)
 	coursesModule := courses.New(db)
 	filesModule := files.New(db, lmsModule)

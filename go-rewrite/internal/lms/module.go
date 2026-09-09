@@ -3,7 +3,9 @@ package lms
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"time"
 
 	"rewritetest/internal/lms/internal"
@@ -12,6 +14,7 @@ import (
 	"rewritetest/internal/lms/internal/infrastructure"
 	"rewritetest/internal/lms/internal/infrastructure/providers/canvas"
 	"rewritetest/internal/shared/apperr"
+	"rewritetest/internal/shared/crypto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -23,11 +26,23 @@ type Module struct {
 	handler                  *internal.Handler
 }
 
-func New(db *sql.DB, client *redis.Client, baseURL string) *Module {
+func New(db *sql.DB, client *redis.Client, baseURL string, encryptionKeyB64 string) (*Module, error) {
 	authAttemptTTL := time.Hour
 
-	credentialRepository := infrastructure.NewMySQLLMSCredentialRepository(db)
-	providerConfigRepository := infrastructure.NewMySQLLMSProviderConfigRepository(db)
+	encryptionKey, err := base64.StdEncoding.DecodeString(strings.TrimSpace(encryptionKeyB64))
+	if err != nil {
+		return nil, err
+	}
+
+	keyManager, err := crypto.NewAESKeyManager(encryptionKey)
+	if err != nil {
+		return nil, err
+	}
+
+	payloadCipher := crypto.NewEnvelopeCipher(keyManager, "envelope-v1")
+
+	credentialRepository := infrastructure.NewMySQLLMSCredentialRepository(db, payloadCipher)
+	providerConfigRepository := infrastructure.NewMySQLLMSProviderConfigRepository(db, payloadCipher)
 	authAttemptRepository := infrastructure.NewRedisAuthAttemptRepository(client, authAttemptTTL, "auth_attempt:")
 
 	// LMS providers
@@ -44,7 +59,7 @@ func New(db *sql.DB, client *redis.Client, baseURL string) *Module {
 		providerResolver:         providerResolver,
 		providerConfigRepository: providerConfigRepository,
 		handler:                  handler,
-	}
+	}, nil
 }
 
 func (m *Module) RegisterRoutes(rg *gin.RouterGroup) {

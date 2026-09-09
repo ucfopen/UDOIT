@@ -9,6 +9,9 @@ import (
 	"io"
 )
 
+// AESKeyManager is a simple same-process key manager that uses AES-GCM for key
+// wrapping. It does not currently support key rotation, so it ignores keyID
+// parameters and always uses its single KEK.
 type AESKeyManager struct {
 	aead cipher.AEAD
 }

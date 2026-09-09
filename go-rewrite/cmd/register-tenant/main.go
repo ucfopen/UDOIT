@@ -72,7 +72,15 @@ func main() {
 		fatalf("failed to connect to database: %v", err)
 	}
 
-	lmsModule := lms.New(db, client, os.Getenv("GO_BASE_URL"))
+	lmsEncryptionKey := strings.TrimSpace(os.Getenv("GO_LMS_ENCRYPTION_KEY_B64"))
+	if lmsEncryptionKey == "" {
+		fatalf("missing GO_LMS_ENCRYPTION_KEY_B64")
+	}
+
+	lmsModule, err := lms.New(db, client, os.Getenv("GO_BASE_URL"), lmsEncryptionKey)
+	if err != nil {
+		fatalf("failed to initialize LMS module: %v", err)
+	}
 
 	lmsKey, _ := cfg.LMS["lms_key"].(string)
 

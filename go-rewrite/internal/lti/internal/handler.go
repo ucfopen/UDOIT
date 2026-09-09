@@ -40,20 +40,18 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	rg.POST("/authorize/check", h.handleLaunch)
 }
 
-
 type LoginInitiationRequest struct {
 	// From IMS Security Framework 1.0, Section 5.1.1.1
 	// https://www.imsglobal.org/spec/security/v1p0/#step-1-third-party-initiated-login
-	ISS            string `form:"iss" binding:"required"`
-	LoginHint      string `form:"login_hint" binding:"required"`
-	TargetLinkURI  string `form:"target_link_uri" binding:"required"`
+	ISS           string `form:"iss" binding:"required"`
+	LoginHint     string `form:"login_hint" binding:"required"`
+	TargetLinkURI string `form:"target_link_uri" binding:"required"`
 
 	// From LTI 1.3, Section 4.1
 	// https://www.imsglobal.org/spec/lti/v1p3#additional-login-parameters
 	ClientID       string `form:"client_id" binding:"required"`
 	LTIMessageHint string `form:"lti_message_hint"`
 }
-
 
 // OIDC Login Initiation Request Handler Handles the initial login request from
 // the LTI platform and redirects to the launch URL.
@@ -95,7 +93,7 @@ type LaunchCallbackRequest struct {
 	//
 	//
 	// REQUIRED claims inside the id_token
-	// 
+	//
 	// From IMS Security Framework 1.0, Section 5.1.2
 	// https://www.imsglobal.org/spec/security/v1p0/#id-token
 	// - iss    Issuer (the platform's identifier)
@@ -129,7 +127,7 @@ type LaunchCallbackRequest struct {
 	// - https://purl.imsglobal.org/spec/lti/claim/lis 									LIS person and course data
 	// - https://purl.imsglobal.org/spec/lti/claim/custom 							Custom variables defined in the tool placement
 	//
-	// 
+	//
 	// The tool MUST validate the state parameter, JWT signature, nonce, and
 	// expiry before trusting any claims and establishing a user session.
 	// See IMS Security Framework 1.0, Section 5.1.3 for validation requirements
@@ -137,7 +135,7 @@ type LaunchCallbackRequest struct {
 	IDToken string `form:"id_token" binding:"required"`
 
 	// State must match the value sent in the auth request (CSRF protection)
-	State   string `form:"state" binding:"required"`
+	State string `form:"state" binding:"required"`
 }
 
 // Handles the LTI launch request. After the OIDC login initiation redirect, the

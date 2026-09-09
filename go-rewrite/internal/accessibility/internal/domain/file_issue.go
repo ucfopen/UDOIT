@@ -1,24 +1,25 @@
 package domain
 
 import (
-	"rewritetest/internal/shared/apperr"
 	"time"
+
+	"rewritetest/internal/shared/apperr"
 )
 
 type review struct {
-	reviewerID	int64
-	reviewedOn	time.Time
+	reviewerID int64
+	reviewedOn time.Time
 }
 
 type FileIssue struct {
-	id 					int64
-	fileID 			int64
-	review 			*review
+	id     int64
+	fileID int64
+	review *review
 }
 
 func NewFileIssue(fileID, reviewerID int64, reviewedOn time.Time) *FileIssue {
 	return &FileIssue{
-		fileID:     fileID,
+		fileID: fileID,
 		review: &review{
 			reviewerID: reviewerID,
 			reviewedOn: reviewedOn,
@@ -28,8 +29,8 @@ func NewFileIssue(fileID, reviewerID int64, reviewedOn time.Time) *FileIssue {
 
 func RehydrateFileIssue(id, fileID, reviewerID int64, reviewedOn time.Time) *FileIssue {
 	return &FileIssue{
-		id:         id,
-		fileID:     fileID,
+		id:     id,
+		fileID: fileID,
 		review: &review{
 			reviewerID: reviewerID,
 			reviewedOn: reviewedOn,

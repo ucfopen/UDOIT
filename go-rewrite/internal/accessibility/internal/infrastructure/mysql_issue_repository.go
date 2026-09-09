@@ -11,7 +11,7 @@ import (
 )
 
 type MySQLIssueRepository struct {
-	db *sql.DB
+	db      *sql.DB
 	queries *accessibilitysqlc.Queries
 }
 
@@ -69,13 +69,13 @@ func (r *MySQLIssueRepository) CreateMany(ctx context.Context, issues []*domain.
 
 		err = qtx.CreateIssue(ctx, accessibilitysqlc.CreateIssueParams{
 			ContentItemID: uint64(issue.ContentItemID()),
-			ScanRule: issue.ScanRule().String(),
-			ContentXpath: issue.ContentXPath(),
-			Status: issue.Status().String(),
-			Severity: issue.Severity().String(),
-			FixedBy: nullableFixedby,
-			FixedAt: nullTime(issue.FixedAt()),
-			Details: detailsJSON,
+			ScanRule:      issue.ScanRule().String(),
+			ContentXpath:  issue.ContentXPath(),
+			Status:        issue.Status().String(),
+			Severity:      issue.Severity().String(),
+			FixedBy:       nullableFixedby,
+			FixedAt:       nullTime(issue.FixedAt()),
+			Details:       detailsJSON,
 		})
 		if err != nil {
 			return err
@@ -95,7 +95,6 @@ func (r *MySQLIssueRepository) GetByCourseID(ctx context.Context, courseID int64
 		return nil, err
 	}
 
-	
 	var domainHTMLIssues []*domain.HTMLIssue
 	for _, issue := range issues {
 		scanRule, err := domain.ParseScanRule(issue.ScanRule)
@@ -119,23 +118,22 @@ func (r *MySQLIssueRepository) GetByCourseID(ctx context.Context, courseID int64
 		}
 
 		domainHTMLIssues = append(domainHTMLIssues, domain.RehydrateHTMLIssue(
-				int64(issue.ID),
-				int64(issue.ContentItemID),
-				scanRule,
-				issue.ContentXpath,
-				issueStatus,
-				issueSeverity,
-				int64(issue.FixedBy.Int64),
-				issue.FixedAt.Time,
-				detailsMap,
-				issue.CreatedAt,
-				issue.UpdatedAt,
-			))
+			int64(issue.ID),
+			int64(issue.ContentItemID),
+			scanRule,
+			issue.ContentXpath,
+			issueStatus,
+			issueSeverity,
+			int64(issue.FixedBy.Int64),
+			issue.FixedAt.Time,
+			detailsMap,
+			issue.CreatedAt,
+			issue.UpdatedAt,
+		))
 	}
 
 	return domainHTMLIssues, nil
 }
-
 
 func nullTime(t time.Time) sql.NullTime {
 	if !t.IsZero() {

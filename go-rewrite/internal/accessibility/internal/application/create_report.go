@@ -8,14 +8,13 @@ import (
 
 type CreateReportUseCase struct {
 	reportRepository domain.ReportRepository
-	issueRepository   domain.HTMLIssueRepository
+	issueRepository  domain.HTMLIssueRepository
 }
-
 
 func NewCreateReportUseCase(reportRepository domain.ReportRepository, issueRepository domain.HTMLIssueRepository) *CreateReportUseCase {
 	return &CreateReportUseCase{
 		reportRepository: reportRepository,
-		issueRepository:   issueRepository,
+		issueRepository:  issueRepository,
 	}
 }
 
