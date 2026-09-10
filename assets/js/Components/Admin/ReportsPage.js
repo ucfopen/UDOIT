@@ -63,7 +63,7 @@ export default function ReportsPage({
       allDates.add(report.created)
       courseObject[report.courseId][report.created] = {
         issues: report.issues,
-        potentialIssues: report.potentialIssues,
+        potentialIssues: report.potentialIssues,  
         unreviewedFiles: report.unreviewedFiles,
       };
     }
@@ -81,8 +81,6 @@ export default function ReportsPage({
       }
     }
 
-    console.log(courseObject)
-    console.log(sortedDates)
     for(const course in courseObject){
         const earliestDate = Object.keys(courseObject[course]).sort()[0]
         const startingIndex = sortedDates.findIndex((d) => d == earliestDate)
@@ -110,7 +108,6 @@ export default function ReportsPage({
     }
 
 
-    console.log(groupedReport)
     return groupedReport;
   }
 

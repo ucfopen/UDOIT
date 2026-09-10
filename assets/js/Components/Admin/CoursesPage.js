@@ -133,8 +133,6 @@ export default function CoursePage({
 
   const getCombinedCourse = async () => {
     const reportIssues = await fetchReportsIssues();
-    console.log(reportIssues)
-
     return {
       title: "All Courses",
       instructors: [],
