@@ -225,7 +225,7 @@ class AdminController extends ApiController
     }
 
     #[Route('/api/admin/accounts/{lmsAccountId}', methods: ['GET'], name: 'admin_get_accounts')]
-    public function getSubAccounts(int $lmsAccountId, SessionService $sessionService, UtilityService $util, AccountRepository $accountRepo, CourseRepository $courseRepo, ReportRepository $reportRepo) {
+    public function getSubAccounts(int $lmsAccountId, SessionService $sessionService, UtilityService $util, AccountRepository $accountRepo, CourseRepository $courseRepo, ReportRepository $reportRepo, Request $request) {
         $apiResponse = new ApiResponse();
         $session = $sessionService->getSession();
         $this->accountRepo = $accountRepo;
@@ -239,7 +239,14 @@ class AdminController extends ApiController
             $util->exitWithMessage('Account ID not found.');
         }
 
-        $accounts = $accountRepo->getSubAccounts($user, $lmsAccountId);
+        $search = trim((string) $request->query->get('search', ''));
+        if ($request->query->has('search') && $search === '') {
+            return new JsonResponse(['error' => 'Search query cannot be blank.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $accounts = $search === ''
+            ? $accountRepo->getSubAccounts($user, $lmsAccountId)
+            : $accountRepo->searchAccountTree($user, $lmsAccountId, $search);
 
         $apiResponse->setData($accounts);
 

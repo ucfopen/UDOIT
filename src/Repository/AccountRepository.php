@@ -79,4 +79,63 @@ class AccountRepository extends ServiceEntityRepository
 
         return $accounts;
     }
+
+    public function searchAccountTree(User $user, $accountId, string $search): array
+    {
+        $institution = $user->getInstitution();
+        $accountIds = array_map(
+            static fn ($id): string => (string) $id,
+            array_keys($this->getAccountTree($user, $accountId))
+        );
+
+        if (empty($accountIds)) {
+            return [];
+        }
+
+        $matches = $this->createQueryBuilder('a')
+            ->andWhere('a.institution = :institution')
+            ->andWhere('a.lmsAccountId IN (:accountIds)')
+            ->andWhere('LOWER(a.accountName) LIKE :search')
+            ->setParameter('institution', $institution)
+            ->setParameter('accountIds', $accountIds)
+            ->setParameter('search', '%' . strtolower($search) . '%')
+            ->getQuery()
+            ->getResult();
+
+        $accounts = [];
+        $pendingAccountIds = array_map(
+            static fn (Account $account): string => $account->getLmsAccountId(),
+            $matches
+        );
+
+        while (!empty($pendingAccountIds)) {
+            $currentAccountId = array_pop($pendingAccountIds);
+
+            if (isset($accounts[$currentAccountId]) || !in_array($currentAccountId, $accountIds, true)) {
+                continue;
+            }
+
+            $account = $this->findOneBy([
+                'institution' => $institution,
+                'lmsAccountId' => $currentAccountId,
+            ]);
+
+            if (!$account) {
+                continue;
+            }
+
+            $accounts[$currentAccountId] = $account;
+            $parentAccountId = $account->getParentAccountId();
+
+            if ($parentAccountId && $parentAccountId !== '-1') {
+                $pendingAccountIds[] = $parentAccountId;
+            }
+        }
+
+        usort($accounts, static function (Account $left, Account $right): int {
+            return [$left->getDepth(), $left->getAccountName()] <=> [$right->getDepth(), $right->getAccountName()];
+        });
+
+        return $accounts;
+    }
 }

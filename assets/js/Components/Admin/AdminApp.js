@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import AdminHeader from "./AdminHeader";
 import AdminDashboard from "./AdminDashboard";
 import CoursesPage from "./CoursesPage";
@@ -49,6 +49,10 @@ export default function AdminApp(initialData) {
 
   const [accountStack, setAccountStack] = useState([intialAccount])
   const [accountSearch, setAccountSearch] = useState("")
+  const [activeAccountSearch, setActiveAccountSearch] = useState("")
+  const [loadingAccountSearch, setLoadingAccountSearch] = useState(false)
+  const accountStateBeforeSearch = useRef(null)
+  const accountSearchResults = useRef([])
   const [selectedTerm, setSelectedTerm] = useState(-1)
   const [courseTableSettings, setCourseTableSettings] = useState({
     sortBy: "lastUpdated",
@@ -259,6 +263,11 @@ export default function AdminApp(initialData) {
   };
 
   const handleAccountSelect = async (account, depth) => {
+      if (activeAccountSearch) {
+        await selectSearchAccount(account)
+        return
+      }
+
      let tempParentAccounts = { ...parentAccounts }
      let tempAccounts = { ...accounts }
      let tempSelectedAccountsByDepth = { ...selectedAccountsByDepth }
@@ -309,16 +318,6 @@ export default function AdminApp(initialData) {
      setSelectedAccountsByDepth(tempSelectedAccountsByDepth)
   };
 
-  const accountMatchesSearch = (account) => {
-    const normalizedSearch = accountSearch.trim().toLowerCase();
-
-    if (!normalizedSearch) {
-      return true;
-    }
-
-    return account.accountName?.toLowerCase().includes(normalizedSearch);
-};
-
   const renderAccountTree = (
     account,
     depth = 0,
@@ -340,25 +339,6 @@ export default function AdminApp(initialData) {
         childAccount?.lmsAccountId != null &&
         !nextVisitedAccountIds.has(childAccount.lmsAccountId),
     );
-
-    const renderedChildren = childAccounts
-    .map((childAccount) =>
-      renderAccountTree(
-        childAccount,
-        depth + 1,
-        false,
-        nextVisitedAccountIds,
-      ),
-    )
-    .filter(Boolean);
-
-    
-    const matchesSearch = accountMatchesSearch(account);
-    if (!isRoot && accountSearch.trim() && !matchesSearch && renderedChildren.length === 0) {
-      return null;
-    }
-
-
 
     const isSelected = !isRoot && selectedAccountsByDepth[depth] === String(account.lmsAccountId);
 
@@ -398,16 +378,150 @@ export default function AdminApp(initialData) {
     const res = await api.getAdminSubAccounts(accountId)
     const response = await res.json()
     if (response?.errors && response.errors.length > 0){
-      console.log("Failed to fetch subacocunts")
-      console.log(error)
       return
     }
     return response.data
   }
 
+  const accountTreeFromResults = (accountResults) => {
+    const resultAccounts = {}
+    const resultParents = {}
+    const rootAccount = accountResults.find((account) => String(account.lmsAccountId) === String(accountId))
+
+    accountResults.forEach((account) => {
+      const parentId = String(account.parentAccountId)
+      resultAccounts[parentId] = [...(resultAccounts[parentId] || []), account]
+    })
+
+    if (rootAccount) {
+      resultParents[accountId] = rootAccount
+    }
+
+    return { accounts: resultAccounts, parentAccounts: resultParents }
+  }
+
   const handleAccountSearch = (e) => {
-    const term = e.target.value
-    setAccountSearch(term)
+    setAccountSearch(e.target.value)
+  }
+
+  const submitAccountSearch = async (e) => {
+    e.preventDefault()
+    const search = accountSearch.trim()
+
+    if (!search || loadingAccountSearch) {
+      return
+    }
+
+    if (!accountStateBeforeSearch.current) {
+      accountStateBeforeSearch.current = {
+        accounts,
+        parentAccounts,
+        selectedAccountsByDepth,
+        accountStack,
+      }
+    }
+
+    setLoadingAccountSearch(true)
+    try {
+      const response = await api.getAdminSubAccounts(accountId, search)
+      const payload = await response.json()
+
+      if (!response.ok || payload?.errors?.length) {
+        return
+      }
+
+      const tree = accountTreeFromResults(payload.data || [])
+      accountSearchResults.current = payload.data || []
+      setAccounts(tree.accounts)
+      setParentAccounts(tree.parentAccounts)
+      setSelectedAccountsByDepth({})
+      setActiveAccountSearch(search)
+    } catch (error) {
+      console.error("Failed to search accounts", error)
+    } finally {
+      setLoadingAccountSearch(false)
+    }
+  }
+
+  const clearAccountSearch = () => {
+    const previousState = accountStateBeforeSearch.current
+
+    setAccountSearch("")
+    setActiveAccountSearch("")
+    accountSearchResults.current = []
+
+    if (previousState) {
+      setAccounts(previousState.accounts)
+      setParentAccounts(previousState.parentAccounts)
+      setSelectedAccountsByDepth(previousState.selectedAccountsByDepth)
+      setAccountStack(previousState.accountStack)
+      accountStateBeforeSearch.current = null
+    }
+  }
+
+  const selectSearchAccount = async (account) => {
+    const previousState = accountStateBeforeSearch.current
+    const resultAccounts = new Map(
+      accountSearchResults.current.map((resultAccount) => [
+        String(resultAccount.lmsAccountId),
+        resultAccount,
+      ])
+    )
+    const path = []
+    const visitedAccountIds = new Set()
+    let currentAccount = account
+
+    while (currentAccount && !visitedAccountIds.has(String(currentAccount.lmsAccountId))) {
+      const currentAccountId = String(currentAccount.lmsAccountId)
+      path.unshift(currentAccount)
+      visitedAccountIds.add(currentAccountId)
+
+      if (currentAccountId === String(accountId)) {
+        break
+      }
+
+      currentAccount = resultAccounts.get(String(currentAccount.parentAccountId))
+    }
+
+    if (!previousState || path.length === 0 || String(path[0].lmsAccountId) !== String(accountId)) {
+      clearAccountSearch()
+      return
+    }
+
+    setLoadingAccountSearch(true)
+    try {
+      const nextAccounts = {
+        [accountId]: previousState.accounts[accountId] || [],
+      }
+      const nextParentAccounts = {
+        [accountId]: path[0],
+      }
+      const nextSelectedAccountsByDepth = {}
+
+      for (let index = 0; index < path.length; index += 1) {
+        const pathAccount = path[index]
+        const pathAccountId = String(pathAccount.lmsAccountId)
+        const childAccounts = await fetchSubAccounts(pathAccount.lmsAccountId)
+
+        nextAccounts[pathAccountId] = childAccounts || []
+        nextParentAccounts[pathAccountId] = pathAccount
+
+        if (index > 0) {
+          nextSelectedAccountsByDepth[index] = pathAccountId
+        }
+      }
+
+      setAccounts(nextAccounts)
+      setParentAccounts(nextParentAccounts)
+      setSelectedAccountsByDepth(nextSelectedAccountsByDepth)
+      setAccountStack(path)
+      setAccountSearch("")
+      setActiveAccountSearch("")
+      accountSearchResults.current = []
+      accountStateBeforeSearch.current = null
+    } finally {
+      setLoadingAccountSearch(false)
+    }
   }
 
   return (
@@ -423,7 +537,24 @@ export default function AdminApp(initialData) {
 
       <div className="admin-layout">
         <aside className="admin-sidebar">
-          <input type="text" value={accountSearch} onChange={(e) => handleAccountSearch(e)} placeholder="Search for an account" className="mb-1 p-2"></input>
+          <form onSubmit={submitAccountSearch} className="admin-account-search">
+            <input
+              type="text"
+              value={accountSearch}
+              onChange={handleAccountSearch}
+              placeholder="Search for an account"
+              aria-label="Search for an account"
+              disabled={loadingAccountSearch}
+            />
+            <button type="submit" disabled={loadingAccountSearch || !accountSearch.trim()}>
+              Search
+            </button>
+            {activeAccountSearch && (
+              <button type="button" onClick={clearAccountSearch} disabled={loadingAccountSearch}>
+                Clear
+              </button>
+            )}
+          </form>
           <div className="admin-account-tree">
             {parentAccounts[accountId] && renderAccountTree(parentAccounts[accountId], 0, true)}
           </div>

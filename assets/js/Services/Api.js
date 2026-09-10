@@ -252,9 +252,13 @@ export default class Api {
     });
   }
 
-  getAdminSubAccounts(accountId) {
+  getAdminSubAccounts(accountId, search = "") {
     let url = `${this.apiUrl}${this.endpoints.adminSubAccounts}`;
     url = url.replace("{lmsAccountId}", accountId)
+
+    if (search) {
+      url += `?${new URLSearchParams({ search }).toString()}`;
+    }
 
     return fetch(url, {
       method: "GET",

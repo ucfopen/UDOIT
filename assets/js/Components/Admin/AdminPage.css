@@ -31,6 +31,24 @@
     padding: 2px 2px 2px 0;
   }
 
+  .admin-account-search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-bottom: .5rem;
+  }
+
+  .admin-account-search input {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    min-width: 0;
+    padding: .5rem;
+  }
+
+  .admin-account-search button {
+    padding: .4rem .65rem;
+  }
+
   .admin-account-tree-root {
     color: var(--text-color);
     font-weight: 600;
