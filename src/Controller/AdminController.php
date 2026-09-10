@@ -246,6 +246,59 @@ class AdminController extends ApiController
         return $this->json($apiResponse);
     }
 
+    #[Route('api/admin/reports/account/{lmsAccountId}/term/{lmsTermId}', methods: ['GET'], name:'admin_get_reports')]
+    public function getAllReportsIssues
+    (
+        int $lmsAccountId, 
+        int $lmsTermId,
+        SessionService $sessionService, 
+        UtilityService $util, 
+        AccountRepository $accountRepo, 
+        CourseRepository $courseRepo, 
+        ReportRepository $reportRepo
+    ) 
+    {
+
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+        
+        $this->accountRepo = $accountRepo;
+        $this->courseRepo = $courseRepo;
+        $this->reportRepo = $reportRepo;
+
+        $this->util = $util;
+
+        if($lmsTermId == -1) {
+            $lmsTermId = null;
+        }
+
+        $accounts = $accountRepo->getAccountTree($user, $lmsAccountId);
+        $courses  = $courseRepo->findCoursesByAccount($user, $accounts, $lmsTermId);
+
+        $reports = [];
+        $issues = [];
+
+        foreach($courses as $course){
+            $allReports = $reportRepo->findBy(['course' => $course->getId()]);
+            if ($allReports){
+                $reports[] = $allReports;
+            }
+            $allIssues = $course->getAllIssues();
+            if($allIssues){
+                $issues[] = $allIssues;
+            }
+        }
+
+        $data = [
+            'reports' => $reports,
+            'issues' => $issues,
+        ];
+
+        $apiResponse->setData($data);
+
+        return $this->json($apiResponse);
+    }
+
     /** PROTECTED FUNCTIONS **/
 
     protected function getTermInfo($accounts): array

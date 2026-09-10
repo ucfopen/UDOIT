@@ -19,9 +19,15 @@ export default function ReportsPage({
   const [selectedCourseReports, setSelectedCourseReports] = useState(null);
   const [issues, setIssues] = useState(null);
   const [instructors, setInstructors] = useState([]);
+  const ALL_COURSES_TITLE = t("report.header.all_courses")
 
   const getReportHistory = () => {
-    setGroupedReports(normalizeResolutionReports());
+    if (selectedCourse.title == ALL_COURSES_TITLE) {
+      setGroupedReports(normalizeResolutionReportsForAllCourses())
+    }
+    else{
+        setGroupedReports(normalizeResolutionReports());
+    }
     setSelectedCourseReports(selectedCourse.allReports);
     setIssues(normalizeIssues());
     setInstructors(selectedCourse.instructors || []);
@@ -43,6 +49,70 @@ export default function ReportsPage({
 
     return courseObject;
   };
+
+  const normalizeResolutionReportsForAllCourses = () => {
+    let reports = selectedCourse.allReports;
+    const allDates = new Set()
+
+    let courseObject = {};
+    for (const report of reports){
+      courseObject[report.courseId] = {}
+    }
+    
+    for (const report of reports) {
+      allDates.add(report.created)
+      courseObject[report.courseId][report.created] = {
+        issues: report.issues,
+        potentialIssues: report.potentialIssues,
+        unreviewedFiles: report.unreviewedFiles,
+      };
+    }
+
+    
+    const sortedDates = [...allDates].sort()
+    let groupedReport = {}
+    groupedReport[selectedCourse.title] = {}
+
+    for(const d of sortedDates){
+      groupedReport[selectedCourse.title][d] = {
+        issues: 0,
+        potentialIssues: 0,
+        unreviewedFiles: 0
+      }
+    }
+
+    console.log(courseObject)
+    console.log(sortedDates)
+    for(const course in courseObject){
+        const earliestDate = Object.keys(courseObject[course]).sort()[0]
+        const startingIndex = sortedDates.findIndex((d) => d == earliestDate)
+        let latestDate = earliestDate;
+
+        for(let i = startingIndex; i < sortedDates.length; i++){
+          if (sortedDates[i] in courseObject[course]){
+            groupedReport[selectedCourse.title][sortedDates[i]]["issues"] += courseObject[course][sortedDates[i]]["issues"]
+            groupedReport[selectedCourse.title][sortedDates[i]]["potentialIssues"] += courseObject[course][sortedDates[i]]["potentialIssues"]
+            groupedReport[selectedCourse.title][sortedDates[i]]["unreviewedFiles"] += courseObject[course][sortedDates[i]]["unreviewedFiles"]
+            latestDate = sortedDates[i]
+          }
+          else{
+            groupedReport[selectedCourse.title][sortedDates[i]]["issues"] += courseObject[course][latestDate]["issues"]
+            groupedReport[selectedCourse.title][sortedDates[i]]["potentialIssues"] += courseObject[course][latestDate]["potentialIssues"]
+            groupedReport[selectedCourse.title][sortedDates[i]]["unreviewedFiles"] += courseObject[course][latestDate]["unreviewedFiles"]
+          }
+        }
+
+        for (let i = startingIndex - 1; i >= 0; i--){
+            groupedReport[selectedCourse.title][sortedDates[i]]["issues"] += courseObject[course][earliestDate]["issues"]
+            groupedReport[selectedCourse.title][sortedDates[i]]["potentialIssues"] += courseObject[course][earliestDate]["potentialIssues"]
+            groupedReport[selectedCourse.title][sortedDates[i]]["unreviewedFiles"] += courseObject[course][earliestDate]["unreviewedFiles"]
+        }
+    }
+
+
+    console.log(groupedReport)
+    return groupedReport;
+  }
 
   const normalizeIssues = () => {
     let rules = [];

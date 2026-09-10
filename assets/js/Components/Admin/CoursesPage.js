@@ -11,6 +11,7 @@ export default function CoursePage({
   handleTableSettings,
   pagination,
   handleReportClick,
+  fetchReportsIssues,
 }) {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const headers = [
@@ -130,21 +131,16 @@ export default function CoursePage({
     setFilteredCourses(tempFilteredCourses);
   }, [courses]);
 
-  const getCombinedCourse = () => {
-    let combinedCourse = {};
-    combinedCourse.allReports = [];
-    combinedCourse.issues = [];
-    combinedCourse.instructors = [];
-    Object.values(courses).forEach((course) => {
-      course?.allReports?.forEach((report) => {
-        combinedCourse.allReports.push(report);
-      });
-      course?.issues?.forEach((issue) => {
-        combinedCourse.issues.push(issue);
-      });
-    });
-    combinedCourse.title = "All Courses";
-    return combinedCourse;
+  const getCombinedCourse = async () => {
+    const reportIssues = await fetchReportsIssues();
+    console.log(reportIssues)
+
+    return {
+      title: "All Courses",
+      instructors: [],
+      allReports: reportIssues?.reports?.flat() ?? [],
+      issues: reportIssues?.issues?.flat() ?? [],
+    };
   };
 
   return (
@@ -184,7 +180,10 @@ export default function CoursePage({
           <div className="flex-row justify-content-end mt-3 mb-2">
             <button
               className="btn btn-primary flex-row justify-content-center"
-              onClick={() => handleReportClick(getCombinedCourse())}
+              onClick={async () => {
+                const combinedCourse = await getCombinedCourse();
+                handleReportClick(combinedCourse);
+              }}
             >
               <ReportIcon className="icon-md me-2" />
               <div className="flex-column justify-content-center">

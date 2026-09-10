@@ -20,7 +20,7 @@ export default class Api {
       scanCourse: '/api/sync/{course}',
       fullRescan: '/api/sync/rescan/{course}',
       adminCourseReport: '/api/admin/courses/{course}/reports/full',
-      adminReportHistory: '/api/admin/reports/account/{account}/term/{term}',
+      adminReportsIssues: '/api/admin/reports/account/{account}/term/{term}',
       adminUser: '/api/admin/users',
       updatePreferences: '/api/users/{user}/preferences'
     }
@@ -64,6 +64,21 @@ export default class Api {
   setInstanceInfo(instanceInfo) {
     this.instanceInfo = instanceInfo;
     this.apiUrl = instanceInfo.apiUrl;
+  }
+
+  getAdminReportsIssues(accountId, termId){
+    let url = `${this.apiUrl}${this.endpoints.adminReportsIssues}`;
+    url = url
+      .replace("{account}", accountId)
+      .replace("{term}", termId);
+
+    return this.fetchWithListeners(url, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   getReport(reportId) {

@@ -43,11 +43,8 @@ export default function AdminApp(initialData) {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [filters, setFilters] = useState({ ...initialFilters });
   const [searchTerm, setSearchTerm] = useState("");
-  const [accountData, setAccountData] = useState([]);
   const [navigation, setNavigation] = useState("dashboard");
-  const [modal, setModal] = useState(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
-  const [trayOpen, setTrayOpen] = useState(false);
   const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
 
   const [accountStack, setAccountStack] = useState([intialAccount])
@@ -155,7 +152,6 @@ export default function AdminApp(initialData) {
         direction: courseTableSettings.ascending ? "asc" : "desc",
       })
       const normalizedCourses = await retrivedCourses.json()
-
       if (!normalizedCourses){
         console.log("Failed to fetch data.")
       }
@@ -168,6 +164,15 @@ export default function AdminApp(initialData) {
       setLoadingCourses(false)
     }
 
+  }
+
+  const fetchReportsIssues = async () => {
+    const data = await api.getAdminReportsIssues(accountStack[accountStack.length - 1].lmsAccountId, selectedTerm)
+    const reportsIssues = await data.json()
+    if (!reportsIssues) {
+      return
+    }
+    return reportsIssues.data
   }
 
   const handleCourseSearchTerm = (term) => {
@@ -476,6 +481,7 @@ export default function AdminApp(initialData) {
                   addMessage={addMessage}
                   handleReportClick={handleReportClick}
                   handleNavigation={handleNavigation}
+                  fetchReportsIssues={fetchReportsIssues}
                 />
               )}
               {"reports" === navigation && (
