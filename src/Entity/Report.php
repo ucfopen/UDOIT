@@ -74,6 +74,7 @@ class Report implements \JsonSerializable
     {
         return [
             "id" => $this->id,
+            "courseId" => $this->course->getId(),
             "created" => $this->created->format($_ENV['DATE_FORMAT']),
             "issues" => $this->getIssues(),
             "potentialIssues" => $this->getPotentialIssues(),
