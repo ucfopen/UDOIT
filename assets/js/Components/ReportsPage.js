@@ -71,7 +71,14 @@ export default function ReportsPage({
       let content = ''
       let formName = formNameFromRule(issue.id)
       if(formName === 'review_only') {
-        label = t('report.label.unhandled') + issue.id
+        let ruleKey = 'rule.title.' + issue.id;
+        let ruleTitle = t(ruleKey)
+        if (ruleTitle !== ruleKey) {
+          label = t('report.label.unhandled') + ruleTitle;
+        }
+        else {
+          label = t('report.label.unhandled') + issue.id
+        }
         let tempContent = t('rule.summary.'+ issue.id)
         if(tempContent === `rule.summary.${issue.id}`) {
           tempContent = t('form.review_only.summary')
