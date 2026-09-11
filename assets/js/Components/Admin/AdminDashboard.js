@@ -6,7 +6,7 @@ import DashboardScanRuleTable from "../Widgets/DashboardScanRuleTable";
 import { formNameFromRule } from "../../Services/Ufixit";
 
 
-export default function AdminDashboard({ t, dashboardStats }) {
+export default function AdminDashboard({ t, dashboardStats, handleReportClick }) {
   const [scanRuleRanked, setScanRuleRanked] = useState([])
 
   useEffect(() => {
@@ -86,7 +86,11 @@ export default function AdminDashboard({ t, dashboardStats }) {
             className="admin-dashboard-stat-card"/>
         </div>
         <div className="mt-4">
-            <DashboardCourseTable t={t} courses={dashboardStats.showcaseCourses} />
+            <DashboardCourseTable
+              t={t}
+              courses={dashboardStats.showcaseCourses}
+              handleReportClick={handleReportClick}
+            />
         </div>
         <div className="mt-4">
            <DashboardScanRuleTable t={t} scanRuleRanked={scanRuleRanked} />

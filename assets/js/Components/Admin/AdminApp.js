@@ -597,6 +597,7 @@ export default function AdminApp(initialData) {
                   preferences={preferences}
                   dashboardStats={dashboardStats}
                   handleNavigation={handleNavigation}
+                  handleReportClick={handleReportClick}
                   addMessage={addMessage}
                 />
               )}

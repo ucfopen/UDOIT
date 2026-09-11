@@ -534,6 +534,10 @@ class AdminController extends ApiController
                 $retrived_course = $report->getCourse()->jsonSerialize();
                 $retrived_course['totalActiveIssues'] = $report->getActiveIssueCount();
                 $retrived_course['scanRule'] = $report->getHighestScanRule();
+                $retrived_course['allReports'] = $reportRepo->findBy(['course' => $report->getCourse()->getId()]);
+                $retrived_course['latestReport'] = $report;
+                $retrived_course['issues'] = $report->getCourse()->getAllIssues();
+                $retrived_course['instructors'] = $report->getCourse()->getCourseProfessors();
                 $n_courses[] = $retrived_course;
             }
             if (isset($scanCounter[$report->getHighestScanRule()])){
