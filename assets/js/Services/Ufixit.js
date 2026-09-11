@@ -288,6 +288,7 @@ export const sharedRuleSummaries = {
 /* When a REVIEW_ONLY rule uses the same description as another rule, add it here.
    The key is the name of the rule, and the value is the en.json translation that should be used. */
 export const sharedRuleDescriptions = {
+  a_target_warning: 'rule.desc.meta_redirect_optional',
   aria_banner_single: 'form.label.learn_more',
   aria_child_tabbable: 'form.keyboard_tabbable.learn_more',
   aria_contentinfo_single: 'form.label.learn_more',
