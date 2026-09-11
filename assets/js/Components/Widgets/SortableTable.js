@@ -13,6 +13,8 @@ export default function SortableTable({
   rows,
   tableSettings,
   handleTableSettings,
+  totalRows,
+  serverSidePagination = false,
 }) {
 
   const [rowsPerPage, setRowsPerPage] = useState((tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10)
@@ -26,7 +28,8 @@ export default function SortableTable({
 
   useEffect(() => {
     const tempRowsPerPage = (tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10
-    const tempShowPagination = rows.length >= tempRowsPerPage
+    const tempTotalRows = totalRows ?? rows.length
+    const tempShowPagination = tempTotalRows > tempRowsPerPage
     const start = tempShowPagination ? tableSettings.pageNum * tempRowsPerPage : 0
     setRowsPerPage(tempRowsPerPage)
     setShowPagination(tempShowPagination)
@@ -34,9 +37,9 @@ export default function SortableTable({
     setSortBy(tableSettings.sortBy)
     setAscending(tableSettings.ascending)
     setDirection((tableSettings.ascending) ? 'ascending': 'descending')
-    setPagedRows(rows.slice(start, (start + tempRowsPerPage)))
+    setPagedRows(serverSidePagination ? rows : rows.slice(start, (start + tempRowsPerPage)))
   }
-  , [tableSettings, rows])
+  , [tableSettings, rows, totalRows, serverSidePagination])
 
   const exportToCSV = () => {
 
@@ -62,8 +65,8 @@ export default function SortableTable({
     link.click();
   }
 
-  const handleSort = (id) => {
-    if (['action'].includes(id)) {
+  const handleSort = (id, sortable = true) => {
+    if (!sortable || ['action'].includes(id)) {
       return
     }
 
@@ -82,7 +85,8 @@ export default function SortableTable({
   }
 
   const renderPagination = () => {
-    const pageCount = rowsPerPage && Math.ceil(rows.length / rowsPerPage)
+    const total = totalRows ?? rows.length
+    const pageCount = rowsPerPage && Math.ceil(total / rowsPerPage)
     if(pageCount < 2) {
       return null
     }
@@ -109,7 +113,7 @@ export default function SortableTable({
     //  
     return (
       <div className="mt-3 flex-row justify-content-between align-items-center gap-2 flex-wrap">
-        <div className="subtext align-content-center" dangerouslySetInnerHTML={{__html: t('report.label.table_visible', {first: start + 1, last: Math.min(start + rowsPerPage, rows.length), total: rows.length})}} />
+        <div className="subtext align-content-center" dangerouslySetInnerHTML={{__html: t('report.label.table_visible', {first: start + 1, last: Math.min(start + rowsPerPage, total), total})}} />
         <nav
           className="pagination flex-row justify-content-center gap-1"
         >
@@ -168,16 +172,16 @@ export default function SortableTable({
         <table className="udoit-sortable-table" aria-labelledby={`caption-${captionId}`}>
           <thead aria-label={t('report.label.sort_by')}>
             <tr>
-              {(headers || []).map(({ id, text, divider }) => (
+              {(headers || []).map(({ id, text, divider, sortable = true }) => (
                 (text) ? 
                   <th
                     key={`header${id}`}
                     id={id}
-                    tabIndex="0"
-                    onClick={() => handleSort(id)}
+                    tabIndex={sortable ? "0" : undefined}
+                    onClick={() => handleSort(id, sortable)}
                     onKeyDown={(e) => {
                       if(e.key === 'Enter' || e.key === ' ') {
-                        handleSort(id)
+                        handleSort(id, sortable)
                       }
                     }}
                     className={(divider) ? 'divider' : '' }

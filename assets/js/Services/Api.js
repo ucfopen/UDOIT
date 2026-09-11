@@ -2,29 +2,28 @@ export default class Api {
   constructor(instanceInfo) {
     this.apiUrl = `https://${window.location.hostname}`;
     this.endpoints = {
-      getReport: "/api/courses/{course}/reports/{report}",
-      getReportHistory: "/api/courses/{course}/reports",
-      setReportData: "/api/reports/{report}/setdata",
-      updateAndGetReport: "/api/courses/{course}/reports/update",
-      getIssueContent: "/api/issues/{issue}/content",
-      saveIssue: "/api/issues/{issue}/save",
-      reviewFile: "/api/files/{file}/review",
-      postFile: "/api/files/{file}/post",
-      deleteFile: "/api/files/{file}/delete",
-      batchDelete: "/api/{course}/files/delete",
-      updateContent: "/api/{file}/content",
-      reportPdf: "/download/courses/{course}/reports/pdf",
-      adminCourses: "/api/admin/courses/account/{account}/term/{term}",
-      scanContent: "/api/sync/content/{contentItem}?report={getReport}",
-      scanCourse: "/api/sync/{course}",
-      scanLmsCourse: "/api/admin/sync/lms/{lmsCourseId}",
-      fullRescan: "/api/sync/rescan/{course}",
-      adminReport: "/api/admin/courses/{course}/reports/latest",
-      adminCourseReport: "/api/admin/courses/{course}/reports/full",
-      adminReportHistory: "/api/admin/reports/account/{account}/term/{term}",
-      adminUser: "/api/admin/users",
-      updatePreferences: "/api/users/{user}/preferences",
-    };
+      getReport: '/api/courses/{course}/reports/{report}',
+      getReportHistory: '/api/courses/{course}/reports',
+      setReportData: '/api/reports/{report}/setdata',
+      updateAndGetReport: '/api/courses/{course}/reports/update',
+      getIssueContent: '/api/issues/{issue}/content',
+      saveIssue: '/api/issues/{issue}/save',
+      reviewFile: '/api/files/{file}/review',
+      postFile: '/api/files/{file}/post',
+      deleteFile: '/api/files/{file}/delete',
+      batchDelete: '/api/{course}/files/delete',
+      updateContent: '/api/{file}/content',
+      reportPdf: '/download/courses/{course}/reports/pdf',
+      adminCourses: '/api/admin/courses/account/{account}/term/{term}',
+      adminSubAccounts: '/api/admin/accounts/{lmsAccountId}',
+      scanContent: '/api/sync/content/{contentItem}?report={getReport}',
+      scanCourse: '/api/sync/{course}',
+      fullRescan: '/api/sync/rescan/{course}',
+      adminCourseReport: '/api/admin/courses/{course}/reports/full',
+      adminReportsIssues: '/api/admin/reports/account/{account}/term/{term}',
+      adminUser: '/api/admin/users',
+      updatePreferences: '/api/users/{user}/preferences'
+    }
     this.instanceInfo = instanceInfo;
 
     if (instanceInfo && instanceInfo.apiUrl) {
@@ -65,6 +64,21 @@ export default class Api {
   setInstanceInfo(instanceInfo) {
     this.instanceInfo = instanceInfo;
     this.apiUrl = instanceInfo.apiUrl;
+  }
+
+  getAdminReportsIssues(accountId, termId){
+    let url = `${this.apiUrl}${this.endpoints.adminReportsIssues}`;
+    url = url
+      .replace("{account}", accountId)
+      .replace("{term}", termId);
+
+    return this.fetchWithListeners(url, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   getReport(reportId) {
@@ -218,14 +232,15 @@ export default class Api {
     });
   }
 
-  getAdminCourses(filters) {
+  getAdminCourses(accountId, termId, params = {}) {
     let url = `${this.apiUrl}${this.endpoints.adminCourses}`;
     url = url
-      .replace("{account}", filters.accountId)
-      .replace("{term}", filters.termId);
+      .replace("{account}", accountId)
+      .replace("{term}", termId);
 
-    if (filters.includeSubaccounts) {
-      url += "?subaccounts=true";
+    const query = new URLSearchParams(params).toString();
+    if (query) {
+      url += `?${query}`;
     }
 
     return this.fetchWithListeners(url, {
@@ -237,18 +252,24 @@ export default class Api {
     });
   }
 
-  getAdminReport(courseId) {
-    let url = `${this.apiUrl}${this.endpoints.adminReport}`;
-    url = url.replace("{course}", courseId);
+  getAdminSubAccounts(accountId, search = "") {
+    let url = `${this.apiUrl}${this.endpoints.adminSubAccounts}`;
+    url = url.replace("{lmsAccountId}", accountId)
 
-    return this.fetchWithListeners(url, {
+    if (search) {
+      url += `?${new URLSearchParams({ search }).toString()}`;
+    }
+
+    return fetch(url, {
       method: "GET",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
     });
+
   }
+
 
   getAdminUser() {
     let url = `${this.apiUrl}${this.endpoints.adminUser}`;
@@ -265,19 +286,6 @@ export default class Api {
   scanCourse(courseId) {
     let url = `${this.apiUrl}${this.endpoints.scanCourse}`;
     url = url.replace("{course}", courseId);
-
-    return this.fetchWithListeners(url, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  scanLmsCourse(lmsCourseId) {
-    let url = `${this.apiUrl}${this.endpoints.scanLmsCourse}`;
-    url = url.replace("{lmsCourseId}", lmsCourseId);
 
     return this.fetchWithListeners(url, {
       method: "GET",

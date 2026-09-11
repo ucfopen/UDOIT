@@ -10,62 +10,42 @@ export default function AdminHeader({
   navigation,
   handleNavigation,
 }) {
+
+
+  const links = [
+    {name: t('Dashboard'), icon: HomeIcon, key: 'dashboard'},
+    {name: t('Courses'), icon: ContentAssignmentIcon, key: 'courses'}
+  ]
+
+
   return (
     <header id="udoit-header" role="banner">
-      <nav aria-label={t("menu.nav.label")}>
-        <div
-          className="flex-row justify-content-start gap-2"
-          onClick={() => handleNavigation("dashboard")}
-        >
-          <div
-            className="flex-column justify-content-center"
-            style={{ width: "min-content" }}
-          >
-            <img alt={t("alt.UDOIT")} src={UDOITLogo}></img>
-          </div>
-          <div className="flex-column justify-content-center">
-            <h1 className="mt-0 mb-0">{t("menu.admin")}</h1>
+      <img alt={t("alt.UDOIT")} src={UDOITLogo}></img>
+        <div id="nav-container">
+          <div className="flex-row gap-1" id="nav-row">
+            <nav aria-label={t('menu.nav.label')}>
+              <ul id="main-nav">
+                {links.map(link => (
+                <li
+                  key={link.key}
+                  role="link"
+                  aria-label={link.name}
+                  className={navigation === link.key ? 'active-link' : ''}
+                  onClick={()=>handleNavigation(link.key)}
+                  onKeyDown={(e) => {
+                    if(e.key === 'Enter' || e.key === ' ') {
+                      handleNavigation(link.key)
+                    }
+                  }}
+                  tabIndex='0'>
+                  <link.icon className='icon-md' aria-hidden="true"/>
+                  <div aria-hidden="true">{link.name}</div>
+                </li>
+              ))}
+              </ul>
+            </nav>
           </div>
         </div>
-        <div>
-          <ul>
-            <li
-              className={`flex-row ${navigation === "dashboard" ? " active-link" : ""}`}
-              onClick={() => handleNavigation("dashboard")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  handleNavigation("dashboard");
-                }
-              }}
-              tabIndex="0"
-            >
-              <div className="flex-column justify-content-center">
-                <HomeIcon className="icon-md pr-1" />
-              </div>
-              <div className="flex-column justify-content-center">
-                Dashboard
-              </div>
-            </li>
-            <li
-              className={`flex-row ${navigation === "courses" ? " active-link" : ""}`}
-              onClick={() => handleNavigation("courses")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  handleNavigation("courses");
-                }
-              }}
-              tabIndex="0"
-            >
-              <div className="flex-column justify-content-center">
-                <ContentAssignmentIcon className="icon-md pr-1" />
-              </div>
-              <div className="flex-column justify-content-center">
-                {t("menu.admin.courses")}
-              </div>
-            </li>
-          </ul>
-        </div>
-      </nav>
     </header>
   );
 }

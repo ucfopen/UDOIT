@@ -28,6 +28,30 @@ class ReportRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findLatestByCourseIds(array $courseIds): array
+    {
+        if (!$courseIds) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('r');
+
+        $subQb = $this->getEntityManager()->createQueryBuilder()
+            ->select('r2.id')
+            ->from(Report::class, 'r2')
+            ->where('r2.course = r.course')
+            ->andWhere('r2.created > r.created OR (r2.created = r.created AND r2.id > r.id)');
+
+        return $qb
+            ->join('r.course', 'c')
+            ->where('c.lmsCourseId IN (:courseIds)')
+            ->andWhere($qb->expr()->not($qb->expr()->exists($subQb->getDQL())))
+            ->setParameter('courseIds', $courseIds)
+            ->orderBy('c.lmsCourseId', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // Returns an array of Report objects
     /*
     public function findByExampleField($value): array

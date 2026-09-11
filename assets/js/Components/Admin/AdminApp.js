@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import AdminHeader from "./AdminHeader";
 import AdminDashboard from "./AdminDashboard";
 import CoursesPage from "./CoursesPage";
@@ -8,16 +8,18 @@ import AdminFilters from "../Admin/AdminFilters";
 import ProgressIcon from "../Icons/ProgressIcon";
 
 import { ISSUE_FILTER } from "../../Services/Settings";
-
 import "../../../css/udoit4-theme.css";
+import "./AdminPage.css";
 import { api } from "../../Services/Api";
 
 export default function AdminApp(initialData) {
   // If there are multiple accounts available, the first account is the selected accountId
-  let accountId = initialData.accountId;
+  let accountId = initialData?.accountId;
+  let intialAccount = {}
+  let filteredAccounts = []
   if (initialData.accounts) {
-    const accountIds = Object.keys(initialData.accounts);
-    accountId = accountIds.shift();
+    intialAccount = initialData.accounts.find(a => a.lmsAccountId == accountId)
+    filteredAccounts = initialData.accounts.filter(a => a.lmsAccountId != accountId)
   }
 
   let initialFilters = {
@@ -34,17 +36,61 @@ export default function AdminApp(initialData) {
   );
   const [termInfo, setTermInfo] = useState(initialData.termInfo || {});
   const [labels, setLabels] = useState(initialData.labels ?? []);
-  const [accounts, setAccounts] = useState(initialData.accounts);
+  const [parentAccounts, setParentAccounts] = useState({[accountId]: intialAccount})
+  const [accounts, setAccounts] = useState({[accountId]: filteredAccounts});
 
   const [courses, setCourses] = useState({});
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [filters, setFilters] = useState({ ...initialFilters });
   const [searchTerm, setSearchTerm] = useState("");
-  const [accountData, setAccountData] = useState([]);
   const [navigation, setNavigation] = useState("dashboard");
-  const [modal, setModal] = useState(null);
   const [loadingCourses, setLoadingCourses] = useState(true);
-  const [trayOpen, setTrayOpen] = useState(false);
+  const [selectedAccountsByDepth, setSelectedAccountsByDepth] = useState({});
+
+  const [accountStack, setAccountStack] = useState([intialAccount])
+  const [accountSearch, setAccountSearch] = useState("")
+  const [activeAccountSearch, setActiveAccountSearch] = useState("")
+  const [loadingAccountSearch, setLoadingAccountSearch] = useState(false)
+  const accountStateBeforeSearch = useRef(null)
+  const accountSearchResults = useRef([])
+  const [selectedTerm, setSelectedTerm] = useState(-1)
+  const [courseTableSettings, setCourseTableSettings] = useState({
+    sortBy: "lastUpdated",
+    ascending: false,
+    pageNum: 0,
+    rowsPerPage: localStorage.getItem("rowsPerPage")
+      ? localStorage.getItem("rowsPerPage")
+      : "10",
+  })
+  const [coursePagination, setCoursePagination] = useState({
+    page: 1,
+    perPage: parseInt(courseTableSettings.rowsPerPage),
+    total: 0,
+    totalPages: 0,
+  })
+
+  const stats = {
+      loading: false,
+      totalCourses: 0,
+      scannedCourses: 0,
+      totalInstructors: 0,
+      uniqueInstructorsUsingUdoit: 0,
+      totalErrors: 0,
+      totalSuggestions: 0,
+      totalFixed: 0,
+      totalResolved: 0,
+      totalFilesReviewed: 0,
+      accountBreakdown: {},
+      recentScans: 0,
+      oldestScan: null,
+      newestScan: null,
+    };
+
+  const [dashboardStats, setDashboardStats] = useState(initialData.stats || stats)
+
+  useEffect(() => {
+    retriveCoursesAndStats()
+  }, [accountStack, selectedTerm, searchTerm, courseTableSettings])
 
   const t = useCallback(
     (key, values = {}) => {
@@ -62,23 +108,109 @@ export default function AdminApp(initialData) {
     [labels],
   );
 
-  const loadCourses = (filters) => {
-    setLoadingCourses(true);
+  const updateAccountStack = (account, shouldPush = false) => {
+    resetCoursePage()
+    setAccountStack((prevStack) => {
+      const tempStack = [...prevStack]
 
-    api
-      .getAdminCourses(filters)
-      .then((response) => response.json())
-      .then((data) => {
-        let courses = {};
-        if (Array.isArray(data.data)) {
-          data.data.forEach((course) => {
-            courses[course.id] = course;
-          });
-          setCourses(courses);
-        }
-        setLoadingCourses(false);
-      });
-  };
+      while (tempStack.length && tempStack[tempStack.length - 1].depth >= account.depth) {
+        tempStack.pop()
+      }
+
+      if (tempStack.length && account.lmsAccountId == tempStack[tempStack.length - 1].lmsAccountId) {
+        tempStack.pop()
+      }
+
+      if (shouldPush) {
+        tempStack.push(account)
+      }
+
+      return tempStack
+    })
+  }
+
+  const retriveCoursesAndStats = async () => {
+    if (!accountStack){
+      return
+    }
+    const data = await fetchCourses(accountStack[accountStack.length - 1].lmsAccountId, selectedTerm)
+    if (!data) {
+      return
+    }
+    
+    if(data.stats){
+      setDashboardStats(data.stats)
+    }
+    setCourses(data.courses)
+    setCoursePagination(data.pagination)
+  }
+
+  const fetchCourses = async (accountId, termId) => {
+    setLoadingCourses(true)
+    try{
+      const retrivedCourses = await api.getAdminCourses(accountId, termId, {
+        page: courseTableSettings.pageNum + 1,
+        perPage: courseTableSettings.rowsPerPage,
+        search: searchTerm,
+        sortBy: courseTableSettings.sortBy,
+        direction: courseTableSettings.ascending ? "asc" : "desc",
+      })
+      const normalizedCourses = await retrivedCourses.json()
+      if (!normalizedCourses){
+        console.log("Failed to fetch data.")
+      }
+
+      return normalizedCourses.data
+    }
+    catch(e){
+      console.error(e)
+    } finally {
+      setLoadingCourses(false)
+    }
+
+  }
+
+  const fetchReportsIssues = async () => {
+    const data = await api.getAdminReportsIssues(accountStack[accountStack.length - 1].lmsAccountId, selectedTerm)
+    const reportsIssues = await data.json()
+    if (!reportsIssues) {
+      return
+    }
+    return reportsIssues.data
+  }
+
+  const handleCourseSearchTerm = (term) => {
+    resetCoursePage()
+    setSearchTerm(term)
+  }
+
+  const handleSelectedTerm = (term) => {
+    resetCoursePage()
+    setSelectedTerm(term)
+  }
+
+  const resetCoursePage = () => {
+    setCourseTableSettings((previousSettings) => ({
+      ...previousSettings,
+      pageNum: 0,
+    }))
+  }
+
+  const handleCourseTableSettings = (newSettings) => {
+    setCourseTableSettings((previousSettings) => {
+      const nextSettings = { ...previousSettings, ...newSettings }
+
+      if (
+        newSettings.rowsPerPage !== undefined ||
+        newSettings.sortBy !== undefined ||
+        newSettings.ascending !== undefined
+      ) {
+        nextSettings.pageNum = 0
+      }
+
+      return nextSettings
+    })
+  }
 
   const handleNavigation = (navigation) => {
     setSelectedCourse(null);
@@ -103,48 +235,294 @@ export default function AdminApp(initialData) {
     setFilters(tempFilters);
   };
 
-  useEffect(() => {
-    loadCourses(initialFilters);
-  }, []);
-
-  useEffect(() => {
-    loadCourses(filters, true);
-  }, [filters]);
-
-  const handleCourseUpdate = (courseData) => {
-    let tempCourses = { ...courses };
-
-    // If there's an oldId, this is a newly scanned course that needs the old entry removed
-    if (courseData.oldId && courseData.oldId !== courseData.id) {
-      // Remove the old unscanned course entry
-      if (tempCourses[courseData.oldId]) {
-        delete tempCourses[courseData.oldId];
-      }
-
-      // Add the new scanned course entry
-      const updatedCourse = { ...courseData };
-      delete updatedCourse.oldId; // Remove the signal flag
-      tempCourses[courseData.id] = updatedCourse;
-    }
-    // If updating an existing course, just update its data
-    else if (tempCourses[courseData.id]) {
-      tempCourses[courseData.id] = {
-        ...tempCourses[courseData.id],
-        ...courseData,
-      };
-    }
-    // If it's a new course, add it
-    else {
-      tempCourses[courseData.id] = courseData;
+  const removeAccountBranch = (
+    accountId,
+    tempAccounts,
+    tempParentAccounts,
+    visitedAccountIds = new Set(),
+  ) => {
+    if (accountId == null || visitedAccountIds.has(accountId)) {
+      return;
     }
 
-    setCourses(tempCourses);
+    const nextVisitedAccountIds = new Set(visitedAccountIds);
+    nextVisitedAccountIds.add(accountId);
+    const childAccounts = tempAccounts[accountId] || [];
+
+    childAccounts.forEach((childAccount) => {
+      removeAccountBranch(
+        childAccount.lmsAccountId,
+        tempAccounts,
+        tempParentAccounts,
+        nextVisitedAccountIds,
+      );
+    });
+
+    delete tempParentAccounts[accountId];
+    delete tempAccounts[accountId];
   };
 
+  const handleAccountSelect = async (account, depth) => {
+      if (activeAccountSearch) {
+        await selectSearchAccount(account)
+        return
+      }
 
-  useEffect(() => {
-    api.setInstanceInfo(instanceInfo);
-  }, [instanceInfo]);
+     let tempParentAccounts = { ...parentAccounts }
+     let tempAccounts = { ...accounts }
+     let tempSelectedAccountsByDepth = { ...selectedAccountsByDepth }
+     const selectedAccountId = String(account.lmsAccountId);
+
+     if (tempSelectedAccountsByDepth[depth] === selectedAccountId) {
+        removeAccountBranch(
+          account.lmsAccountId,
+          tempAccounts,
+          tempParentAccounts,
+        )
+
+        Object.keys(tempSelectedAccountsByDepth).forEach((selectedDepth) => {
+          if (Number(selectedDepth) >= depth) {
+            delete tempSelectedAccountsByDepth[selectedDepth];
+          }
+        });
+        updateAccountStack(account)
+     }
+     else{
+      let newAccs = await fetchSubAccounts(account.lmsAccountId)
+      if (!newAccs || newAccs?.length < 1){
+          return
+      }
+
+      if (tempSelectedAccountsByDepth[depth]) {
+        removeAccountBranch(
+          tempSelectedAccountsByDepth[depth],
+          tempAccounts,
+          tempParentAccounts,
+        )
+      }
+
+      Object.keys(tempSelectedAccountsByDepth).forEach((selectedDepth) => {
+        if (Number(selectedDepth) >= depth) {
+          delete tempSelectedAccountsByDepth[selectedDepth];
+        }
+      });
+
+      tempAccounts[account.lmsAccountId] = newAccs
+      tempParentAccounts[account.lmsAccountId] = account
+      tempSelectedAccountsByDepth[depth] = selectedAccountId
+      updateAccountStack(account, true)
+     }
+     
+     setParentAccounts(tempParentAccounts)
+     setAccounts(tempAccounts)
+     setSelectedAccountsByDepth(tempSelectedAccountsByDepth)
+  };
+
+  const renderAccountTree = (
+    account,
+    depth = 0,
+    isRoot = false,
+    visitedAccountIds = new Set(),
+  ) => {
+    if (account?.lmsAccountId == null || visitedAccountIds.has(account.lmsAccountId)) {
+      return null;
+    }
+
+    const nextVisitedAccountIds = new Set(visitedAccountIds);
+    nextVisitedAccountIds.add(account.lmsAccountId);
+
+    const childAccounts = (isRoot
+      ? accounts[accountId] || []
+      : accounts[account.lmsAccountId] || []
+    ).filter(
+      (childAccount) =>
+        childAccount?.lmsAccountId != null &&
+        !nextVisitedAccountIds.has(childAccount.lmsAccountId),
+    );
+
+    const isSelected = !isRoot && selectedAccountsByDepth[depth] === String(account.lmsAccountId);
+
+    return (
+      <div className="admin-account-tree-branch" key={account.lmsAccountId}>
+        <div
+          className={isRoot ? "admin-account-tree-root" : `admin-account-tree-item ${isSelected ? "selected" : ""}`}
+          role={isRoot ? undefined : "button"}
+          style={{ "--account-depth": depth }}
+          tabIndex={isRoot ? undefined : "0"}
+          onClick={isRoot ? undefined : () => handleAccountSelect(account, depth)}
+          onKeyDown={
+            isRoot
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleAccountSelect(account, depth);
+                  }
+                }
+          }
+        >
+          {account.accountName}
+        </div>
+        {childAccounts.map((childAccount) =>
+          renderAccountTree(
+            childAccount,
+            depth + 1,
+            false,
+            nextVisitedAccountIds,
+          ),
+        )}
+      </div>
+    );
+  };
+
+  const fetchSubAccounts = async (accountId) => {
+    const res = await api.getAdminSubAccounts(accountId)
+    const response = await res.json()
+    if (response?.errors && response.errors.length > 0){
+      return
+    }
+    return response.data
+  }
+
+  const accountTreeFromResults = (accountResults) => {
+    const resultAccounts = {}
+    const resultParents = {}
+    const rootAccount = accountResults.find((account) => String(account.lmsAccountId) === String(accountId))
+
+    accountResults.forEach((account) => {
+      const parentId = String(account.parentAccountId)
+      resultAccounts[parentId] = [...(resultAccounts[parentId] || []), account]
+    })
+
+    if (rootAccount) {
+      resultParents[accountId] = rootAccount
+    }
+
+    return { accounts: resultAccounts, parentAccounts: resultParents }
+  }
+
+  const handleAccountSearch = (e) => {
+    setAccountSearch(e.target.value)
+  }
+
+  const submitAccountSearch = async (e) => {
+    e.preventDefault()
+    const search = accountSearch.trim()
+
+    if (!search || loadingAccountSearch) {
+      return
+    }
+
+    if (!accountStateBeforeSearch.current) {
+      accountStateBeforeSearch.current = {
+        accounts,
+        parentAccounts,
+        selectedAccountsByDepth,
+        accountStack,
+      }
+    }
+
+    setLoadingAccountSearch(true)
+    try {
+      const response = await api.getAdminSubAccounts(accountId, search)
+      const payload = await response.json()
+
+      if (!response.ok || payload?.errors?.length) {
+        return
+      }
+
+      const tree = accountTreeFromResults(payload.data || [])
+      accountSearchResults.current = payload.data || []
+      setAccounts(tree.accounts)
+      setParentAccounts(tree.parentAccounts)
+      setSelectedAccountsByDepth({})
+      setActiveAccountSearch(search)
+    } catch (error) {
+      console.error("Failed to search accounts", error)
+    } finally {
+      setLoadingAccountSearch(false)
+    }
+  }
+
+  const clearAccountSearch = () => {
+    const previousState = accountStateBeforeSearch.current
+
+    setAccountSearch("")
+    setActiveAccountSearch("")
+    accountSearchResults.current = []
+
+    if (previousState) {
+      setAccounts(previousState.accounts)
+      setParentAccounts(previousState.parentAccounts)
+      setSelectedAccountsByDepth(previousState.selectedAccountsByDepth)
+      setAccountStack(previousState.accountStack)
+      accountStateBeforeSearch.current = null
+    }
+  }
+
+  const selectSearchAccount = async (account) => {
+    const previousState = accountStateBeforeSearch.current
+    const resultAccounts = new Map(
+      accountSearchResults.current.map((resultAccount) => [
+        String(resultAccount.lmsAccountId),
+        resultAccount,
+      ])
+    )
+    const path = []
+    const visitedAccountIds = new Set()
+    let currentAccount = account
+
+    while (currentAccount && !visitedAccountIds.has(String(currentAccount.lmsAccountId))) {
+      const currentAccountId = String(currentAccount.lmsAccountId)
+      path.unshift(currentAccount)
+      visitedAccountIds.add(currentAccountId)
+
+      if (currentAccountId === String(accountId)) {
+        break
+      }
+
+      currentAccount = resultAccounts.get(String(currentAccount.parentAccountId))
+    }
+
+    if (!previousState || path.length === 0 || String(path[0].lmsAccountId) !== String(accountId)) {
+      clearAccountSearch()
+      return
+    }
+
+    setLoadingAccountSearch(true)
+    try {
+      const nextAccounts = {
+        [accountId]: previousState.accounts[accountId] || [],
+      }
+      const nextParentAccounts = {
+        [accountId]: path[0],
+      }
+      const nextSelectedAccountsByDepth = {}
+
+      for (let index = 0; index < path.length; index += 1) {
+        const pathAccount = path[index]
+        const pathAccountId = String(pathAccount.lmsAccountId)
+        const childAccounts = await fetchSubAccounts(pathAccount.lmsAccountId)
+
+        nextAccounts[pathAccountId] = childAccounts || []
+        nextParentAccounts[pathAccountId] = pathAccount
+
+        if (index > 0) {
+          nextSelectedAccountsByDepth[index] = pathAccountId
+        }
+      }
+
+      setAccounts(nextAccounts)
+      setParentAccounts(nextParentAccounts)
+      setSelectedAccountsByDepth(nextSelectedAccountsByDepth)
+      setAccountStack(path)
+      setAccountSearch("")
+      setActiveAccountSearch("")
+      accountSearchResults.current = []
+      accountStateBeforeSearch.current = null
+    } finally {
+      setLoadingAccountSearch(false)
+    }
+  }
 
   return (
     <div
@@ -157,65 +535,99 @@ export default function AdminApp(initialData) {
         handleNavigation={handleNavigation}
       />
 
-      <AdminFilters
-        t={t}
-        preferences={preferences}
-        accounts={accounts}
-        termInfo={termInfo}
-        filters={filters}
-        handleFilter={handleFilter}
-        loadingContent={loadingCourses}
-        searchTerm={searchTerm}
-        handleSearchTerm={setSearchTerm}
-        navigation={navigation}
-      />
-
-      <main role="main" className="pt-2">
-        {loadingCourses && (
-          <div className="mt-3 flex-row justify-content-center">
-            <div className="flex-column justify-content-center me-3">
-              <ProgressIcon className="icon-lg udoit-progress spinner" />
-            </div>
-            <div className="flex-column justify-content-center">
-              <h2 className="mt-0 mb-0">{t("report.label.loading")}</h2>
-            </div>
+      <div className="admin-layout">
+        <aside className="admin-sidebar">
+          <form onSubmit={submitAccountSearch} className="admin-account-search">
+            <input
+              type="text"
+              value={accountSearch}
+              onChange={handleAccountSearch}
+              placeholder="Search for an account"
+              aria-label="Search for an account"
+              disabled={loadingAccountSearch}
+            />
+            <button type="submit" disabled={loadingAccountSearch || !accountSearch.trim()}>
+              Search
+            </button>
+            {activeAccountSearch && (
+              <button type="button" onClick={clearAccountSearch} disabled={loadingAccountSearch}>
+                Clear
+              </button>
+            )}
+          </form>
+          <div className="admin-account-tree">
+            {parentAccounts[accountId] && renderAccountTree(parentAccounts[accountId], 0, true)}
           </div>
-        )}
+        </aside>
 
-        {!loadingCourses && (
-          <div className="scrollable">
-            {"dashboard" === navigation && (
-              <AdminDashboard
-                t={t}
-                preferences={preferences}
-                courses={courses}
-                handleNavigation={handleNavigation}
-                addMessage={addMessage}
-              />
-            )}
-            {"courses" === navigation && (
-              <CoursesPage
-                t={t}
-                courses={courses}
-                instanceInfo={instanceInfo}
-                searchTerm={searchTerm}
-                addMessage={addMessage}
-                handleCourseUpdate={handleCourseUpdate}
-                handleReportClick={handleReportClick}
-                handleNavigation={handleNavigation}
-              />
-            )}
-            {"reports" === navigation && (
-              <ReportsPage
-                t={t}
-                instanceInfo={instanceInfo}
-                filters={filters}
-                selectedCourse={selectedCourse}
-              />
-            )}
-          </div>
-        )}
-      </main>
+        <main role="main" className="admin-main pt-2">
+          <AdminFilters 
+            t={t}
+            preferences={preferences}
+            accounts={accounts}
+            termInfo={termInfo}
+            filters={filters}
+            handleFilter={handleFilter}
+            loadingContent={loadingCourses}
+            searchTerm={searchTerm}
+            handleSearchTerm={handleCourseSearchTerm}
+            navigation={navigation}
+            parentAccounts={parentAccounts}
+            accountStack={accountStack}
+            handleAccountSelect={handleAccountSelect}
+            selectedTerm={selectedTerm}
+            setSelectedTerm={handleSelectedTerm}
+            />
+          {loadingCourses && (
+            <div className="mt-3 flex-row justify-content-center">
+              <div className="flex-column justify-content-center me-3">
+                <ProgressIcon className="icon-lg udoit-progress spinner" />
+              </div>
+              <div className="flex-column justify-content-center">
+                <h2 className="mt-0 mb-0">{t("report.label.loading")}</h2>
+              </div>
+            </div>
+          )}
+
+          {!loadingCourses && (
+            <div className="scrollable">
+              {"dashboard" === navigation && (
+                <AdminDashboard
+                  t={t}
+                  preferences={preferences}
+                  dashboardStats={dashboardStats}
+                  handleNavigation={handleNavigation}
+                  handleReportClick={handleReportClick}
+                  addMessage={addMessage}
+                />
+              )}
+              {"courses" === navigation && (
+                <CoursesPage
+                  t={t}
+                  courses={courses}
+                  instanceInfo={instanceInfo}
+                  searchTerm={searchTerm}
+                  tableSettings={courseTableSettings}
+                  handleTableSettings={handleCourseTableSettings}
+                  pagination={coursePagination}
+                  addMessage={addMessage}
+                  handleReportClick={handleReportClick}
+                  handleNavigation={handleNavigation}
+                  fetchReportsIssues={fetchReportsIssues}
+                />
+              )}
+              {"reports" === navigation && (
+                <ReportsPage
+                  t={t}
+                  instanceInfo={instanceInfo}
+                  filters={filters}
+                  selectedCourse={selectedCourse}
+                />
+              )}
+            </div>
+          )}
+        </main>
+      </div>
       <MessageTray
         t={t}
         messages={messages}

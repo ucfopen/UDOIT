@@ -913,6 +913,21 @@
     }
   }
 
+  .navigation-breadcrumb {
+    font-size: calc(.8 * var(--font-size));
+    font-weight: 400;
+    margin-inline-start: calc(0.5 * var(--spacer)) !important;
+    margin-inline-end: calc(0.5 * var(--spacer)) !important;
+
+    &.linked{
+      &:hover{
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+
+  }
+
   .ufixit-widget code,
   .ufixit-widget-dialog code,
   .ufixit-learn-container code,
@@ -985,6 +1000,7 @@
     margin: 0 auto;
     padding: 0 1rem 1rem 1rem;
   }
+
 }
 
 @layer udoit-modifier {

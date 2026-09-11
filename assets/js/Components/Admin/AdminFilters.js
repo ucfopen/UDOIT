@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import SearchIcon from "../Icons/SearchIcon";
 
 import "../Widgets/FixIssuesFilters.css";
+import Combobox from "../Widgets/Combobox";
+import RightArrowIcon from "../Icons/RightArrowIcon";
+
+const SEARCH_DEBOUNCE_MS = 500;
 
 export default function AdminFilters({
   t,
@@ -14,104 +18,96 @@ export default function AdminFilters({
   searchTerm,
   handleSearchTerm,
   navigation,
+  parentAccounts,
+  accountStack,
+  handleAccountSelect,
+  selectedTerm,
+  setSelectedTerm
 }) {
-  const [accountOptions, setAccountOptions] = useState([]);
-  const [termOptions, setTermOptions] = useState([]);
 
-  // When the "termInfo" and "accounts" are loaded, create the Account and Term dropdown options
+  const [termOptions, setTermOptions] = useState([])
+  const [pendingSearchTerm, setPendingSearchTerm] = useState(searchTerm)
+
   useEffect(() => {
-    if (accounts) {
-      let tempAccountOptions = [];
-      for (const acct of Object.values(accounts)) {
-        tempAccountOptions.push({
-          id: acct.id,
-          name: acct.name,
-        });
-      }
+    setPendingSearchTerm(searchTerm)
+  }, [searchTerm])
 
-      setAccountOptions(tempAccountOptions);
+  useEffect(() => {
+    if (pendingSearchTerm === searchTerm) {
+      return
     }
 
-    if (termInfo) {
-      let tempTermOptions = [];
-      for (const [key, val] of Object.entries(termInfo.terms)) {
-        tempTermOptions.push({
-          id: key,
-          name: val,
-        });
-      }
-      setTermOptions(tempTermOptions);
+    const timeoutId = setTimeout(() => {
+      handleSearchTerm(pendingSearchTerm)
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => clearTimeout(timeoutId)
+  }, [pendingSearchTerm, searchTerm, handleSearchTerm])
+
+  useEffect(() => {
+    if(termInfo){
+      const tempOptions = computeSelectOptions(-1)
+      setTermOptions(tempOptions)
     }
-  }, [termInfo, accounts]);
+  }, [termInfo])
 
-  const handleAccountSelect = (newValue) => {
-    handleFilter({ accountId: newValue });
-  };
+  const handleBreadcrumbNav = (index) => {
+   if(index >= accountStack.length - 1){
+      console.log("Cannot go back!")
+      return
+   }
 
-  const handleTermSelect = (newValue) => {
-    handleFilter({ termId: newValue });
-  };
+   handleAccountSelect(accountStack[index+1], accountStack[index+1].depth)
+  }
+
+  const computeSelectOptions = (currentSelection) => {
+    const tempOptions = [{ value: -1, name: "All Terms", selected: currentSelection === -1}]
+     for (const term of termInfo) {
+        tempOptions.push({
+          value: term.lmsTermId,
+          name: term.termName,
+          selected: currentSelection == term.lmsTermId
+        })
+     }
+     return tempOptions
+  }
+
+  const handleTermChange = (id, value) => {
+    setSelectedTerm(Number(value))
+
+    const tempSelectOptions = computeSelectOptions(value)
+    setTermOptions(tempSelectOptions)
+  }
 
   return (
-    <div className="filter-container mb-2">
-      <div className="flex-row flex-wrap gap-1">
+    <div className="filter-container mb-2">    
+      <div className="account-navigator flex-row align-items-center">
+        {accountStack.map((a, i) => (
+          <div key={a.lmsAccountId} className="flex-row align-items-center">
+            <div className={`navigation-breadcrumb ${i < accountStack.length - 1 ? "linked" : ""}`} onClick={() => handleBreadcrumbNav(i)} >{a.accountName}</div>
+            {i < accountStack.length - 1 ? <RightArrowIcon className='icon-sm gray'/> : ""}
+          </div>
+        ))}
+      </div>
+      <div className="terms-filter flex-row gap-2 mt-2">
         {navigation === "courses" && (
           <div className="search-group">
             <input
-              value={searchTerm}
+              value={pendingSearchTerm}
               type="text"
               placeholder={t("filter.label.search")}
-              onChange={(e) => handleSearchTerm(e.target.value)}
+              onChange={(e) => setPendingSearchTerm(e.target.value)}
             />
             <SearchIcon className="search-icon icon-sm" />
           </div>
         )}
-        <div className="flex-row me-3">
-          <div className="flex-column justify-content-center">
-            <label htmlFor="inputAccount" className="me-2">
-              {t("filter.label.account")}
-            </label>
-          </div>
-          <div className="filter-group">
-            <select
-              id="inputAccount"
-              disabled={loadingContent}
-              value={filters.accountId.toString()}
-              onChange={(e) => handleAccountSelect(e.target.value)}
-            >
-              {accountOptions.map((acct, i) => {
-                return (
-                  <option key={`acct-${i}`} value={acct.id}>
-                    {acct.name}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        </div>
-        <div className="flex-row me-3">
-          <div className="flex-column justify-content-center">
-            <label htmlFor="inputTerm" className="me-2">
-              {t("filter.label.term")}
-            </label>
-          </div>
-          <div className="filter-group">
-            <select
-              id="inputTerm"
-              disabled={loadingContent}
-              value={filters?.termId?.toString()}
-              onChange={(e) => handleTermSelect(e.target.value)}
-            >
-              {termOptions.map((term, i) => {
-                return (
-                  <option key={`term-${i}`} value={term.id}>
-                    {term.name}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        </div>
+        <Combobox 
+          handleChange={handleTermChange}
+          id="term-select"
+          isDisabled={false}
+          label=""
+          options={termOptions}
+        />
       </div>
     </div>
   );

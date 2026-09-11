@@ -8,18 +8,14 @@ const mockReports = {};
 for (let i = 1; i <= 100; i++) {
   mockReports[`Course ${i}`] = {
     "2025-09-01": {
-      scanCounts: {
-        errors: Math.floor(Math.random() * 100),
-        potentials: Math.floor(Math.random() * 50),
-        suggestions: Math.floor(Math.random() * 30),
-      },
+      issues: Math.floor(Math.random() * 100),
+      potentialIssues: Math.floor(Math.random() * 50),
+      unreviewedFiles: Math.floor(Math.random() * 30),
     },
     "2025-09-02": {
-      scanCounts: {
-        errors: Math.floor(Math.random() * 100),
-        potentials: Math.floor(Math.random() * 50),
-        suggestions: Math.floor(Math.random() * 30),
-      },
+      issues: Math.floor(Math.random() * 100),
+      potentialIssues: Math.floor(Math.random() * 50),
+      unreviewedFiles: Math.floor(Math.random() * 30),
     },
   };
 }
@@ -40,7 +36,7 @@ export default function ResolutionsReport({
   const [dateStart, setDateStart] = useState(null);
   const [dateEnd, setDateEnd] = useState(null);
   const [selectedPreset, setSelectedPreset] = useState('all');
-  const darkMode = preferences.darkMode
+  const darkMode = preferences?.darkMode
   const courseLimit = 5;
 
   // Colors for multi course line graph
@@ -52,19 +48,19 @@ export default function ResolutionsReport({
     { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  
   ];
 
-  // Display config for errors, potentials, and files on line graphs
+  // Display config for report metrics on line graphs
   const METRIC_CONFIG = {
-    errors: {
+    issues: {
       label: (t) => t("report.header.issues"),
       color: darkMode ? "#e7000b" : "#e7000b",
       dash: [],
     },
-    potentials: {
+    potentialIssues: {
       label: (t) => t("report.header.potential"),
       color: darkMode ? "#FF8904" : "#FF824D",
       dash: [5, 5],
     },
-    files: {
+    unreviewedFiles: {
       label: (t) => t("filter.label.review.unreviewed"),
       color: darkMode ? "#5BA1FF" : "#155dfc",
       dash: [2, 2],
@@ -185,18 +181,18 @@ export default function ResolutionsReport({
         .filter(inDateRange)
         .sort((a, b) => new Date(a) - new Date(b));
       const getSeries = (key) =>
-        dates.map((d) => course[d]?.scanCounts?.[key] ?? course[d]?.[key]);
+        dates.map((d) => course[d]?.[key]);
 
       return {
         labels: dates,
-        datasets: ["errors", "potentials", "files"].map((key) =>
+        datasets: ["issues", "potentialIssues", "unreviewedFiles"].map((key) =>
           makeMetricDataset({ key, data: getSeries(key), t })
         ),
         chartType: "line",
       };
     }
 
-    // Single course history as ARRAY (reports: [{created, scanCounts}...])
+    // Single course history as ARRAY (reports: [{created, issues, potentialIssues, unreviewedFiles}...])
     // This for when going to UDOIT reports from a specific course's LTI
     if (isArrayHistory) {
       if (chartMode !== "line") setChartMode("line");
@@ -214,11 +210,11 @@ export default function ResolutionsReport({
 
       const valueAt = (date, key) => {
         const r = reports.find((x) => x.created === date);
-        return r?.scanCounts?.[key] ?? r?.[key];
+        return r?.[key];
       };
       return {
         labels: dates,
-        datasets: ["errors", "potentials", "files"].map((key) =>
+        datasets: ["issues", "potentialIssues", "unreviewedFiles"].map((key) =>
           makeMetricDataset({
             key,
             data: dates.map((d) => valueAt(d, key)),
@@ -251,7 +247,7 @@ export default function ResolutionsReport({
         const style = LINE_STYLES[colorMap[c]];
         return {
           label: c,
-          data: filteredDates.map((d) => dataReports[c]?.[d]?.scanCounts?.errors),
+          data: filteredDates.map((d) => dataReports[c]?.[d]?.issues),
           backgroundColor: style.color,
           borderColor: style.color,
           borderDash: style.dash,
@@ -271,7 +267,7 @@ export default function ResolutionsReport({
       const dates = Object.keys(dataReports[courseName] || {});
       if (!dates.length) return 0;
       const latest = dates.sort((a, b) => new Date(b) - new Date(a))[0];
-      return dataReports[courseName]?.[latest]?.scanCounts?.[key] || 0;
+      return dataReports[courseName]?.[latest]?.[key] || 0;
     };
 
     const makeBar = (key, label) => ({
@@ -283,11 +279,11 @@ export default function ResolutionsReport({
     });
 
     const bars = [];
-    if (visibility.issues) bars.push(makeBar("errors", t("report.header.issues")));
+    if (visibility.issues) bars.push(makeBar("issues", t("report.header.issues")));
     if (visibility.potentialIssues)
-      bars.push(makeBar("potentials", t("report.header.potential")));
+      bars.push(makeBar("potentialIssues", t("report.header.potential")));
     if (visibility.files)
-      bars.push(makeBar("files", t("filter.label.review.unreviewed")));
+      bars.push(makeBar("unreviewedFiles", t("filter.label.review.unreviewed")));
 
     return {
       labels: activeCourseNames,
@@ -325,7 +321,7 @@ export default function ResolutionsReport({
   }
 
   const getFontSize = () => {
-    let fontSize = preferences.fontSize;
+    let fontSize = preferences?.fontSize;
     switch (fontSize) {
       case 'font-small':
         return '14';
@@ -478,4 +474,3 @@ export default function ResolutionsReport({
     </div>
   );
 }
-

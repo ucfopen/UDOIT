@@ -1,0 +1,31 @@
+.progress-bar-card {
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  box-sizing: border-box;
+  padding: 1.25rem;
+  width: 100%;
+}
+
+.progress-bar-card h2 {
+  font-size: 1.1em;
+  margin: 0 0 1rem;
+}
+
+.progress-bar-card-track {
+  background-color: var(--progress-bar-background-color);
+  border-radius: 1rem;
+  height: .75rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-bar-card-fill {
+  background-color: var(--primary-color);
+  border-radius: 1rem;
+  height: 100%;
+}
+
+.progress-bar-card p {
+  margin: .75rem 0 0;
+}
