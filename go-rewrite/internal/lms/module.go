@@ -122,6 +122,29 @@ type GetContentRequest struct {
 	UserID             int64
 }
 
+type ContentReferenceDTO struct {
+	ContentExternalID string
+	Kind              string
+	TagName           string
+	Attribute         string
+	Value             string
+	XPath             string
+}
+
+type ResolvedFileReferenceDTO struct {
+	ContentExternalID string
+	FileExternalID    string
+}
+
+type ResolveFileReferencesRequest struct {
+	CourseID           int64
+	ExternalCourseID   string
+	ExternalCourseData map[string]any
+	TenantID           int64
+	References         []ContentReferenceDTO
+	Files              []FileItemDTO
+}
+
 func (m *Module) GetContent(ctx context.Context, req GetContentRequest) (CourseSyncDataDTO, error) {
 	lmsProvider, err := m.providerResolver.GetByTenant(ctx, req.TenantID)
 	if err != nil {
@@ -163,4 +186,55 @@ func (m *Module) GetContent(ctx context.Context, req GetContentRequest) (CourseS
 		ContentItems: contentItemDTOs,
 		Files:        fileDTOs,
 	}, nil
+}
+
+func (m *Module) ResolveFileReferences(ctx context.Context, req ResolveFileReferencesRequest) ([]ResolvedFileReferenceDTO, error) {
+	lmsProvider, err := m.providerResolver.GetByTenant(ctx, req.TenantID)
+	if err != nil {
+		return nil, err
+	}
+
+	references := make([]domain.ContentReference, len(req.References))
+	for i, ref := range req.References {
+		references[i] = domain.ContentReference{
+			ContentExternalID: ref.ContentExternalID,
+			Kind:              ref.Kind,
+			TagName:           ref.TagName,
+			Attribute:         ref.Attribute,
+			Value:             ref.Value,
+			XPath:             ref.XPath,
+		}
+	}
+
+	files := make([]domain.CourseFile, len(req.Files))
+	for i, file := range req.Files {
+		files[i] = domain.CourseFile{
+			FileName:     file.FileName,
+			FileType:     file.FileType,
+			UpdatedAt:    file.UpdatedAt,
+			FileSize:     file.FileSize,
+			DownloadURL:  file.DownloadURL,
+			ExternalID:   file.ExternalID,
+			ExternalData: file.ExternalData,
+		}
+	}
+
+	resolved, err := lmsProvider.ResolveFileReferences(ctx, domain.LMSCourse{
+		ID:           req.CourseID,
+		ExternalID:   req.ExternalCourseID,
+		ExternalData: req.ExternalCourseData,
+	}, references, files)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]ResolvedFileReferenceDTO, len(resolved))
+	for i, resolvedRef := range resolved {
+		result[i] = ResolvedFileReferenceDTO{
+			ContentExternalID: resolvedRef.ContentExternalID,
+			FileExternalID:    resolvedRef.FileExternalID,
+		}
+	}
+
+	return result, nil
 }

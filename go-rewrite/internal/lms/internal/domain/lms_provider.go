@@ -14,9 +14,24 @@ import (
 // groundwork for better interface segregation and testing in the future.
 type FullLMSProvider interface {
 	FileProvider
+	FileReferenceProvider
 	AuthenticationProvider
 	ScanProvider
 	LTIProvider
+}
+
+type ContentReference struct {
+	ContentExternalID string
+	Kind              string
+	TagName           string
+	Attribute         string
+	Value             string
+	XPath             string
+}
+
+type ResolvedFileReference struct {
+	ContentExternalID string
+	FileExternalID    string
 }
 
 type LMSFile struct {
@@ -26,6 +41,10 @@ type LMSFile struct {
 }
 type FileProvider interface {
 	DeleteFile(ctx context.Context, principal auth.Principal, file LMSFile) error
+}
+
+type FileReferenceProvider interface {
+	ResolveFileReferences(ctx context.Context, course LMSCourse, refs []ContentReference, files []CourseFile) ([]ResolvedFileReference, error)
 }
 
 type AuthenticationProvider interface {

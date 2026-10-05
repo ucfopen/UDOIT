@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/content"
@@ -30,6 +31,7 @@ type ContentItemService interface {
 
 type ExternalContentRetriever interface {
 	GetContent(ctx context.Context, res lms.GetContentRequest) (lms.CourseSyncDataDTO, error)
+	ResolveFileReferences(ctx context.Context, req lms.ResolveFileReferencesRequest) ([]lms.ResolvedFileReferenceDTO, error)
 }
 
 type CourseFileSyncService interface {
@@ -51,6 +53,7 @@ type HashedContentItem struct {
 type ScanCourseUseCase struct {
 	htmlIssueRepository      domain.HTMLIssueRepository
 	fileIssueRepository      domain.FileIssueRepository
+	fileReferenceRepository  domain.FileReferenceRepository
 	courseRetriever          CourseRetriever
 	contentItemService       ContentItemService
 	externalContentRetriever ExternalContentRetriever
@@ -62,6 +65,7 @@ type ScanCourseUseCase struct {
 func NewScanCourseUseCase(
 	htmlIssueRepository domain.HTMLIssueRepository,
 	fileIssueRepository domain.FileIssueRepository,
+	fileReferenceRepository domain.FileReferenceRepository,
 	courseRetriever CourseRetriever,
 	contentItemService ContentItemService,
 	externalContentRetriever ExternalContentRetriever,
@@ -72,6 +76,7 @@ func NewScanCourseUseCase(
 	return &ScanCourseUseCase{
 		htmlIssueRepository:      htmlIssueRepository,
 		fileIssueRepository:      fileIssueRepository,
+		fileReferenceRepository:  fileReferenceRepository,
 		courseRetriever:          courseRetriever,
 		contentItemService:       contentItemService,
 		externalContentRetriever: externalContentRetriever,
@@ -111,12 +116,12 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		return err
 	}
 
-	err = u.scanAndSyncHTMLContent(ctx, externalCourseData.ContentItems, currentContentItems, courseID)
+	persistedFiles, err := u.scanAndSyncFiles(ctx, courseID, externalCourseData.Files)
 	if err != nil {
 		return err
 	}
 
-	err = u.scanAndSyncFiles(ctx, courseID, externalCourseData.Files)
+	err = u.scanAndSyncHTMLContent(ctx, principal, course, externalCourseData.ContentItems, currentContentItems, persistedFiles, courseID)
 	if err != nil {
 		return err
 	}
@@ -124,7 +129,15 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 	return nil
 }
 
-func (u *ScanCourseUseCase) scanAndSyncHTMLContent(ctx context.Context, externalContentItems []lms.ContentItemDTO, currentContentItems []content.ContentItem, courseID int64) error {
+func (u *ScanCourseUseCase) scanAndSyncHTMLContent(
+	ctx context.Context,
+	principal auth.Principal,
+	course courses.Course,
+	externalContentItems []lms.ContentItemDTO,
+	currentContentItems []content.ContentItem,
+	persistedFiles []lms.FileItemDTO,
+	courseID int64,
+) error {
 	changedContentItems, err := u.getChangedContentItems(currentContentItems, externalContentItems, courseID)
 	if err != nil {
 		return err
@@ -161,7 +174,7 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(ctx context.Context, external
 		}
 	}
 
-	scanResults, err := u.scanner.ScanContent(ctx, scanItems)
+	scanResult, err := u.scanner.ScanContent(ctx, scanItems)
 	if err != nil {
 		return err
 	}
@@ -175,8 +188,18 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(ctx context.Context, external
 		return err
 	}
 
+	fileReferences, err := u.extractFileReferences(ctx, principal, course, changedContentItems, persistedFiles, scanResult.References)
+	if err != nil {
+		return err
+	}
+
+	err = u.fileReferenceRepository.ReplaceForContentItems(ctx, changedContentItemIDs, fileReferences)
+	if err != nil {
+		return err
+	}
+
 	var newIssues []*domain.HTMLIssue
-	for _, result := range scanResults {
+	for _, result := range scanResult.Issues {
 		newIssues = append(newIssues, domain.NewHTMLIssue(result.ContentItemID, result.ScanRule, result.ContentXPath, domain.IssueStatusActive, result.Severity, result.Details))
 	}
 
@@ -188,15 +211,15 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(ctx context.Context, external
 	return nil
 }
 
-func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64, externalFiles []lms.FileItemDTO) error {
+func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64, externalFiles []lms.FileItemDTO) ([]lms.FileItemDTO, error) {
 	err := u.courseFileSyncService.SyncCourseFiles(ctx, courseID, externalFiles)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	persistedFiles, err := u.courseFileSyncService.GetByCourseID(ctx, courseID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	fileIDs := make([]int64, len(persistedFiles))
@@ -206,10 +229,95 @@ func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64
 
 	err = u.fileIssueRepository.ReplaceForCourse(ctx, courseID, fileIDs)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return persistedFiles, nil
+}
+
+func (u *ScanCourseUseCase) extractFileReferences(
+	ctx context.Context,
+	principal auth.Principal,
+	course courses.Course,
+	changedContentItems []*ChangedContentItem,
+	persistedFiles []lms.FileItemDTO,
+	references []domain.ExtractedReference,
+) ([]*domain.FileReference, error) {
+	if len(changedContentItems) == 0 || len(references) == 0 || len(persistedFiles) == 0 {
+		return []*domain.FileReference{}, nil
+	}
+
+	contentExternalIDByInternalID := make(map[int64]string, len(changedContentItems))
+	for _, item := range changedContentItems {
+		contentExternalIDByInternalID[item.ID] = item.ExternalID
+	}
+
+	refDTOs := make([]lms.ContentReferenceDTO, 0, len(references))
+	for _, reference := range references {
+		contentExternalID, ok := contentExternalIDByInternalID[reference.ContentItemID]
+		if !ok || contentExternalID == "" {
+			continue
+		}
+
+		refDTOs = append(refDTOs, lms.ContentReferenceDTO{
+			ContentExternalID: contentExternalID,
+			Kind:              reference.Kind,
+			TagName:           reference.TagName,
+			Attribute:         reference.Attribute,
+			Value:             reference.Value,
+			XPath:             reference.XPath,
+		})
+	}
+
+	if len(refDTOs) == 0 {
+		return []*domain.FileReference{}, nil
+	}
+
+	resolvedRefs, err := u.externalContentRetriever.ResolveFileReferences(ctx, lms.ResolveFileReferencesRequest{
+		CourseID:           course.ID,
+		ExternalCourseID:   course.ExternalID,
+		ExternalCourseData: course.ExternalData,
+		TenantID:           principal.TenantID,
+		References:         refDTOs,
+		Files:              persistedFiles,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resolvedRefs) == 0 {
+		return []*domain.FileReference{}, nil
+	}
+
+	contentIDByExternalID := make(map[string]int64, len(changedContentItems))
+	for _, item := range changedContentItems {
+		contentIDByExternalID[item.ExternalID] = item.ID
+	}
+
+	fileIDByExternalID := make(map[string]int64, len(persistedFiles))
+	for _, file := range persistedFiles {
+		fileIDByExternalID[file.ExternalID] = file.ID
+	}
+
+	fileReferences := make([]*domain.FileReference, 0, len(resolvedRefs))
+	seen := make(map[string]struct{}, len(resolvedRefs))
+	for _, resolved := range resolvedRefs {
+		contentItemID, contentExists := contentIDByExternalID[resolved.ContentExternalID]
+		fileID, fileExists := fileIDByExternalID[resolved.FileExternalID]
+		if !contentExists || !fileExists {
+			continue
+		}
+
+		key := fmt.Sprintf("%d:%d", contentItemID, fileID)
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+
+		fileReferences = append(fileReferences, domain.NewFileReference(contentItemID, fileID))
+	}
+
+	return fileReferences, nil
 }
 
 type ChangedContentItem struct {

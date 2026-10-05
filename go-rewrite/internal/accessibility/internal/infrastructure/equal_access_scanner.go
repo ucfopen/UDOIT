@@ -57,7 +57,7 @@ type scanReference struct {
 	XPath         string `json:"xpath"`
 }
 
-func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.ScanItem) ([]domain.ScanResult, error) {
+func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.ScanItem) (domain.ScanContentResult, error) {
 	requestItems := make([]contentScanRequestItem, len(items))
 	for i, item := range items {
 		requestItems[i] = contentScanRequestItem{
@@ -74,19 +74,19 @@ func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.Sca
 
 	payload, err := json.Marshal(body)
 	if err != nil {
-		return nil, err
+		return domain.ScanContentResult{}, err
 	}
 
 	scanResponse, err := e.httpClient.Post(e.baseURL+"/scan", "application/json", bytes.NewReader(payload))
 	if err != nil {
-		return nil, err
+		return domain.ScanContentResult{}, err
 	}
 	defer scanResponse.Body.Close()
 
 	var result contentScanResponse
 	err = json.NewDecoder(scanResponse.Body).Decode(&result)
 	if err != nil {
-		return nil, err
+		return domain.ScanContentResult{}, err
 	}
 
 	e.logReferenceSummary(result.References)
@@ -95,7 +95,7 @@ func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.Sca
 	for _, issue := range result.Results {
 		severity, err := domain.ParseIssueSeverity(issue.Severity)
 		if err != nil {
-			return nil, err
+			return domain.ScanContentResult{}, err
 		}
 
 		domainResult := domain.ScanResult{
@@ -109,7 +109,22 @@ func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.Sca
 		scanResults = append(scanResults, domainResult)
 	}
 
-	return scanResults, nil
+	scanReferences := make([]domain.ExtractedReference, 0, len(result.References))
+	for _, ref := range result.References {
+		scanReferences = append(scanReferences, domain.ExtractedReference{
+			ContentItemID: ref.ContentItemID,
+			Kind:          ref.Kind,
+			TagName:       ref.TagName,
+			Attribute:     ref.Attribute,
+			Value:         ref.Value,
+			XPath:         ref.XPath,
+		})
+	}
+
+	return domain.ScanContentResult{
+		Issues:     scanResults,
+		References: scanReferences,
+	}, nil
 }
 
 func (e *EqualAccessScanner) logReferenceSummary(references []scanReference) {

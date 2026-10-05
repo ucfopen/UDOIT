@@ -22,6 +22,7 @@ type ContentItemService interface {
 
 type ExternalContentRetriever interface {
 	GetContent(ctx context.Context, req lms.GetContentRequest) (lms.CourseSyncDataDTO, error)
+	ResolveFileReferences(ctx context.Context, req lms.ResolveFileReferencesRequest) ([]lms.ResolvedFileReferenceDTO, error)
 }
 
 type CourseFileSyncService interface {
@@ -55,10 +56,12 @@ func New(
 	reportRepository := infrastructure.NewMySQLReportRepository(db)
 	htmlIssueRepository := infrastructure.NewMySQLIssueRepository(db)
 	fileIssueRepository := infrastructure.NewMySQLFileIssueRepository(db)
+	fileReferenceRepository := infrastructure.NewMySQLFileReferenceRepository(db)
 
 	scanCourseUseCase := application.NewScanCourseUseCase(
 		htmlIssueRepository,
 		fileIssueRepository,
+		fileReferenceRepository,
 		courseRetriever,
 		contentItemService,
 		externalContentRetriever,
