@@ -3,6 +3,8 @@ package infrastructure
 import (
 	"encoding/hex"
 
+	"rewritetest/internal/lmsdata/internal/domain"
+
 	"lukechampine.com/blake3"
 )
 
@@ -13,9 +15,8 @@ func NewBlake3ContentHasher() *Blake3ContentHasher {
 }
 
 func (h *Blake3ContentHasher) HashContent(content string) (string, error) {
-	data := []byte(content)
-
-	hash := blake3.Sum256(data)
-
+	hash := blake3.Sum256([]byte(content))
 	return hex.EncodeToString(hash[:]), nil
 }
+
+var _ domain.ContentHasher = (*Blake3ContentHasher)(nil)

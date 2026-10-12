@@ -3,6 +3,7 @@ package lmsdata
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	contentdomain "rewritetest/internal/lmsdata/internal/content/domain"
@@ -10,11 +11,14 @@ import (
 	coursesapplication "rewritetest/internal/lmsdata/internal/courses/application"
 	coursesdomain "rewritetest/internal/lmsdata/internal/courses/domain"
 	coursesinfrastructure "rewritetest/internal/lmsdata/internal/courses/infrastructure"
+	lmsdatadomain "rewritetest/internal/lmsdata/internal/domain"
 	fileReferencesDomain "rewritetest/internal/lmsdata/internal/file_references/domain"
 	fileReferencesInfrastructure "rewritetest/internal/lmsdata/internal/file_references/infrastructure"
 	filesdomain "rewritetest/internal/lmsdata/internal/files/domain"
 	filesinfrastructure "rewritetest/internal/lmsdata/internal/files/infrastructure"
+	lmsdatainfrastructure "rewritetest/internal/lmsdata/internal/infrastructure"
 	"rewritetest/internal/shared/apperr"
+	"rewritetest/internal/shared/auth"
 )
 
 type Module struct {
@@ -23,6 +27,8 @@ type Module struct {
 	courseRepository        coursesdomain.CourseRepository
 	fileRepository          filesdomain.FileRepository
 	fileReferenceRepository fileReferencesDomain.FileReferenceRepository
+	integration             LMSIntegration
+	contentHasher           lmsdatadomain.ContentHasher
 }
 
 type File struct {
@@ -52,12 +58,13 @@ type FileReference struct {
 	FileID        int64
 }
 
-func New(db *sql.DB) *Module {
+func New(db *sql.DB, integration LMSIntegration) *Module {
 	contentItemRepository := contentinfrastructure.NewMySQLContentItemRepository(db)
 	courseRepository := coursesinfrastructure.NewMySQLCourseRepository(db)
 	fileRepository := filesinfrastructure.NewMySQLFileRepository(db)
 	fileReferenceRepository := fileReferencesInfrastructure.NewMySQLFileReferenceRepository(db)
 	createCourseUseCase := coursesapplication.NewCreateCourseUseCase(courseRepository)
+	contentHasher := lmsdatainfrastructure.NewBlake3ContentHasher()
 
 	return &Module{
 		contentItemRepository:   contentItemRepository,
@@ -65,16 +72,189 @@ func New(db *sql.DB) *Module {
 		courseRepository:        courseRepository,
 		fileRepository:          fileRepository,
 		fileReferenceRepository: fileReferenceRepository,
+		integration:             integration,
+		contentHasher:           contentHasher,
 	}
 }
 
-func (m *Module) ReplaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []FileReference) error {
+func (m *Module) replaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []FileReference) error {
 	domainReferences := make([]*fileReferencesDomain.FileReference, len(fileReferences))
 	for i, fileReference := range fileReferences {
 		domainReferences[i] = fileReferencesDomain.NewFileReference(fileReference.ContentItemID, fileReference.FileID)
 	}
 
 	return m.fileReferenceRepository.ReplaceForContentItems(ctx, contentItemIDs, domainReferences)
+}
+
+func (m *Module) GetCourseScanData(ctx context.Context, principal auth.Principal, courseID int64) (CourseScanData, error) {
+	course, err := m.GetCourse(ctx, courseID)
+	if err != nil {
+		return CourseScanData{}, err
+	}
+
+	currentContentItems, err := m.GetContentItemsByCourse(ctx, courseID)
+	if err != nil {
+		return CourseScanData{}, err
+	}
+
+	externalContent, err := m.integration.GetCourseContent(ctx, GetCourseContentRequest{
+		CourseID:           courseID,
+		ExternalCourseID:   course.ExternalID,
+		ExternalCourseData: course.ExternalData,
+		TenantID:           principal.TenantID,
+		UserID:             principal.AgentID,
+		CurrentContent:     currentContentItems,
+	})
+	if err != nil {
+		return CourseScanData{}, err
+	}
+
+	currentByExternalID := make(map[string]ContentItem, len(currentContentItems))
+	for _, item := range currentContentItems {
+		currentByExternalID[item.ExternalID] = item
+	}
+
+	changedContent := make([]ScannableContent, 0, len(externalContent.ContentItems))
+	contentToPersist := make([]ContentItem, 0, len(externalContent.ContentItems))
+	for _, item := range externalContent.ContentItems {
+		hash, err := m.contentHasher.HashContent(item.HTML)
+		if err != nil {
+			return CourseScanData{}, err
+		}
+		current, exists := currentByExternalID[item.ExternalID]
+		if exists && current.ContentHash == hash {
+			continue
+		}
+
+		content := ContentItem{
+			ID:           current.ID,
+			CourseID:     courseID,
+			ExternalID:   item.ExternalID,
+			ExternalData: item.ExternalData,
+			ContentHash:  hash,
+		}
+		contentToPersist = append(contentToPersist, content)
+		changedContent = append(changedContent, ScannableContent{
+			ID:           current.ID,
+			CourseID:     courseID,
+			ExternalID:   item.ExternalID,
+			ExternalData: item.ExternalData,
+			ContentHash:  hash,
+			HTML:         item.HTML,
+		})
+	}
+
+	if len(contentToPersist) > 0 {
+		idMap, err := m.CreateManyContentItems(ctx, contentToPersist)
+		if err != nil {
+			return CourseScanData{}, err
+		}
+		for i := range changedContent {
+			if id, ok := idMap[changedContent[i].ExternalID]; ok {
+				changedContent[i].ID = id
+			}
+		}
+	}
+
+	filesToSync := make([]FileSyncInput, len(externalContent.Files))
+	for i, file := range externalContent.Files {
+		filesToSync[i] = FileSyncInput{
+			FileName:     file.FileName,
+			FileType:     file.FileType,
+			UpdatedAt:    file.UpdatedAt,
+			FileSize:     file.FileSize,
+			DownloadURL:  file.DownloadURL,
+			ExternalID:   file.ExternalID,
+			ExternalData: file.ExternalData,
+		}
+	}
+	if err := m.SyncFilesForCourse(ctx, courseID, filesToSync); err != nil {
+		return CourseScanData{}, err
+	}
+
+	files, err := m.GetFilesByCourse(ctx, courseID)
+	if err != nil {
+		return CourseScanData{}, err
+	}
+
+	return CourseScanData{
+		Course:          course,
+		ChangedContents: changedContent,
+		Files:           files,
+	}, nil
+}
+
+func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal, request AddFileReferencesRequest) error {
+	course, err := m.GetCourse(ctx, request.CourseID)
+	if err != nil {
+		return err
+	}
+
+	contentItems, err := m.GetContentItemsByCourse(ctx, request.CourseID)
+	if err != nil {
+		return err
+	}
+	contentExternalIDs := make(map[int64]string, len(contentItems))
+	for _, item := range contentItems {
+		contentExternalIDs[item.ID] = item.ExternalID
+	}
+
+	externalReferences := make([]ExternalContentReference, 0, len(request.References))
+	for _, reference := range request.References {
+		externalID, ok := contentExternalIDs[reference.ContentItemID]
+		if !ok || externalID == "" {
+			continue
+		}
+		externalReferences = append(externalReferences, ExternalContentReference{
+			ContentExternalID: externalID,
+			Kind:              reference.Kind,
+			TagName:           reference.TagName,
+			Attribute:         reference.Attribute,
+			Value:             reference.Value,
+			XPath:             reference.XPath,
+		})
+	}
+
+	files, err := m.GetFilesByCourse(ctx, request.CourseID)
+	if err != nil {
+		return err
+	}
+	resolved, err := m.integration.ResolveFileReferences(ctx, ResolveFileReferencesRequest{
+		Course:         course,
+		References:     externalReferences,
+		PersistedFiles: files,
+		TenantID:       principal.TenantID,
+	})
+	if err != nil {
+		return err
+	}
+
+	contentIDsByExternalID := make(map[string]int64, len(contentItems))
+	for _, item := range contentItems {
+		contentIDsByExternalID[item.ExternalID] = item.ID
+	}
+	fileIDsByExternalID := make(map[string]int64, len(files))
+	for _, file := range files {
+		fileIDsByExternalID[file.ExternalID] = file.ID
+	}
+
+	fileReferences := make([]FileReference, 0, len(resolved))
+	seen := make(map[string]struct{}, len(resolved))
+	for _, reference := range resolved {
+		contentID, contentOK := contentIDsByExternalID[reference.ContentExternalID]
+		fileID, fileOK := fileIDsByExternalID[reference.FileExternalID]
+		if !contentOK || !fileOK {
+			continue
+		}
+		key := fmt.Sprintf("%d:%d", contentID, fileID)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		fileReferences = append(fileReferences, FileReference{ContentItemID: contentID, FileID: fileID})
+	}
+
+	return m.replaceFileReferences(ctx, request.ContentItemIDs, fileReferences)
 }
 
 type ContentItem struct {

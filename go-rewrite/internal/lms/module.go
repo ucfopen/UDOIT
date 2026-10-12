@@ -13,6 +13,7 @@ import (
 	"rewritetest/internal/lms/internal/domain"
 	"rewritetest/internal/lms/internal/infrastructure"
 	"rewritetest/internal/lms/internal/infrastructure/providers/canvas"
+	"rewritetest/internal/lmsdata"
 	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/crypto"
 
@@ -92,86 +93,33 @@ func (m *Module) ValidateProviderConfig(ctx context.Context, lmsKey string, conf
 	}
 }
 
-type ContentItemDTO struct {
-	ExternalID   string
-	ExternalData map[string]any
-	HTML         string
-}
-
-type FileItemDTO struct {
-	ID           int64
-	FileName     string
-	FileType     string
-	UpdatedAt    time.Time
-	FileSize     int64
-	DownloadURL  string
-	ExternalID   string
-	ExternalData map[string]any
-}
-
-type CourseSyncDataDTO struct {
-	ContentItems []ContentItemDTO
-	Files        []FileItemDTO
-}
-
-type GetContentRequest struct {
-	CourseID           int64
-	ExternalCourseID   string
-	ExternalCourseData map[string]any
-	TenantID           int64
-	UserID             int64
-}
-
-type ContentReferenceDTO struct {
-	ContentExternalID string
-	Kind              string
-	TagName           string
-	Attribute         string
-	Value             string
-	XPath             string
-}
-
-type ResolvedFileReferenceDTO struct {
-	ContentExternalID string
-	FileExternalID    string
-}
-
-type ResolveFileReferencesRequest struct {
-	CourseID           int64
-	ExternalCourseID   string
-	ExternalCourseData map[string]any
-	TenantID           int64
-	References         []ContentReferenceDTO
-	Files              []FileItemDTO
-}
-
-func (m *Module) GetContent(ctx context.Context, req GetContentRequest) (CourseSyncDataDTO, error) {
+func (m *Module) GetCourseContent(ctx context.Context, req lmsdata.GetCourseContentRequest) (lmsdata.ExternalCourseContent, error) {
 	lmsProvider, err := m.providerResolver.GetByTenant(ctx, req.TenantID)
 	if err != nil {
-		return CourseSyncDataDTO{}, err
+		return lmsdata.ExternalCourseContent{}, err
 	}
 
 	syncData, err := lmsProvider.GetContent(ctx, domain.LMSCourse{
 		ID:           req.CourseID,
 		ExternalID:   req.ExternalCourseID,
 		ExternalData: req.ExternalCourseData,
-	}, []domain.LMSContent{}, req.UserID)
+	}, toLMSContent(req.CurrentContent), req.UserID)
 	if err != nil {
-		return CourseSyncDataDTO{}, err
+		return lmsdata.ExternalCourseContent{}, err
 	}
 
-	contentItemDTOs := make([]ContentItemDTO, len(syncData.ContentItems))
+	contentItems := make([]lmsdata.ExternalContentItem, len(syncData.ContentItems))
 	for i, item := range syncData.ContentItems {
-		contentItemDTOs[i] = ContentItemDTO{
+		contentItems[i] = lmsdata.ExternalContentItem{
 			ExternalID:   item.ExternalID,
 			ExternalData: item.ExternalData,
 			HTML:         item.HTML,
 		}
 	}
 
-	fileDTOs := make([]FileItemDTO, len(syncData.Files))
+	files := make([]lmsdata.ExternalFile, len(syncData.Files))
 	for i, file := range syncData.Files {
-		fileDTOs[i] = FileItemDTO{
+		files[i] = lmsdata.ExternalFile{
 			FileName:     file.FileName,
 			FileType:     file.FileType,
 			UpdatedAt:    file.UpdatedAt,
@@ -182,32 +130,41 @@ func (m *Module) GetContent(ctx context.Context, req GetContentRequest) (CourseS
 		}
 	}
 
-	return CourseSyncDataDTO{
-		ContentItems: contentItemDTOs,
-		Files:        fileDTOs,
-	}, nil
+	return lmsdata.ExternalCourseContent{ContentItems: contentItems, Files: files}, nil
 }
 
-func (m *Module) ResolveFileReferences(ctx context.Context, req ResolveFileReferencesRequest) ([]ResolvedFileReferenceDTO, error) {
+func toLMSContent(contentItems []lmsdata.ContentItem) []domain.LMSContent {
+	content := make([]domain.LMSContent, len(contentItems))
+	for i, item := range contentItems {
+		content[i] = domain.LMSContent{
+			ID:           item.ID,
+			ExternalID:   item.ExternalID,
+			ExternalData: item.ExternalData,
+		}
+	}
+	return content
+}
+
+func (m *Module) ResolveFileReferences(ctx context.Context, req lmsdata.ResolveFileReferencesRequest) ([]lmsdata.ResolvedFileReference, error) {
 	lmsProvider, err := m.providerResolver.GetByTenant(ctx, req.TenantID)
 	if err != nil {
 		return nil, err
 	}
 
 	references := make([]domain.ContentReference, len(req.References))
-	for i, ref := range req.References {
+	for i, reference := range req.References {
 		references[i] = domain.ContentReference{
-			ContentExternalID: ref.ContentExternalID,
-			Kind:              ref.Kind,
-			TagName:           ref.TagName,
-			Attribute:         ref.Attribute,
-			Value:             ref.Value,
-			XPath:             ref.XPath,
+			ContentExternalID: reference.ContentExternalID,
+			Kind:              reference.Kind,
+			TagName:           reference.TagName,
+			Attribute:         reference.Attribute,
+			Value:             reference.Value,
+			XPath:             reference.XPath,
 		}
 	}
 
-	files := make([]domain.CourseFile, len(req.Files))
-	for i, file := range req.Files {
+	files := make([]domain.CourseFile, len(req.PersistedFiles))
+	for i, file := range req.PersistedFiles {
 		files[i] = domain.CourseFile{
 			FileName:     file.FileName,
 			FileType:     file.FileType,
@@ -220,19 +177,19 @@ func (m *Module) ResolveFileReferences(ctx context.Context, req ResolveFileRefer
 	}
 
 	resolved, err := lmsProvider.ResolveFileReferences(ctx, domain.LMSCourse{
-		ID:           req.CourseID,
-		ExternalID:   req.ExternalCourseID,
-		ExternalData: req.ExternalCourseData,
+		ID:           req.Course.ID,
+		ExternalID:   req.Course.ExternalID,
+		ExternalData: req.Course.ExternalData,
 	}, references, files)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]ResolvedFileReferenceDTO, len(resolved))
-	for i, resolvedRef := range resolved {
-		result[i] = ResolvedFileReferenceDTO{
-			ContentExternalID: resolvedRef.ContentExternalID,
-			FileExternalID:    resolvedRef.FileExternalID,
+	result := make([]lmsdata.ResolvedFileReference, len(resolved))
+	for i, reference := range resolved {
+		result[i] = lmsdata.ResolvedFileReference{
+			ContentExternalID: reference.ContentExternalID,
+			FileExternalID:    reference.FileExternalID,
 		}
 	}
 

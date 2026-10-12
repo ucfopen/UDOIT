@@ -11,7 +11,7 @@ import (
 )
 
 type MySQLIssueRepository struct {
-	db *sql.DB
+	db      *sql.DB
 	queries *accessibilitysqlc.Queries
 }
 
