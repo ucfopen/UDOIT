@@ -34,12 +34,14 @@ func New(
 	reportRepository := infrastructure.NewMySQLReportRepository(db)
 	htmlIssueRepository := infrastructure.NewMySQLIssueRepository(db)
 	fileIssueRepository := infrastructure.NewMySQLFileIssueRepository(db)
+	scanRepository := infrastructure.NewMySQLCourseScanRepository(db)
 
 	scanCourseUseCase := application.NewScanCourseUseCase(
 		htmlIssueRepository,
 		fileIssueRepository,
 		lmsDataService,
 		contentScanner,
+		scanRepository,
 	)
 	createReportUseCase := application.NewCreateReportUseCase(
 		reportRepository,

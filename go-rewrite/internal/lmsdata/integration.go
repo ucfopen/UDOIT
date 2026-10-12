@@ -72,12 +72,6 @@ type FileReferenceInput struct {
 	XPath         string
 }
 
-type CourseScanData struct {
-	Course          Course
-	ChangedContents []ScannableContent
-	Files           []File
-}
-
 type ScannableContent struct {
 	ID           int64
 	CourseID     int64

@@ -3,35 +3,38 @@ package domain
 import "time"
 
 type ContentItem struct {
-	id           int64
-	courseID     int64
-	contentHash  string
-	externalID   string
-	externalData map[string]any
-	createdAt    time.Time
-	updatedAt    time.Time
+	id               int64
+	courseID         int64
+	contentHash      string
+	contentChangedAt time.Time
+	externalID       string
+	externalData     map[string]any
+	createdAt        time.Time
+	updatedAt        time.Time
 }
 
-func NewContentItem(courseID int64, contentHash string, externalID string, externalData map[string]any) *ContentItem {
+func NewContentItem(courseID int64, contentHash string, externalID string, externalData map[string]any, contentChangedAt time.Time) *ContentItem {
 	return &ContentItem{
-		courseID:     courseID,
-		contentHash:  contentHash,
-		externalID:   externalID,
-		externalData: externalData,
-		createdAt:    time.Now(),
-		updatedAt:    time.Now(),
+		courseID:         courseID,
+		contentHash:      contentHash,
+		contentChangedAt: contentChangedAt,
+		externalID:       externalID,
+		externalData:     externalData,
+		createdAt:        time.Now(),
+		updatedAt:        time.Now(),
 	}
 }
 
-func RehydrateContentItem(id int64, courseID int64, contentHash string, externalID string, externalData map[string]any, createdAt time.Time, updatedAt time.Time) *ContentItem {
+func RehydrateContentItem(id int64, courseID int64, contentHash string, externalID string, externalData map[string]any, contentChangedAt time.Time, createdAt time.Time, updatedAt time.Time) *ContentItem {
 	return &ContentItem{
-		id:           id,
-		courseID:     courseID,
-		contentHash:  contentHash,
-		externalID:   externalID,
-		externalData: externalData,
-		createdAt:    createdAt,
-		updatedAt:    updatedAt,
+		id:               id,
+		courseID:         courseID,
+		contentHash:      contentHash,
+		contentChangedAt: contentChangedAt,
+		externalID:       externalID,
+		externalData:     externalData,
+		createdAt:        createdAt,
+		updatedAt:        updatedAt,
 	}
 }
 
@@ -53,6 +56,10 @@ func (c *ContentItem) UpdatedAt() time.Time {
 
 func (c *ContentItem) ContentHash() string {
 	return c.contentHash
+}
+
+func (c *ContentItem) ContentChangedAt() time.Time {
+	return c.contentChangedAt
 }
 
 func (c *ContentItem) ExternalID() string {

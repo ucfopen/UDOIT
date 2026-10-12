@@ -39,6 +39,7 @@ func (r *MySQLContentItemRepository) GetByID(ctx context.Context, id int64) (*do
 		row.ContentHash,
 		row.ExternalID,
 		externalData,
+		row.ContentChangedAt,
 		row.CreatedAt,
 		row.UpdatedAt,
 	)
@@ -66,6 +67,7 @@ func (r *MySQLContentItemRepository) GetByCourseID(ctx context.Context, courseID
 			row.ContentHash,
 			row.ExternalID,
 			externalData,
+			row.ContentChangedAt,
 			row.CreatedAt,
 			row.UpdatedAt,
 		)
@@ -81,10 +83,11 @@ func (r *MySQLContentItemRepository) Create(ctx context.Context, contentItem *do
 		return err
 	}
 	_, err = r.queries.CreateContentItem(ctx, contentsqlc.CreateContentItemParams{
-		CourseID:     uint64(contentItem.CourseID()),
-		ContentHash:  contentItem.ContentHash(),
-		ExternalID:   contentItem.ExternalID(),
-		ExternalData: externalData,
+		CourseID:         uint64(contentItem.CourseID()),
+		ContentHash:      contentItem.ContentHash(),
+		ExternalID:       contentItem.ExternalID(),
+		ExternalData:     externalData,
+		ContentChangedAt: contentItem.ContentChangedAt(),
 	})
 
 	return err
@@ -108,10 +111,11 @@ func (r *MySQLContentItemRepository) CreateMany(ctx context.Context, contentItem
 		}
 
 		domainContentItemsParams[i] = contentsqlc.CreateContentItemParams{
-			CourseID:     uint64(item.CourseID()),
-			ContentHash:  item.ContentHash(),
-			ExternalID:   item.ExternalID(),
-			ExternalData: externalData,
+			CourseID:         uint64(item.CourseID()),
+			ContentHash:      item.ContentHash(),
+			ExternalID:       item.ExternalID(),
+			ExternalData:     externalData,
+			ContentChangedAt: item.ContentChangedAt(),
 		}
 	}
 

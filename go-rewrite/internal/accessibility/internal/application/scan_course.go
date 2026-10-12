@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"time"
 
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/lmsdata"
@@ -9,7 +10,7 @@ import (
 )
 
 type LMSDataService interface {
-	GetCourseScanData(ctx context.Context, principal auth.Principal, courseID int64) (lmsdata.CourseScanData, error)
+	SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (lmsdata.CourseSynchronization, error)
 	AddFileReferences(ctx context.Context, principal auth.Principal, request lmsdata.AddFileReferencesRequest) error
 }
 
@@ -18,6 +19,7 @@ type ScanCourseUseCase struct {
 	fileIssueRepository domain.FileIssueRepository
 	lmsDataService      LMSDataService
 	scanner             domain.Scanner
+	scanRepository      domain.CourseScanRepository
 }
 
 func NewScanCourseUseCase(
@@ -25,17 +27,28 @@ func NewScanCourseUseCase(
 	fileIssueRepository domain.FileIssueRepository,
 	lmsDataService LMSDataService,
 	scanner domain.Scanner,
+	scanRepository domain.CourseScanRepository,
 ) *ScanCourseUseCase {
 	return &ScanCourseUseCase{
 		htmlIssueRepository: htmlIssueRepository,
 		fileIssueRepository: fileIssueRepository,
 		lmsDataService:      lmsDataService,
 		scanner:             scanner,
+		scanRepository:      scanRepository,
 	}
 }
 
 func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principal, courseID int64) error {
-	scanData, err := u.lmsDataService.GetCourseScanData(ctx, principal, courseID)
+	lastCompletedAt, err := u.scanRepository.LastCompletedAt(ctx, courseID)
+	if err != nil {
+		return err
+	}
+	scan := domain.NewCourseScan(courseID, principal.AgentID, time.Now())
+	if err := u.scanRepository.Start(ctx, scan); err != nil {
+		return err
+	}
+
+	scanData, err := u.lmsDataService.SynchronizeCourse(ctx, principal, courseID, lastCompletedAt)
 	if err != nil {
 		return err
 	}
@@ -98,5 +111,9 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		))
 	}
 
-	return u.htmlIssueRepository.CreateMany(ctx, newIssues)
+	if err := u.htmlIssueRepository.CreateMany(ctx, newIssues); err != nil {
+		return err
+	}
+	scan.Complete(time.Now())
+	return u.scanRepository.Complete(ctx, scan)
 }

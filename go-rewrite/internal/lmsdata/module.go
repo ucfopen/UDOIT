@@ -58,6 +58,12 @@ type FileReference struct {
 	FileID        int64
 }
 
+type CourseSynchronization struct {
+	Course          Course
+	ChangedContents []ScannableContent
+	Files           []File
+}
+
 func New(db *sql.DB, integration LMSIntegration) *Module {
 	contentItemRepository := contentinfrastructure.NewMySQLContentItemRepository(db)
 	courseRepository := coursesinfrastructure.NewMySQLCourseRepository(db)
@@ -86,15 +92,15 @@ func (m *Module) replaceFileReferences(ctx context.Context, contentItemIDs []int
 	return m.fileReferenceRepository.ReplaceForContentItems(ctx, contentItemIDs, domainReferences)
 }
 
-func (m *Module) GetCourseScanData(ctx context.Context, principal auth.Principal, courseID int64) (CourseScanData, error) {
+func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (CourseSynchronization, error) {
 	course, err := m.GetCourse(ctx, courseID)
 	if err != nil {
-		return CourseScanData{}, err
+		return CourseSynchronization{}, err
 	}
 
 	currentContentItems, err := m.GetContentItemsByCourse(ctx, courseID)
 	if err != nil {
-		return CourseScanData{}, err
+		return CourseSynchronization{}, err
 	}
 
 	externalContent, err := m.integration.GetCourseContent(ctx, GetCourseContentRequest{
@@ -106,7 +112,7 @@ func (m *Module) GetCourseScanData(ctx context.Context, principal auth.Principal
 		CurrentContent:     currentContentItems,
 	})
 	if err != nil {
-		return CourseScanData{}, err
+		return CourseSynchronization{}, err
 	}
 
 	currentByExternalID := make(map[string]ContentItem, len(currentContentItems))
@@ -119,21 +125,25 @@ func (m *Module) GetCourseScanData(ctx context.Context, principal auth.Principal
 	for _, item := range externalContent.ContentItems {
 		hash, err := m.contentHasher.HashContent(item.HTML)
 		if err != nil {
-			return CourseScanData{}, err
+			return CourseSynchronization{}, err
 		}
 		current, exists := currentByExternalID[item.ExternalID]
-		if exists && current.ContentHash == hash {
-			continue
+		contentChangedAt := current.ContentChangedAt
+		if !exists || current.ContentHash != hash {
+			contentChangedAt = time.Now()
 		}
-
 		content := ContentItem{
-			ID:           current.ID,
-			CourseID:     courseID,
-			ExternalID:   item.ExternalID,
-			ExternalData: item.ExternalData,
-			ContentHash:  hash,
+			ID:               current.ID,
+			CourseID:         courseID,
+			ExternalID:       item.ExternalID,
+			ExternalData:     item.ExternalData,
+			ContentHash:      hash,
+			ContentChangedAt: contentChangedAt,
 		}
 		contentToPersist = append(contentToPersist, content)
+		if !contentChangedAt.After(changedSince) {
+			continue
+		}
 		changedContent = append(changedContent, ScannableContent{
 			ID:           current.ID,
 			CourseID:     courseID,
@@ -147,7 +157,7 @@ func (m *Module) GetCourseScanData(ctx context.Context, principal auth.Principal
 	if len(contentToPersist) > 0 {
 		idMap, err := m.CreateManyContentItems(ctx, contentToPersist)
 		if err != nil {
-			return CourseScanData{}, err
+			return CourseSynchronization{}, err
 		}
 		for i := range changedContent {
 			if id, ok := idMap[changedContent[i].ExternalID]; ok {
@@ -169,15 +179,15 @@ func (m *Module) GetCourseScanData(ctx context.Context, principal auth.Principal
 		}
 	}
 	if err := m.SyncFilesForCourse(ctx, courseID, filesToSync); err != nil {
-		return CourseScanData{}, err
+		return CourseSynchronization{}, err
 	}
 
 	files, err := m.GetFilesByCourse(ctx, courseID)
 	if err != nil {
-		return CourseScanData{}, err
+		return CourseSynchronization{}, err
 	}
 
-	return CourseScanData{
+	return CourseSynchronization{
 		Course:          course,
 		ChangedContents: changedContent,
 		Files:           files,
@@ -258,11 +268,12 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 }
 
 type ContentItem struct {
-	ID           int64
-	ExternalID   string
-	ExternalData map[string]any
-	ContentHash  string
-	CourseID     int64
+	ID               int64
+	ExternalID       string
+	ExternalData     map[string]any
+	ContentHash      string
+	ContentChangedAt time.Time
+	CourseID         int64
 }
 
 func (m *Module) GetContentItemsByCourse(ctx context.Context, courseID int64) ([]ContentItem, error) {
@@ -274,11 +285,12 @@ func (m *Module) GetContentItemsByCourse(ctx context.Context, courseID int64) ([
 	result := make([]ContentItem, len(contentItems))
 	for i, item := range contentItems {
 		result[i] = ContentItem{
-			ID:           item.ID(),
-			ExternalID:   item.ExternalID(),
-			ContentHash:  item.ContentHash(),
-			CourseID:     item.CourseID(),
-			ExternalData: item.ExternalData(),
+			ID:               item.ID(),
+			ExternalID:       item.ExternalID(),
+			ContentHash:      item.ContentHash(),
+			CourseID:         item.CourseID(),
+			ExternalData:     item.ExternalData(),
+			ContentChangedAt: item.ContentChangedAt(),
 		}
 	}
 	return result, nil
@@ -290,6 +302,7 @@ func (m *Module) CreateContentItem(ctx context.Context, contentItem ContentItem)
 		contentItem.ContentHash,
 		contentItem.ExternalID,
 		contentItem.ExternalData,
+		contentItem.ContentChangedAt,
 	))
 }
 
@@ -302,6 +315,7 @@ func (m *Module) CreateManyContentItems(ctx context.Context, contentItems []Cont
 			item.ContentHash,
 			item.ExternalID,
 			item.ExternalData,
+			item.ContentChangedAt,
 		)
 	}
 
