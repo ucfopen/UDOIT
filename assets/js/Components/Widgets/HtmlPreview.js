@@ -1,6 +1,6 @@
 import React, { useState, useEffect, use } from 'react'
 import { FORM_CLASSIFICATIONS, formNameFromRule, formNames } from '../../Services/Ufixit'
-import { UFIXIT_OPTIONS } from '../../Services/Constants'
+import { VALID_IMAGE_TAGS, UFIXIT_OPTIONS } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import './FixIssuesContentPreview.css'
@@ -101,6 +101,18 @@ export default function HtmlPreview({
     if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formName) && errorElement) {
       let altText = Html.getAccessibleName(errorElement, doc)
       altText = Html.sanitizeString(altText)
+
+      // In the element_tabbable_visible form, it is possible to have alt text in a nested image.
+      if (!altText && formName === formNames.TABBABLE_INVISIBLE) {
+        for (const child of errorElement.children) {
+          let childTag = Html.getTagName(child)?.toLowerCase();
+          if (VALID_IMAGE_TAGS.includes(childTag)) {
+            if (altText === "") {
+              altText = Html.getAccessibleName(child);
+            }
+          }
+        }
+      }
       
       // If there is alt text to show...
       if (altText && altText.trim() !== '') {

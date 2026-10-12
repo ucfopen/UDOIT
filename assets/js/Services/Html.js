@@ -89,7 +89,6 @@ export function getInnerText(element) {
     return ''
   }
 
-  // TODO: add logic that looks for multiple text nodes, factors in children elements, etc
   return element.innerText
 }
 

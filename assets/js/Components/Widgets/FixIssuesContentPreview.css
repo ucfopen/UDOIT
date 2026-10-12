@@ -229,6 +229,8 @@
     flex-direction: row;
     border: 2px solid var(--content-preview-elements-background-color);
     margin: 5px 0px;
+    font-size: 1rem;
+    min-width: 18em;
     
     #ufixit-alt-text-preview-icon {
       padding: 8px;

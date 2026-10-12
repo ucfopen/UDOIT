@@ -195,3 +195,12 @@ export const TAG_IMPLICIT_ROLE= {
   "u": "generic",
   "ul": "list"
 }
+
+export const VALID_IMAGE_TAGS = [
+  'canvas',
+  'img',
+  'map',
+  'picture',
+  'source',
+  'svg',
+]

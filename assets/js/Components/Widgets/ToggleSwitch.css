@@ -58,8 +58,13 @@
         }
     }
 
-    input:checked + .slider {
+    input:checked:not(:disabled) + .slider {
         background-color: var(--progress-bar-color);
+    }
+
+    input:disabled + .slider {
+        background-color: var(--button-disabled-background-color);
+        cursor: not-allowed;
     }
 
     input:focus + .slider {

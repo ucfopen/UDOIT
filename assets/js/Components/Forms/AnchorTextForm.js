@@ -211,7 +211,7 @@ export default function AnchorTextForm ({
 
       {linkUrl !== '' && (
         <div className="url-container flex-row justify-content-between gap-2">
-          <div className="subtext">{t('form.anchor.label.link_target')}</div>
+          <div className="subtext flex-shrink-0 align-self-center">{t('form.anchor.label.link_target')}</div>
           <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
             {linkUrl}
           </a>

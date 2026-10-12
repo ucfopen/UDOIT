@@ -16,6 +16,7 @@ import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
+import TabbableInvisibleForm from '../Components/Forms/TabbableInvisibleForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
 
@@ -30,6 +31,7 @@ export const formNames = {
   ARIA_ROLE: 'aria_role',
   BLOCKQUOTE: 'blockquote',
   CONTRAST: 'contrast',
+  TABBABLE_INVISIBLE: 'tabbable_invisible',
   EMBEDDED_CONTENT_TITLE: 'embedded_content_title',
   EMBEDDED_CONTENT_REVIEW: 'embedded_content_review',
   EMPHASIS: 'emphasis',
@@ -88,6 +90,7 @@ const formTypes = {
   // [formNames.MULTI_PART]: MultiPartForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
+  [formNames.TABBABLE_INVISIBLE]: TabbableInvisibleForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
   
@@ -102,6 +105,7 @@ export const FORM_CLASSIFICATIONS = {
     formNames.ALT_TEXT,            
     formNames.ANCHOR_TEXT,
     formNames.BLOCKQUOTE,
+    formNames.TABBABLE_INVISIBLE,
     formNames.EMBEDDED_CONTENT_TITLE,
     formNames.LABEL,
     formNames.LABEL_UNIQUE,
@@ -273,6 +277,8 @@ const rulesToFormNameMap = {
   // label_ref_valid: formNames.SELECT_VALID_ID,
   // table_headers_ref_valid: formNames.SELECT_VALID_ID,
 
+  element_tabbable_visible: formNames.TABBABLE_INVISIBLE,
+
   table_caption_empty: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
@@ -395,6 +401,7 @@ export function disabilitiesFromRule(ruleId) {
         break
       case formNames.INVALID_ATTRIBUTE:
       case formNames.MULTI_PART:
+      case formNames.TABBABLE_INVISIBLE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.LANGUAGE:
