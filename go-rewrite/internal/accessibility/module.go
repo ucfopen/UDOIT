@@ -9,15 +9,15 @@ import (
 	"rewritetest/internal/accessibility/internal/application"
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/accessibility/internal/infrastructure"
-	"rewritetest/internal/content"
 	"rewritetest/internal/lms"
+	"rewritetest/internal/lmsdata"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ContentItemService interface {
-	GetByCourse(ctx context.Context, courseID int64) ([]content.ContentItem, error)
-	CreateManyContentItems(ctx context.Context, contentItems []content.ContentItem) (map[string]int64, error)
+	GetContentItemsByCourse(ctx context.Context, courseID int64) ([]lmsdata.ContentItem, error)
+	CreateManyContentItems(ctx context.Context, contentItems []lmsdata.ContentItem) (map[string]int64, error)
 }
 
 type ExternalContentRetriever interface {
@@ -26,8 +26,8 @@ type ExternalContentRetriever interface {
 }
 
 type CourseFileSyncService interface {
-	SyncCourseFiles(ctx context.Context, courseID int64, files []lms.FileItemDTO) error
-	GetByCourseID(ctx context.Context, courseID int64) ([]lms.FileItemDTO, error)
+	SyncFilesForCourse(ctx context.Context, courseID int64, files []lmsdata.FileSyncInput) error
+	GetFilesByCourse(ctx context.Context, courseID int64) ([]lmsdata.File, error)
 }
 
 type Authenticator interface {

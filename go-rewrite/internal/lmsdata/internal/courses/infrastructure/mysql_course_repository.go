@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"rewritetest/internal/courses/internal/domain"
-	coursessqlc "rewritetest/internal/courses/internal/infrastructure/sqlc"
+	"rewritetest/internal/lmsdata/internal/courses/domain"
+	coursessqlc "rewritetest/internal/lmsdata/internal/courses/infrastructure/sqlc"
 )
 
 type MySQLCourseRepository struct {

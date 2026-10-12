@@ -16,22 +16,22 @@ sql:
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/courses/internal/infrastructure/queries/*.sql"
+      - "internal/lmsdata/internal/courses/infrastructure/queries/*.sql"
     gen:
       go:
         package: "coursessqlc"
-        out: "internal/courses/internal/infrastructure/sqlc"
+        out: "internal/lmsdata/internal/courses/infrastructure/sqlc"
         sql_package: "database/sql"
 
   - engine: "mysql"
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/files/internal/infrastructure/queries/*.sql"
+      - "internal/lmsdata/internal/files/infrastructure/queries/*.sql"
     gen:
       go:
         package: "filessqlc"
-        out: "internal/files/internal/infrastructure/sqlc"
+        out: "internal/lmsdata/internal/files/infrastructure/sqlc"
         sql_package: "database/sql"
 
   - engine: "mysql"
@@ -81,11 +81,11 @@ sql:
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/content/internal/infrastructure/queries/*.sql"
+      - "internal/lmsdata/internal/content/infrastructure/queries/*.sql"
     gen:
       go:
         package: "contentsqlc"
-        out: "internal/content/internal/infrastructure/sqlc"
+        out: "internal/lmsdata/internal/content/infrastructure/sqlc"
         sql_package: "database/sql"
   - engine: "mysql"
     schema:

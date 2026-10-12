@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"rewritetest/internal/courses/internal/domain"
+	"rewritetest/internal/lmsdata/internal/courses/domain"
 )
 
 type CreateCourseUseCase struct {

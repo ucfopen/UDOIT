@@ -13,11 +13,9 @@ import (
 
 	"rewritetest/internal/accessibility"
 	"rewritetest/internal/auth"
-	"rewritetest/internal/content"
-	"rewritetest/internal/courses"
-	"rewritetest/internal/files"
 	"rewritetest/internal/i18n"
 	"rewritetest/internal/lms"
+	"rewritetest/internal/lmsdata"
 	"rewritetest/internal/lti"
 	"rewritetest/internal/shared/http/middleware"
 	"rewritetest/internal/tenants"
@@ -68,19 +66,16 @@ func main() {
 		log.Fatal(err)
 	}
 	authModule := auth.New(client, db)
-	coursesModule := courses.New(db)
-	filesModule := files.New(db, lmsModule)
+	lmsDataModule := lmsdata.New(db)
 	i18nModule := i18n.New()
 	usersModule := users.New(db, i18nModule, authModule)
-	contentModule := content.New(db)
-	accessibilityModule := accessibility.New(db, coursesModule, contentModule, lmsModule, filesModule, authModule)
+	accessibilityModule := accessibility.New(db, lmsDataModule, lmsDataModule, lmsModule, lmsDataModule, authModule)
 	tenantsModule := tenants.New(db, lmsModule)
-	ltiModule := lti.New(client, db, usersModule, authModule, coursesModule, lmsModule, tenantsModule, lmsModule, os.Getenv("GO_BASE_URL"))
+	ltiModule := lti.New(client, db, usersModule, authModule, lmsDataModule, lmsModule, tenantsModule, lmsModule, os.Getenv("GO_BASE_URL"))
 
 	// Register routes
 	usersModule.RegisterRoutes(router.Group("/users"))
 	ltiModule.RegisterRoutes(router.Group("/lti"))
-	filesModule.RegisterRoutes(router.Group("/files"))
 	lmsModule.RegisterRoutes(router.Group("/lms"))
 	accessibilityModule.RegisterRoutes(router.Group("/accessibility"))
 

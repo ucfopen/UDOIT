@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"rewritetest/internal/accessibility/internal/domain"
-	"rewritetest/internal/content"
-	"rewritetest/internal/courses"
 	"rewritetest/internal/lms"
+	"rewritetest/internal/lmsdata"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -21,12 +20,12 @@ type ScanCourseIssue struct {
 }
 
 type CourseRetriever interface {
-	GetCourse(ctx context.Context, courseID int64) (courses.Course, error)
+	GetCourse(ctx context.Context, courseID int64) (lmsdata.Course, error)
 }
 
 type ContentItemService interface {
-	GetByCourse(ctx context.Context, courseID int64) ([]content.ContentItem, error)
-	CreateManyContentItems(ctx context.Context, contentItems []content.ContentItem) (map[string]int64, error)
+	GetContentItemsByCourse(ctx context.Context, courseID int64) ([]lmsdata.ContentItem, error)
+	CreateManyContentItems(ctx context.Context, contentItems []lmsdata.ContentItem) (map[string]int64, error)
 }
 
 type ExternalContentRetriever interface {
@@ -35,8 +34,8 @@ type ExternalContentRetriever interface {
 }
 
 type CourseFileSyncService interface {
-	SyncCourseFiles(ctx context.Context, courseID int64, files []lms.FileItemDTO) error
-	GetByCourseID(ctx context.Context, courseID int64) ([]lms.FileItemDTO, error)
+	SyncFilesForCourse(ctx context.Context, courseID int64, files []lmsdata.FileSyncInput) error
+	GetFilesByCourse(ctx context.Context, courseID int64) ([]lmsdata.File, error)
 }
 
 type ContentHasher interface {
@@ -95,7 +94,7 @@ type FullContentItem struct {
 }
 
 func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principal, courseID int64) error {
-	currentContentItems, err := u.contentItemService.GetByCourse(ctx, courseID)
+	currentContentItems, err := u.contentItemService.GetContentItemsByCourse(ctx, courseID)
 	if err != nil {
 		return err
 	}
@@ -132,10 +131,10 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 func (u *ScanCourseUseCase) scanAndSyncHTMLContent(
 	ctx context.Context,
 	principal auth.Principal,
-	course courses.Course,
+	course lmsdata.Course,
 	externalContentItems []lms.ContentItemDTO,
-	currentContentItems []content.ContentItem,
-	persistedFiles []lms.FileItemDTO,
+	currentContentItems []lmsdata.ContentItem,
+	persistedFiles []lmsdata.File,
 	courseID int64,
 ) error {
 	changedContentItems, err := u.getChangedContentItems(currentContentItems, externalContentItems, courseID)
@@ -143,9 +142,9 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(
 		return err
 	}
 
-	changedContentItemsHashed := make([]content.ContentItem, len(changedContentItems))
+	changedContentItemsHashed := make([]lmsdata.ContentItem, len(changedContentItems))
 	for i, item := range changedContentItems {
-		changedContentItemsHashed[i] = content.ContentItem{
+		changedContentItemsHashed[i] = lmsdata.ContentItem{
 			ID:           item.ID,
 			ExternalID:   item.ExternalID,
 			ExternalData: item.ExternalData,
@@ -211,13 +210,26 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(
 	return nil
 }
 
-func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64, externalFiles []lms.FileItemDTO) ([]lms.FileItemDTO, error) {
-	err := u.courseFileSyncService.SyncCourseFiles(ctx, courseID, externalFiles)
+func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64, externalFiles []lms.FileItemDTO) ([]lmsdata.File, error) {
+	files := make([]lmsdata.FileSyncInput, len(externalFiles))
+	for i, file := range externalFiles {
+		files[i] = lmsdata.FileSyncInput{
+			FileName:     file.FileName,
+			FileType:     file.FileType,
+			UpdatedAt:    file.UpdatedAt,
+			FileSize:     file.FileSize,
+			DownloadURL:  file.DownloadURL,
+			ExternalID:   file.ExternalID,
+			ExternalData: file.ExternalData,
+		}
+	}
+
+	err := u.courseFileSyncService.SyncFilesForCourse(ctx, courseID, files)
 	if err != nil {
 		return nil, err
 	}
 
-	persistedFiles, err := u.courseFileSyncService.GetByCourseID(ctx, courseID)
+	persistedFiles, err := u.courseFileSyncService.GetFilesByCourse(ctx, courseID)
 	if err != nil {
 		return nil, err
 	}
@@ -238,9 +250,9 @@ func (u *ScanCourseUseCase) scanAndSyncFiles(ctx context.Context, courseID int64
 func (u *ScanCourseUseCase) extractFileReferences(
 	ctx context.Context,
 	principal auth.Principal,
-	course courses.Course,
+	course lmsdata.Course,
 	changedContentItems []*ChangedContentItem,
-	persistedFiles []lms.FileItemDTO,
+	persistedFiles []lmsdata.File,
 	references []domain.ExtractedReference,
 ) ([]*domain.FileReference, error) {
 	if len(changedContentItems) == 0 || len(references) == 0 || len(persistedFiles) == 0 {
@@ -273,13 +285,27 @@ func (u *ScanCourseUseCase) extractFileReferences(
 		return []*domain.FileReference{}, nil
 	}
 
+	externalFiles := make([]lms.FileItemDTO, len(persistedFiles))
+	for i, file := range persistedFiles {
+		externalFiles[i] = lms.FileItemDTO{
+			ID:           file.ID,
+			FileName:     file.FileName,
+			FileType:     file.FileType,
+			UpdatedAt:    file.UpdatedAt,
+			FileSize:     file.FileSize,
+			DownloadURL:  file.DownloadURL,
+			ExternalID:   file.ExternalID,
+			ExternalData: file.ExternalData,
+		}
+	}
+
 	resolvedRefs, err := u.externalContentRetriever.ResolveFileReferences(ctx, lms.ResolveFileReferencesRequest{
 		CourseID:           course.ID,
 		ExternalCourseID:   course.ExternalID,
 		ExternalCourseData: course.ExternalData,
 		TenantID:           principal.TenantID,
 		References:         refDTOs,
-		Files:              persistedFiles,
+		Files:              externalFiles,
 	})
 	if err != nil {
 		return nil, err
@@ -334,11 +360,11 @@ type ChangedContentItem struct {
 // content items and returns a list of content items that have a different hash
 // (i.e., have changed)
 func (u *ScanCourseUseCase) getChangedContentItems(
-	currentContentItems []content.ContentItem,
+	currentContentItems []lmsdata.ContentItem,
 	externalContentItems []lms.ContentItemDTO,
 	courseID int64,
 ) ([]*ChangedContentItem, error) {
-	currentContentItemMap := make(map[string]content.ContentItem)
+	currentContentItemMap := make(map[string]lmsdata.ContentItem)
 	for _, item := range currentContentItems {
 		currentContentItemMap[item.ExternalID] = item
 	}

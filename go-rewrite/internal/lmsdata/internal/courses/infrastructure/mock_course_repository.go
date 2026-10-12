@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"context"
 
-	"rewritetest/internal/courses/internal/domain"
+	"rewritetest/internal/lmsdata/internal/courses/domain"
 )
 
 type MockCourseRepository struct {

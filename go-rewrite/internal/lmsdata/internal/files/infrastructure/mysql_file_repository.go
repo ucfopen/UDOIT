@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"rewritetest/internal/files/internal/domain"
-	filessqlc "rewritetest/internal/files/internal/infrastructure/sqlc"
+	"rewritetest/internal/lmsdata/internal/files/domain"
+	filessqlc "rewritetest/internal/lmsdata/internal/files/infrastructure/sqlc"
 )
 
 type MySQLFileRepository struct {
