@@ -4,19 +4,19 @@ import (
 	"context"
 	"database/sql"
 
-	"rewritetest/internal/accessibility/internal/domain"
-	accessibilitysqlc "rewritetest/internal/accessibility/internal/infrastructure/sqlc"
+	"rewritetest/internal/lmsdata/internal/file_references/domain"
+	file_referencessqlc "rewritetest/internal/lmsdata/internal/file_references/infrastructure/sqlc"
 )
 
 type MySQLFileReferenceRepository struct {
 	db      *sql.DB
-	queries *accessibilitysqlc.Queries
+	queries *file_referencessqlc.Queries
 }
 
 func NewMySQLFileReferenceRepository(db *sql.DB) *MySQLFileReferenceRepository {
 	return &MySQLFileReferenceRepository{
 		db:      db,
-		queries: accessibilitysqlc.New(db),
+		queries: file_referencessqlc.New(db),
 	}
 }
 
@@ -42,7 +42,7 @@ func (r *MySQLFileReferenceRepository) ReplaceForContentItems(ctx context.Contex
 	}
 
 	for _, fileReference := range fileReferences {
-		err = qtx.CreateFileReference(ctx, accessibilitysqlc.CreateFileReferenceParams{
+		err = qtx.CreateFileReference(ctx, file_referencessqlc.CreateFileReferenceParams{
 			ContentItemID: uint64(fileReference.ContentItemID()),
 			FileID:        uint64(fileReference.FileID()),
 		})

@@ -97,3 +97,14 @@ sql:
         package: "accessibilitysqlc"
         out: "internal/accessibility/internal/infrastructure/sqlc"
         sql_package: "database/sql"
+
+  - engine: "mysql"
+    schema:
+      - "db/migrations/*.up.sql"
+    queries:
+      - "internal/lmsdata/internal/file_references/infrastructure/queries/*.sql"
+    gen:
+      go:
+        package: "file_referencessqlc"
+        out: "internal/lmsdata/internal/file_references/infrastructure/sqlc"
+        sql_package: "database/sql"

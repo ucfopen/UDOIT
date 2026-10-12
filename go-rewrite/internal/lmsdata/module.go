@@ -10,16 +10,19 @@ import (
 	coursesapplication "rewritetest/internal/lmsdata/internal/courses/application"
 	coursesdomain "rewritetest/internal/lmsdata/internal/courses/domain"
 	coursesinfrastructure "rewritetest/internal/lmsdata/internal/courses/infrastructure"
+	fileReferencesDomain "rewritetest/internal/lmsdata/internal/file_references/domain"
+	fileReferencesInfrastructure "rewritetest/internal/lmsdata/internal/file_references/infrastructure"
 	filesdomain "rewritetest/internal/lmsdata/internal/files/domain"
 	filesinfrastructure "rewritetest/internal/lmsdata/internal/files/infrastructure"
 	"rewritetest/internal/shared/apperr"
 )
 
 type Module struct {
-	contentItemRepository contentdomain.ContentItemRepository
-	createCourseUseCase   *coursesapplication.CreateCourseUseCase
-	courseRepository      coursesdomain.CourseRepository
-	fileRepository        filesdomain.FileRepository
+	contentItemRepository   contentdomain.ContentItemRepository
+	createCourseUseCase     *coursesapplication.CreateCourseUseCase
+	courseRepository        coursesdomain.CourseRepository
+	fileRepository          filesdomain.FileRepository
+	fileReferenceRepository fileReferencesDomain.FileReferenceRepository
 }
 
 type File struct {
@@ -44,18 +47,34 @@ type FileSyncInput struct {
 	ExternalData map[string]any
 }
 
+type FileReference struct {
+	ContentItemID int64
+	FileID        int64
+}
+
 func New(db *sql.DB) *Module {
 	contentItemRepository := contentinfrastructure.NewMySQLContentItemRepository(db)
 	courseRepository := coursesinfrastructure.NewMySQLCourseRepository(db)
 	fileRepository := filesinfrastructure.NewMySQLFileRepository(db)
+	fileReferenceRepository := fileReferencesInfrastructure.NewMySQLFileReferenceRepository(db)
 	createCourseUseCase := coursesapplication.NewCreateCourseUseCase(courseRepository)
 
 	return &Module{
-		contentItemRepository: contentItemRepository,
-		createCourseUseCase:   createCourseUseCase,
-		courseRepository:      courseRepository,
-		fileRepository:        fileRepository,
+		contentItemRepository:   contentItemRepository,
+		createCourseUseCase:     createCourseUseCase,
+		courseRepository:        courseRepository,
+		fileRepository:          fileRepository,
+		fileReferenceRepository: fileReferenceRepository,
 	}
+}
+
+func (m *Module) ReplaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []FileReference) error {
+	domainReferences := make([]*fileReferencesDomain.FileReference, len(fileReferences))
+	for i, fileReference := range fileReferences {
+		domainReferences[i] = fileReferencesDomain.NewFileReference(fileReference.ContentItemID, fileReference.FileID)
+	}
+
+	return m.fileReferenceRepository.ReplaceForContentItems(ctx, contentItemIDs, domainReferences)
 }
 
 type ContentItem struct {

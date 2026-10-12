@@ -30,6 +30,10 @@ type CourseFileSyncService interface {
 	GetFilesByCourse(ctx context.Context, courseID int64) ([]lmsdata.File, error)
 }
 
+type FileReferenceStore interface {
+	ReplaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []lmsdata.FileReference) error
+}
+
 type Authenticator interface {
 	WithAuth() gin.HandlerFunc
 }
@@ -47,6 +51,7 @@ func New(
 	contentItemService ContentItemService,
 	externalContentRetriever ExternalContentRetriever,
 	courseFileSyncService CourseFileSyncService,
+	fileReferenceStore FileReferenceStore,
 	authenticator Authenticator,
 ) *Module {
 	httpClient := &http.Client{}
@@ -56,12 +61,11 @@ func New(
 	reportRepository := infrastructure.NewMySQLReportRepository(db)
 	htmlIssueRepository := infrastructure.NewMySQLIssueRepository(db)
 	fileIssueRepository := infrastructure.NewMySQLFileIssueRepository(db)
-	fileReferenceRepository := infrastructure.NewMySQLFileReferenceRepository(db)
 
 	scanCourseUseCase := application.NewScanCourseUseCase(
 		htmlIssueRepository,
 		fileIssueRepository,
-		fileReferenceRepository,
+		fileReferenceStore,
 		courseRetriever,
 		contentItemService,
 		externalContentRetriever,

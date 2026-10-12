@@ -38,6 +38,10 @@ type CourseFileSyncService interface {
 	GetFilesByCourse(ctx context.Context, courseID int64) ([]lmsdata.File, error)
 }
 
+type FileReferenceStore interface {
+	ReplaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []lmsdata.FileReference) error
+}
+
 type ContentHasher interface {
 	HashContent(content string) (string, error)
 }
@@ -52,7 +56,7 @@ type HashedContentItem struct {
 type ScanCourseUseCase struct {
 	htmlIssueRepository      domain.HTMLIssueRepository
 	fileIssueRepository      domain.FileIssueRepository
-	fileReferenceRepository  domain.FileReferenceRepository
+	fileReferenceStore       FileReferenceStore
 	courseRetriever          CourseRetriever
 	contentItemService       ContentItemService
 	externalContentRetriever ExternalContentRetriever
@@ -64,7 +68,7 @@ type ScanCourseUseCase struct {
 func NewScanCourseUseCase(
 	htmlIssueRepository domain.HTMLIssueRepository,
 	fileIssueRepository domain.FileIssueRepository,
-	fileReferenceRepository domain.FileReferenceRepository,
+	fileReferenceStore FileReferenceStore,
 	courseRetriever CourseRetriever,
 	contentItemService ContentItemService,
 	externalContentRetriever ExternalContentRetriever,
@@ -75,7 +79,7 @@ func NewScanCourseUseCase(
 	return &ScanCourseUseCase{
 		htmlIssueRepository:      htmlIssueRepository,
 		fileIssueRepository:      fileIssueRepository,
-		fileReferenceRepository:  fileReferenceRepository,
+		fileReferenceStore:       fileReferenceStore,
 		courseRetriever:          courseRetriever,
 		contentItemService:       contentItemService,
 		externalContentRetriever: externalContentRetriever,
@@ -192,7 +196,7 @@ func (u *ScanCourseUseCase) scanAndSyncHTMLContent(
 		return err
 	}
 
-	err = u.fileReferenceRepository.ReplaceForContentItems(ctx, changedContentItemIDs, fileReferences)
+	err = u.fileReferenceStore.ReplaceFileReferences(ctx, changedContentItemIDs, fileReferences)
 	if err != nil {
 		return err
 	}
@@ -254,9 +258,9 @@ func (u *ScanCourseUseCase) extractFileReferences(
 	changedContentItems []*ChangedContentItem,
 	persistedFiles []lmsdata.File,
 	references []domain.ExtractedReference,
-) ([]*domain.FileReference, error) {
+) ([]lmsdata.FileReference, error) {
 	if len(changedContentItems) == 0 || len(references) == 0 || len(persistedFiles) == 0 {
-		return []*domain.FileReference{}, nil
+		return []lmsdata.FileReference{}, nil
 	}
 
 	contentExternalIDByInternalID := make(map[int64]string, len(changedContentItems))
@@ -282,7 +286,7 @@ func (u *ScanCourseUseCase) extractFileReferences(
 	}
 
 	if len(refDTOs) == 0 {
-		return []*domain.FileReference{}, nil
+		return []lmsdata.FileReference{}, nil
 	}
 
 	externalFiles := make([]lms.FileItemDTO, len(persistedFiles))
@@ -312,7 +316,7 @@ func (u *ScanCourseUseCase) extractFileReferences(
 	}
 
 	if len(resolvedRefs) == 0 {
-		return []*domain.FileReference{}, nil
+		return []lmsdata.FileReference{}, nil
 	}
 
 	contentIDByExternalID := make(map[string]int64, len(changedContentItems))
@@ -325,7 +329,7 @@ func (u *ScanCourseUseCase) extractFileReferences(
 		fileIDByExternalID[file.ExternalID] = file.ID
 	}
 
-	fileReferences := make([]*domain.FileReference, 0, len(resolvedRefs))
+	fileReferences := make([]lmsdata.FileReference, 0, len(resolvedRefs))
 	seen := make(map[string]struct{}, len(resolvedRefs))
 	for _, resolved := range resolvedRefs {
 		contentItemID, contentExists := contentIDByExternalID[resolved.ContentExternalID]
@@ -340,7 +344,10 @@ func (u *ScanCourseUseCase) extractFileReferences(
 		}
 		seen[key] = struct{}{}
 
-		fileReferences = append(fileReferences, domain.NewFileReference(contentItemID, fileID))
+		fileReferences = append(fileReferences, lmsdata.FileReference{
+			ContentItemID: contentItemID,
+			FileID:        fileID,
+		})
 	}
 
 	return fileReferences, nil
