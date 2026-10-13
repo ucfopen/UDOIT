@@ -56,6 +56,15 @@ const checkStyleColorMisuse = (issue, element) => {
   return false;
 };
 
+const checkTableHeadersRelated = (issue, element) => {
+  let parentTable = element.closest('table');
+  if (parentTable) {
+    issue.xpath = Html.findXpathFromElement(parentTable);
+    issue.sourceHtml = Html.toString(parentTable);
+  }
+  return false;
+}
+
 const checkTextContrastSufficient = (issue, element, parsedDocument) => {
   if (!element || !parsedDocument) {
     return false;
@@ -163,14 +172,16 @@ const checkImgAltBackground = (issue, element) => {
 };
 
 const runCustomChecks = (issue, element, parsedDocument = null) => {
-  if (issue.scanRuleId === "style_color_misuse") {
+  if (issue.scanRuleId === "img_alt_background") {
+    return checkImgAltBackground(issue, element);
+  } else if (issue.scanRuleId === "style_color_misuse") {
     return checkStyleColorMisuse(issue, element);
+  } else if (issue.scanRuleId === "table_headers_related") {
+    return checkTableHeadersRelated(issue, element);
   } else if (issue.scanRuleId === "text_block_heading") {
     return checkTextBlockHeading(issue, element);
   } else if (issue.scanRuleId === "text_contrast_sufficient") {
     return checkTextContrastSufficient(issue, element, parsedDocument);
-  } else if (issue.scanRuleId === "img_alt_background") {
-    return checkImgAltBackground(issue, element);
   }
   return false;
 };

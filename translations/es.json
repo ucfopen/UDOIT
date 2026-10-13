@@ -831,6 +831,7 @@
   "form.table_headers.col": "Encabezado de Columna",
   "form.table_headers.row": "Encabezado de Fila",
   "form.table_headers.both": "Ambos",
+  "form.table_headers.label.caption": "TODO: Change the first row to the table title",
   "form.table_headers.decoration_only": "Esta Tabla es de Diseño",
   "form.table_headers.decoration_only_desc": "Utilice esta opción sólo si la tabla no contiene datos.",
   "form.table_headers.msg.no_selection": "Encabezados de tabla deben estar en columnas, filas o ambos",

@@ -282,6 +282,7 @@ const rulesToFormNameMap = {
   table_caption_empty: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
+  table_headers_related: formNames.TABLE_HEADERS,
   table_structure_misuse: formNames.TABLE_HEADERS,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
@@ -432,7 +433,6 @@ export function disabilitiesFromRule(ruleId) {
       case 'style_background_decorative':
       case 'style_highcontrast_visible':
       case 'style_viewport_resizable':
-      case 'table_headers_related':
       case 'table_summary_redundant':
         disabilities = [disabilityTypes.VISUAL]
         break

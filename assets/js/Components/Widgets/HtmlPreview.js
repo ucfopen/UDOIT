@@ -58,6 +58,11 @@ export default function HtmlPreview({
 
     const formName = formNameFromRule(activeIssue.scanRuleId);
 
+    if (formName === formNames.TABBABLE_INVISIBLE &&
+        (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.issueData.newHtml === '')) {
+      return doc;
+    }
+
     if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formName) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT){
       const allElements = doc.querySelectorAll('*')
       allElements.forEach((el) => {

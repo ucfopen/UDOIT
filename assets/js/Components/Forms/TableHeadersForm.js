@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import RadioSelector from '../Widgets/RadioSelector';
 import OptionFeedback from '../Widgets/OptionFeedback';
+import ToggleSwitch from '../Widgets/ToggleSwitch';
 import * as Html from '../../Services/Html';
 import { UFIXIT_OPTIONS } from '../../Services/Constants';
 
@@ -25,39 +26,58 @@ export default function TableHeadersForm({
     'row',
     'both'
   ]
-  const [selectedValue, setSelectedValue] = useState('')
+  const [selectedValue, setSelectedValue] = useState('');
+  const [extractCaption, setExtractCaption] = useState(false);
+  const [hasPotentialCaption, setHasPotentialCaption] = useState(false);
 
   useEffect(() => {
     if(!activeIssue) {
       return
     }
 
-    const html = Html.getIssueHtml(activeIssue)
-    const table = Html.toElement(html)
-    const decorationOnly = (table.getAttribute('role') === 'presentation')
-    const headerDirection = getTableHeaderDirection(table)
-    setSelectedValue(headerDirection)
+    const html = Html.getIssueHtml(activeIssue);
+    const table = Html.toElement(html);
+    const decorationOnly = (table.getAttribute('role') === 'presentation');
+    const headerDirection = getTableHeaderDirection(table);
+    setSelectedValue(headerDirection);
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-    let startingOption = ''
+    // If the table's first row only has one cell, it may be the table title (<caption>).
+    // This occurs a LOT in user-created content. If so, let's help them fix it here.
+    let tempHasPotentialCaption = false;
+
+    // First, if there is already a <caption> element, skip this check.
+    let existingCaption = table.querySelector('caption');
+
+    if (!existingCaption) {
+      let firstRow = table.querySelector('tr');
+      
+      if (firstRow.children.length === 1) {
+        tempHasPotentialCaption = true;
+      }
+    }
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
+    let startingOption = '';
 
     if (fixed) {
       if (decorationOnly) {
-        startingOption = FORM_OPTIONS.MARK_DECORATIVE
+        startingOption = FORM_OPTIONS.MARK_DECORATIVE;
       }
       else if(headerDirection !== '') {
-        startingOption = FORM_OPTIONS.SELECT_DIRECTION
+        startingOption = FORM_OPTIONS.SELECT_DIRECTION;
       }
     }
-    setActiveOption(startingOption)
-    
+
+    setActiveOption(startingOption);
+    setHasPotentialCaption(tempHasPotentialCaption);
+    setExtractCaption(false);
+
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [activeOption, selectedValue])
+  }, [activeOption, selectedValue, extractCaption])
 
   const getTableHeaderDirection = (table) => {
 
@@ -122,8 +142,18 @@ export default function TableHeadersForm({
     let tableBody = table.querySelector("tbody");
 
     if (tableHead && tableBody) {
-      tableBody.append(...tableHead.children);
+      tableBody.prepend(...tableHead.children);
       tableHead.remove();
+    }
+
+    // If the user says the first row is really the title, then remove its content
+    // and put it in a <caption>.
+    if (activeOption === FORM_OPTIONS.SELECT_DIRECTION && extractCaption) {
+      let firstRow = table.querySelector('tr');
+      const newCaption = document.createElement('caption');
+      newCaption.innerText = firstRow.innerText?.trim();
+      table.prepend(newCaption);
+      firstRow.remove();
     }
 
     return table
@@ -237,6 +267,18 @@ export default function TableHeadersForm({
                 />
               ))}
             </div>
+            { hasPotentialCaption && (
+              <div className="flex-row justify-content-start gap-2 mt-2">
+              <ToggleSwitch
+                labelId="captionCheckbox"
+                initialValue={extractCaption}
+                updateToggle={setExtractCaption}
+                disabled={isDisabled}
+                small={false}
+              />
+              <label id="captionCheckbox" className="ufixit-instructions align-self-center">{t('form.table_headers.label.caption')}</label>
+            </div>
+            )}
             <OptionFeedback
               t={t}
               feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]}
