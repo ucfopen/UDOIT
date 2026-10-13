@@ -25,6 +25,7 @@ class EqualAccessService {
             aria_content_in_landmark, 
             aria_landmark_name_unique,
             a_target_warning,
+            download_keyboard_controllable,
             text_quoted_correctly
         ";
 
