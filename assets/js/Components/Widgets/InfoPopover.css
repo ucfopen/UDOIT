@@ -4,6 +4,10 @@
   gap: 6px;
 }
 
+.info-popover {
+  display: inline-flex;
+}
+
 .info-popover-btn {
   border: none;
   background: none;
@@ -29,9 +33,12 @@
   border-color: var(--pill-file-border);
 }
 
-.info-popover-btn:focus {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 1px;
+.info-popover-btn-hover-only:hover {
+  box-shadow: 0px 1px 2px var(--shadow-color);
+}
+
+.info-popover-btn-hover-only:focus {
+  outline: none;
 }
 
 /* The popover dialog itself */
@@ -45,6 +52,8 @@
   max-width: 25em;
   border: 1px solid var(--border-color);
   outline: none;
+  appearance: none;
+  -webkit-appearance: none;
 
   &:focus {
     outline: 2px solid var(--focus-color);

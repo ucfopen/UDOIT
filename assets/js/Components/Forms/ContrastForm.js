@@ -5,9 +5,9 @@ import DarkIcon from '../Icons/DarkIcon'
 import ErrorIcon from '../Icons/ErrorIcon'
 import LightIcon from '../Icons/LightIcon'
 import MagicIcon from '../Icons/MagicIcon'
-import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import InfoPopover from '../Widgets/InfoPopover'
 import './ContrastForm.css'
 
 export default function ContrastForm({
@@ -478,19 +478,14 @@ export default function ContrastForm({
         <fieldset className="contrast-target-level">
           <legend>
             {t('form.contrast.label.target_level')}
-            <span className="contrast-target-help">
-              <button
-                type="button"
-                className="contrast-target-help-button"
-                aria-label={t('form.contrast.label.target_help')}
-                aria-describedby="contrast-target-tooltip"
-              >
-                <InfoIcon className="icon-sm" aria-hidden="true" />
-              </button>
-              <span id="contrast-target-tooltip" className="contrast-target-tooltip" role="tooltip">
-                {t('form.contrast.tooltip.target', { aa: minRatio, aaa: minAAARatio })}
-              </span>
-            </span>
+            <InfoPopover
+              t={t}
+              title={t('form.contrast.label.target_help')}
+              content={t('form.contrast.tooltip.target', { aa: minRatio, aaa: minAAARatio })}
+              triggerAriaLabel={t('form.contrast.label.target_help')}
+              hoverOnly
+              iconClassName="icon-sm"
+            />
           </legend>
           <div className="contrast-target-options">
             <label className={contrastTarget === 'AA' ? 'selected' : ''}>

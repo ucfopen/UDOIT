@@ -97,50 +97,6 @@
     margin-inline-start: .15rem;
   }
 
-  .contrast-target-help {
-    display: inline-flex;
-    position: relative;
-  }
-
-  .contrast-target-help-button {
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text-secondary-color);
-    cursor: help;
-    display: inline-flex;
-    padding: .1rem;
-
-    &:hover,
-    &:focus-visible {
-      color: var(--focus-color);
-      outline: 2px solid var(--focus-color);
-      outline-offset: 1px;
-    }
-  }
-
-  .contrast-target-tooltip {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--element-radius);
-    bottom: calc(100% + .5rem);
-    box-shadow: 0 2px 8px var(--shadow-color);
-    color: var(--text-color);
-    display: none;
-    font-size: .85rem;
-    font-weight: 400;
-    left: 0;
-    padding: .5rem .75rem;
-    position: absolute;
-    width: 18rem;
-    z-index: 10;
-  }
-
-  .contrast-target-help:hover .contrast-target-tooltip,
-  .contrast-target-help:focus-within .contrast-target-tooltip {
-    display: block;
-  }
-
   label:not(.subtext) {
     font-size: .9em;
     font-weight: 400;
