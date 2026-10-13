@@ -9,6 +9,138 @@
     margin-block-end: .5rem;
   }
 
+  .contrast-adjustment {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    margin-block-start: .75rem;
+    padding: .65rem .75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    background: var(--container-color);
+  }
+
+  .contrast-target-level {
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .4rem .75rem;
+    margin: 0;
+    padding: 0;
+
+    legend {
+      display: flex;
+      align-items: center;
+      gap: .2rem;
+      padding: 0;
+      font-size: .9em;
+      font-weight: 600;
+    }
+  }
+
+  .contrast-target-options {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    padding: 2px;
+    background: var(--white);
+
+    label {
+      position: relative;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    label span {
+      display: block;
+      border-radius: calc(var(--element-radius) - 2px);
+      padding: .3rem .65rem;
+      color: var(--text-secondary-color);
+      white-space: nowrap;
+    }
+
+    label.selected span {
+      background: var(--pill-file-background);
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    input:focus-visible + span {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
+  }
+
+  .contrast-adjustment-actions {
+    display: flex;
+    gap: .5rem;
+
+    button {
+      flex: 1 1 0;
+      justify-content: center;
+      min-width: 0;
+    }
+  }
+
+  .contrast-undo-button {
+    align-self: flex-start;
+    padding-inline: 0;
+    margin-inline-start: .15rem;
+  }
+
+  .contrast-target-help {
+    display: inline-flex;
+    position: relative;
+  }
+
+  .contrast-target-help-button {
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary-color);
+    cursor: help;
+    display: inline-flex;
+    padding: .1rem;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--focus-color);
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
+  }
+
+  .contrast-target-tooltip {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    bottom: calc(100% + .5rem);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    color: var(--text-color);
+    display: none;
+    font-size: .85rem;
+    font-weight: 400;
+    left: 0;
+    padding: .5rem .75rem;
+    position: absolute;
+    width: 18rem;
+    z-index: 10;
+  }
+
+  .contrast-target-help:hover .contrast-target-tooltip,
+  .contrast-target-help:focus-within .contrast-target-tooltip {
+    display: block;
+  }
+
   label:not(.subtext) {
     font-size: .9em;
     font-weight: 400;

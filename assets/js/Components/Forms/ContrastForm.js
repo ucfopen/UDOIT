@@ -5,6 +5,7 @@ import DarkIcon from '../Icons/DarkIcon'
 import ErrorIcon from '../Icons/ErrorIcon'
 import LightIcon from '../Icons/LightIcon'
 import MagicIcon from '../Icons/MagicIcon'
+import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 import './ContrastForm.css'
@@ -27,7 +28,33 @@ export default function ContrastForm({
 
   // Get all background colors (including gradients)
   const getBackgroundColors = () => {
-    const declaration = Contrast.findBackgroundDeclaration(activeContentItem?.body, activeIssue.xpath)
+    let metadata = {}
+    try {
+      metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
+    } catch {
+      // Continue with issue-level foreground/background data if metadata is invalid.
+    }
+    const relativeTextXpath = metadata.textColorXpath
+      ? Contrast.joinXpath(activeIssue.xpath, metadata.textColorXpath)
+      : ''
+    const messageArgs = metadata.messageArgs || []
+    const contentDoc = new DOMParser().parseFromString(activeContentItem?.body || '', 'text/html')
+    const issueElement = Html.findElementWithXpath(contentDoc, activeIssue.xpath)
+    const textColorElement = issueElement
+      ? Contrast.findTextColorElement(issueElement, messageArgs[3])
+      : null
+    const textColorXpath = textColorElement ? Html.findXpathFromElement(textColorElement) : ''
+    const focusXpath = relativeTextXpath
+      || (metadata.focusXpath && metadata.focusXpath !== activeIssue.xpath ? metadata.focusXpath : '')
+      || textColorXpath
+      || metadata.focusXpath
+    const effectiveFocusXpath = focusXpath || activeIssue.xpath
+    const declaration = Contrast.findBackgroundDeclaration(
+      activeContentItem?.body,
+      activeIssue.xpath,
+      effectiveFocusXpath,
+      messageArgs[4],
+    )
     if (declaration) {
       const colors = Contrast.extractGradientColors(declaration.styleValue)
       const parsedColors = colors.map((color) => ({
@@ -40,8 +67,9 @@ export default function ContrastForm({
       if (parsedColors.length) return parsedColors
     }
 
-    const computedStyle = Contrast.getComputedStyle(activeContentItem?.body, activeIssue.xpath)
-    const computedColor = computedStyle?.backgroundColor
+    const targetXpath = effectiveFocusXpath || activeIssue.xpath
+    const computedStyle = Contrast.getComputedStyle(activeContentItem?.body, targetXpath)
+    const computedColor = messageArgs[4] || computedStyle?.backgroundColor
     const hasComputedColor = computedColor && !/^rgba?\(0\s*,\s*0\s*,\s*0(?:\s*,\s*0)?\)$/i.test(computedColor)
     return [{
       originalString: '',
@@ -53,17 +81,14 @@ export default function ContrastForm({
   }
 
   // Get initial text color
-  const getTextColor = (elementStyle) => {
-    const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
-
-    let textColor = elementStyle.color;
-
-    if (textColor) {
-      return Contrast.toHSL(textColor);
+  const getTextColor = (elementStyle, metadata, hasFocusedText) => {
+    if (hasFocusedText && elementStyle?.color) {
+      return Contrast.toHSL(elementStyle.color)
     }
-    else if (metadata?.messageArgs && metadata.messageArgs.length > 3) {
+    if (metadata?.messageArgs && metadata.messageArgs.length > 3 && metadata.messageArgs[3]) {
       return Contrast.toHSL(metadata.messageArgs[3])
     }
+    if (elementStyle?.color) return Contrast.toHSL(elementStyle.color)
     return Contrast.toHSL(instanceInfo.textColor);
   }
 
@@ -76,8 +101,8 @@ export default function ContrastForm({
   const [minRatio, setMinRatio] = useState(4.5)
   const [minAAARatio, setMinAAARatio] = useState(7)
   const [ratioIsValid, setRatioIsValid] = useState(false)
-  const [ratioIsAAA, setRatioIsAAA] = useState(false)
   const [showAllColors, setShowAllColors] = useState(false)
+  const [contrastTarget, setContrastTarget] = useState('AA')
   const [autoAdjustFeedbackKey, setAutoAdjustFeedbackKey] = useState(null)
   const lastProcessedPreview = useRef('')
   const sameColor = (first, second) => first && second && ['h', 's', 'l'].every((key) =>
@@ -100,18 +125,23 @@ export default function ContrastForm({
     const backgroundOwnerIsTarget = backgroundOwnerXpath === activeIssue.xpath
     target.replaceWith(element)
 
-    // Set text color on the identified text node within the issue element.
-    let textEl = element;
+    // Prefer scanner focus metadata; otherwise locate the matching styled text descendant.
+    let textEl = null
     try {
       const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
       if (metadata.textColorXpath && Html.findElementWithXpath) {
-        const found = Html.findElementWithXpath(element, metadata.textColorXpath);
-        if (found) textEl = found;
+        const found = Html.findElementWithXpath(element, metadata.textColorXpath)
+        if (found) textEl = found
+      }
+      if (!textEl) textEl = Contrast.findTextColorElement(element, metadata.messageArgs?.[3])
+      if (!textEl && metadata.focusXpath) {
+        const focused = Html.findElementWithXpath(doc, metadata.focusXpath)
+        if (focused && element.contains(focused)) textEl = focused
       }
     } catch {
       // Fall back to the root element if issue metadata cannot be parsed.
     }
-    textEl.style.color = Contrast.hslToHex(textColor);
+    ;(textEl || element).style.color = Contrast.hslToHex(textColor)
 
     const backgroundOwner = backgroundOwnerIsTarget
       ? element
@@ -161,11 +191,18 @@ export default function ContrastForm({
     }
     setContrastRatio(ratio)
     const validRatio = ratio >= minRatio
-    const aaaRatio = ratio >= minAAARatio
     
     setRatioIsValid(validRatio)
-    setRatioIsAAA(aaaRatio)
     return validRatio
+  }
+
+  const getContrastTargetMessage = (ratio) => {
+    if (ratio < minRatio) return t('form.contrast.feedback.minimum', { required: minRatio })
+    if (contrastTarget === 'AAA' && ratio < minAAARatio) {
+      return t('form.contrast.feedback.aaa_target_not_met')
+    }
+    if (ratio >= minAAARatio) return t('form.contrast.feedback.excellent')
+    return t('form.contrast.feedback.aa_target_met')
   }
 
   const checkFormErrors = () => {
@@ -197,23 +234,37 @@ export default function ContrastForm({
     }
 
     let fullPageHtml = activeContentItem.body || ''
-
-    let backgroundElementStyle = Contrast.getComputedStyle(fullPageHtml, activeIssue.xpath)
-    let foregroundElementStyle = backgroundElementStyle
-
+    let metadata = {}
     if (activeIssue.metadata) {
       try {
-        const metadata = JSON.parse(activeIssue.metadata);
-        if (metadata.textColorXpath) {
-          const fullTextXpath = Contrast.joinXpath(activeIssue.xpath, metadata.textColorXpath)
-          foregroundElementStyle = Contrast.getComputedStyle(fullPageHtml, fullTextXpath)
-        }
+        metadata = JSON.parse(activeIssue.metadata)
       } catch {
         // Use scanner-provided foreground data if metadata is unavailable.
       }
     }
 
-    const isLarge = isLargeText(foregroundElementStyle)
+    const relativeTextXpath = metadata.textColorXpath
+      ? Contrast.joinXpath(activeIssue.xpath, metadata.textColorXpath)
+      : ''
+    const contentDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    const issueElement = Html.findElementWithXpath(contentDoc, activeIssue.xpath)
+    const scannerTextElement = issueElement
+      ? Contrast.findTextColorElement(issueElement, metadata.messageArgs?.[3])
+      : null
+    const scannerTextXpath = scannerTextElement ? Html.findXpathFromElement(scannerTextElement) : ''
+    const metadataFocusXpath = metadata.focusXpath && metadata.focusXpath !== activeIssue.xpath
+      ? metadata.focusXpath
+      : ''
+    const focusXpath = relativeTextXpath || metadataFocusXpath || scannerTextXpath || metadata.focusXpath
+    const foregroundElementStyle = Contrast.getComputedStyle(fullPageHtml, focusXpath || activeIssue.xpath)
+    const hasFocusedText = Boolean(focusXpath && focusXpath !== activeIssue.xpath)
+
+    const sizeFromScanner = Number(metadata.messageArgs?.[1])
+    const weightFromScanner = metadata.messageArgs?.[2]
+    const textStyleForThreshold = Number.isFinite(sizeFromScanner) && weightFromScanner !== undefined
+      ? { fontSize: `${sizeFromScanner}px`, fontWeight: weightFromScanner }
+      : foregroundElementStyle
+    const isLarge = isLargeText(textStyleForThreshold)
     setMinRatio(isLarge ? 3 : 4.5)
     setMinAAARatio(isLarge ? 4.5 : 7)
 
@@ -221,11 +272,12 @@ export default function ContrastForm({
     setOriginalBgColors(tempBackgroundColors)
     setCurrentBgColors(tempBackgroundColors.map(bg => bg.hsl))
 
-    let tempTextColor = getTextColor(foregroundElementStyle)
+    let tempTextColor = getTextColor(foregroundElementStyle, metadata, hasFocusedText)
     setTextColor(tempTextColor)
     setOriginalTextColor(tempTextColor ? { ...tempTextColor } : null)
     
     setShowAllColors(false)
+    setContrastTarget('AA')
     setAutoAdjustFeedbackKey(null)
     lastProcessedPreview.current = ''
     setActiveOption(FORM_OPTIONS.SET_COLOR)
@@ -252,7 +304,7 @@ export default function ContrastForm({
   }, [textColor, currentBgColors])
 
   const handleAutoAdjust = (target) => {
-    const targetRatio = contrastRatio >= minRatio ? minAAARatio : minRatio
+    const targetRatio = Contrast.targetRatioForLevel(contrastTarget, minRatio, minAAARatio)
     setAutoAdjustFeedbackKey(null)
     let didAdjust
 
@@ -371,9 +423,7 @@ export default function ContrastForm({
                   aria-label={
                     t('form.contrast.label.background.show_color_picker') +
                     ' ' +
-                    (isValid
-                      ? t('form.contrast.feedback.valid')
-                      : t('form.contrast.feedback.invalid', { current: ratio ? ratio.toFixed(2) : 'N/A' }))
+                    getContrastTargetMessage(ratio)
                   }
                   title={t('form.contrast.label.background.show_color_picker')}
                   disabled={isDisabled}
@@ -424,8 +474,56 @@ export default function ContrastForm({
         </div>
       )}
 
-      <div className="flex-column align-items-end gap-1 mt-2">
-        <div className="flex-row justify-content-end gap-2">
+      <section className="contrast-adjustment">
+        <fieldset className="contrast-target-level">
+          <legend>
+            {t('form.contrast.label.target_level')}
+            <span className="contrast-target-help">
+              <button
+                type="button"
+                className="contrast-target-help-button"
+                aria-label={t('form.contrast.label.target_help')}
+                aria-describedby="contrast-target-tooltip"
+              >
+                <InfoIcon className="icon-sm" aria-hidden="true" />
+              </button>
+              <span id="contrast-target-tooltip" className="contrast-target-tooltip" role="tooltip">
+                {t('form.contrast.tooltip.target', { aa: minRatio, aaa: minAAARatio })}
+              </span>
+            </span>
+          </legend>
+          <div className="contrast-target-options">
+            <label className={contrastTarget === 'AA' ? 'selected' : ''}>
+              <input
+                type="radio"
+                name="contrastTargetLevel"
+                value="AA"
+                checked={contrastTarget === 'AA'}
+                onChange={() => {
+                  setContrastTarget('AA')
+                  setAutoAdjustFeedbackKey(null)
+                }}
+                disabled={isDisabled}
+              />
+              <span>{t('form.contrast.label.target_aa')}</span>
+            </label>
+            <label className={contrastTarget === 'AAA' ? 'selected' : ''}>
+              <input
+                type="radio"
+                name="contrastTargetLevel"
+                value="AAA"
+                checked={contrastTarget === 'AAA'}
+                onChange={() => {
+                  setContrastTarget('AAA')
+                  setAutoAdjustFeedbackKey(null)
+                }}
+                disabled={isDisabled}
+              />
+              <span>{t('form.contrast.label.target_aaa')}</span>
+            </label>
+          </div>
+        </fieldset>
+        <div className="contrast-adjustment-actions">
           <button
             className="btn-small btn-icon-left btn-secondary"
             disabled={isDisabled}
@@ -444,7 +542,7 @@ export default function ContrastForm({
           </button>
         </div>
         <button
-          className="btn-small btn-secondary"
+          className="btn-small btn-link contrast-undo-button"
           disabled={isDisabled || !hasColorChanges}
           onClick={undoChanges}
         >
@@ -455,7 +553,7 @@ export default function ContrastForm({
             {t(autoAdjustFeedbackKey)}
           </div>
         )}
-      </div>
+      </section>
 
       <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>
           
@@ -471,16 +569,7 @@ export default function ContrastForm({
         <div className="ratio-value">{contrastRatio?.toFixed(2) + (currentBgColors.length > 1 ? '*' : '')}</div>
         
         <div className={`ratio-status ${ratioIsValid ? 'valid' : 'invalid'}`}>
-          {ratioIsValid
-            ? ( ratioIsAAA ? t('form.contrast.feedback.excellent') : t('form.contrast.feedback.valid') )
-            : (
-                <span>
-                  {t('form.contrast.feedback.minimum', {
-                    required: minRatio
-                  })}
-                </span>
-              )
-          }
+          {getContrastTargetMessage(contrastRatio || 0)}
         </div>
 
         {currentBgColors.length > 1 && (

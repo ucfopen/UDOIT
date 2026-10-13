@@ -65,6 +65,10 @@ export function findColorForContrast(color, otherColors, targetRatio) {
   )[0]
 }
 
+export function targetRatioForLevel(level, aaRatio, aaaRatio) {
+  return level === 'AAA' ? aaaRatio : aaRatio
+}
+
 const GRADIENT_KEYWORDS = new Set([
   'linear', 'radial', 'conic', 'repeating-linear', 'repeating-radial', 'repeating-conic', 'gradient',
   'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center', 'from', 'in',
@@ -162,60 +166,132 @@ export function replaceColorStops(cssValue, sourceColors, replacementColors) {
   return result
 }
 
-export function findBackgroundDeclaration(html, targetXpath) {
-  if (!html || !targetXpath) return null
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  let current = findElementWithXpath(doc, targetXpath)
-  while (current && current !== doc.body) {
-    const style = current.style
-    const backgroundImage = style?.backgroundImage || ''
-    const background = style?.background || ''
-    const backgroundColor = style?.backgroundColor || ''
-    let propertyName = ''
-    let styleValue = ''
-    if (/(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(backgroundImage)) {
-      propertyName = 'background-image'
-      styleValue = backgroundImage
-    } else if (/(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(background)) {
-      propertyName = 'background'
-      styleValue = background
-    } else if (backgroundColor && !/^rgba?\(0\s*,\s*0\s*,\s*0(?:\s*,\s*0)?\)$/i.test(backgroundColor)) {
-      propertyName = 'background-color'
-      styleValue = backgroundColor
-    } else if (background) {
-      propertyName = 'background'
-      styleValue = background
-    }
+const isTransparentColor = (color) =>
+  !color || color === 'transparent' || /^rgba?\(0\s*,\s*0\s*,\s*0(?:\s*,\s*0)?\)$/i.test(color)
 
-    if (styleValue) {
-      return {
-        styleValue,
-        propertyName,
-        ownerXpath: findXpathFromElement(current),
-      }
-    }
-
-    const ownerXpath = findXpathFromElement(current)
-    const computedStyle = getComputedStyle(html, ownerXpath)
-    const computedBackgroundImage = computedStyle?.backgroundImage || ''
-    if (/(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(computedBackgroundImage)) {
-      return {
-        styleValue: computedBackgroundImage,
-        propertyName: 'background-image',
-        ownerXpath,
-      }
-    }
-    const computedBackgroundColor = computedStyle?.backgroundColor || ''
-    if (computedBackgroundColor && !/^rgba?\(0\s*,\s*0\s*,\s*0(?:\s*,\s*0)?\)$/i.test(computedBackgroundColor)) {
-      return {
-        styleValue: computedBackgroundColor,
-        propertyName: 'background-color',
-        ownerXpath,
-      }
-    }
-    current = current.parentElement
+function getInlineBackgroundDeclaration(element) {
+  const style = element?.style
+  if (!style) return null
+  const backgroundImage = style.backgroundImage || ''
+  const background = style.background || ''
+  const backgroundColor = style.backgroundColor || ''
+  if (/(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(backgroundImage)) {
+    return { styleValue: backgroundImage, propertyName: 'background-image' }
+  }
+  if (/(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(background)) {
+    return { styleValue: background, propertyName: 'background' }
+  }
+  if (!isTransparentColor(backgroundColor)) {
+    return { styleValue: backgroundColor, propertyName: 'background-color' }
+  }
+  if (background && !isTransparentColor(background)) {
+    return { styleValue: background, propertyName: 'background' }
   }
   return null
+}
+
+function getComputedBackgroundDeclaration(html, element) {
+  const ownerXpath = findXpathFromElement(element)
+  const style = getComputedStyle(html, ownerXpath)
+  const backgroundImage = style?.backgroundImage || ''
+  if (/(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(backgroundImage)) {
+    return { styleValue: backgroundImage, propertyName: 'background-image', ownerXpath }
+  }
+  const backgroundColor = style?.backgroundColor || ''
+  if (!isTransparentColor(backgroundColor)) {
+    return { styleValue: backgroundColor, propertyName: 'background-color', ownerXpath }
+  }
+  return null
+}
+
+function declarationMatchesColor(declaration, expectedColor) {
+  if (!expectedColor) return false
+  const expectedHex = hslToHex(toHSL(expectedColor))?.toLowerCase()
+  if (!expectedHex) return false
+  return extractGradientColors(declaration.styleValue).some((color) =>
+    hslToHex(toHSL(color))?.toLowerCase() === expectedHex
+  )
+}
+
+export function findBackgroundDeclaration(html, targetXpath, focusXpath = '', expectedColor = '') {
+  if (!html || !targetXpath) return null
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const target = findElementWithXpath(doc, targetXpath)
+  if (!target) return null
+
+  const focus = focusXpath ? findElementWithXpath(doc, focusXpath) : null
+  const findExplicitOnAncestorChain = (start, stopAt = doc.body) => {
+    let current = start
+    while (current && current !== doc.body) {
+      const declaration = getInlineBackgroundDeclaration(current)
+      if (declaration) {
+        return { ...declaration, ownerXpath: findXpathFromElement(current) }
+      }
+      if (current === stopAt) break
+      current = current.parentElement
+    }
+    return null
+  }
+
+  // Prefer a scanner-identified descendant focus and its local/ancestor background.
+  if (focus && target.contains(focus) && focus !== target) {
+    const declaration = findExplicitOnAncestorChain(focus, target)
+    if (declaration) return declaration
+  }
+
+  // Issues may be attached to a wrapper (such as an li) while the colored text and
+  // background are on a child span. Prefer descendants matching the scanner-reported
+  // background, then the deepest styled text element.
+  const descendants = Array.from(target.querySelectorAll('*'))
+    .filter((element) => (element.textContent || '').trim() !== '')
+    .map((element) => {
+      const declaration = getInlineBackgroundDeclaration(element)
+      return declaration ? { ...declaration, ownerXpath: findXpathFromElement(element), element } : null
+    })
+    .filter(Boolean)
+  if (descendants.length) {
+    const matching = descendants.filter((declaration) => declarationMatchesColor(declaration, expectedColor))
+    const candidates = matching.length ? matching : descendants
+    return candidates[candidates.length - 1]
+  }
+
+  const targetDeclaration = getInlineBackgroundDeclaration(target)
+  if (targetDeclaration) {
+    return { ...targetDeclaration, ownerXpath: findXpathFromElement(target) }
+  }
+
+  // If no styled descendant supplies the background, use the issue's containing scope.
+  const ancestorDeclaration = findExplicitOnAncestorChain(target.parentElement)
+  if (ancestorDeclaration) return ancestorDeclaration
+
+  // Last resort: find computed backgrounds, checking local text descendants before
+  // falling back to the issue's inherited page background.
+  const computedCandidates = [
+    ...(focus ? [focus] : []),
+    ...Array.from(target.querySelectorAll('*')).filter((element) => (element.textContent || '').trim()),
+    target,
+  ].map((element) => getComputedBackgroundDeclaration(html, element)).filter(Boolean)
+  if (computedCandidates.length) {
+    const matching = computedCandidates.filter((declaration) => declarationMatchesColor(declaration, expectedColor))
+    return (matching.length ? matching : computedCandidates)[0]
+  }
+
+  return null
+}
+
+export function findTextColorElement(root, expectedColor = '') {
+  if (!root) return null
+  const elements = [root, ...Array.from(root.querySelectorAll('*'))]
+    .filter((element) => (element.textContent || '').trim() !== '')
+  const coloredElements = elements.filter((element) => element.style?.color)
+  if (expectedColor) {
+    const expectedHex = hslToHex(toHSL(expectedColor))?.toLowerCase()
+    const matching = coloredElements.filter((element) =>
+      hslToHex(toHSL(element.style.color))?.toLowerCase() === expectedHex
+    )
+    if (matching.length) return matching[matching.length - 1]
+  }
+  return coloredElements.length ? coloredElements[coloredElements.length - 1] : null
 }
 
 export function joinXpath(baseXpath, relativeXpath) {
