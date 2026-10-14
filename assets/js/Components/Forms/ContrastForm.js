@@ -7,6 +7,7 @@ import LightIcon from '../Icons/LightIcon'
 import MagicIcon from '../Icons/MagicIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import InfoPopover from '../Widgets/InfoPopover'
 import './ContrastForm.css'
 
 export default function ContrastForm({
@@ -16,11 +17,8 @@ export default function ContrastForm({
   activeContentItem,
   isDisabled,
   handleActiveIssue,
-  handleIssueSave,
-  markAsReviewed,
   activeOption,
   setActiveOption,
-  formErrors,
   setFormErrors
 }) {
 
@@ -28,210 +26,158 @@ export default function ContrastForm({
     SET_COLOR: UFIXIT_OPTIONS.EDIT_ATTRIBUTE
   }
 
-  const GRADIENT_KEYWORDS = new Set([
-    'linear', 'radial', 'repeating-linear', 'repeating-radial', 'gradient',
-    'to', 'top', 'bottom', 'left', 'right', 'circle', 'ellipse', 'at', 'center'
-  ]);
-
-  // Extract color strings from a CSS background value, handling nested color functions
-  const extractColors = (str) => {
-    const COLOR_FUNCTIONS = new Set([
-      'rgb', 'rgba', 'hsl', 'hsla', 'lab', 'lch', 'oklab', 'oklch',
-      'hwb', 'color', 'color-mix', 'color-contrast', 'device-cmyk'
-    ])
-
-    // Some color function can have colors nested inside, like: lch(from hsl(180 100% 50%) calc(l - 10) c h)
-    // Once a color function is detected, we need to capture the entire block (including nested parentheses) as a single token.
-    // This returns the full block string (including '(' and ')') and the index after the closing ')'.
-    const extractBalancedBlock = (s, openIdx) => {
-      let depth = 0
-      for (let i = openIdx; i < s.length; i++) {
-        if (s[i] === '(') depth++
-        else if (s[i] === ')') {
-          depth--
-          if (depth === 0) return { block: s.slice(openIdx, i + 1), endIdx: i + 1 }
-        }
-      }
-      return null
-    }
-
-    const results = []
-    let i = 0
-
-    while (i < str.length) {
-      // Match hex color: #RGB, #RRGGBB, #RGBA, #RRGGBBAA
-      if (str[i] === '#') {
-        const hexMatch = str.slice(i).match(/^#[0-9a-fA-F]{3,8}\b/)
-        if (hexMatch) {
-          results.push(hexMatch[0])
-          i += hexMatch[0].length
-          continue
-        }
-      }
-
-      // Match a word (function name, named color, or gradient keyword)
-      const wordMatch = str.slice(i).match(/^[a-zA-Z][\w-]*/)
-      if (wordMatch) {
-        const word = wordMatch[0]
-        const afterWord = i + word.length
-        const wordLower = word.toLowerCase()
-
-        if (str[afterWord] === '(') {
-          if (COLOR_FUNCTIONS.has(wordLower)) {
-            // Capture the entire color function as a single token (handles nesting)
-            const balanced = extractBalancedBlock(str, afterWord)
-            if (balanced) {
-              results.push(word + balanced.block)
-              i = balanced.endIdx
-              continue
-            }
-          }
-          // Non-color function (e.g. linear-gradient): skip the name and opening '(',
-          // then continue scanning inside — the closing ')' is just skipped as unknown
-          i = afterWord + 1
-          continue
-        }
-
-        // Bare word not followed by '(' — emit if not a gradient keyword
-        if (!GRADIENT_KEYWORDS.has(wordLower)) {
-          results.push(word)
-        }
-        i = afterWord
-        continue
-      }
-
-      i++
-    }
-
-    return results
-  }
-
   // Get all background colors (including gradients)
   const getBackgroundColors = () => {
-    const html = Html.getIssueHtml(activeIssue)
-    let element = Html.toElement(html)
-    if (!element) return []
-  
-    let tempBackgroundColors = []
-    let current = element
-    let rawStyle = ''
-    let bgMatch = null
-  
-    // Traverse up the DOM to find the first background(-color|-image)
-    while (current) {
-      rawStyle = current.getAttribute && current.getAttribute('style') || ''
-      bgMatch = rawStyle.match(/background(-color|-image)?:\s*([^;]+);?/i)
-      if (bgMatch) break
-      current = current.parentElement
+    let metadata = {}
+    try {
+      metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
+    } catch {
+      // Continue with issue-level foreground/background data if metadata is invalid.
     }
-  
-    if (bgMatch) {
-      const styleValue = bgMatch[2]
-      const colors = extractColors(styleValue)
-      colors.forEach(color => {
-        const hsl = Contrast.toHSL(color)
-        if (hsl) {
-          tempBackgroundColors.push({
-            originalString: styleValue,
-            originalColorString: color,
-            hsl
-          })
-        }
-      })
+    const relativeTextXpath = metadata.textColorXpath
+      ? Contrast.joinXpath(activeIssue.xpath, metadata.textColorXpath)
+      : ''
+    const messageArgs = metadata.messageArgs || []
+    const contentDoc = new DOMParser().parseFromString(activeContentItem?.body || '', 'text/html')
+    const issueElement = Html.findElementWithXpath(contentDoc, activeIssue.xpath)
+    const textColorElement = issueElement
+      ? Contrast.findTextColorElement(issueElement, messageArgs[3])
+      : null
+    const textColorXpath = textColorElement ? Html.findXpathFromElement(textColorElement) : ''
+    const focusXpath = relativeTextXpath
+      || (metadata.focusXpath && metadata.focusXpath !== activeIssue.xpath ? metadata.focusXpath : '')
+      || textColorXpath
+      || metadata.focusXpath
+    const effectiveFocusXpath = focusXpath || activeIssue.xpath
+    const declaration = Contrast.findBackgroundDeclaration(
+      activeContentItem?.body,
+      activeIssue.xpath,
+      effectiveFocusXpath,
+      messageArgs[4],
+    )
+    if (declaration) {
+      const colors = Contrast.extractGradientColors(declaration.styleValue)
+      const parsedColors = colors.map((color) => ({
+        originalString: declaration.styleValue,
+        originalColorString: color,
+        propertyName: declaration.propertyName,
+        ownerXpath: declaration.ownerXpath,
+        hsl: Contrast.toHSL(color),
+      })).filter((color) => color.hsl)
+      if (parsedColors.length) return parsedColors
     }
-    if (tempBackgroundColors.length === 0) {
-      tempBackgroundColors.push({
-        originalString: '',
-        originalColorString: instanceInfo.backgroundColor,
-        hsl: Contrast.toHSL(instanceInfo.backgroundColor)
-      })
-    }
-    return tempBackgroundColors
+
+    const targetXpath = effectiveFocusXpath || activeIssue.xpath
+    const computedStyle = Contrast.getComputedStyle(activeContentItem?.body, targetXpath)
+    const computedColor = messageArgs[4] || computedStyle?.backgroundColor
+    const hasComputedColor = computedColor && !/^rgba?\(0\s*,\s*0\s*,\s*0(?:\s*,\s*0)?\)$/i.test(computedColor)
+    return [{
+      originalString: '',
+      originalColorString: hasComputedColor ? computedColor : instanceInfo.backgroundColor,
+      propertyName: 'background-color',
+      ownerXpath: activeIssue.xpath,
+      hsl: Contrast.toHSL(hasComputedColor ? computedColor : instanceInfo.backgroundColor),
+    }]
   }
 
   // Get initial text color
-  const getTextColor = (elementStyle) => {
-    const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
-
-    let textColor = elementStyle.color;
-
-    if (textColor) {
-      return Contrast.toHSL(textColor);
+  const getTextColor = (elementStyle, metadata, hasFocusedText) => {
+    if (hasFocusedText && elementStyle?.color) {
+      return Contrast.toHSL(elementStyle.color)
     }
-    else if (metadata?.messageArgs && metadata.messageArgs.length > 3) {
+    if (metadata?.messageArgs && metadata.messageArgs.length > 3 && metadata.messageArgs[3]) {
       return Contrast.toHSL(metadata.messageArgs[3])
     }
+    if (elementStyle?.color) return Contrast.toHSL(elementStyle.color)
     return Contrast.toHSL(instanceInfo.textColor);
   }
 
-  // Heading tags for contrast threshold
-  const headingTags = ["H1", "H2", "H3", "H4", "H5", "H6"]
-
   // State
   const [originalBgColors, setOriginalBgColors] = useState([])
+  const [originalTextColor, setOriginalTextColor] = useState(null)
   const [currentBgColors, setCurrentBgColors] = useState([])
   const [textColor, setTextColor] = useState(null)
   const [contrastRatio, setContrastRatio] = useState(null)
   const [minRatio, setMinRatio] = useState(4.5)
   const [minAAARatio, setMinAAARatio] = useState(7)
   const [ratioIsValid, setRatioIsValid] = useState(false)
-  const [ratioIsAAA, setRatioIsAAA] = useState(false)
   const [showAllColors, setShowAllColors] = useState(false)
+  const [contrastTarget, setContrastTarget] = useState('AA')
+  const [autoAdjustFeedbackKey, setAutoAdjustFeedbackKey] = useState(null)
+  const lastProcessedPreview = useRef('')
+  const sameColor = (first, second) => first && second && ['h', 's', 'l'].every((key) =>
+    Object.is(first[key], second[key]) || (Number.isNaN(first[key]) && Number.isNaN(second[key]))
+  )
+  const hasColorChanges = Boolean(originalTextColor && textColor && (
+    !sameColor(textColor, originalTextColor)
+    || currentBgColors.length !== originalBgColors.length
+    || currentBgColors.some((color, index) => !sameColor(color, originalBgColors[index]?.hsl))
+  ))
 
-  // Generate updated HTML with new colors
-  const processHtml = (html, bgColors) => {
-    let element = Html.toElement(html);
-    if (bgColors.length > 1) {
-      let gradientHtml = originalBgColors[0].originalString;
-      // There is an issue where a simple string replace can overwrite things.
-      // For example, I got: linear-gradient(to right, #404040, #004d4d, #4040400e5, #660066.....
-      // The third color is an unholy mashup of two replacements.
+  // Build the full-page preview so background colors on containing ancestors are edited too.
+  const processHtml = () => {
+    const doc = new DOMParser().parseFromString(activeContentItem?.body || '', 'text/html')
+    const target = Html.findElementWithXpath(doc, activeIssue.xpath)
+    const element = Html.toElement(Html.getIssueHtml(activeIssue))
+    if (!target || !element || element.nodeType !== Node.ELEMENT_NODE) return null
 
-      // Solution: Flag each original color with an index, then replace based on that index.
-      let indices = []
-      let minimumIndex = 0
-      originalBgColors.forEach((bg, idx) => {
-        const stringLocation = gradientHtml.indexOf(bg.originalColorString, minimumIndex)
-        if(stringLocation !== -1) {
-          minimumIndex = stringLocation + bg.originalColorString.length
-        }
-        indices.push(stringLocation)
-      })
+    const backgroundOwnerXpath = originalBgColors[0]?.ownerXpath
+    const backgroundOwnerIsTarget = backgroundOwnerXpath === activeIssue.xpath
+    target.replaceWith(element)
 
-      // Now replace each color IN REVERSE ORDER (to avoid messing up indices)
-      for (let i = originalBgColors.length - 1; i >= 0; i--) {
-        gradientHtml = gradientHtml.substring(0, indices[i]) + Contrast.hslToHex(bgColors[i]) + gradientHtml.substring(indices[i] + originalBgColors[i].originalColorString.length);
-        // gradientHtml = gradientHtml.replace(bg.originalColorString, Contrast.hslToHex(bgColors[idx]));
-      }
-      element.style.background = gradientHtml;
-      element.style.backgroundColor = '';
-    } else if (bgColors.length === 1) {
-      element.style.backgroundColor = Contrast.hslToHex(bgColors[0]);
-    } else {
-      element.style.background = '';
-    }
-
-    // Set text color on the correct element
-    let textEl = element;
+    // Prefer scanner focus metadata; otherwise locate the matching styled text descendant.
+    let textEl = null
     try {
       const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
       if (metadata.textColorXpath && Html.findElementWithXpath) {
-        const found = Html.findElementWithXpath(element, metadata.textColorXpath);
-        if (found) textEl = found;
+        const found = Html.findElementWithXpath(element, metadata.textColorXpath)
+        if (found) textEl = found
       }
-    } catch (e) {}
-    textEl.style.color = Contrast.hslToHex(textColor);
+      if (!textEl) textEl = Contrast.findTextColorElement(element, metadata.messageArgs?.[3])
+      if (!textEl && metadata.focusXpath) {
+        const focused = Html.findElementWithXpath(doc, metadata.focusXpath)
+        if (focused && element.contains(focused)) textEl = focused
+      }
+    } catch {
+      // Fall back to the root element if issue metadata cannot be parsed.
+    }
+    ;(textEl || element).style.color = Contrast.hslToHex(textColor)
 
-    return Html.toString(element)
+    const backgroundOwner = backgroundOwnerIsTarget
+      ? element
+      : Html.findElementWithXpath(doc, backgroundOwnerXpath)
+    if (backgroundOwner && currentBgColors.length) {
+      const backgroundInfo = originalBgColors[0]
+      const replacementColors = currentBgColors.map((color) => Contrast.hslToHex(color))
+      const isGradient = /(?:repeating-)?(?:linear|radial|conic)-gradient\(/i.test(backgroundInfo.originalString)
+      if (isGradient) {
+        const revisedGradient = Contrast.replaceColorStops(
+          backgroundInfo.originalString,
+          originalBgColors.map((color) => color.originalColorString),
+          replacementColors,
+        )
+        backgroundOwner.style.setProperty(backgroundInfo.propertyName, revisedGradient)
+      } else {
+        backgroundOwner.style.setProperty(backgroundInfo.propertyName || 'background-color', replacementColors[0])
+      }
+    }
+
+    return { issueHtml: Html.toString(element), fullPageHtml: doc.body.innerHTML }
   }
 
   // Update preview and contrast ratio
   const updatePreview = () => {
-    const html = Html.getIssueHtml(activeIssue)
-    const newHtml = processHtml(html, currentBgColors)
-    if (activeIssue.newHtml !== newHtml) {
-      activeIssue.newHtml = newHtml
-      handleActiveIssue(activeIssue)
+    if (!activeContentItem?.body || !activeIssue || !textColor || !currentBgColors.length) return
+    const updated = processHtml()
+    if (!updated) return
+    const signature = `${updated.issueHtml}\u0000${updated.fullPageHtml}`
+    if (signature !== lastProcessedPreview.current) {
+      lastProcessedPreview.current = signature
+      activeIssue.newHtml = updated.issueHtml
+      handleActiveIssue(activeIssue, activeOption, {
+        ...activeContentItem,
+        body: updated.fullPageHtml,
+      })
     }
   }
 
@@ -245,11 +191,18 @@ export default function ContrastForm({
     }
     setContrastRatio(ratio)
     const validRatio = ratio >= minRatio
-    const aaaRatio = ratio >= minAAARatio
     
     setRatioIsValid(validRatio)
-    setRatioIsAAA(aaaRatio)
     return validRatio
+  }
+
+  const getContrastTargetMessage = (ratio) => {
+    if (ratio < minRatio) return t('form.contrast.feedback.minimum', { required: minRatio })
+    if (contrastTarget === 'AAA' && ratio < minAAARatio) {
+      return t('form.contrast.feedback.aaa_target_not_met')
+    }
+    if (ratio >= minAAARatio) return t('form.contrast.feedback.excellent')
+    return t('form.contrast.feedback.aa_target_met')
   }
 
   const checkFormErrors = () => {
@@ -268,7 +221,10 @@ export default function ContrastForm({
   const updateText = (event) => {
     const value = event.target.value
     const hsl = Contrast.toHSL(value)
-    if (hsl) setTextColor(hsl)
+    if (hsl) {
+      setAutoAdjustFeedbackKey(null)
+      setTextColor(hsl)
+    }
   }
 
   // On issue change, extract from original HTML
@@ -278,21 +234,37 @@ export default function ContrastForm({
     }
 
     let fullPageHtml = activeContentItem.body || ''
-
-    let backgroundElementStyle = Contrast.getComputedStyle(fullPageHtml, activeIssue.xpath)
-    let foregroundElementStyle = backgroundElementStyle
-
+    let metadata = {}
     if (activeIssue.metadata) {
       try {
-        const metadata = JSON.parse(activeIssue.metadata);
-        if (metadata.textColorXpath) {
-          let fullTextXpath = activeIssue.xpath + metadata.textColorXpath
-          foregroundElementStyle = Contrast.getComputedStyle(fullPageHtml, fullTextXpath)
-        }
-      } catch (e) {}
+        metadata = JSON.parse(activeIssue.metadata)
+      } catch {
+        // Use scanner-provided foreground data if metadata is unavailable.
+      }
     }
 
-    const isLarge = isLargeText(foregroundElementStyle)
+    const relativeTextXpath = metadata.textColorXpath
+      ? Contrast.joinXpath(activeIssue.xpath, metadata.textColorXpath)
+      : ''
+    const contentDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    const issueElement = Html.findElementWithXpath(contentDoc, activeIssue.xpath)
+    const scannerTextElement = issueElement
+      ? Contrast.findTextColorElement(issueElement, metadata.messageArgs?.[3])
+      : null
+    const scannerTextXpath = scannerTextElement ? Html.findXpathFromElement(scannerTextElement) : ''
+    const metadataFocusXpath = metadata.focusXpath && metadata.focusXpath !== activeIssue.xpath
+      ? metadata.focusXpath
+      : ''
+    const focusXpath = relativeTextXpath || metadataFocusXpath || scannerTextXpath || metadata.focusXpath
+    const foregroundElementStyle = Contrast.getComputedStyle(fullPageHtml, focusXpath || activeIssue.xpath)
+    const hasFocusedText = Boolean(focusXpath && focusXpath !== activeIssue.xpath)
+
+    const sizeFromScanner = Number(metadata.messageArgs?.[1])
+    const weightFromScanner = metadata.messageArgs?.[2]
+    const textStyleForThreshold = Number.isFinite(sizeFromScanner) && weightFromScanner !== undefined
+      ? { fontSize: `${sizeFromScanner}px`, fontWeight: weightFromScanner }
+      : foregroundElementStyle
+    const isLarge = isLargeText(textStyleForThreshold)
     setMinRatio(isLarge ? 3 : 4.5)
     setMinAAARatio(isLarge ? 4.5 : 7)
 
@@ -300,21 +272,27 @@ export default function ContrastForm({
     setOriginalBgColors(tempBackgroundColors)
     setCurrentBgColors(tempBackgroundColors.map(bg => bg.hsl))
 
-    let tempTextColor = getTextColor(foregroundElementStyle)
+    let tempTextColor = getTextColor(foregroundElementStyle, metadata, hasFocusedText)
     setTextColor(tempTextColor)
+    setOriginalTextColor(tempTextColor ? { ...tempTextColor } : null)
     
     setShowAllColors(false)
+    setContrastTarget('AA')
+    setAutoAdjustFeedbackKey(null)
+    lastProcessedPreview.current = ''
     setActiveOption(FORM_OPTIONS.SET_COLOR)
   }, [activeIssue])
 
   const updateBackgroundColor = (idx, value) => {
     const hsl = Contrast.toHSL(value)
+    setAutoAdjustFeedbackKey(null)
     setCurrentBgColors(colors =>
       colors.map((c, i) => i === idx ? hsl : c)
     )
   }
 
   const handleBackgroundChange = (idx, value) => {
+    setAutoAdjustFeedbackKey(null)
     setCurrentBgColors(colors =>
       colors.map((c, i) => i === idx ? Contrast.setLuminance(c, value) : c)
     )
@@ -325,53 +303,48 @@ export default function ContrastForm({
     updatePreview()
   }, [textColor, currentBgColors])
 
-  const handleAutoAdjustAll = () => {
-    let newBgColors = [...currentBgColors]
-    let failed = false
-    let adjustRatio = minRatio
+  const handleAutoAdjust = (target) => {
+    const targetRatio = Contrast.targetRatioForLevel(contrastTarget, minRatio, minAAARatio)
+    setAutoAdjustFeedbackKey(null)
+    let didAdjust
 
-    if(contrastRatio >= minAAARatio) {
-      return
-    }
-    if(contrastRatio >= minRatio) {
-      adjustRatio = minAAARatio
-    }
-
-    for (let i = 0; i < newBgColors.length; i++) {
-      let bg = newBgColors[i]
-      let ratio = Contrast.contrastRatio(bg, textColor)
-
-      if(ratio >= adjustRatio) continue
-
-      let changed = false
-      let lighter = Contrast.changeLuminance(bg, 'lighten');
-      let darker = Contrast.changeLuminance(bg, 'darken');
-
-      const max_iterations = 41
-      for(let attempts = 0; attempts < max_iterations; attempts++) {
-        const lighterRatio = Contrast.contrastRatio(lighter, textColor)
-        const darkerRatio = Contrast.contrastRatio(darker, textColor)
-        if (lighterRatio > adjustRatio) {
-          changed = true
-          bg = lighter
-          break
-        } else if (darkerRatio > adjustRatio) {
-          changed = true
-          bg = darker
-          break
+    if (target === 'text') {
+      const adjustedText = Contrast.findColorForContrast(textColor, currentBgColors, targetRatio)
+      if (adjustedText) {
+        didAdjust = adjustedText.l !== textColor.l
+        if (didAdjust) setTextColor(adjustedText)
+        else setAutoAdjustFeedbackKey('form.contrast.auto_adjust.text_already')
+      } else {
+        setAutoAdjustFeedbackKey('form.contrast.auto_adjust.text_unavailable')
+      }
+    } else {
+      let unadjustableColors = 0
+      const adjustedBackgrounds = currentBgColors.map((background) => {
+        const adjusted = Contrast.findColorForContrast(background, [textColor], targetRatio)
+        if (!adjusted) {
+          unadjustableColors += 1
+          return background
         }
-        lighter = Contrast.changeLuminance(lighter, 'lighten')
-        darker = Contrast.changeLuminance(darker, 'darken')
+        return adjusted
+      })
+      didAdjust = adjustedBackgrounds.some((color, index) => color.l !== currentBgColors[index].l)
+      if (didAdjust) setCurrentBgColors(adjustedBackgrounds)
+      if (unadjustableColors > 0) {
+        setAutoAdjustFeedbackKey(didAdjust
+          ? 'form.contrast.auto_adjust.background_partial'
+          : 'form.contrast.auto_adjust.background_unavailable')
+      } else if (!didAdjust) {
+        setAutoAdjustFeedbackKey('form.contrast.auto_adjust.background_already')
       }
-      if(!changed) {
-        failed = true
-      }
-      newBgColors[i] = bg
     }
-    setCurrentBgColors(newBgColors)
-    if(failed) {
-      checkFormErrors(true)
-    }
+
+  }
+
+  const undoChanges = () => {
+    if (!originalTextColor) return
+    setTextColor({ ...originalTextColor })
+    setCurrentBgColors(originalBgColors.map((color) => ({ ...color.hsl })))
+    setAutoAdjustFeedbackKey(null)
   }
 
   function isLargeText(style) {
@@ -390,128 +363,200 @@ export default function ContrastForm({
   const shouldShowExpand = currentBgColors.length > maxColorsToShow;
   const visibleBgColors = showAllColors ? currentBgColors : currentBgColors.slice(0, maxColorsToShow);
 
+  const advancedColorControls = (
+    <details className="contrast-advanced-options">
+      <summary>{t('form.contrast.label.advanced_options')}</summary>
+      <div className="contrast-advanced-options-content">
+        <div id="contrast-bgcolor-list" className="flex-column">
+          <label id="text-label">{t('form.contrast.replace_text')}</label>
+          <div className="flex-row justify-content-between mt-1">
+            <div className="flex-column justify-content-center">
+              <input
+                id="textColorInput"
+                type="color"
+                value={Contrast.hslToHex(textColor) || '#000000'}
+                onChange={updateText}
+                aria-labelledby="text-label"
+                tabIndex="0"
+                disabled={isDisabled}
+              />
+            </div>
+            <div className="flex-row align-items-center gap-1">
+              <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+              <input
+                type="range"
+                id="textLumSlider"
+                name="textLumSlider"
+                aria-label={t('form.contrast.replace_text') + ' ' + t('form.contrast.label.brightness')}
+                min="0"
+                max="1"
+                step="0.025"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={((textColor?.l || 0) * 100).toFixed(0) + '%' }
+                value={textColor?.l || 0}
+                onChange={(e) => {
+                  setAutoAdjustFeedbackKey(null)
+                  setTextColor(Contrast.setLuminance(textColor, e.target.value))
+                }}
+                />
+              <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-column">
+          <label>{t('form.contrast.replace_background')}</label>
+          {visibleBgColors.map((color, idx) => {
+            let ratio = Contrast.contrastRatio(
+              Contrast.hslToHex(color), Contrast.hslToHex(textColor)
+            )
+            let isValid = ratio >= minRatio;
+
+            return (
+              <div key={idx} className="flex-row justify-content-between gradient-row">
+                <div className="flex-row align-items-center">
+                  <input
+                    id={`backgroundColorInput${idx}`}
+                    type="color"
+                    value={Contrast.hslToHex(color) || '#ffffff'}
+                    onChange={e => updateBackgroundColor(idx, e.target.value)}
+                    aria-label={
+                      t('form.contrast.label.background.show_color_picker') +
+                      ' ' +
+                      getContrastTargetMessage(ratio)
+                    }
+                    title={t('form.contrast.label.background.show_color_picker')}
+                    disabled={isDisabled}
+                  />
+                  { currentBgColors.length > 1 && (
+                    isValid ? (
+                      <CheckIcon className="icon-md color-success ms-2" />
+                    ) : (
+                      <ErrorIcon className="icon-md udoit-issue-highlight ms-2" />
+                    )
+                  )}
+                </div>
+                <div className="flex-row align-items-center gap-1">
+                  <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+                  <input
+                    type="range"
+                    id={`backgroundLumSlider${idx}`}
+                    name={`backgroundLumSlider${idx}`}
+                    min="0"
+                    max="1"
+                    step="0.025"
+                    aria-label={t('form.contrast.replace_background') + ' ' + t('form.contrast.label.brightness')}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={((currentBgColors[idx]?.l || 0) * 100).toFixed(0) + '%'}
+                    value={currentBgColors[idx]?.l || 0}
+                    onChange={(e) => {
+                      handleBackgroundChange(idx, e.target.value)
+                    }}
+                    />
+                  <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {shouldShowExpand && (
+          <div className="flex-column align-items-center mb-2">
+            <button
+              className="btn-small text-center btn-secondary"
+              onClick={() => setShowAllColors(v => !v)}
+              aria-expanded={showAllColors}
+              aria-controls="contrast-bgcolor-list"
+            >
+              {showAllColors ? t('form.contrast.hide') : t('form.contrast.show')}
+            </button>
+          </div>
+        )}
+      </div>
+    </details>
+  )
+
   return (
     <>
-      <div className="instructions">{t('form.contrast.label.adjust')}</div>
-      <div className="flex-column">
-        <label id="text-label">{t('form.contrast.replace_text')}</label>
-        <div className="flex-row justify-content-between mt-1">
-          <div className="flex-column justify-content-center">
-            <input
-              id="textColorInput"
-              type="color"
-              value={Contrast.hslToHex(textColor) || '#000000'}
-              onChange={updateText}
-              aria-labelledby="text-label"
-              tabIndex="0"
-              disabled={isDisabled}
+      <section className="contrast-adjustment">
+        <fieldset className="contrast-target-level">
+          <legend>
+            {t('form.contrast.label.target_level')}
+            <InfoPopover
+              t={t}
+              title={t('form.contrast.label.target_help')}
+              content={t('form.contrast.tooltip.target', { aa: minRatio, aaa: minAAARatio })}
+              triggerAriaLabel={t('form.contrast.label.target_help')}
+              hoverOnly
+              iconClassName="icon-sm"
             />
-          </div>
-          <div className="flex-row align-items-center gap-1">
-            <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-            <input
-              type="range"
-              id="textLumSlider"
-              name="textLumSlider"
-              aria-label={t('form.contrast.replace_text') + ' ' + t('form.contrast.label.brightness')}
-              min="0"
-              max="1"
-              step="0.025"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={((textColor?.l || 0) * 100).toFixed(0) + '%' }
-              value={textColor?.l || 0}
-              onChange={(e) => {
-                setTextColor(Contrast.setLuminance(textColor, e.target.value))
-              }}
+          </legend>
+          <div className="contrast-target-options">
+            <label className={contrastTarget === 'AA' ? 'selected' : ''}>
+              <input
+                type="radio"
+                name="contrastTargetLevel"
+                value="AA"
+                checked={contrastTarget === 'AA'}
+                onChange={() => {
+                  setContrastTarget('AA')
+                  setAutoAdjustFeedbackKey(null)
+                }}
+                disabled={isDisabled}
               />
-            <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+              <span>{t('form.contrast.label.target_aa')}</span>
+            </label>
+            <label className={contrastTarget === 'AAA' ? 'selected' : ''}>
+              <input
+                type="radio"
+                name="contrastTargetLevel"
+                value="AAA"
+                checked={contrastTarget === 'AAA'}
+                onChange={() => {
+                  setContrastTarget('AAA')
+                  setAutoAdjustFeedbackKey(null)
+                }}
+                disabled={isDisabled}
+              />
+              <span>{t('form.contrast.label.target_aaa')}</span>
+            </label>
           </div>
-        </div>
-      </div>
-
-      <div className="flex-column">
-        <label>{t('form.contrast.replace_background')}</label>
-        {visibleBgColors.map((color, idx) => {
-          let ratio = Contrast.contrastRatio(
-            Contrast.hslToHex(color), Contrast.hslToHex(textColor)
-          )
-          let isValid = ratio >= minRatio;
-
-          return (
-            <div key={idx} className="flex-row justify-content-between gradient-row">
-              <div className="flex-row align-items-center">
-                <input
-                  id={`backgroundColorInput${idx}`}
-                  type="color"
-                  value={Contrast.hslToHex(color) || '#ffffff'}
-                  onChange={e => updateBackgroundColor(idx, e.target.value)}
-                  aria-label={
-                    t('form.contrast.label.background.show_color_picker') +
-                    ' ' +
-                    (isValid
-                      ? t('form.contrast.feedback.valid')
-                      : t('form.contrast.feedback.invalid', { current: ratio ? ratio.toFixed(2) : 'N/A' }))
-                  }
-                  title={t('form.contrast.label.background.show_color_picker')}
-                  disabled={isDisabled}
-                />
-                { currentBgColors.length > 1 && (
-                  isValid ? (
-                    <CheckIcon className="icon-md color-success ms-2" />
-                  ) : (
-                    <ErrorIcon className="icon-md udoit-issue-highlight ms-2" />
-                  )
-                )}
-              </div>
-              <div className="flex-row align-items-center gap-1">
-                <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-                <input
-                  type="range"
-                  id={`backgroundLumSlider${idx}`}
-                  name={`backgroundLumSlider${idx}`}
-                  min="0"
-                  max="1"
-                  step="0.025"
-                  aria-label={t('form.contrast.replace_background') + ' ' + t('form.contrast.label.brightness')}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={((currentBgColors[idx]?.l || 0) * 100).toFixed(0) + '%'}
-                  value={currentBgColors[idx]?.l || 0}
-                  onChange={(e) => {
-                    handleBackgroundChange(idx, e.target.value)
-                  }}
-                  />
-                <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {shouldShowExpand && (
-        <div className="flex-column align-items-center mb-2">
+        </fieldset>
+        <div className="contrast-adjustment-actions">
           <button
-            className="btn-small text-center btn-secondary"
-            onClick={() => setShowAllColors(v => !v)}
-            aria-expanded={showAllColors}
-            aria-controls="contrast-bgcolor-list"
+            className="btn-small btn-icon-left btn-secondary"
+            disabled={isDisabled}
+            onClick={() => handleAutoAdjust('background')}
           >
-            {showAllColors ? t('form.contrast.hide') : t('form.contrast.show')}
+            <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
+            {t('form.contrast.label.auto_adjust_all')}
+          </button>
+          <button
+            className="btn-small btn-icon-left btn-secondary"
+            disabled={isDisabled}
+            onClick={() => handleAutoAdjust('text')}
+          >
+            <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
+            {t('form.contrast.label.auto_adjust_text')}
           </button>
         </div>
-      )}
-
-      <div className="flex-row justify-content-end">
         <button
-          className="btn-small btn-icon-left btn-secondary"
-          disabled={isDisabled}
-          onClick={handleAutoAdjustAll}
+          className="btn-small btn-link contrast-undo-button"
+          disabled={isDisabled || !hasColorChanges}
+          onClick={undoChanges}
         >
-          <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
-          {t('form.contrast.label.auto_adjust_all')}
+          {t('form.contrast.label.undo_changes')}
         </button>
-      </div>
+        {autoAdjustFeedbackKey && (
+          <div className="instructions" role="status" aria-live="polite">
+            {t(autoAdjustFeedbackKey)}
+          </div>
+        )}
+      </section>
+
+      {advancedColorControls}
 
       <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>
           
@@ -527,16 +572,7 @@ export default function ContrastForm({
         <div className="ratio-value">{contrastRatio?.toFixed(2) + (currentBgColors.length > 1 ? '*' : '')}</div>
         
         <div className={`ratio-status ${ratioIsValid ? 'valid' : 'invalid'}`}>
-          {ratioIsValid
-            ? ( ratioIsAAA ? t('form.contrast.feedback.excellent') : t('form.contrast.feedback.valid') )
-            : (
-                <span>
-                  {t('form.contrast.feedback.minimum', {
-                    required: minRatio
-                  })}
-                </span>
-              )
-          }
+          {getContrastTargetMessage(contrastRatio || 0)}
         </div>
 
         {currentBgColors.length > 1 && (
