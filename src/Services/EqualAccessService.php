@@ -19,6 +19,7 @@ class EqualAccessService {
             html_skipnav_exists,
             page_title_exists,
             skip_main_exists,
+            skip_main_described,
             style_highcontrast_visible,
             style_viewport_resizable,
             aria_accessiblename_exists,

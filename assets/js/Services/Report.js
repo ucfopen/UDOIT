@@ -36,6 +36,16 @@ const checkAriaHiddenNontabbable = (issue, element, parsedDocument) => {
   return false;
 }
 
+const checkElementTabbableVisible = (issue, element) => {
+  const tagName = Html.getTagName(element)?.toLowerCase();
+  if (tagName === "a") {
+    issue.scanRuleId = "a_text_purpose";
+  } else if (tagName === "area") {
+    issue.scanRuleId = "area_alt_exists";
+  }
+  return false;
+}
+
 const checkTextBlockHeading = (issue, element) => {
   let issueIgnored = false;
 
@@ -194,6 +204,8 @@ const checkImgAltBackground = (issue, element) => {
 const runCustomChecks = (issue, element, parsedDocument = null) => {
   if (issue.scanRuleId === "aria_hidden_nontabbable") {
     return checkAriaHiddenNontabbable(issue, element, parsedDocument);
+  } else if (issue.scanRuleId === "element_tabbable_visible") {
+    return checkElementTabbableVisible(issue, element);
   } else if (issue.scanRuleId === "img_alt_background") {
     return checkImgAltBackground(issue, element);
   } else if (issue.scanRuleId === "style_color_misuse") {
