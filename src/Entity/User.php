@@ -55,7 +55,7 @@ class User implements UserInterface, JsonSerializable
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
 
 
-    #[ORM\OneToMany(targetEntity: Report::class, mappedBy: "author")]
+    #[ORM\OneToMany(targetEntity: Report::class, mappedBy: "user")]
 
     private $reports;
 
@@ -289,7 +289,7 @@ class User implements UserInterface, JsonSerializable
     {
         if (!$this->reports->contains($report)) {
             $this->reports[] = $report;
-            $report->setAuthor($this);
+            $report->setUser($this);
         }
 
         return $this;
@@ -300,8 +300,8 @@ class User implements UserInterface, JsonSerializable
         if ($this->reports->contains($report)) {
             $this->reports->removeElement($report);
             // set the owning side to null (unless already changed)
-            if ($report->getAuthor() === $this) {
-                $report->setAuthor(null);
+            if ($report->getUser() === $this) {
+                $report->setUser(null);
             }
         }
 

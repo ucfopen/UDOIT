@@ -43,7 +43,18 @@ export const handlers = [
     (req, res, ctx) => {
       const { account_id, term_id } = req.params
 
-      return res(ctx.status(200), ctx.json({}))
+      return res(ctx.status(200), ctx.json({
+        data: {
+          courses: [],
+          stats: {},
+          pagination: {
+            page: 1,
+            perPage: 10,
+            total: 0,
+            totalPages: 0,
+          },
+        },
+      }))
     }
   ),
   // Api.js scanCourse

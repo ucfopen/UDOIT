@@ -310,6 +310,9 @@ export function formNameFromRule(ruleId) {
   if (rulesToFormNameMap.hasOwnProperty(ruleId)) {
     return rulesToFormNameMap[ruleId]
   }
+  if (!ruleId || ruleId == ''){
+    return '---'
+  }
 
   // If the ruleId is not found, return a default form name
   return formNames.REVIEW_ONLY

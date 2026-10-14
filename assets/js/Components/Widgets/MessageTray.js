@@ -6,10 +6,16 @@ import './MessageTray.css'
 export default function MessageTray ({
   t,
   preferences,
-  nextMessage
+  nextMessage,
+  initialMessages = []
 }) {
 
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState(() =>
+    initialMessages.map((message) => ({
+      ...message,
+      id: message.id || Date.now() + Math.random().toString().slice(2),
+    }))
+  )
   const [messageTimers, setMessageTimers] = useState([])
   const [timerCounter, setTimerCounter] = useState(1)
   const positions = useRef(new Map())
@@ -20,8 +26,7 @@ export default function MessageTray ({
       return
     }
     const id = Date.now() + Math.random().toString().slice(2)
-    newMessage.id = id
-    setMessages(previousMessages => [...previousMessages, newMessage])
+    setMessages(previousMessages => [...previousMessages, { ...newMessage, id }])
   }
 
   const removeMessage = (id) => {
@@ -139,7 +144,6 @@ export default function MessageTray ({
 
     // Save new positions for next cycle
     positions.current = newPositions
-
   }, [messages])
 
   return (

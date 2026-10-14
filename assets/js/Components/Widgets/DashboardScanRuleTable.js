@@ -1,0 +1,69 @@
+import React, { useEffect, useState } from 'react'
+import SortableTable from './SortableTable'
+
+const DashboardScanRuleTable = ({ t, scanRuleRanked }) => {
+    const [rows, setRows] = useState([])
+
+    const [tableSettings, setTableSettings] = useState({
+        sortBy: 'rank',
+        ascending: true,
+        pageNum: 0,
+    })
+
+    const headers = [
+        { id: "rank", text: t("admin.dashboard.header.rank") },
+        { id: "normalizedRule", text: t("admin.dashboard.header.normalized_rule") },
+        { id: "count", text: t("admin.dashboard.header.course_count") }
+    ]
+
+    const sortContent = () => {
+        let tempRows = scanRuleRanked ? scanRuleRanked : []
+
+        const { sortBy, ascending } = tableSettings
+
+        tempRows.sort((a, b) => {
+            let aValue = a[sortBy] ?? ''
+            let bValue = b[sortBy] ?? ''
+
+            if (typeof (aValue) === "object" && typeof (bValue) === "object") {
+                aValue = a[sortBy + "_display"] || ""
+                bValue = b[sortBy + "_display"] || ""
+            }
+
+            if (isNaN(aValue) || isNaN(bValue)) {
+                return (String(aValue).toLowerCase() > String(bValue).toLowerCase()) ? -1 : 1
+            } else {
+                return (Number(aValue) < Number(bValue)) ? -1 : 1
+            }
+        })
+
+        if (!ascending) {
+            tempRows.reverse()
+        }
+
+        return tempRows
+    }
+
+    useEffect(() => {
+        setRows(sortContent())
+    }, [tableSettings, scanRuleRanked])
+
+    const handleTableSettings = (setting) => {
+        setTableSettings(Object.assign({}, tableSettings, setting))
+    }
+
+    return (
+        <>
+            <SortableTable
+                caption={t("admin.dashboard.scan_rules_caption")}
+                headers={headers}
+                rows={rows}
+                tableSettings={tableSettings}
+                handleTableSettings={handleTableSettings}
+                t={t}
+            />
+        </>
+    )
+}
+
+export default DashboardScanRuleTable

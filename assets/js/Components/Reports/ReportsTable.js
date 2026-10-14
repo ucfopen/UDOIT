@@ -26,7 +26,7 @@ export default function ReportsTable({ t, reports }) {
       alignText: "center",
     },
     {
-      id: "filesReviewed",
+      id: "reviewedFiles",
       text: t("report.header.files_reviewed"),
       alignText: "center",
     },
@@ -57,12 +57,14 @@ export default function ReportsTable({ t, reports }) {
       latestReports.push({
         courseName,
         created: latestDate,
-        errors: latestReport.scanCounts?.errors || 0,
-        potentials: latestReport.scanCounts?.potentials || 0,
-        suggestions: latestReport.scanCounts?.suggestions || 0,
-        contentFixed: latestReport.contentFixed || 0,
-        contentResolved: latestReport.scanCounts?.resolved || latestReport.contentResolved || 0,
-        filesReviewed: latestReport.filesReviewed || 0,
+        issues: latestReport.issues || 0,
+        potentialIssues: latestReport.potentialIssues || 0,
+        unreviewedFiles: latestReport.unreviewedFiles || 0,
+        issuesFixed: latestReport.issuesFixed || 0,
+        issuesReviewed: latestReport.issuesReviewed || 0,
+        potentialIssuesFixed: latestReport.potentialIssuesFixed || 0,
+        potentialIssuesReviewed: latestReport.potentialIssuesReviewed || 0,
+        reviewedFiles: latestReport.reviewedFiles || 0,
       });
     });
 
@@ -89,11 +91,15 @@ export default function ReportsTable({ t, reports }) {
         report.potentialBarriers = report.scanCounts.potentials;
         report.filesUnreviewed = report.scanCounts.files || 0;
       } else {
-        report.knownBarriers = report.errors || 0;
-        report.potentialBarriers = 0;
-        report.filesUnreviewed = 0;
+        report.knownBarriers = report.issues || 0;
+        report.potentialBarriers = report.potentialIssues || 0;
+        report.filesUnreviewed = report.unreviewedFiles || 0;
       }
-      report.contentHandled = report.scanCounts?.resolved || (report.contentResolved + report.contentFixed) || 0
+      report.contentHandled = report.scanCounts?.resolved ||
+        (report.issuesFixed || 0) +
+        (report.issuesReviewed || 0) +
+        (report.potentialIssuesFixed || 0) +
+        (report.potentialIssuesReviewed || 0)
       return report
     })
     const { sortBy, ascending } = tableSettings

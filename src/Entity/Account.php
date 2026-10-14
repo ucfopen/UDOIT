@@ -18,11 +18,19 @@ class Account implements \JsonSerializable
     #[ORM\Column(type: "string", length: 255)]
     private string $accountName;
 
-    public function __construct(Institution $institution, string $lmsAccountId, string $accountName)
+    #[ORM\Column(name: "parent_account_id", type: "string", length: 255, nullable: true)]
+    private string $parentAccountId;
+
+    #[ORM\Column(name: "depth", type: "integer", nullable: true)]
+    private int $depth;
+
+    public function __construct(Institution $institution, string $lmsAccountId, string $accountName, string $parentAccountId, int $depth)
     {
         $this->institution = $institution;
         $this->lmsAccountId = $lmsAccountId;
         $this->accountName = $accountName;
+        $this->parentAccountId = $parentAccountId;
+        $this->depth = $depth;
     }
 
     public function jsonSerialize(): array
@@ -30,7 +38,20 @@ class Account implements \JsonSerializable
         return [
             "lmsAccountId" => $this->lmsAccountId,
             "accountName" => $this->accountName,
+            "parentAccountId" => $this->parentAccountId,
+            "depth" => $this->depth,
         ];
+    }
+
+    public function getDepth(): string
+    {
+        return $this->depth;
+    }
+
+    public function setDepth(string $depth): self
+    {
+        $this->depth = $depth;
+        return $this;
     }
 
     public function getLmsAccountId(): string
@@ -64,6 +85,17 @@ class Account implements \JsonSerializable
     {
         $this->institution = $institution;
 
+        return $this;
+    }
+
+     public function getParentAccountId(): string
+    {
+        return $this->parentAccountId;
+    }
+
+    public function setParentAccountId(string $parentAccountId): self
+    {
+        $this->parentAccountId = $parentAccountId;
         return $this;
     }
 }

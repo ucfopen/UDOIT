@@ -30,15 +30,7 @@ class SyncController extends ApiController
 
     private function isCurrentVersion(Course $course): bool
     {
-        $previousReport = $course->getLatestReport();
-        if ($previousReport) {
-            $data = json_decode($previousReport->getData());
-            $currentVersionNumber = !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '';
-            if (isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
-                return true;
-            }
-        }
-        return false;
+        return (bool) $course->getLatestReport();
     }
 
     private ManagerRegistry $doctrine;
@@ -83,12 +75,7 @@ class SyncController extends ApiController
 
             $response->setData($reportArr);
 
-            $reportData = json_decode($report->getData());
-            if (isset($reportData->itemsScanned) && $reportData->itemsScanned > 0) {
-                $response->addMessage('msg.new_content', 'success', 5000);
-            } else {
-                $response->addMessage('msg.no_new_content', 'success', 5000);
-            }
+            $response->addMessage('msg.sync.completed', 'success', 5000);
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {
                 $response->addMessage($e->getMessage(), 'info', 0, false);
@@ -178,7 +165,7 @@ class SyncController extends ApiController
 
     private function updateReport($course, $user, LmsFetchService $lmsFetch)
     {
-        $report = $lmsFetch->updateReport($course, $user, 1);
+        $report = $lmsFetch->updateReport($course, $user);
         if (!$report) {
             throw new \Exception('msg.no_report_created');
         }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Term;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,5 +18,17 @@ class TermRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Term::class);
+    }
+
+    public function getAllTerms(User $user){
+        $institution = $user->getInstitution();
+
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('c.institution = :institution')
+            ->setParameter('institution', $institution);
+
+        
+        return $qb->getQuery()->getResult();
+
     }
 }

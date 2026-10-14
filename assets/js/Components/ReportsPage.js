@@ -166,9 +166,9 @@ export default function ReportsPage({
       { id: "created", text: t('report.header.date') },
       { id: "knownBarriers", text: t('report.header.issues'), alignText: 'center' },
       { id: "potentialBarriers", text: t('report.header.potential'), alignText: 'center' },
-      { id: "filesUnreviewed", text: t('report.header.suggestions'), alignText: 'center' },
+      { id: "unreviewedFiles", text: t('report.header.suggestions'), alignText: 'center' },
       { id: "contentHandled", text: t('report.header.items_handled'), alignText: 'center' },
-      { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
+      { id: "reviewedFiles", text: t('report.header.files_reviewed'), alignText: 'center'}
     ]
 
     const sortedReports = [...reports].sort((a, b) => {
