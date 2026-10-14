@@ -440,6 +440,7 @@
   "form.contrast.summary": "El contraste de color entre el texto y su fondo debe ser lo suficientemente alto para que los usuarios con baja visión o daltonismo puedan leerlo. ",
   "form.contrast.learn_more": "<h3>Contraste de Color</h3><p>Los usuarios con baja visión necesitan suficiente contraste para poder leer. La relación de contraste sigue una fórmula para comparar la luminancia del texto en primer plano con los colores de fondo. Presta atención al contraste especialmente en casos de cambio de tamaño del texto, diseño responsivo y efectos de movimiento como paralaje o fondos animados, cuando la posición del texto sobre su fondo puede cambiar. </p><h3>Mejores Prácticas</h3><ul><li>Asegúrate de que el texto tenga suficiente contraste con su fondo</li><li>Logra el contraste mínimo para todo el texto colocado sobre imágenes o gradientes. </li></ul><h3>Para Más Información </h3><p>WebAIM.org: <a href='https://webaim.org/articles/contrast/' target='_blank'>Accesibilidad de Contraste y Color</a></p><p><a href='https://webaim.org/resources/contrastchecker/' target='_blank'>Verificador de Contraste de Color En Línea</a></p>",
   "form.contrast.label.adjust": "Ajusta los Colores del Texto y/o el Fondo para Mejorar el Contraste",
+  "form.contrast.label.advanced_options": "Opciones avanzadas de color",
   "form.contrast.label.text.show_color_picker": "Selector de Color de Texto",
   "form.contrast.label.background.show_color_picker": "Selector de Color de Fondo",
   "form.contrast.label.hide_color_picker": "Ocultar Selector de Color",

@@ -82,10 +82,15 @@
 
   .contrast-adjustment-actions {
     display: flex;
+    align-items: stretch;
     gap: .5rem;
 
     button {
       flex: 1 1 0;
+      align-self: stretch;
+      display: inline-flex;
+      align-items: center;
+      height: auto;
       justify-content: center;
       min-width: 0;
     }
@@ -95,6 +100,29 @@
     align-self: flex-start;
     padding-inline: 0;
     margin-inline-start: .15rem;
+  }
+
+  .contrast-advanced-options {
+    margin-block-start: .5rem;
+
+    summary {
+      color: var(--text-secondary-color);
+      cursor: pointer;
+      font-size: .85em;
+      font-weight: 600;
+      width: fit-content;
+    }
+  }
+
+  .contrast-advanced-options-content {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-block-start: .75rem;
+    padding: .65rem .75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    background: var(--container-color);
   }
 
   label:not(.subtext) {

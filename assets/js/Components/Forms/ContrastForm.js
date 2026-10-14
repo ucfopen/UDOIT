@@ -363,117 +363,123 @@ export default function ContrastForm({
   const shouldShowExpand = currentBgColors.length > maxColorsToShow;
   const visibleBgColors = showAllColors ? currentBgColors : currentBgColors.slice(0, maxColorsToShow);
 
+  const advancedColorControls = (
+    <details className="contrast-advanced-options">
+      <summary>{t('form.contrast.label.advanced_options')}</summary>
+      <div className="contrast-advanced-options-content">
+        <div id="contrast-bgcolor-list" className="flex-column">
+          <label id="text-label">{t('form.contrast.replace_text')}</label>
+          <div className="flex-row justify-content-between mt-1">
+            <div className="flex-column justify-content-center">
+              <input
+                id="textColorInput"
+                type="color"
+                value={Contrast.hslToHex(textColor) || '#000000'}
+                onChange={updateText}
+                aria-labelledby="text-label"
+                tabIndex="0"
+                disabled={isDisabled}
+              />
+            </div>
+            <div className="flex-row align-items-center gap-1">
+              <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+              <input
+                type="range"
+                id="textLumSlider"
+                name="textLumSlider"
+                aria-label={t('form.contrast.replace_text') + ' ' + t('form.contrast.label.brightness')}
+                min="0"
+                max="1"
+                step="0.025"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={((textColor?.l || 0) * 100).toFixed(0) + '%' }
+                value={textColor?.l || 0}
+                onChange={(e) => {
+                  setAutoAdjustFeedbackKey(null)
+                  setTextColor(Contrast.setLuminance(textColor, e.target.value))
+                }}
+                />
+              <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-column">
+          <label>{t('form.contrast.replace_background')}</label>
+          {visibleBgColors.map((color, idx) => {
+            let ratio = Contrast.contrastRatio(
+              Contrast.hslToHex(color), Contrast.hslToHex(textColor)
+            )
+            let isValid = ratio >= minRatio;
+
+            return (
+              <div key={idx} className="flex-row justify-content-between gradient-row">
+                <div className="flex-row align-items-center">
+                  <input
+                    id={`backgroundColorInput${idx}`}
+                    type="color"
+                    value={Contrast.hslToHex(color) || '#ffffff'}
+                    onChange={e => updateBackgroundColor(idx, e.target.value)}
+                    aria-label={
+                      t('form.contrast.label.background.show_color_picker') +
+                      ' ' +
+                      getContrastTargetMessage(ratio)
+                    }
+                    title={t('form.contrast.label.background.show_color_picker')}
+                    disabled={isDisabled}
+                  />
+                  { currentBgColors.length > 1 && (
+                    isValid ? (
+                      <CheckIcon className="icon-md color-success ms-2" />
+                    ) : (
+                      <ErrorIcon className="icon-md udoit-issue-highlight ms-2" />
+                    )
+                  )}
+                </div>
+                <div className="flex-row align-items-center gap-1">
+                  <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+                  <input
+                    type="range"
+                    id={`backgroundLumSlider${idx}`}
+                    name={`backgroundLumSlider${idx}`}
+                    min="0"
+                    max="1"
+                    step="0.025"
+                    aria-label={t('form.contrast.replace_background') + ' ' + t('form.contrast.label.brightness')}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={((currentBgColors[idx]?.l || 0) * 100).toFixed(0) + '%'}
+                    value={currentBgColors[idx]?.l || 0}
+                    onChange={(e) => {
+                      handleBackgroundChange(idx, e.target.value)
+                    }}
+                    />
+                  <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {shouldShowExpand && (
+          <div className="flex-column align-items-center mb-2">
+            <button
+              className="btn-small text-center btn-secondary"
+              onClick={() => setShowAllColors(v => !v)}
+              aria-expanded={showAllColors}
+              aria-controls="contrast-bgcolor-list"
+            >
+              {showAllColors ? t('form.contrast.hide') : t('form.contrast.show')}
+            </button>
+          </div>
+        )}
+      </div>
+    </details>
+  )
+
   return (
     <>
-      <div className="instructions">{t('form.contrast.label.adjust')}</div>
-      <div className="flex-column">
-        <label id="text-label">{t('form.contrast.replace_text')}</label>
-        <div className="flex-row justify-content-between mt-1">
-          <div className="flex-column justify-content-center">
-            <input
-              id="textColorInput"
-              type="color"
-              value={Contrast.hslToHex(textColor) || '#000000'}
-              onChange={updateText}
-              aria-labelledby="text-label"
-              tabIndex="0"
-              disabled={isDisabled}
-            />
-          </div>
-          <div className="flex-row align-items-center gap-1">
-            <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-            <input
-              type="range"
-              id="textLumSlider"
-              name="textLumSlider"
-              aria-label={t('form.contrast.replace_text') + ' ' + t('form.contrast.label.brightness')}
-              min="0"
-              max="1"
-              step="0.025"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={((textColor?.l || 0) * 100).toFixed(0) + '%' }
-              value={textColor?.l || 0}
-              onChange={(e) => {
-                setAutoAdjustFeedbackKey(null)
-                setTextColor(Contrast.setLuminance(textColor, e.target.value))
-              }}
-              />
-            <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-column">
-        <label>{t('form.contrast.replace_background')}</label>
-        {visibleBgColors.map((color, idx) => {
-          let ratio = Contrast.contrastRatio(
-            Contrast.hslToHex(color), Contrast.hslToHex(textColor)
-          )
-          let isValid = ratio >= minRatio;
-
-          return (
-            <div key={idx} className="flex-row justify-content-between gradient-row">
-              <div className="flex-row align-items-center">
-                <input
-                  id={`backgroundColorInput${idx}`}
-                  type="color"
-                  value={Contrast.hslToHex(color) || '#ffffff'}
-                  onChange={e => updateBackgroundColor(idx, e.target.value)}
-                  aria-label={
-                    t('form.contrast.label.background.show_color_picker') +
-                    ' ' +
-                    getContrastTargetMessage(ratio)
-                  }
-                  title={t('form.contrast.label.background.show_color_picker')}
-                  disabled={isDisabled}
-                />
-                { currentBgColors.length > 1 && (
-                  isValid ? (
-                    <CheckIcon className="icon-md color-success ms-2" />
-                  ) : (
-                    <ErrorIcon className="icon-md udoit-issue-highlight ms-2" />
-                  )
-                )}
-              </div>
-              <div className="flex-row align-items-center gap-1">
-                <DarkIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-                <input
-                  type="range"
-                  id={`backgroundLumSlider${idx}`}
-                  name={`backgroundLumSlider${idx}`}
-                  min="0"
-                  max="1"
-                  step="0.025"
-                  aria-label={t('form.contrast.replace_background') + ' ' + t('form.contrast.label.brightness')}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={((currentBgColors[idx]?.l || 0) * 100).toFixed(0) + '%'}
-                  value={currentBgColors[idx]?.l || 0}
-                  onChange={(e) => {
-                    handleBackgroundChange(idx, e.target.value)
-                  }}
-                  />
-                <LightIcon className="icon-md secondary" alt="" aria-hidden="true"/>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {shouldShowExpand && (
-        <div className="flex-column align-items-center mb-2">
-          <button
-            className="btn-small text-center btn-secondary"
-            onClick={() => setShowAllColors(v => !v)}
-            aria-expanded={showAllColors}
-            aria-controls="contrast-bgcolor-list"
-          >
-            {showAllColors ? t('form.contrast.hide') : t('form.contrast.show')}
-          </button>
-        </div>
-      )}
-
       <section className="contrast-adjustment">
         <fieldset className="contrast-target-level">
           <legend>
@@ -549,6 +555,8 @@ export default function ContrastForm({
           </div>
         )}
       </section>
+
+      {advancedColorControls}
 
       <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>
           
