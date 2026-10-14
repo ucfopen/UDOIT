@@ -531,6 +531,13 @@
   "form.emphasis.msg.required": "TODO: Color alone is insufficient to convey information",
   "rule.desc.style_color_misuse": "",
 
+  "form.focus_visible.title": "TODO: Interactive Elements Should Have Visible Focus",
+  "form.focus_visible.summary": "TODO: Interactive elements should have visible borders or outlines when focused on by keyboard users.",
+  "form.focus_visible.learn_more": "TODO: <h3>Focus Indicators Should Be Visible</h3><p>When navigating around a website using the keyboard using the <code>tab</code> or arrow keys, websites must provide a focus indicator. This is usually a dark box that surrounds whatever element is active, and moves from place to place as the user navigates.</p><p>However, this focus indicator can be hidden by using <code>border</code> and <code>outline</code> styles, preventing a user from knowing which element has focus while navigating.</p><h3>Best Practices</h3><ul><li>Never adjust the CSS styling for <code>border</code> or <code>outline</code> of interactive elements unless it is replaced with another style when the element receives focus.</li></ul><h3>For More Information</h3><p>W3.org: <a href='https://www.w3.org/WAI/WCAG22/Understanding/focus-visible' target='_blank'>Focus Visible</a>, <a href='https://www.w3.org/WAI/WCAG22/Techniques/failures/F78' target='_blank'>Styling Element Outlines and Borders</a></p>",
+  "form.focus_visible.decision": "TODO: This element has prohibited <code>border</code> or <code>outline</code> styles. Do you want to <strong>remove them</strong> or <strong>replace them with a background color</strong>?",
+  "form.focus_visible.decision.remove": "TODO: Remove border and outline styles only",
+  "form.focus_visible.decision.replace": "TODO: Replace borders and outlines with a background color",
+
   "form.file.title": "Los Archivos Deben Ser Accesibles",
   "form.file.sub_heading": "Revisar Archivo",
   "form.file.summary": "Los archivos como los PDF, documentos de Word y presentaciones de PowerPoint pueden hacerse accesibles si se crean utilizando las herramientas y funciones integradas del software ",

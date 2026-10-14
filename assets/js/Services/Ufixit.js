@@ -8,6 +8,7 @@ import ContrastForm from '../Components/Forms/ContrastForm'
 import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
 import EmbeddedContentReviewForm from '../Components/Forms/EmbeddedContentReviewForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
+import FocusVisibleForm from '../Components/Forms/FocusVisibleForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import InlineCSSForm from '../Components/Forms/InlineCSSForm'
@@ -37,6 +38,7 @@ export const formNames = {
   EMBEDDED_CONTENT_TITLE: 'embedded_content_title',
   EMBEDDED_CONTENT_REVIEW: 'embedded_content_review',
   EMPHASIS: 'emphasis',
+  FOCUS_VISIBLE: 'focus_visible',
   HEADING_EMPTY: 'heading_empty',
   HEADING_STYLE: 'heading_style',
   // INPUT_LABEL: 'input_label',
@@ -80,6 +82,7 @@ const formTypes = {
   [formNames.EMBEDDED_CONTENT_TITLE]: EmbeddedContentTitleForm,
   [formNames.EMBEDDED_CONTENT_REVIEW]: EmbeddedContentReviewForm,
   [formNames.EMPHASIS]: EmphasisForm,
+  [formNames.FOCUS_VISIBLE]: FocusVisibleForm,
   [formNames.HEADING_EMPTY]: HeadingEmptyForm,
   [formNames.HEADING_STYLE]: HeadingStyleForm,
   // [formNames.INPUT_LABEL]: InputLabelForm,
@@ -197,6 +200,8 @@ const rulesToFormNameMap = {
   frame_src_valid: formNames.EMBEDDED_CONTENT_REVIEW,
 
   style_color_misuse: formNames.EMPHASIS,
+
+  style_focus_visible: formNames.FOCUS_VISIBLE,
 
   heading_content_exists: formNames.HEADING_EMPTY,
 
@@ -381,6 +386,7 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.VISUAL]
         break
       case formNames.ARIA_HIDDEN:
+      case formNames.FOCUS_VISIBLE:
       case formNames.KEYBOARD_TABBABLE:
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
@@ -472,7 +478,6 @@ export function disabilitiesFromRule(ruleId) {
       case 'select_options_grouped':
       case 'skip_main_described':
       case 'skip_main_exists':
-      case 'style_focus_visible':
       case 'widget_tabbable_exists':
       case 'widget_tabbable_single':
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
