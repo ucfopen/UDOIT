@@ -16,6 +16,26 @@ import { formNames, formNameFromRule } from './Ufixit'
  *      understandable fields: xpath, sourceHtml, and newHtml.
  **/
 
+const checkAriaHiddenNontabbable = (issue, element, parsedDocument) => {
+  // This issue looks to see if the element is in a working toggle, like an accordion.
+  // I will assume that if the toggle-able element has an id, and another element has
+  // the matching `aria-controls` attribute, then this one is fine.
+  let ariaHiddenParentElement = element.closest('[aria-hidden="true"]');
+  if (!ariaHiddenParentElement) {
+    return false;
+  }
+
+  let hiddenElementId = Html.getAttribute(ariaHiddenParentElement, 'id');
+  if (hiddenElementId) {
+    // If another element controls the element with the `aria-hidden` attribute, ignore this error.
+    if (parsedDocument.querySelector(`[aria-controls="${hiddenElementId}"]`)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 const checkTextBlockHeading = (issue, element) => {
   let issueIgnored = false;
 
@@ -172,7 +192,9 @@ const checkImgAltBackground = (issue, element) => {
 };
 
 const runCustomChecks = (issue, element, parsedDocument = null) => {
-  if (issue.scanRuleId === "img_alt_background") {
+  if (issue.scanRuleId === "aria_hidden_nontabbable") {
+    return checkAriaHiddenNontabbable(issue, element, parsedDocument);
+  } else if (issue.scanRuleId === "img_alt_background") {
     return checkImgAltBackground(issue, element);
   } else if (issue.scanRuleId === "style_color_misuse") {
     return checkStyleColorMisuse(issue, element);

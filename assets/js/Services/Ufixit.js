@@ -1,6 +1,7 @@
 import AltTextForm from '../Components/Forms/AltTextForm'
 import AnchorTextForm from '../Components/Forms/AnchorTextForm'
 import AriaChildValidForm from '../Components/Forms/AriaChildValidForm'
+import AriaHiddenForm from '../Components/Forms/AriaHiddenForm'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
@@ -28,6 +29,7 @@ export const formNames = {
   ANCHOR_TEXT: 'anchor_text',
   ARIA_ATTRIBUTE: 'aria_attribute',
   ARIA_CHILD_VALID: 'aria_child_valid',
+  ARIA_HIDDEN: 'aria_hidden',
   ARIA_ROLE: 'aria_role',
   BLOCKQUOTE: 'blockquote',
   CONTRAST: 'contrast',
@@ -71,6 +73,7 @@ const formTypes = {
   [formNames.ANCHOR_TEXT]: AnchorTextForm,
   // [formNames.ARIA_ATTRIBUTE]: AriaAttributeForm,
   [formNames.ARIA_CHILD_VALID]: AriaChildValidForm,
+  [formNames.ARIA_HIDDEN]: AriaHiddenForm,
   [formNames.ARIA_ROLE]: AriaRoleForm,
   [formNames.BLOCKQUOTE]: BlockquoteForm,
   [formNames.CONTRAST]: ContrastForm,
@@ -87,7 +90,6 @@ const formTypes = {
   [formNames.LANGUAGE]: LanguageForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
-  // [formNames.MULTI_PART]: MultiPartForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABBABLE_INVISIBLE]: TabbableInvisibleForm,
@@ -175,6 +177,8 @@ const rulesToFormNameMap = {
   // aria_attribute_value_valid: formNames.ARIA_ATTRIBUTE,
 
   aria_child_valid: formNames.ARIA_CHILD_VALID,
+
+  aria_hidden_nontabbable: formNames.ARIA_HIDDEN,
 
   aria_role_valid: formNames.ARIA_ROLE,
   aria_role_allowed: formNames.ARIA_ROLE,
@@ -376,6 +380,7 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.CONTRAST:
         disabilities = [disabilityTypes.VISUAL]
         break
+      case formNames.ARIA_HIDDEN:
       case formNames.KEYBOARD_TABBABLE:
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
@@ -420,7 +425,6 @@ export function disabilitiesFromRule(ruleId) {
   } else {
     switch (ruleId) {
       case 'aria_activedescendant_valid':
-      case 'aria_hidden_nontabbable':
       case 'combobox_active_descendant':
       case 'combobox_design_valid':
       case 'combobox_focusable_elements':
