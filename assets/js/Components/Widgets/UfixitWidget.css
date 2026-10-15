@@ -32,6 +32,17 @@
   &.selected {
     border-color: var(--selection-color-border);
     background-color: var(--selection-color-background);
+
+    &:has(.feedback-error) {
+      background-color: var(--background-color);
+      border-color: var(--border-color);
+
+      input[type="radio"] {
+        &:checked {
+          border-color: var(--text-color);
+        }  
+      }   
+    }
   }
 
   .option-label {
