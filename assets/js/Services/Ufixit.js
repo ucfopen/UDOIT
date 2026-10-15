@@ -12,6 +12,7 @@ import FocusVisibleForm from '../Components/Forms/FocusVisibleForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import InlineCSSForm from '../Components/Forms/InlineCSSForm'
+import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import ListForm from '../Components/Forms/ListForm'
@@ -41,7 +42,6 @@ export const formNames = {
   FOCUS_VISIBLE: 'focus_visible',
   HEADING_EMPTY: 'heading_empty',
   HEADING_STYLE: 'heading_style',
-  // INPUT_LABEL: 'input_label',
   INVALID_ATTRIBUTE: 'invalid_attribute',
   INVALID_CSS: 'invalid_css',
   KEYBOARD_TABBABLE: 'keyboard_tabbable',
@@ -73,7 +73,6 @@ export const disabilityTypes = {
 const formTypes = {
   [formNames.ALT_TEXT]: AltTextForm,
   [formNames.ANCHOR_TEXT]: AnchorTextForm,
-  // [formNames.ARIA_ATTRIBUTE]: AriaAttributeForm,
   [formNames.ARIA_CHILD_VALID]: AriaChildValidForm,
   [formNames.ARIA_HIDDEN]: AriaHiddenForm,
   [formNames.ARIA_ROLE]: AriaRoleForm,
@@ -85,9 +84,8 @@ const formTypes = {
   [formNames.FOCUS_VISIBLE]: FocusVisibleForm,
   [formNames.HEADING_EMPTY]: HeadingEmptyForm,
   [formNames.HEADING_STYLE]: HeadingStyleForm,
-  // [formNames.INPUT_LABEL]: InputLabelForm,
-  // [formNames.INVALID_ATTRIBUTE]: InvalidAttributeForm,
-  // [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
+  [formNames.INVALID_CSS]: InlineCSSForm,
+  [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LANGUAGE]: LanguageForm,
@@ -98,9 +96,7 @@ const formTypes = {
   [formNames.TABBABLE_INVISIBLE]: TabbableInvisibleForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
-  
-  [formNames.INLINE_CSS]: InlineCSSForm,
-  
+
   [formNames.REVIEW_ONLY]: UfixitReviewOnly,
 }
 
@@ -225,10 +221,7 @@ const rulesToFormNameMap = {
 
   text_spacing_valid: formNames.INVALID_CSS,
 
-  // aria_activedescendant_tabindex_valid: formNames.KEYBOARD_TABBABLE,
-  // element_scrollable_tabbable: formNames.KEYBOARD_TABBABLE,
-  // element_tabbable_role_valid: formNames.KEYBOARD_TABBABLE,
-  // iframe_interactive_tabbable: formNames.KEYBOARD_TABBABLE,
+  widget_tabbable_exists: formNames.KEYBOARD_TABBABLE,
 
   aria_accessiblename_exists: formNames.LABEL,
   aria_application_labelled: formNames.LABEL,
@@ -268,23 +261,14 @@ const rulesToFormNameMap = {
 
   aria_id_unique: formNames.SELECT_VALID_ID,
   aria_complementary_label_visible: formNames.SELECT_VALID_ID,
-
-  text_sensory_misuse: formNames.SENSORY_MISUSE,
-
-  // aria_parent_required: formNames.MULTI_PART,
-  // fieldset_label_valid: formNames.MULTI_PART,
-  // fieldset_legend_valid: formNames.MULTI_PART,
-  // figure_label_exists: formNames.MULTI_PART,
-  // table_caption_nested: formNames.MULTI_PART,
-
-  // aria_complementary_label_visible: formNames.SELECT_VALID_ID,
-  // aria_id_unique: formNames.SELECT_VALID_ID,
   // aria_main_label_visible: formNames.SELECT_VALID_ID,
   // combobox_popup_reference: formNames.SELECT_VALID_ID,
   // error_message_exists: formNames.SELECT_VALID_ID,
   // input_placeholder_label_visible: formNames.SELECT_VALID_ID,
   // label_ref_valid: formNames.SELECT_VALID_ID,
   // table_headers_ref_valid: formNames.SELECT_VALID_ID,
+
+  text_sensory_misuse: formNames.SENSORY_MISUSE,
 
   element_tabbable_visible: formNames.TABBABLE_INVISIBLE,
 
@@ -324,6 +308,7 @@ export const sharedRuleSummaries = {
 /* When a REVIEW_ONLY rule uses the same description as another rule, add it here.
    The key is the name of the rule, and the value is the en.json translation that should be used. */
 export const sharedRuleDescriptions = {
+  aria_activedescendant_tabindex_valid: 'form.keyboard_tabbable.learn_more',
   aria_banner_single: 'form.label.learn_more',
   aria_child_tabbable: 'form.keyboard_tabbable.learn_more',
   aria_contentinfo_single: 'form.label.learn_more',
@@ -333,8 +318,11 @@ export const sharedRuleDescriptions = {
   combobox_design_valid: 'rule.desc.aria_activedescendant_valid',
   combobox_focusable_elements: 'rule.desc.aria_activedescendant_valid',
   element_mouseevent_keyboard: 'rule.desc.aria_keyboard_handler_exists',
+  element_scrollable_tabbable: 'form.keyboard_tabbable.learn_more',
+  element_tabbable_role_valid: 'form.keyboard_tabbable.learn_more',
   form_font_color: 'form.emphasis.learn_more',
   form_submit_review: 'rule.desc.form_submit_button_exists',
+  iframe_interactive_tabbable: 'form.keyboard_tabbable.learn_more',
   input_fields_grouped: 'rule.desc.input_checkboxes_grouped',
   input_onchange_review: 'rule.desc.form_interaction_review',
   meta_refresh_delay: 'rule.desc.meta_redirect_optional',
@@ -478,7 +466,6 @@ export function disabilitiesFromRule(ruleId) {
       case 'select_options_grouped':
       case 'skip_main_described':
       case 'skip_main_exists':
-      case 'widget_tabbable_exists':
       case 'widget_tabbable_single':
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break

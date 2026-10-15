@@ -204,3 +204,23 @@ export const VALID_IMAGE_TAGS = [
   'source',
   'svg',
 ]
+
+/* From https://github.com/IBMa/equal-access/blob/1ea7a8a7d739bb0f57f1d025215c8a6adec0f258/accessibility-checker-engine/src/v4/rules/widget_tabbable_exists.ts#L24. */
+export const WIDGET_ROLES = [
+  "button",
+  "checkbox",
+  "combobox",
+  "grid",
+  "link",
+  "listbox",
+  "menu",
+  "menubar",
+  "radiogroup",
+  "scrollbar",
+  "slider",
+  "spinbutton",
+  "tablist",
+  "textbox",
+  "tree",
+  "treegrid",
+]
