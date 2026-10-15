@@ -4,6 +4,16 @@ ifneq (,$(wildcard ./.ins.env))
     export
 endif
 
+# environment variable location, default to .env
+ENV_FILE ?= .env
+
+# ip address of database container
+DB_IP ?= $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' udoit3-db)
+
+# spin up the containers
+start:
+	docker compose -f docker-compose.nginx.yml up
+
 # ──────────────────────────────────────────────
 # Variables
 # ──────────────────────────────────────────────
@@ -87,6 +97,21 @@ admin-panel-retrieve-data: clean-cache
 		exit 1; \
 	fi
 	$(COMPOSE) run --rm php php bin/console app:admin-panel-retrieval $(foreach table,$(TABLES),--tables=$(table))
+
+# ──────────────────────────────────────────────
+# Encryption Key Generation/Rotation
+# ──────────────────────────────────────────────
+
+# run rotate keys
+rotate-keys:
+	@echo ENV_FILE: $(ENV_FILE)
+	@echo DB_IP: $(DB_IP)
+	docker exec -it udoit3-php php scripts/rotate-keys.php $(DB_IP) $(ENV_FILE)
+
+# run create key
+create-key:
+	docker exec -it udoit3-php php scripts/create-key.php $(ENV_FILE)
+ 
 # ──────────────────────────────────────────────
 # Institution Seeding
 # ──────────────────────────────────────────────
