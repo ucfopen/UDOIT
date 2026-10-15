@@ -408,6 +408,7 @@
   "form.anchor.delete_link": "Eliminar este enlace",
   "form.anchor.msg.text_descriptive": "El texto de enlace debe ser descriptivo",
   "form.anchor.msg.text_empty": "El texto de enlace no puede estar vacío",
+  "form.anchor.label.hide_text": "TODO: Hide text visually",
   "form.anchor.label.link_target": "Destino del enlace:",
   "rule.desc.a_text_purpose": "",
   "rule.desc.area_alt_exists": "",

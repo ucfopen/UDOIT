@@ -1,6 +1,7 @@
-import React, {useState, useEffect, act} from 'react'
+import React, {useState, useEffect} from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
+import ToggleSwitch from '../Widgets/ToggleSwitch'
 import { formNames } from '../../Services/Ufixit'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
@@ -26,6 +27,12 @@ export default function AnchorTextForm ({
 
   const [textInputValue, setTextInputValue] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
+  const [hideText, setHideText] = useState(false) 
+
+  const html = Html.getIssueHtml(activeIssue)
+  const element = Html.toElement(html)
+  const elementTag = Html.getTagName(element)?.toLowerCase() || ''
+  const hasImage = elementTag === 'a' && !!element.querySelector('img')
 
   useEffect(() => {
     if(!activeIssue) {
@@ -42,13 +49,9 @@ export default function AnchorTextForm ({
     setTextInputValue(initialText)
 
     const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     const deleted = !activeIssue.newHtml
     let startingOption = ''
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
-    }
     if (fixed) {
       if (deleted) {
         startingOption = FORM_OPTIONS.DELETE_ELEMENT
@@ -67,7 +70,7 @@ export default function AnchorTextForm ({
     }
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue])
+  }, [textInputValue, hideText])
 
   const handleOptionChange = (option) => {
     if(!doesIssueBelongToForm(formNames.ANCHOR_TEXT, activeIssue?.issueData)) {
@@ -80,12 +83,6 @@ export default function AnchorTextForm ({
 
   const updateHtmlContent = (optionOverride = activeOption) => {
     let issue = activeIssue
-    
-    if (optionOverride === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue, optionOverride)
-      return
-    }
 
     const html = Html.getIssueHtml(activeIssue)
     const deleteLink = (optionOverride === FORM_OPTIONS.DELETE_ELEMENT)
@@ -95,8 +92,14 @@ export default function AnchorTextForm ({
     if(elementTag === 'a') {
       if(deleteLink) {
         element = null
+      } else if (hasImage && hideText) {
+        element = Html.setInnerText(element, '')
+        element = Html.setAttribute(element, 'aria-label', textInputValue);
+        element.querySelector('img').setAttribute('aria-hidden', 'true');
       } else {
+        element = Html.removeAttribute(element, 'aria-label')
         element = Html.setInnerText(element, textInputValue)
+        element.querySelector('img')?.removeAttribute('aria-hidden');
       }
     }
     if(elementTag === 'area') {
@@ -143,16 +146,22 @@ export default function AnchorTextForm ({
 
       <div className="flex-column gap-1">
 
-        {/* OPTION 1: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        {/* OPTION 1: Delete Link. ID: "DELETE_ELEMENT" */}
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ELEMENT ? 'selected' : ''}`}>
           <RadioSelector
             activeOption={activeOption}
             isDisabled={isDisabled}
             setActiveOption={handleOptionChange}
-            option={FORM_OPTIONS.MARK_AS_REVIEWED}
-            labelText = {t('form.anchor_text.decision.context')}
+            option={FORM_OPTIONS.DELETE_ELEMENT}
+            labelText = {t('form.anchor_text.decision.delete')}
           />
-        </div>
+          {activeOption === FORM_OPTIONS.DELETE_ELEMENT && (
+            <OptionFeedback
+              t={t}
+              feedbackArray={formErrors[FORM_OPTIONS.DELETE_ELEMENT]}
+            />
+          )}
+        </div>     
 
         {/* OPTION 2: Add text. ID: "ADD_TEXT" */}
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
@@ -183,30 +192,23 @@ export default function AnchorTextForm ({
                 t={t}
                 feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
               />
-            </>
+              {hasImage && (
+                <div className="flex-row justify-content-start gap-1 mt-2">
+                  <ToggleSwitch
+                    labelId="hideTextToggle"
+                    initialValue={hideText}
+                    updateToggle={setHideText}
+                    disabled={isDisabled}
+                    small={false}
+                  />
+                  <label id="hideTextToggle" className="ufixit-instructions align-self-center">
+                    {t('form.anchor.label.hide_text')}
+                  </label>
+                </div>
+              )}
+            </>    
           )}
-        </div>
-        
-        {/* OPTION 3: Delete Link. ID: "DELETE_ELEMENT" */}
-        <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ELEMENT ? 'selected' : ''}`}>
-          <RadioSelector
-            activeOption={activeOption}
-            isDisabled={isDisabled}
-            setActiveOption={handleOptionChange}
-            option={FORM_OPTIONS.DELETE_ELEMENT}
-            labelText = {t('form.anchor_text.decision.delete')}
-          />
-          {activeOption === FORM_OPTIONS.DELETE_ELEMENT && (
-            <OptionFeedback
-              t={t}
-              feedbackArray={formErrors[FORM_OPTIONS.DELETE_ELEMENT]}
-            />
-          )}
-        </div>
-        
-        
-        
-        
+        </div>   
       </div>
 
       {linkUrl !== '' && (
