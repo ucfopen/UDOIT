@@ -163,28 +163,27 @@ export default function ListForm({
     const doc = parser.parseFromString(currentContent, 'text/html')
     let elements = Array.from(doc.body.children)
 
-    // Equal Access reports the containing element when list lines are
-    // separated by direct <br> elements. Treat those lines as list items.
-    if (elements.length === 1) {
-      const container = elements[0]
+    // Equal Access can report a containing element when list lines are
+    // separated by direct <br> elements.
+    elements = elements.flatMap(container => {
       const children = Array.from(container.childNodes)
-      if (children.some(child => child.nodeName === 'BR')) {
-        const lines = []
-        let line = doc.createElement('div')
+      if (!children.some(child => child.nodeName === 'BR')) return [container]
 
-        children.forEach(child => {
-          if (child.nodeName === 'BR') {
-            if (line.textContent.trim()) lines.push(line)
-            line = doc.createElement('div')
-          } else {
-            line.appendChild(child.cloneNode(true))
-          }
-        })
+      const lines = []
+      let line = doc.createElement('div')
 
-        if (line.textContent.trim()) lines.push(line)
-        elements = lines
-      }
-    }
+      children.forEach(child => {
+        if (child.nodeName === 'BR') {
+          if (line.textContent.trim()) lines.push(line)
+          line = doc.createElement('div')
+        } else {
+          line.appendChild(child.cloneNode(true))
+        }
+      })
+
+      if (line.textContent.trim()) lines.push(line)
+      return lines.length > 0 ? lines : [container]
+    })
     
     if (elements.length === 0) return
 
