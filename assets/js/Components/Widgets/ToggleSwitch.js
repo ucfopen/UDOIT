@@ -6,13 +6,21 @@ export default function ToggleSwitch({
     labelId,
     initialValue = false,
     updateToggle,
-    isDisabled = false,
+    disabled = false,
     small = false
 }) {
 
     const [toggleValue, setToggleValue] = useState(initialValue)
 
+    useEffect(() => {
+        setToggleValue(initialValue);
+    }, [initialValue]);
+
     const handleClick = () => {
+        if (disabled) {
+            return;
+        }
+
         let newValue = !toggleValue
         setToggleValue(newValue)
         updateToggle(newValue)
@@ -26,6 +34,7 @@ export default function ToggleSwitch({
                 aria-hidden="true"
                 checked={toggleValue}
                 onChange={() => {}}
+                disabled={disabled}
             />
             <span
                 aria-labelledby={labelId}
@@ -39,8 +48,8 @@ export default function ToggleSwitch({
                 tabIndex="0"
                 role="checkbox"
                 aria-checked={toggleValue}
-                aria-disabled={isDisabled}
-                disabled={isDisabled}
+                aria-disabled={disabled}
+                disabled={disabled}
             />
         </div>
     )

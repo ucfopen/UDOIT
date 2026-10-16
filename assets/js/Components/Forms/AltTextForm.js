@@ -13,7 +13,8 @@ export default function AltTextForm ({
   activeOption,
   setActiveOption,
   formErrors,
-  setFormErrors
+  setFormErrors,
+  handleLearnMoreClick
  }) {
   
   const FORM_OPTIONS = {
@@ -164,11 +165,12 @@ export default function AltTextForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
-          labelText = {t('form.alt_text.label.text')}
+          labelText = {t('form.alt_text.decision.informational')} /* {t('form.alt_text.label.text')} */
         />
 
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
+            <div className="instructions mb-2">{t('form.alt_text.label.text')}</div>
             <input
               aria-labelledby="add-text-label"
               type="text"
@@ -196,11 +198,11 @@ export default function AltTextForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_DECORATIVE}
-          labelText = {t('form.alt_text.label.mark_decorative')}
+          labelText = {t('form.alt_text.decision.decorative')} /* {t('form.alt_text.label.mark_decorative')} */
         />
       </div>
 
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED"
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -209,7 +211,7 @@ export default function AltTextForm ({
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
         />
-      </div>
+      </div> */}
     </>
   )
 }

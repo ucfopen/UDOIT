@@ -1,5 +1,6 @@
 import React, { act, useEffect, useState } from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
+import ToggleSwitch from '../Widgets/ToggleSwitch'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import Combobox from '../Widgets/Combobox'
 import { validPrimaryLangs } from '../../Services/Lang'
@@ -19,12 +20,11 @@ export default function LanguageForm ({
 
   const FORM_OPTIONS = {
     SELECT_LANGUAGE: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    ENTER_BCP47: UFIXIT_OPTIONS.ADD_TEXT,
     REMOVE_LANGUAGE: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   const [language, setLanguage] = useState("")
   const [textInputBCP47, setTextInputBCP47] = useState('')
+  const [manualEntry, setManualEntry] = useState(false)
   const [selectOptions, setSelectOptions] = useState([])
 
   // This is a special trigger in the case we are dealing with a page where the lang attribute can be found in it's <html> tag
@@ -286,38 +286,32 @@ export default function LanguageForm ({
     const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     let startingOption = ''
+    let tempManualEntry = false
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
-    }
     if (fixed) {
       if (langOption !== '') {
         startingOption = FORM_OPTIONS.SELECT_LANGUAGE
       }
       else if (rawLanguage !== '') {
-        startingOption = FORM_OPTIONS.ENTER_BCP47
+        startingOption = FORM_OPTIONS.SELECT_LANGUAGE
+        tempManualEntry = true
       }
       else if (!hasLangAttr && !tempIsHtml) {
         startingOption = FORM_OPTIONS.REMOVE_LANGUAGE
       }
     }
     setActiveOption(startingOption)
+    setManualEntry(tempManualEntry)
 
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [activeOption, language, textInputBCP47])
+  }, [activeOption, language, manualEntry, textInputBCP47])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
-    }
 
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
@@ -326,10 +320,12 @@ export default function LanguageForm ({
       element = Html.removeAttribute(element, "lang")
     }
     else if(activeOption === FORM_OPTIONS.SELECT_LANGUAGE){
-      element = Html.setAttribute(element, "lang", language)
-    }
-    else if(activeOption === FORM_OPTIONS.ENTER_BCP47){ 
-      element = Html.setAttribute(element, "lang", textInputBCP47)
+      if (manualEntry) { 
+        element = Html.setAttribute(element, "lang", textInputBCP47)
+      }
+      else {
+        element = Html.setAttribute(element, "lang", language)
+      }
     }
 
     issue.newHtml = Html.toString(element)
@@ -339,18 +335,19 @@ export default function LanguageForm ({
   const checkFormErrors = () => {
     let tempErrors = {
       [FORM_OPTIONS.SELECT_LANGUAGE]: [],
-      [FORM_OPTIONS.ENTER_BCP47]: [],
       [FORM_OPTIONS.REMOVE_LANGUAGE]: []
     }
 
     if(activeOption === FORM_OPTIONS.SELECT_LANGUAGE) {
-      if(!primaryLanguages[language]){ 
-        tempErrors[FORM_OPTIONS.SELECT_LANGUAGE].push({text: t(`form.language.error.invalidLang`), type: "error"})
+      if (manualEntry) {
+        if(!validBCP47()){ 
+          tempErrors[FORM_OPTIONS.SELECT_LANGUAGE].push({text: t('form.language.error.invalidBCP'), type: "error"})
+        }
       }
-    }
-    if(activeOption === FORM_OPTIONS.ENTER_BCP47) {
-      if(!validBCP47()){ 
-        tempErrors[FORM_OPTIONS.ENTER_BCP47].push({text: t('form.language.error.invalidBCP'), type: "error"})
+      else {
+        if(!primaryLanguages[language]){ 
+          tempErrors[FORM_OPTIONS.SELECT_LANGUAGE].push({text: t(`form.language.error.invalidLang`), type: "error"})
+        }
       }
     }
 
@@ -405,17 +402,46 @@ export default function LanguageForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.SELECT_LANGUAGE}
           labelId = 'combo-label-language-select'
-          labelText = {t(`form.language.label.select_language`)} 
+          labelText = {t(`form.language.decision.language`)}
         />
-        {activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (
+        { activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (
           <>
+            <div className="instructions mb-2">{t(`form.language.label.select_language`)} </div>
             <Combobox 
-              isDisabled={isDisabled} 
+              isDisabled={isDisabled || manualEntry} 
               handleChange={handleComboboxSelect} 
               id='language-select'
               label=''
               options={selectOptions} 
             />
+
+            <div className="flex-row justify-content-start gap-2 mt-3">
+              <ToggleSwitch
+                labelId="manualLanguage"
+                initialValue={manualEntry}
+                updateToggle={setManualEntry}
+                small={false}
+              />
+              <label id="manualLanguage" className="ufixit-instructions align-self-center">{t(`form.language.label.useBCP`)}</label>
+            </div>
+
+            { manualEntry && (
+              <>
+                <input
+                  aria-labelledby="add-text-label"
+                  type="text"
+                  tabIndex="0"
+                  id="altTextInput"
+                  name="altTextInput"
+                  className="w-100 mt-2"
+                  value={textInputBCP47}
+                  disabled={isDisabled}
+                  onChange={handleInput}
+                  placeholder={t('form.language.label.BCP_placeholder')}
+                />
+              </>
+            )}
+
             <OptionFeedback
               t={t}
               feedbackArray={formErrors[FORM_OPTIONS.SELECT_LANGUAGE]}
@@ -424,39 +450,7 @@ export default function LanguageForm ({
         )}
       </div>
 
-      {/* OPTION 2: Enter BCP47. ID: "ENTER_BCP47" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ENTER_BCP47 ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.ENTER_BCP47}
-          labelId = 'add-text-label'
-          labelText = {t(`form.language.label.useBCP`)}
-        />
-
-        {activeOption === FORM_OPTIONS.ENTER_BCP47 && (
-          <>
-            <input
-              aria-labelledby="add-text-label"
-              type="text"
-              tabIndex="0"
-              id="altTextInput"
-              name="altTextInput"
-              className="w-100"
-              value={textInputBCP47}
-              disabled={isDisabled}
-              onChange={handleInput}
-            />
-            <OptionFeedback
-              t={t}
-              feedbackArray={formErrors[FORM_OPTIONS.ENTER_BCP47]}
-            />
-          </>
-        )}
-      </div>
-
-      {/* OPTION 3: Remove lang attribute. ONLY when not on the HTML tag. ID: "REMOVE_LANGUAGE" */}
+      {/* OPTION 2: Remove lang attribute. ONLY when not on the HTML tag. ID: "REMOVE_LANGUAGE" */}
       {!isHtml && (
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.REMOVE_LANGUAGE ? 'selected' : ''}`}>
           <RadioSelector
@@ -464,12 +458,12 @@ export default function LanguageForm ({
             isDisabled={isDisabled}
             setActiveOption={setActiveOption}
             option={FORM_OPTIONS.REMOVE_LANGUAGE}
-            labelText = {t(`form.language.label.remove`)}
+            labelText = {t(`form.language.decision.no_language`)}
           />
         </div>
       )}
 
-      {/* OPTION 4: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 4: Mark as Reviewed. ID: "mark-as-reviewed"
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -478,7 +472,7 @@ export default function LanguageForm ({
           option={FORM_OPTIONS.MARK_AS_REVIEWED}
           labelText = {t('fix.label.no_changes')}
         />
-      </div>
+      </div> */}
     </>
   )
 }

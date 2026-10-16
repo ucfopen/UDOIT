@@ -18,13 +18,18 @@ export default function OptionFeedback ({
               aria-label={t(feedback.type === 'error' ? 'fix.label.feedback_error' : 'fix.label.feedback_caution', {message: feedback.text})}
               role="presentation"
               >
-              {feedback.type === 'error' && (
-                <SeverityIssueIcon className="icon-md udoit-issue-highlight align-self-top pe-2" aria-hidden="true"/>
+              <div className="option-feedback-text">
+                {feedback.type === 'error' && (
+                  <SeverityIssueIcon className="icon-md udoit-issue-highlight align-self-top pe-2" aria-hidden="true"/>
+                )}
+                {feedback.type === 'warning' && (
+                  <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2" aria-hidden="true"/>
+                )}
+                <div aria-hidden="true">{feedback.text}</div>
+              </div>
+              {feedback.number && (
+                <div className="option-feedback-number">{feedback.number}</div>
               )}
-              {feedback.type === 'warning' && (
-                <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2" aria-hidden="true"/>
-              )}
-              <div aria-hidden="true">{feedback.text}</div>
             </div>
           )}
         </div>
