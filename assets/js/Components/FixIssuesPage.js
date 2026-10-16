@@ -87,7 +87,7 @@ export default function FixIssuesPage({
   const [elementFocus, setElementFocus] = useState(true)
 
   // Ref to track grouped save in progress - prevents report useEffect from closing dialog
-  const groupedSaveRef = useRef({ inProgress: false, nextIssueToShow: null })
+  const groupedSaveRef = useRef({ inProgress: false, nextIssueIndex: null })
 
   const getSectionTitles = () => {
     let sectionTitles = {}
@@ -311,24 +311,17 @@ export default function FixIssuesPage({
 
     setActiveContentItem(null)
 
-    // If a grouped save is in progress, skip the normal holdover logic
-    // and navigate to the next issue instead
     if (groupedSaveRef.current.inProgress) {
       groupedSaveRef.current.inProgress = false
 
       setUnfilteredIssues(tempUnfilteredIssues)
-      let tempFilteredContent = getFilteredContent(tempUnfilteredIssues)
+      const tempFilteredContent = getFilteredContent(tempUnfilteredIssues)
       setFilteredIssues(tempFilteredContent)
       setGroupedList(groupList(tempFilteredContent))
 
       const targetIndex = groupedSaveRef.current.nextIssueIndex
-      let newActiveIssue = null
-
-      if (tempFilteredContent.length > 0) {
-        // Use the same index position, clamped to the new list length
-        const clampedIndex = Math.min(targetIndex, tempFilteredContent.length - 1)
-        newActiveIssue = tempFilteredContent[clampedIndex >= 0 ? clampedIndex : 0]
-      }
+      const clampedIndex = Math.min(targetIndex, tempFilteredContent.length - 1)
+      const newActiveIssue = tempFilteredContent[clampedIndex >= 0 ? clampedIndex : 0]
 
       if (newActiveIssue) {
         handleActiveIssue(newActiveIssue)
@@ -342,6 +335,9 @@ export default function FixIssuesPage({
       return
     }
 
+    // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
+    // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
+    // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
     let holdoverActiveIssue = null
 
     if(activeIssue) {  
@@ -630,40 +626,11 @@ export default function FixIssuesPage({
     }
   }
 
-  const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue) {
-      return
-    }
-
-    // Create the full HTML string for the new version of the content item.
-    const parser = new DOMParser()
-    const tempDoc = parser.parseFromString(content.body, 'text/html')
-
-    let errorElement = Html.findElementWithIssue(tempDoc, issue)
-      
-    if(!errorElement) {
-      console.warn("Could not find error element when attempting to save...")
-      return
-    }
-    const newElement = Html.toElement(issue?.newHtml)
-    
-    // Replace or remove the error element
-    if(newElement) {
-      errorElement.replaceWith(newElement)  
-    } else {
-      errorElement.remove()
-    }
-
-    return tempDoc.body.innerHTML
-  }
-
   const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
-    console.log("Coming into main function")
     if(!contentItem || !contentItem?.body || !issue) {
       return
     }
 
-    console.log("Test")
     updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
 
@@ -778,6 +745,7 @@ export default function FixIssuesPage({
     }
 
     let issue = tempActiveIssue.issueData
+    const isGroupedSave = issue.isGrouped && issue.groupedIssues?.length > 0
 
     updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
@@ -805,7 +773,7 @@ export default function FixIssuesPage({
       issue.newHtml = ''
     }
 
-    let fullPageHtml = tempActiveContentItem?.body || ''
+    let fullPageHtml = tempActiveContentItem.body
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
@@ -840,9 +808,28 @@ export default function FixIssuesPage({
         activeContentItem.body = fullPageHtml
       }
 
+      updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVED)
+
+      if (isGroupedSave) {
+        const currentActiveIndex = filteredIssues.findIndex(filteredIssue => filteredIssue.id === activeIssue?.id)
+        groupedSaveRef.current = {
+          inProgress: true,
+          nextIssueIndex: currentActiveIndex !== -1 ? currentActiveIndex : 0,
+        }
+
+        removeItemFromBeingScanned(issue.contentItemId)
+        const scanResponse = await api.scanContent(issue.contentItemId)
+        if (scanResponse.ok) {
+          const scanResponseJson = await scanResponse.json()
+          if (scanResponseJson.data) {
+            processNewReport(Object.assign({}, scanResponseJson.data))
+          }
+        }
+        return
+      }
+
       // If there isn't a new issue created, we're done.
       if(!saveResponseJson?.data?.issue) {
-        updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVED)
         removeItemFromBeingScanned(issue.contentItemId)
         return
       }

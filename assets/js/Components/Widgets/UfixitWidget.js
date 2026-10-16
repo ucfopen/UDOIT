@@ -28,25 +28,21 @@ export default function UfixitWidget({
   setPreviewData
 }) {
 
-  const [UfixitForm, setUfixitForm] = useState(null)
   const [formErrors, setFormErrors] = useState({})
+  const UfixitForm = !tempActiveIssue
+    ? null
+    : tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT
+      ? FileForm
+      : formFromIssue(tempActiveIssue.issueData)
 
   useEffect(() => {
     if(!tempActiveIssue) {
-      setUfixitForm(null)
       setMarkAsReviewed(false)
       return
     }
 
     if(tempActiveIssue.isModified === undefined) {
       setMarkAsReviewed(tempActiveIssue.status === ISSUE_FILTER.RESOLVED || tempActiveIssue.status === ISSUE_FILTER.FIXEDANDRESOLVED)
-    }
-
-    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
-      setUfixitForm(() => { return FileForm })
-    }
-    else {
-      setUfixitForm(() => formFromIssue(tempActiveIssue.issueData))
     }
   }, [tempActiveIssue])
 

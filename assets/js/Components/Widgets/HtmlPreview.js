@@ -355,19 +355,26 @@ export default function HtmlPreview({
   }, [isErrorFoundInContent])
 
   useEffect(() => {
-    const element = document.getElementsByClassName('ufixit-error-highlight')[0]
-    if (element) {
-      element.scrollIntoView({ behavior: 'instant', block: 'center' })
-    }
-
-    const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
-    if(clickedInfo?.xpath){
-      const focusedElement = Html.findElementWithXpath(doc, clickedInfo.xpath)
-      if(focusedElement && elementFocus){
-        focusedElement.focus()
+    const animationFrame = requestAnimationFrame(() => {
+      const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
+      const element = doc?.getElementsByClassName('ufixit-error-highlight')[0]
+      if (element) {
+        const containerRect = doc.getBoundingClientRect()
+        const elementRect = element.getBoundingClientRect()
+        const elementTop = doc.scrollTop + elementRect.top - containerRect.top
+        doc.scrollTop = elementTop - ((doc.clientHeight - elementRect.height) / 2)
       }
-    }
-  }, [taggedContent])
+
+      if(clickedInfo?.xpath){
+        const focusedElement = Html.findElementWithXpath(doc, clickedInfo.xpath)
+        if(focusedElement && elementFocus){
+          focusedElement.focus()
+        }
+      }
+    })
+
+    return () => cancelAnimationFrame(animationFrame)
+  }, [taggedContent, activeIssue?.id])
     
   return (
     <>
