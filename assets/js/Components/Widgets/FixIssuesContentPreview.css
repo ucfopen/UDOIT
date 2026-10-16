@@ -148,6 +148,11 @@
       font-weight: 300;
       line-height: 1.5em;
     }
+
+    cite {
+      font-style: normal;
+      font-weight: normal;
+    }
   }
 
   code {
