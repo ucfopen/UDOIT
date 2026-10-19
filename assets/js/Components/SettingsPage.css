@@ -40,6 +40,10 @@
             }
           }
 
+          label.settings-row {
+            color: var(--text-secondary-color);
+          }
+
           .divider {
             border-top: 1px solid var(--border-color);
             margin: 1.5rem -1.5rem;

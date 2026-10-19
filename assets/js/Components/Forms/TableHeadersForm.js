@@ -268,16 +268,15 @@ export default function TableHeadersForm({
               ))}
             </div>
             { hasPotentialCaption && (
-              <div className="flex-row justify-content-start gap-2 mt-2">
-              <ToggleSwitch
-                labelId="captionCheckbox"
-                initialValue={extractCaption}
-                updateToggle={setExtractCaption}
-                disabled={isDisabled}
-                small={false}
-              />
-              <label id="captionCheckbox" className="ufixit-instructions align-self-center">{t('form.table_headers.label.caption')}</label>
-            </div>
+              <label>
+                <ToggleSwitch
+                  initialValue={extractCaption}
+                  updateToggle={setExtractCaption}
+                  disabled={isDisabled}
+                  small={false}
+                />
+                <div>{t('form.table_headers.label.caption')}</div>
+              </label>
             )}
             <OptionFeedback
               t={t}
@@ -297,17 +296,6 @@ export default function TableHeadersForm({
           labelText = {t('form.table_headers.decision.no_data')}
         />
       </div>
-
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-      {/* <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
-        />
-      </div> */}
     </>
   )
 }

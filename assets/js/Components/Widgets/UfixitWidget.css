@@ -63,7 +63,28 @@
     + * {
       width: 100%;
       margin-block-start: 1em;
+      display: flex;
     }
+  }
+
+  label {
+    align-items: center;
+
+    &:has(input:not(:disabled)) {
+      cursor: pointer;
+    }
+
+    &:has(input:disabled) {
+      cursor: not-allowed;
+    }
+
+    &:has(.css-switch) {
+      margin-top: 1em;
+    }
+  }
+
+  .instructions {
+    margin-block-end: calc(1.0 * var(--spacer));
   }
 
   .subtext {
@@ -84,6 +105,10 @@
     &:disabled {
       accent-color: var(--button-disabled-background-color);
     }
+  }
+
+  input[type=text] {
+    margin-block-start: calc(0.5 * var(--spacer));
   }
 
   textarea {

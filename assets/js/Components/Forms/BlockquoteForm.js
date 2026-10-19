@@ -161,16 +161,15 @@ export default function BlockquoteForm({
               disabled={isDisabled}
               onChange={handleInput}
             />
-            <div className="flex-row justify-content-start gap-1 mt-3">
+            <label>
               <ToggleSwitch
-                labelId="hideCitationToggle"
                 initialValue={hideCitation}
                 updateToggle={setHideCitation}
                 disabled={isDisabled}
                 small={true}
               />
-              <label htmlFor="hideCitationToggle" className="ufixit-instructions">{t('form.blockquote.label.hide_citation')}</label>
-            </div>
+              <div>{t('form.blockquote.label.hide_citation')}</div>
+            </label>
             <div className="subtext">{t('form.blockquote.label.hide_citation_desc')}</div>
             <OptionFeedback
               t={t}

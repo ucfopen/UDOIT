@@ -642,6 +642,19 @@
     }
   }
 
+  label {
+    &:has(input:not(:disabled)) {
+      cursor: pointer;
+    }
+
+    &:has(.css-switch) {
+      display: flex;
+      flex-direction: row;
+      gap: .75em;
+      align-items: center;
+    }
+  }
+
   input[type="range"] {
     font-size: inherit;
     --range-slider-height: 1.33em;

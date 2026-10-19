@@ -192,16 +192,15 @@ export default function HeadingStyleForm ({
         {activeOption === FORM_OPTIONS.MARK_AS_REVIEWED && (
           <>
             { hasStyling && (
-              <div className="flex-row justify-content-start gap-1 mt-3">
+              <label>
                 <ToggleSwitch
-                  labelId="removeStylingCheckbox"
                   initialValue={removeStyling}
                   updateToggle={setRemoveStyling}
                   disabled={isDisabled}
                   small={true}
                 />
-                <label htmlFor="removeStylingCheckbox" className="ufixit-instructions">{t('form.heading_style.label.remove_styling')}</label>
-              </div>
+                <div>{t('form.heading_style.label.remove_styling')}</div>
+              </label>
             )}
           </>
         )}

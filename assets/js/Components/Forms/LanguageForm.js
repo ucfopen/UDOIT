@@ -415,15 +415,14 @@ export default function LanguageForm ({
               options={selectOptions} 
             />
 
-            <div className="flex-row justify-content-start gap-2 mt-3">
+            <label>
               <ToggleSwitch
-                labelId="manualLanguage"
                 initialValue={manualEntry}
                 updateToggle={setManualEntry}
                 small={false}
               />
-              <label id="manualLanguage" className="ufixit-instructions align-self-center">{t(`form.language.label.useBCP`)}</label>
-            </div>
+              <div>{t(`form.language.label.useBCP`)}</div>
+            </label>
 
             { manualEntry && (
               <>
@@ -462,17 +461,6 @@ export default function LanguageForm ({
           />
         </div>
       )}
-
-      {/* OPTION 4: Mark as Reviewed. ID: "mark-as-reviewed"
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
-        />
-      </div> */}
     </>
   )
 }

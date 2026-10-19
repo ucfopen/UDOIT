@@ -204,16 +204,15 @@ export default function KeyboardTabbableForm({
         />
         { activeOption === FORM_OPTIONS.REMOVE_ROLE && surroundingText && (
           <>
-            <div className="flex-row justify-content-start gap-2">
+            <label>
               <ToggleSwitch
-                labelId="textOnlyCheckbox"
                 initialValue={mergeText}
                 updateToggle={setMergeText}
                 disabled={isDisabled}
                 small={false}
               />
-              <label id="textOnlyCheckbox" className="ufixit-instructions align-self-center">{t('form.keyboard_tabbable.label.merge_text')}</label>
-            </div>
+              <div>{t('form.keyboard_tabbable.label.merge_text')}</div>
+            </label>
           </>
         )}
       </div>

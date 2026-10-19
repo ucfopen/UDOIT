@@ -29,26 +29,15 @@ export default function ToggleSwitch({
     return (
         <div className={`css-switch${small ? ' small' : ''}`}>
             <input
-                tabIndex="-1"
+                aria-labelledby={labelId}
                 type="checkbox"
-                aria-hidden="true"
                 checked={toggleValue}
-                onChange={() => {}}
+                onChange={() => handleClick()}
                 disabled={disabled}
             />
-            <span
-                aria-labelledby={labelId}
+            <div
                 className="slider round"
-                onClick={() => handleClick()}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        handleClick()
-                    }
-                }}
-                tabIndex="0"
-                role="checkbox"
-                aria-checked={toggleValue}
-                aria-disabled={disabled}
+                aria-hidden="true"
                 disabled={disabled}
             />
         </div>

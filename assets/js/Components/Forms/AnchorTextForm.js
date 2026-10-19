@@ -193,18 +193,15 @@ export default function AnchorTextForm ({
                 feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
               />
               {hasImage && (
-                <div className="flex-row justify-content-start gap-1 mt-2">
+                <label>
                   <ToggleSwitch
-                    labelId="hideTextToggle"
                     initialValue={hideText}
                     updateToggle={setHideText}
                     disabled={isDisabled}
                     small={false}
                   />
-                  <label id="hideTextToggle" className="ufixit-instructions align-self-center">
-                    {t('form.anchor.label.hide_text')}
+                  <div>{t('form.anchor.label.hide_text')}</div>
                   </label>
-                </div>
               )}
             </>    
           )}

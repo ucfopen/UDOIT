@@ -266,31 +266,29 @@ export default function TabbableInvisibleForm({
             />
             { hasNestedImage && (
               <>
-                <div className="flex-row justify-content-start gap-1 mt-3">
+                <label>
                   <ToggleSwitch
-                    labelId="hideTextToggle"
                     initialValue={hideText}
                     updateToggle={setHideText}
                     disabled={isDisabled}
                     small={true}
                   />
-                  <label htmlFor="hideTextToggle" className="ufixit-instructions">{t('form.tabbable_invisible.label.hide_text')}</label>
-                </div>
+                  <div>{t('form.tabbable_invisible.label.hide_text')}</div>
+                </label>
                 <div className="subtext">{t('form.tabbable_invisible.label.hide_text_desc')}</div>
               </>
             )}
             { hasNonTextChildren && (
               <>
-                <div className="flex-row justify-content-start gap-1 mt-3">
+                <label>
                   <ToggleSwitch
-                    labelId="textBeforeToggle"
                     initialValue={insertBefore}
                     updateToggle={setInsertBefore}
                     disabled={isDisabled || hideText}
                     small={true}
                   />
-                  <label htmlFor="textBeforeToggle" className="ufixit-instructions">{t('form.tabbable_invisible.label.insert_before')}</label>
-                </div>
+                  <div>{t('form.tabbable_invisible.label.insert_before')}</div>
+                </label>
               </>
             )}
             <OptionFeedback
