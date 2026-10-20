@@ -25,6 +25,7 @@ export default function BlockquoteForm({
 
   const [textInputValue, setTextInputValue] = useState("")
   const [hideCitation, setHideCitation] = useState(false)
+  const [removeStyle, setRemoveStyle] = useState(false)
 
   // Re-init form when activeIssue changes
   useEffect(() => {
@@ -37,15 +38,20 @@ export default function BlockquoteForm({
     let tempCitationText = ""
     let inlineCite = ""
     let elementCite = null
+    let hasStyle = false
     
-    const isBlockquote = element && element?.tagName?.toLowerCase() === 'blockquote'
+    const isBlockquote = (element && element?.tagName?.toLowerCase() === 'blockquote')
     if(isBlockquote) {
       inlineCite = element.querySelector('[cite]')?.getAttribute('cite');
       elementCite = element.querySelector('cite')?.innerText;
       tempCitationText = (elementCite ? elementCite : inlineCite ? inlineCite : '').trim();
+      hasStyle = true;
+    }
+    else {
+      hasStyle = Html.hasAttribute(element, "style");
     }
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
     let startingOption = ''
 
     if (fixed) {
@@ -57,6 +63,7 @@ export default function BlockquoteForm({
       }
     }
 
+    setRemoveStyle(!hasStyle)
     setTextInputValue(tempCitationText || "")
     setHideCitation(inlineCite && !elementCite)
     setActiveOption(startingOption)
@@ -66,7 +73,7 @@ export default function BlockquoteForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [activeOption, textInputValue, hideCitation])
+  }, [activeOption, textInputValue, hideCitation, removeStyle])
 
   const updateHtmlContent = () => {
     let issue = activeIssue;
@@ -76,7 +83,9 @@ export default function BlockquoteForm({
 
       // Duplicate the blockquote content in a <div>, and style it to match.
       const styleOnlyElement = Html.renameElement(element, "div");
-      Html.setAttribute(styleOnlyElement, "style", "padding-inline-start: 1em;border-inline-start: 5px solid rgba(128, 128, 128, .4);font-weight:300;margin:1em 0;");
+      if (!removeStyle) {
+        Html.setAttribute(styleOnlyElement, "style", "padding-inline-start: 1em;border-inline-start: 5px solid rgba(128, 128, 128, .4);font-weight:300;margin:1em 0;");
+      }
       const existingCite = styleOnlyElement.querySelector('cite');
       if (existingCite) {
         const pCiteElement = Html.renameElement(existingCite, "p");
@@ -166,7 +175,6 @@ export default function BlockquoteForm({
                 initialValue={hideCitation}
                 updateToggle={setHideCitation}
                 disabled={isDisabled}
-                small={true}
               />
               <div>{t('form.blockquote.label.hide_citation')}</div>
             </label>
@@ -188,6 +196,16 @@ export default function BlockquoteForm({
           option={FORM_OPTIONS.STYLE_ONLY}
           labelText = {t('form.blockquote.decision.style')}
         />
+        {activeOption === FORM_OPTIONS.STYLE_ONLY && (
+          <label>
+            <ToggleSwitch
+              initialValue={removeStyle}
+              updateToggle={setRemoveStyle}
+              disabled={isDisabled}
+            />
+            <div>{t('form.blockquote.label.remove_style')}</div>
+          </label>
+        )}
       </div>
     </>
   )

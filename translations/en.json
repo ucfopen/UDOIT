@@ -467,6 +467,7 @@
   "form.blockquote.text.placeholder": "e.g. title of book or article, author name, or URL",
   "form.blockquote.label.hide_citation": "Hide Citation Visually (Optional)",
   "form.blockquote.label.hide_citation_desc": "Only use this option if the citation is already included in the page text.",
+  "form.blockquote.label.remove_style": "Remove Blockquote Style",
   "form.blockquote.label.remove_blockquote": "Remove Blockquote Formatting",
   "form.blockquote.msg.text_empty": "Citation cannot be empty",
   "rule.desc.blockquote_cite_exists": "",
