@@ -198,7 +198,7 @@ class CanvasLms implements LmsInterface
         }
 
         /* get page content */
-        if ('page' === $contentType) {
+        if ('page' === $contentType && $lmsContent["body"] === '') {
             $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
             $pageResponse = $canvasApi->apiGet($url);
             $pageObj = $pageResponse->getContent();
@@ -1074,7 +1074,7 @@ class CanvasLms implements LmsInterface
             'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
             'file' =>               "courses/{$courseId}/files",
             'module' =>             "courses/{$courseId}/modules?include[]=items",
-            'page' =>               "courses/{$courseId}/pages",
+            'page' =>               "courses/{$courseId}/pages?include[]=body",
             'quiz' =>               "courses/{$courseId}/quizzes",
         ];
     }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 
-import Api from '../Services/Api'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
@@ -13,6 +12,7 @@ import RightArrowIcon from './Icons/RightArrowIcon'
 import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
 import { ISSUE_FILTER } from '../Services/Constants'
+import { api } from '../Services/Api'
 
 export default function ReportsPage({
   t,
@@ -28,7 +28,6 @@ export default function ReportsPage({
   const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
-    const api = new Api(instanceInfo)
     api.getReportHistory()
       .then((responseStr) => responseStr.json())
       .then((response) => {
