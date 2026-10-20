@@ -20,7 +20,6 @@
   .ufixit-widget-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     flex: 1 1 auto;
 
     box-sizing:border-box;

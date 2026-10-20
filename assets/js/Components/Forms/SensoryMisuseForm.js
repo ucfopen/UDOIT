@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import RadioSelector from '../Widgets/RadioSelector'
 import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import * as Html from '../../Services/Html'
 // The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
@@ -7,19 +8,18 @@ import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
   t, 
-  activeIssue, 
-  handleIssueSave, 
-  addMessage,
+  activeIssue,
   isDisabled,
   handleActiveIssue,
   activeOption,
   setActiveOption,
-  formErrors,
-  setFormErrors
+  setFormErrors,
+  setPreviewData
 }) {
 
   const FORM_OPTIONS = {
-    EDIT_TEXT: UFIXIT_OPTIONS.ADD_TEXT
+    EDIT_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
@@ -61,11 +61,26 @@ export default function SensoryMisuseForm({
     if(!activeIssue) {
       return
     }
-    
+
     let html = Html.getIssueHtml(activeIssue)
-    setEditorHtml(html)
-    setActiveOption(FORM_OPTIONS.EDIT_TEXT)
-    setFormErrors([])
+    setEditorHtml(html);
+    const matchedWords = checkForSensoryWords(html);
+
+    setFormErrors([]);
+
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    let startingOption = '';
+
+    if (fixed) {
+      if (matchedWords.length > 0) {
+        startingOption = FORM_OPTIONS.EDIT_TEXT;
+      }
+      else {
+        startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
+      }
+    }
+
+    setActiveOption(startingOption);
 
     tinymce.remove()
     tinymce.init({
@@ -95,22 +110,23 @@ export default function SensoryMisuseForm({
         // By default, certain commands like undo/redo and toggling things like bold and italic do not trigger the 'input' event,
         // meaning that the updatePreview function isn't called (which can affect saving).
         editor.on('ExecCommand', (e) => {
-          const updateCommands = ['mceToggleFormat', 'undo', 'redo']
+          const updateCommands = ['mceToggleFormat', 'undo', 'redo'];
           if(e.command && updateCommands.includes(e.command)) {
-            handleEditorChange(editor.getContent())
+            handleEditorChange(editor.getContent());
           }
         })
       }
     })
 
     return () => {
-      tinymce.remove()
+      tinymce.remove();
     }
   }, [activeIssue])
 
   useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
-    setSensoryErrors(matchedWords)
+    setSensoryErrors(matchedWords);
+    setPreviewData(matchedWords);
   }, [editorHtml])
 
   const handleEditorChange = (html) => {
@@ -183,19 +199,34 @@ export default function SensoryMisuseForm({
           let text = result.textContent
           // we use regex to further filter the xpath result so we're only matching whole words
           // so "laptop" no longer matches, but "top", "top.", "top;" ... etc. matches
-          const wordRegex = new RegExp(`\\b${word}\\b`, 'i')
-          let match = wordRegex.exec(text)
+          const wordRegex = new RegExp(`\\b${word}\\b`, 'gi')
+          let matches = text.matchAll(wordRegex);
 
-          if (match) {
-            // create selection range
-            const range = editor.getDoc().createRange()
-            range.setStart(result, match.index)
-            range.setEnd(result, match.index + match[0].length)
+          let tempStart = 0;
+          let tempEnd = 0;
+          const existingRange = editor.selection.getRng();
+          let currentStart = existingRange?.endOffset || Infinity;
+          let preferred = false;
 
-            // set selection in tinymce then scroll to the selection
-            editor.selection.setRng(range)
-            editor.selection.scrollIntoView()
-            break
+          for (const match of matches) {
+
+            if (tempEnd === 0 || (!preferred && match.index > currentStart)) {
+              tempStart = match.index;
+              tempEnd = match.index + match[0].length;
+              if (tempStart > currentStart) {
+                preferred = true;
+              }
+            }
+            
+          }
+
+          if (tempEnd > 0) {
+            const range = editor.getDoc().createRange();
+            range.setStart(result, tempStart);
+            range.setEnd(result, tempEnd);
+
+            editor.selection.setRng(range);
+            editor.selection.scrollIntoView();
           }
           // otherwise, if the regex fails, continue iterating through xpath results
           result = xpathResults.iterateNext()
@@ -213,9 +244,8 @@ export default function SensoryMisuseForm({
   const updatePreview = (html) => {
     let element = Html.toElement(html)
     let issue = activeIssue
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
 
-    let newElement = Html.addClass(issue.sourceHtml, specificClassName)
+    let newElement = Html.addClass(issue.sourceHtml, issue.ignoreClass);
     newElement.innerHTML = element.innerHTML || html
     issue.newHtml = Html.toString(newElement)
 
@@ -224,25 +254,52 @@ export default function SensoryMisuseForm({
 
   return (
     <>
-      <div className="instructions">{t('form.sensory_misuse.label.instructions')}</div>
-      { sensoryErrors.length > 0 ? (
-        <div className="flex-row flex-wrap gap-1 mt-2 mb-2">
-          <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
-          {sensoryErrors.map((word) => (
-            <button
-              className="tag"
-              tabIndex="0"
-              key={word}
-              onClick={() => goToWord(word)}
-            >
-              {word}
-            </button>
-          ))}
+      {/* OPTION 1: Edit text. ID: "EDIT_TEXT" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.EDIT_TEXT ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.EDIT_TEXT}
+          labelId = 'edit-text-label'
+          labelText = {t('form.sensory_misuse.decision.instructions')}
+        />
+
+        <div
+          inert={activeOption === FORM_OPTIONS.EDIT_TEXT ? undefined : true}
+          className={activeOption === FORM_OPTIONS.EDIT_TEXT ? "" : "hidden"}>
+          <div className="instructions mb-3">{t('form.sensory_misuse.label.instructions')}</div>
+          { sensoryErrors.length > 0 ? (
+            <div className="flex-row flex-wrap gap-1 mb-3">
+              <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
+              {sensoryErrors.map((word) => (
+                <button
+                  className="tag"
+                  tabIndex="0"
+                  key={word}
+                  onClick={() => goToWord(word)}
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="ufixit-widget-label mb-3">{t('form.sensory_misuse.label.none')}</div>
+          )}
+          <textarea id="sensory-misuse-textarea"></textarea>
         </div>
-      ) : (
-        <div className="ufixit-widget-label mt-2">{t('form.sensory_misuse.label.none')}</div>
-      )}
-      <textarea id="sensory-misuse-textarea"></textarea>
+      </div>
+
+      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('form.sensory_misuse.decision.no_instructions')}
+        />
+      </div>
     </>
   )
 }

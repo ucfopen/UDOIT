@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import LeftArrowIcon from '../Icons/LeftArrowIcon'
-import DisabilityCognitiveIcon from '../Icons/DisabilityCognitiveIcon'
-import DisabilityHearingIcon from '../Icons/DisabilityHearingIcon'
-import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
-import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
+// import DisabilityCognitiveIcon from '../Icons/DisabilityCognitiveIcon'
+// import DisabilityHearingIcon from '../Icons/DisabilityHearingIcon'
+// import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
+// import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import { disabilityTypes, disabilitiesFromRule, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
 import { ISSUE_FILTER } from '../../Services/Constants'
@@ -46,49 +46,22 @@ export default function LearnMore ({
   return (
     <>
       { showLearnMore && (
-        <div className="flex-column h-100">
-          <div className="ufixit-widget-dialog-content flex-column flex-grow-1">
-            <div className="flex-row justify-content-start mb-2 mt-2">
-              <button id="btn-learn-more-back" className="btn-link btn-icon-left btn-small ps-0" onClick={() => hideLearnMore()} tabIndex="0">
-                <LeftArrowIcon className="icon-sm link-color me-2" alt=""/>
-                {t('fix.button.back')}
+        <div className="learn-more-container">
+          <div className="ufixit-widget-dialog-content flex-column flex-grow-1 gap-2">
+            <div className="flex-row justify-content-start mt-3 gap-2">
+              <button
+                id="btn-learn-more-back"
+                className="btn-secondary btn-icon-only ps-2 pe-2"
+                onClick={() => hideLearnMore()} tabIndex="0"
+                aria-label={t('fix.button.back')}
+                title={t('fix.button.back')}>
+                <LeftArrowIcon className="icon-sm link-color" alt="" aria-hidden="false"/>
               </button>
+              <div
+                className="flex-grow-1 flex-column ufixit-learn-container"
+                dangerouslySetInnerHTML={{__html: formLearnMore }}
+              />
             </div>
-            { disabilities.length > 0 && (<div className="dialog-indicator-background">
-              <div className="dialog-indicator-container flex-row gap-1">
-                <div className="indicator-affects">
-                  {t('fix.label.affected')}
-                </div>
-                <div className="flex-row flex-wrap gap-1">
-                  {disabilities.includes(disabilityTypes.VISUAL) && (  
-                    <div className='indicator-container'>
-                      <DisabilityVisualIcon className="icon-md pe-2" alt=""/>
-                      <div className="flex-column align-self-center">{t('fix.label.disability.visual')}</div>
-                    </div>
-                  )}
-                  {disabilities.includes(disabilityTypes.HEARING) && (
-                    <div className='indicator-container'>
-                      <DisabilityHearingIcon className="icon-md pe-2" alt=""/>
-                      <div className="flex-column align-self-center">{t('fix.label.disability.hearing')}</div>
-                    </div>
-                  )}
-                  {disabilities.includes(disabilityTypes.MOTOR) && (
-                    <div className='indicator-container'>
-                      <DisabilityMotorIcon className="icon-md pe-2" alt=""/>
-                      <div className="flex-column align-self-center">{t('fix.label.disability.motor')}</div>
-                    </div>
-                  )}
-                  {disabilities.includes(disabilityTypes.COGNITIVE) && (
-                    <div className='indicator-container'>
-                      <DisabilityCognitiveIcon className="icon-md pe-2" alt=""/>
-                      <div className="flex-column align-self-center">{t('fix.label.disability.cognitive')}</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>)}
-            <div className="flex-grow-1 flex-column ufixit-learn-container pt-3 pb-3"
-              dangerouslySetInnerHTML={{__html: formLearnMore }} />
             <div className="flex-row justify-content-center mb-3">
               <button id="btn-learn-more-close" className="btn-secondary" onClick={() => hideLearnMore()} tabIndex="0">
                 {t('fix.button.close')}

@@ -40,7 +40,7 @@
 
     &.disabled {
       color: var(--gray);
-      background-color: transparent;
+      background-color: #90909020;
       border-color: var(--gray-light);
       cursor: not-allowed !important;
       pointer-events: none;

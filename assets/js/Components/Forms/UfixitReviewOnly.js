@@ -24,8 +24,8 @@ export default function UfixitReviewOnly({
       return
     }
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    const reviewed = Html.hasClass(activeIssue.newHtml, activeIssue.ignoreClass);
     let startingOption = ''
 
     if (reviewed){
