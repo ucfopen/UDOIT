@@ -1,0 +1,101 @@
+.severity-header {
+  padding: .3em 1.5em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  font-weight: 400;
+  border-bottom: 1px solid var(--border-color);
+
+  &.issue {
+    background-color: var(--pill-error-background);
+    border-color: var(--pill-error-border);
+    color: var(--pill-error-text);
+
+    .disability-icons svg {
+      background-color: var(--white);
+      border-color: var(--pill-error-border);
+      fill: var(--error-color);
+    }
+  }
+  &.potential {
+    background-color: var(--pill-warning-background);
+    border-color: var(--pill-warning-border);
+    color: var(--pill-warning-text);
+
+    .disability-icons svg {
+      background-color: var(--white);
+      border-color: var(--pill-warning-border);
+      fill: var(--potential-color);
+    }
+  }
+  &.fixed {
+    background-color: var(--pill-success-background);
+    border-color: var(--pill-success-border);
+    color: var(--pill-success-text);
+
+    .disability-icons svg {
+      background-color: var(--white);
+      border-color: var(--pill-success-border);
+      fill: var(--success-color);
+    }
+  }
+
+  .severity-label {
+    display: flex;
+    flex-direction: row;
+    gap: .5em;
+    font-size: calc(.9 * var(--font-size));
+  }
+
+  .disability-icons {
+    display: flex;
+    flex-direction: row;
+    gap: .4em;
+    align-items: center;
+    font-size: calc(.9 * var(--font-size));
+
+    a {
+      line-height: 0;
+
+      &:focus {
+        outline: none;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 1px;
+      }
+    }
+
+    svg {
+      padding: 0.2em;
+      box-sizing: border-box;
+      width: 1.85em;
+      height: 1.75em;
+      border-radius: .5em;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    [popover] {
+      position-area: bottom;
+      position-try-fallbacks: flip-block;
+      border: 2px solid var(--info-color);
+      font-weight: 300;
+      font-size: .9em;
+      border-radius: .5em;
+      padding: .5em;
+      margin: .25em .5em;
+      line-height: normal;
+      background-color: var(--info-color-background);
+      color: var(--text-color);
+    }
+
+    [interestfor] {
+      interest-delay-start: 0s;
+    }
+  }
+
+}

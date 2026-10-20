@@ -35,8 +35,8 @@ export default function TableCaptionForm({
     setTextInputValue(initialText)
     setFormErrors([])
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    const reviewed = Html.hasClass(element, activeIssue.ignoreClass);
     const deleted = !activeIssue.newHtml
     let startingOption = ''
 

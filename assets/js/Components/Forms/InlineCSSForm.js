@@ -145,7 +145,7 @@ export default function InlineCSSForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.REMOVE_STYLING}
-          labelText = {t('form.inline_css.label.remove_style')}
+          labelText = {t('form.invalid_css.label.remove_style')}
           />
       </div>
 
@@ -156,7 +156,7 @@ export default function InlineCSSForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DEEMPHASIZE_STYLING}
-          labelText = {t('form.inline_css.label.remove_important')}
+          labelText = {t('form.invalid_css.label.remove_important')}
           />
       </div>
 
