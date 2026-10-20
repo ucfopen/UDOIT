@@ -103,7 +103,7 @@ export default function TabbableInvisibleForm({
       setHideText(tempHideText);
       setLinkUrl(tempLinkUrl);
 
-      const fixed = (activeIssue.status === 1 || activeIssue.status === 3);
+      const fixed = activeIssue.status > 1;
       const deleted = !activeIssue.newHtml;
       let startingOption = '';
 
@@ -171,7 +171,7 @@ export default function TabbableInvisibleForm({
                 // If we're hiding the text, then the nested image requires alt text.
                 if (hideText) {
                   Html.setAttribute(child, "alt", textInputValue);
-                  Html.addClass(element, "udoit-ignore-element-tabbable-visible");
+                  Html.addClass(element, issue.ignoreClass);
                 }
                 // If we're not hiding the text, the image should be marked as decorative (alt="").
                 else {

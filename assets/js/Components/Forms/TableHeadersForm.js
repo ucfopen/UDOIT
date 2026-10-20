@@ -56,7 +56,7 @@ export default function TableHeadersForm({
       }
     }
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
     let startingOption = '';
 
     if (fixed) {
@@ -192,21 +192,24 @@ export default function TableHeadersForm({
 
     // Create a <thead> row before the <tbody> with its first row.
     if ('col' === selectedValue || 'both' === selectedValue) {
-      let row = table.rows[0]
+      let firstRow = table.rows[0]
       
-      for (let cell of row.cells) {
+      // If the user has selected the extractCaption option, there may be a table with no more rows.
+      if (firstRow) {
+        for (let cell of firstRow.cells) {
         let newCell = Html.renameElement(cell, 'th')
         newCell.setAttribute('scope', 'col')
-        row.replaceChild(newCell, cell)        
+          firstRow.replaceChild(newCell, cell)        
       }
 
       let tableBody = table.querySelector("tbody");
       if (tableBody) {
         let tableHeader = Html.toElement("<thead></thead>");
-        let rowClone = Html.toElement(Html.toString(row));
+          let rowClone = Html.toElement(Html.toString(firstRow));
         tableHeader.append(rowClone);
         tableBody.before(tableHeader);
-        row.remove();
+          firstRow.remove();
+        }
       }
     }
 

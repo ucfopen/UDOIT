@@ -8,14 +8,11 @@ import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
   t, 
-  activeIssue, 
-  handleIssueSave, 
-  addMessage,
+  activeIssue,
   isDisabled,
   handleActiveIssue,
   activeOption,
   setActiveOption,
-  formErrors,
   setFormErrors,
   setPreviewData
 }) {
@@ -64,20 +61,23 @@ export default function SensoryMisuseForm({
     if(!activeIssue) {
       return
     }
-    
+
     let html = Html.getIssueHtml(activeIssue)
     setEditorHtml(html);
+    const matchedWords = checkForSensoryWords(html);
+
     setFormErrors([]);
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3);
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
     let startingOption = '';
 
-    if (reviewed){
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
-    }
     if (fixed) {
-      startingOption = FORM_OPTIONS.EDIT_TEXT;
+      if (matchedWords.length > 0) {
+        startingOption = FORM_OPTIONS.EDIT_TEXT;
+      }
+      else {
+        startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
+      }
     }
 
     setActiveOption(startingOption);
@@ -244,9 +244,8 @@ export default function SensoryMisuseForm({
   const updatePreview = (html) => {
     let element = Html.toElement(html)
     let issue = activeIssue
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
 
-    let newElement = Html.addClass(issue.sourceHtml, specificClassName)
+    let newElement = Html.addClass(issue.sourceHtml, issue.ignoreClass);
     newElement.innerHTML = element.innerHTML || html
     issue.newHtml = Html.toString(newElement)
 

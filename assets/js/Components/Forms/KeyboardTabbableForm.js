@@ -12,7 +12,6 @@ export default function KeyboardTabbableForm({
   handleActiveIssue,
   activeOption,
   setActiveOption,
-  formErrors,
   setFormErrors
 }) {
 

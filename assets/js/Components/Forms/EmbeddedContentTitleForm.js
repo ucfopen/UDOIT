@@ -57,12 +57,11 @@ export default function EmbeddedContentTitleForm({
     let issue = activeIssue;
     let html = Html.getIssueHtml(activeIssue);
     let updatedElement = Html.toElement(html);
-    const ignoreClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`;
 
     if (activeOption === FORM_OPTIONS.ADD_LABEL) {
       Html.removeAttribute(updatedElement, "role", "presentation");
       Html.removeAttribute(updatedElement, "role", "none");
-      Html.removeClass(updatedElement, ignoreClassName);
+      Html.removeClass(updatedElement, issue.ignoreClass);
       Html.setAttribute(updatedElement, "aria-label", textInputValue);
       if (activeIssue.scanRuleId == 'media_alt_exists') {
         Html.setAttribute(updatedElement, "label", textInputValue);
@@ -77,7 +76,7 @@ export default function EmbeddedContentTitleForm({
       Html.removeAttribute(updatedElement, "aria-label");
       Html.removeAttribute(updatedElement, "label");
       Html.removeAttribute(updatedElement, "title");
-      Html.addClass(updatedElement, ignoreClassName);
+      Html.addClass(updatedElement, issue.ignoreClass);
       Html.setAttribute(updatedElement, "role", "presentation");
     }
 

@@ -76,7 +76,6 @@ export default function FixIssuesPage({
   const [UfixitForm, setUfixitForm] = useState(null)
   const [showLearnMore, setShowLearnMore] = useState(false)
   const [quickLoad, setQuickLoad] = useState((initialSeverity !== '' && initialSearchTerm === ''))
-  const [markAsReviewed, setMarkAsReviewed] = useState(false)
   const [formInvalid, setFormInvalid] = useState(true)
   const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -178,9 +177,10 @@ export default function FixIssuesPage({
 
     let formName = formNameFromRule(issue.scanRuleId)
     let formLabel = t(`form.${formName}.title`)
+    const ignoreClass = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`;
 
     return {
-      issueData: Object.assign({}, issue, { contentUrl: tempContentItem?.url || '' }, { parentLmsId: parentLmsId }),
+      issueData: Object.assign({}, issue, { contentUrl: tempContentItem?.url || '' }, { parentLmsId: parentLmsId }, { ignoreClass: ignoreClass }),
       id: issue.id,
       severity: issueSeverity,
       status: issueResolution,
@@ -428,6 +428,9 @@ export default function FixIssuesPage({
     // Find the target element from the original page and also create a replacement element from the issue data.
     let originalElement = Html.findElementWithIssue(fullPageDoc, issue.issueData)
     let editedElement = Html.toElement(issue.issueData.newHtml)
+    if (activeOption === UFIXIT_OPTIONS.MARK_AS_REVIEWED) {
+      Html.addClass(editedElement, issue.issueData.ignoreClass);
+    }
     const originalElementTag = Html.getTagName(originalElement)
     const editedElementTag = Html.getTagName(editedElement)
 
@@ -439,10 +442,7 @@ export default function FixIssuesPage({
         originalElement.remove()
       }
       else if(editedElement) { 
-        originalElement.insertAdjacentElement('afterend', editedElement)
-        let tempElement = originalElement.nextSibling
-        originalElement.remove()
-        originalElement = tempElement
+        originalElement.replaceWith(editedElement);
       }
       setIsErrorFoundInContent(true)
     }
@@ -469,7 +469,6 @@ export default function FixIssuesPage({
       setActiveContentItem(null)
       setTempActiveIssue(null)
       setUfixitForm(null)
-      setMarkAsReviewed(false)
       setWidgetState(WIDGET_STATE.LIST)
       setShowLearnMore(false)
       closeDialog()
@@ -479,9 +478,6 @@ export default function FixIssuesPage({
     setActiveIssue(newIssue)
     setMostRecentIssueId(newIssue.id)
     setUfixitForm(() => formFromIssue(newIssue.issueData))
-    if(newIssue.isModified === undefined) {
-      setMarkAsReviewed(newIssue.status === ISSUE_FILTER.RESOLVED || newIssue.status === ISSUE_FILTER.FIXEDANDRESOLVED)
-    }
     
     // We ONLY want this to trigger events on a real change.
     if(widgetState !== WIDGET_STATE.FIXIT) {
@@ -643,142 +639,6 @@ export default function FixIssuesPage({
     }
   }
 
-  const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue) {
-      return
-    }
-
-    // Create the full HTML string for the new version of the content item.
-    const parser = new DOMParser()
-    const tempDoc = parser.parseFromString(content.body, 'text/html')
-
-    let errorElement = Html.findElementWithIssue(tempDoc, issue)
-      
-    if(!errorElement) {
-      console.warn("Could not find error element when attempting to save...")
-      return
-    }
-    const newElement = Html.toElement(issue?.newHtml)
-    
-    // Replace or remove the error element
-    if(newElement) {
-      errorElement.replaceWith(newElement)  
-    } else {
-      errorElement.remove()
-    }
-
-    return tempDoc.body.innerHTML
-  }
-
-  const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
-    console.log("Coming into main function")
-    if(!contentItem || !contentItem?.body || !issue) {
-      return
-    }
-
-    console.log("Test")
-    updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVING)
-    addItemToBeingScanned(issue.contentItemId)
-
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-    if (markAsReviewed) {
-      // 0 (unreviewed) <=> 2 (reviewed)
-      // 1 (fixed) <=> 3 (fixedandreviewed)
-      if (issue.status < 2) {
-        issue.status += 2;
-        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName));
-      }
-      else {
-        issue.status -= 2;
-        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName));
-      }
-    }
-
-    let fullPageHtml = contentItem.body
-    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
-    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
-    let newXpath = Html.findXpathFromElement(newElement)
-    if(newXpath) {
-      issue.xpath = newXpath
-    }
-    else {
-      issue.xpath = ""
-    }
-    activeContentItem.body = fullPageHtml
-
-    // Save the updated issue using the LMS API
-    try {
-      api.saveIssue(issue, fullPageHtml, markAsReviewed)
-      .then((responseStr) => {
-        // Check for HTTP errors before parsing JSON
-          if (!responseStr.ok) {
-            updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
-            removeItemFromBeingScanned(issue.contentItemId)
-            return null
-          }
-          return responseStr.json()
-      })
-      .then((response) => {
-
-        // If the save falied, show the relevant error message
-        if (response.data.failed) {
-          updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
-          removeItemFromBeingScanned(issue.contentItemId)
-          response.messages.forEach((msg) => addMessage(msg))
-            
-          if (Array.isArray(response.data.issues)) {
-            response.data.issues.forEach((issue) => {
-              addMessage({
-                severity: 'error',
-                message: t(`form.error.${issue.ruleId}`)
-              })
-            })
-          }
-
-          if (Array.isArray(response.data.errors)) {
-            response.data.errors.forEach((error) => {
-              addMessage({
-                severity: 'error',
-                message: error
-              })
-            })
-          }
-        }
-        else {
-          
-          // If the save was successful, show the success message
-          response.messages.forEach((msg) => addMessage(msg))
-          
-          if (response.data.issue) {
-            // Update the report object by rescanning the content
-            const newIssue = Object.assign({}, issue, response.data.issue)
-            // const formattedData = formatIssueData(newIssue)
-            // setActiveIssue(formattedData)
-            updateActiveSessionIssue(newIssue.id, ISSUE_STATE.SAVED)
-
-            api.scanContent(newIssue.contentItemId)
-              .then((responseStr) => responseStr.json())
-              .then((res) => { 
-                const tempReport = Object.assign({}, res?.data)
-                processNewReport(tempReport)
-                removeItemFromBeingScanned(newIssue.contentItemId)
-              })
-          }
-          else {
-            // setActiveIssue(formatIssueData(issue))
-            updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVED)
-            removeItemFromBeingScanned(issue.contentItemId)
-          }
-        }
-      })
-    } catch (error) {
-      console.error(error)
-      updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
-    }
-
-
-  }
-
   const handleIssueSave = async () => {
 
     if(!tempActiveContentItem || !tempActiveContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
@@ -789,20 +649,6 @@ export default function FixIssuesPage({
 
     updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
-
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-    if (markAsReviewed) {
-      // 0 (unreviewed) <=> 2 (reviewed)
-      // 1 (fixed) <=> 3 (fixedandreviewed)
-      if (issue.status < 2) {
-        issue.status += 2;
-        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName));
-      }
-      else {
-        issue.status -= 2;
-        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName));
-      }
-    }
 
     if (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT) {
       issue.newHtml = ''
@@ -816,7 +662,7 @@ export default function FixIssuesPage({
 
     // Save the updated issue using the LMS API
     try {
-      const saveResponse = await api.saveIssue(issue, fullPageHtml, markAsReviewed)
+      const saveResponse = await api.saveIssue(issue, fullPageHtml)
       if(!saveResponse.ok){
         updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
         removeItemFromBeingScanned(issue.contentItemId)
@@ -1038,8 +884,6 @@ export default function FixIssuesPage({
                       isErrorFoundInContent={isErrorFoundInContent}
                       handleTempActiveIssue={handleTempActiveIssue}
                       tempActiveIssue={tempActiveIssue}
-                      markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed}
                       setFormInvalid={setFormInvalid}
                       showLearnMore={showLearnMore}
                       handleLearnMoreClick={() => setShowLearnMore(true)}

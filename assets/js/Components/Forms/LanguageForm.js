@@ -283,8 +283,7 @@ export default function LanguageForm ({
     setTextInputBCP47(rawLanguage)
     setIsHtml(tempIsHtml)
     
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
     let startingOption = ''
     let tempManualEntry = false
 

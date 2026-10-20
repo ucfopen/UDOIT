@@ -6,12 +6,10 @@ import { UFIXIT_OPTIONS } from '../../Services/Constants'
 export default function FocusVisibleForm({
   t,
   activeIssue,
-  activeContentItem,
   isDisabled,
   handleActiveIssue,
   activeOption,
   setActiveOption,
-  formErrors,
   setFormErrors
 }) {
 
@@ -61,7 +59,7 @@ export default function FocusVisibleForm({
     const element = Html.toElement(html);
     const { elementStyles, hasOutlineStyle, hasBackgroundColorStyle } = parseStyle(element);
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
     let startingOption = '';
 
     if (fixed && !hasOutlineStyle) {

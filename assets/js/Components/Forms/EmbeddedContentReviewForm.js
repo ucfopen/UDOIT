@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import RadioSelector from '../Widgets/RadioSelector'
 import { UFIXIT_OPTIONS } from '../../Services/Constants'
+import * as Html from "../../Services/Html"
 
 export default function EmbeddedContentReviewForm({
   t,
@@ -25,14 +26,11 @@ export default function EmbeddedContentReviewForm({
 
   useEffect(() => {
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3);
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    
     let startingOption = ''
     let fullyReviewed = false;
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
-    }
     if (fixed) {
       startingOption = FORM_OPTIONS.REVIEW_CONTENT;
       fullyReviewed = true;
@@ -52,6 +50,10 @@ export default function EmbeddedContentReviewForm({
   const updateHtmlContent = () => {
     let issue = activeIssue;
     issue.newHtml = issue.initialHtml;
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ||
+      (activeOption === FORM_OPTIONS.REVIEW_CONTENT && hasReviewedCaptions && hasReviewedContrast && hasReviewedKeyboard)) {
+      issue.newHtml = Html.addClass(issue.newHtml, issue.ignoreClass);
+    }
     handleActiveIssue(issue);
   };
 

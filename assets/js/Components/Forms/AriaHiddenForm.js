@@ -25,8 +25,11 @@ export default function AriaHiddenForm({
       return
     }
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3);
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+    
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    const reviewed = Html.hasClass(element, activeIssue.ignoreClass);
     let startingOption = '';
 
     if (reviewed) {
@@ -50,7 +53,7 @@ export default function AriaHiddenForm({
     let element = Html.toElement(issue.initialHtml);
 
     if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      Html.addClass(element, "udoit-ignore-aria-hidden-nontabbable");
+      Html.addClass(element, activeIssue.ignoreClass);
       issue.newHtml = Html.toString(element);
       handleActiveIssue(issue);
       return
@@ -67,7 +70,7 @@ export default function AriaHiddenForm({
       let hidingElement = errorElement?.closest('[aria-hidden="true"]');
       if (hidingElement) {
         Html.removeAttribute(hidingElement, 'aria-hidden');
-        Html.addClass(errorElement, "udoit-ignore-aria-hidden-nontabbable");
+        Html.addClass(errorElement, issue.ignoreClass);
         tempActiveContentItem.body = Html.toString(doc.body);
         issue.newHtml = Html.toString(errorElement);
         handleActiveIssue(issue, activeOption, tempActiveContentItem);

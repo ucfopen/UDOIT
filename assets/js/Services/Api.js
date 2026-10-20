@@ -129,7 +129,7 @@ export default class Api {
     });
   }
 
-  saveIssue(issue, fullPageHtml, markAsReviewed = false) {
+  saveIssue(issue, fullPageHtml) {
     let url = `${this.apiUrl}${this.endpoints.saveIssue}`;
     url = url.replace("{issue}", issue.id);
 
@@ -142,7 +142,6 @@ export default class Api {
         newHtml: issue.newHtml,
         fullPageHtml: fullPageHtml,
         xpath: issue.xpath,
-        markAsReviewed: markAsReviewed,
       }),
     });
   }

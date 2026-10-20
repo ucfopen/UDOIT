@@ -21,8 +21,7 @@ export default function AnchorTextForm ({
 
   const FORM_OPTIONS = {
     ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
-    DELETE_ELEMENT: UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    DELETE_ELEMENT: UFIXIT_OPTIONS.DELETE_ELEMENT
   }
 
   const [textInputValue, setTextInputValue] = useState("")
@@ -48,7 +47,7 @@ export default function AnchorTextForm ({
     setLinkUrl(Html.getAttribute(html, 'href') || '')
     setTextInputValue(initialText)
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const fixed = activeIssue.status > 0
     const deleted = !activeIssue.newHtml
     let startingOption = ''
 

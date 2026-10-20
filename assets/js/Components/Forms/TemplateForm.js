@@ -240,12 +240,11 @@ export default function TemplateForm ({
             />
             
             {/* Example checkbox using the custom Toggle switch component */}
-            <label className="flex-row justify-content-start gap-1">
+            <label>
               <ToggleSwitch
                 initialValue={isToggleChecked}
                 updateToggle={setIsToggleChecked}
                 disabled={isDisabled}
-                small={true}
               />
               <div>Ignore what I wrote and mark the language as English</div>
             </label>

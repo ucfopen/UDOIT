@@ -44,14 +44,13 @@ export default function HeadingStyleForm ({
     const hasStyleTags = (element.querySelectorAll((STYLE_TAGS.join(','))).length > 0);
     const hasStyle = hasStyleAttributes || hasStyleTags;
     const tagName = Html.getTagName(element)?.toUpperCase()
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0
     let startingOption = ''
     
     const tagSelection = tagOptions.includes(tagName) ? tagName : ''
     const tempSelectOptions = computeSelectOptions(tagSelection)
 
-    if (fixed || reviewed) {
+    if (fixed) {
       if (tagOptions.includes(tagName)) {
         startingOption = FORM_OPTIONS.SELECT_LEVEL;
       }

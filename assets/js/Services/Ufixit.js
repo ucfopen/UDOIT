@@ -113,12 +113,6 @@ export const FORM_CLASSIFICATIONS = {
     formNames.SELECT_VALID_ID
   ],
 
-  AUTO_REVIEW_RELATED: [
-    formNames.ARIA_CHILD_VALID,
-    formNames.EMBEDDED_CONTENT_REVIEW,
-    formNames.SENSORY_MISUSE,
-  ],
-
   CLICKABLE_RELATED: [
     formNames.SELECT_VALID_ID
   ],

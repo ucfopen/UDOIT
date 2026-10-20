@@ -21,8 +21,6 @@ export default function UfixitWidget({
   isErrorFoundInContent,
   handleTempActiveIssue,
   tempActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed,
   setFormInvalid,
   showLearnMore,
   handleLearnMoreClick,
@@ -38,7 +36,6 @@ export default function UfixitWidget({
   const handleActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
-    tempIssue.isModified = true
     handleTempActiveIssue(tempIssue, optionOverride, contentItem)
   }
 
@@ -56,7 +53,7 @@ export default function UfixitWidget({
     if(activeOption === '') {
       invalid = true
     }
-    else if(!markAsReviewed) {
+    else {
       Object.keys(formErrors).forEach(optionKey => {
         if(formErrors[optionKey].length > 0) {
           for(let i = 0; i < formErrors[optionKey].length; i++) {
@@ -69,17 +66,10 @@ export default function UfixitWidget({
       })
     }
     setFormInvalid(invalid)
-  }, [formErrors, activeOption, markAsReviewed])
+  }, [formErrors, activeOption])
 
   const handleOptionChange = (option) => {
     setActiveOption(option)
-
-    if (option === UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
-      setMarkAsReviewed(true)
-    }
-    else {
-      setMarkAsReviewed(false)
-    }
   }
 
   return (
@@ -115,8 +105,6 @@ export default function UfixitWidget({
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT)}
                 doesIssueBelongToForm={doesIssueBelongToForm}
-                markAsReviewed={markAsReviewed}
-                setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}

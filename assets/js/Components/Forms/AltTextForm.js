@@ -14,13 +14,11 @@ export default function AltTextForm ({
   setActiveOption,
   formErrors,
   setFormErrors,
-  handleLearnMoreClick
  }) {
   
   const FORM_OPTIONS = {
     ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
-    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE
   }
   const maxLength = 150
 
@@ -39,13 +37,9 @@ export default function AltTextForm ({
     setCharacterCount(altText.length)
     setFormErrors([])
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0
     let startingOption = ''
 
-    if (reviewed){
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
-    }
     if (fixed) {
       if (altText && altText.length > 0) {
         startingOption = FORM_OPTIONS.ADD_TEXT
@@ -66,13 +60,7 @@ export default function AltTextForm ({
   const updateHtmlContent = () => {
     let issue = activeIssue
 
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
-    }
-
-    const html = Html.getIssueHtml(activeIssue)
+    const html = Html.getIssueHtml(issue)
     let element = Html.toElement(html)
     
     if (activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
@@ -170,9 +158,8 @@ export default function AltTextForm ({
 
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
-            <div className="instructions mb-2">{t('form.alt_text.label.text')}</div>
+            <label htmlFor="altTextInput">{t('form.alt_text.label.text')}</label>
             <input
-              aria-labelledby="add-text-label"
               type="text"
               tabIndex="0"
               id="altTextInput"
@@ -201,17 +188,6 @@ export default function AltTextForm ({
           labelText = {t('form.alt_text.decision.decorative')} /* {t('form.alt_text.label.mark_decorative')} */
         />
       </div>
-
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED"
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
-        />
-      </div> */}
     </>
   )
 }

@@ -29,23 +29,17 @@ export default function EmphasisForm({
   const STYLE_ATTRIBUTES = ['color:', 'background:', 'background-color:', 'background-image:']
   const CHILD_TAGS = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
 
-  const isBold = () => {
+  const isBold = (element) => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
-    const html = Html.getIssueHtml(activeIssue)
-    const element = Html.toElement(html)
     return Html.getChild(element, 'strong') || Html.getChild(element, 'b') || metadata.fontWeight === 'bold'
   }
 
-  const isItalicized = () => {
+  const isItalicized = (element) => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
-    const html = Html.getIssueHtml(activeIssue)
-    const element = Html.toElement(html)
     return Html.getChild(element, 'em') || Html.getChild(element, 'i') || metadata.fontStyle === 'italic'
   }
 
-  const hasStyleColor = () => {
-    const html = Html.getIssueHtml(activeIssue)
-    const element = Html.toElement(html)
+  const hasStyleColor = (element) => {
     return Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
   }
 
@@ -54,27 +48,30 @@ export default function EmphasisForm({
       return
     }
 
-    const bold = isBold()
-    const italicized = isItalicized()
-    const styleColor = hasStyleColor()
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+
+    const bold = isBold(element)
+    const italicized = isItalicized(element)
+    const styleColor = hasStyleColor(element)
 
     setUseBold(bold)
     setUseItalics(italicized)
     setRemoveColor(!styleColor)
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-    let startingOption = ''
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    const reviewed = Html.hasClass(element, activeIssue.ignoreClass);
+    let startingOption = '';
 
     if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
     }
     if (fixed) {
-      if (bold || italicized || !styleColor) {
-        startingOption = FORM_OPTIONS.ADD_TEXT
+      if (bold || italicized) {
+        startingOption = FORM_OPTIONS.ADD_EMPHASIS;
       }
     }
-    setActiveOption(startingOption)
+    setActiveOption(startingOption);
 
   }, [activeIssue])
 
@@ -117,8 +114,11 @@ export default function EmphasisForm({
       [FORM_OPTIONS.ADD_EMPHASIS]: [],
     }
 
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+
     if(activeOption === FORM_OPTIONS.ADD_EMPHASIS) {
-      if(!isBold() && !isItalicized()) {
+      if(!isBold(element) && !isItalicized(element)) {
         tempErrors[FORM_OPTIONS.ADD_EMPHASIS].push({ text: t('form.emphasis.msg.required'), type: 'error' })
       }
     }

@@ -159,7 +159,7 @@ export function setAttribute(element, name, value) {
   return element
 }
 
-export function removeAttribute(element, name) {
+export function removeAttribute(element, name, value = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
@@ -168,7 +168,14 @@ export function removeAttribute(element, name) {
     return null
   }
 
-  element.removeAttribute(name)
+  // So we can only remove attributes of certain values, like removeAttribute(element, "role", "presentation")
+  if (value) {
+    if (element.getAttribute(name) !== value) {
+      return element;
+    }
+  }
+
+  element.removeAttribute(name);
 
   return element
 }
@@ -225,6 +232,21 @@ export function removeClass(element, className) {
   }
   
   return element;
+}
+
+export function hasClass(element, className) {
+    if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return null
+  }
+
+  let classes = element.getAttribute('class')?.split(' ') || [];
+  classes = classes.filter(item => item === className);
+
+  return (classes.length > 0);
 }
 
 export function getTagName(element) {
@@ -344,10 +366,8 @@ export function renameElement(element, newName) {
 
   let newElement = document.createElement(newName)
 
-  // Copy children
-  while (element.firstChild) {
-    newElement.appendChild(element.firstChild)
-  }
+  // Copy children and text
+  newElement.innerHTML = element.innerHTML;
 
   // Copy the attributes
   for (const attr of element.attributes) {
@@ -644,11 +664,15 @@ export const findElementWithXpath = (content, xpath, ignoreParent = false) => {
     return null
   }
 
-  if(!content.querySelector('html') && !content.querySelector('body')) {
-    // If the content doesn't have html and body tags, remove that part from the xpath, if present.
-    if(xpath.startsWith('html[1]/body[1]/')) {
-      xpath = xpath.replace('html[1]/body[1]/', '')
-    }
+  // Remove html and body tags from the xpath, if present.
+  if(xpath.startsWith('html[1]/body[1]/')) {
+    xpath = xpath.replace('html[1]/body[1]/', '')
+  }
+
+  // Start the search in the body, if the element was nested in a fake HTML document.
+  let targetElement = content;
+  if (targetElement.querySelector("html > body") !== null) {
+    targetElement = targetElement.querySelector("html > body");
   }
 
   if(xpath.length > 0) {
@@ -657,7 +681,7 @@ export const findElementWithXpath = (content, xpath, ignoreParent = false) => {
       if (match) {
         let tag = match[1]
         let index = parseInt(match[2], 10)
-        return `${tag}:nth-of-type(${index})`
+        return {tag, index};
       }
       return part
     });
@@ -665,12 +689,30 @@ export const findElementWithXpath = (content, xpath, ignoreParent = false) => {
     if (ignoreParent) {
       pathParts.shift();
     }
-    let selector = pathParts.join(' > ')
-    let element = content.querySelector(selector)
-    if(element) {
-      return element
+    
+    // Drill down through each element's children to find the target child by xpath.
+    for (let i = 0; i < pathParts.length; i++) {
+      if (pathParts[i].tag && targetElement.children) {
+        let childrenByTag = Array.from(targetElement.children).filter(
+          child => child.tagName.toLowerCase() === pathParts[i].tag.toLowerCase()
+        );
+        if (childrenByTag[pathParts[i].index - 1]) {
+          targetElement = childrenByTag[pathParts[i].index - 1];
+        }
+        else {
+          return null;
+        }
+      }
+      else {
+        return null;
+      }
+    }
+    
+    if(targetElement) {
+      return targetElement
     }
   }
+
   return null
 }
 

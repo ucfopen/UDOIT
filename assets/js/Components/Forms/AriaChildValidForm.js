@@ -12,9 +12,7 @@ import './SensoryMisuseForm.css'
 
 export default function AriaChildValidForm({
   t, 
-  activeIssue, 
-  handleIssueSave, 
-  addMessage,
+  activeIssue,
   isDisabled,
   handleActiveIssue,
   activeOption,
@@ -69,15 +67,11 @@ export default function AriaChildValidForm({
     setLocalHtml(html);
     setFormErrors([]);
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3);
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3);
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
     const deleted = !activeIssue.newHtml;
     
     let startingOption = '';
 
-    if (reviewed){
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
-    }
     if (fixed) {
       if (deleted) {
         startingOption = FORM_OPTIONS.DELETE_ELEMENT;
@@ -91,8 +85,8 @@ export default function AriaChildValidForm({
   }, [activeIssue])
 
   useEffect(() => {
+    updateHtmlContent();
     checkFormErrors();
-    updatePreview();
   }, [activeOption, localHtml])
 
   const checkFormErrors = () => {
@@ -286,7 +280,7 @@ export default function AriaChildValidForm({
     setLocalHtml(initialHtml);
   }
 
-  const updatePreview = () => {
+  const updateHtmlContent = () => {
     let issue = activeIssue;
 
     if (activeOption === FORM_OPTIONS.EDIT_TEXT) {
