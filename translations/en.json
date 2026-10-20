@@ -903,9 +903,17 @@
   "rule.title.aria_activedescendant_valid": "Composite Widgets Require the \"aria-activedescendant\" Attribute",
   "rule.summary.aria_activedescendant_valid": "Certain interactive components, like comboboxes and textboxes, are required to use the <code>aria-activedescendant</code> attribute to indicate which element is currently active.",
   "rule.desc.aria_activedescendant_valid": "<h3>Composite Widgets</h3><p>Most interactive elements on a web page are simple and self-contained. For instance, a text <code>&lt;input&gt;</code> element can be clicked on, typed in, either active or disabled, and update its content without any other element (although you should have it linked to a <code>&lt;label&gt;</code> for accessibility).</p><p>However, some interactive elements are more complex and require multiple elements to work together. These are known as &quot;composite widgets,&quot; and include elements like comboboxes, listboxes, menus, and treeviews. When using composite widgets, it is important to use the <code>aria-activedescendant</code> attribute to indicate which part of the widget is currently active.</p><p>For instance, drop-down selection widgets like a navigation menu can include a composite &quot;container&quot; widget with multiple selectable options that belong to it. Each option should have a unique <code>id</code>, and the container would use the <code>aria_activedescendant</code> attribute to point to whichever option is currently selected. This allows screen readers and keyboard users to understand which element they are interacting with.</p><h3>Best Practices</h3><ul><li>Use the <code>aria-activedescendant</code> attribute on the container element of a composite widget to reference the currently active child element</li><li>Ensure that the active child element has a unique <code>id</code> that matches the value of the <code>aria-activedescendant</code> attribute</li><li>Test the composite widget with a screen reader and keyboard to ensure that it is fully accessible</li></ul><h3>For More Information</h3><p>W3.org: <a href='https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#keyboardnavigationinsidecomponents' target='_blank'>Keyboard Navigation Inside Components</a>, <a href='https://www.w3.org/WAI/ARIA/apg/patterns/combobox/' target='_blank'>Combobox Pattern</a></p><p>Mozilla.org: <a href='https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-activedescendant' target='_blank'>ARIA: aria-activedescendant Attribute</a></p>",
-
-  "rule.summary.aria_activedescendant_tabindex_valid": "The highlighted element has an <code>aria-activedescendant</code> attribute, which requires it to be interactive. If it is supposed to be interactive, add the attribute <code>tabindex=&quot;0&quot;</code>. Otherwise, remove the conflicting attribute.",
  
+  "rule.title.aria_attribute_redundant": "ARIA Roles Should Not be Redundant",
+  "rule.summary.aria_attribute_redundant": "If an element already has an ARIA role implicitly, it shouldn't be redeclared with the <code>role</code> attribute.",
+
+  "rule.title.aria_attribute_required": "ARIA Roles Must Have Required Attributes",
+  "rule.summary.aria_attribute_required": "Elements with ARIA roles often have required attributes, and cannot be properly described by assistive technologies without them.",
+
+  "rule.title.aria_attribute_value_valid": "ARIA Values Must be Valid",
+  "rule.summary.aria_attribute_value_valid": "ARIA attributes have specific valid values, and must be spelled correctly.",
+
+  "rule.title.aria_banner_single": "Pages Should Have Only One Header",
   "rule.summary.aria_banner_single": "Every page should only have one header, which can be either a <code>&lt;header&gt;</code> element or another element with a <code>role=&quot;banner&quot;</code>. Please remove the extra headers or change their roles.",
 
   "rule.title.aria_child_tabbable": "Interface Components Must be Keyboard Accessible",
@@ -1010,8 +1018,6 @@
 
   "rule.title.iframe_interactive_tabbable": "Interactive Embedded Content Must be Reachable by Keyboard",
   "rule.summary.iframe_interactive_tabbable": "Interactive content should never be excluded from the keyboard tab order with the <code>tabindex=\"-1\"</code> attribute.",
-
-  "rule.summary.iframe_interactive_tabbable": "If this embedded content is interactive, it must be added to the keyboard navigation.",
 
   "rule.summary.img_longdesc_misuse": "The <code>longdesc</code> attribute should link to an HTML file that gives more context to an image.",
   "rule.desc.img_longdesc_misuse": "<h3>Using the <code>longdesc</code> Attribute</h3><p>Alternative text is the standard way to provide visual information as text to those who use assistive technologies like screen readers to process web content. However, alternative text is designed to be short and concise, which may not be enough for complex images, diagrams, or other visual content. Because of this, the <code>longdesc</code> attribute can be applied to an image that requires more text to provide equivalent information.</p><h3>Best Practices</h3><ul><li>Ensure that the <code>longdesc</code> attribute value has a valid URL of an HTML page, with a text description of the image.</li><li>If your <code>longdesc</code> attribute appears inconsistent across browsers, consider using the <code>aria-describedby</code> attribute to link to extensive text on the same page.</li></ul><h3>For More Information</h3><p>W3.org: <a href='https://www.w3.org/TR/WCAG20-TECHS/H45.html' target='_blank'>The 'longdesc' Attribute</a></p><p>WebAIM.org: <a href='https://webaim.org/techniques/aria/#labeling' target='_blank'>ARIA Labels and Descriptions</a></p>",
