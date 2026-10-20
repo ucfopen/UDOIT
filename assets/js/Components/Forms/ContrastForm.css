@@ -13,6 +13,122 @@
     margin-block-end: .5rem;
   }
 
+  .contrast-adjustment {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    margin-block-start: .75rem;
+    padding: .65rem .75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    background: var(--container-color);
+  }
+
+  .contrast-target-level {
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .4rem .75rem;
+    margin: 0;
+    padding: 0;
+
+    legend {
+      display: flex;
+      align-items: center;
+      gap: .2rem;
+      padding: 0;
+      font-size: .9em;
+      font-weight: 600;
+    }
+  }
+
+  .contrast-target-options {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    padding: 2px;
+    background: var(--white);
+
+    label {
+      position: relative;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    label span {
+      display: block;
+      border-radius: calc(var(--element-radius) - 2px);
+      padding: .3rem .65rem;
+      color: var(--text-secondary-color);
+      white-space: nowrap;
+    }
+
+    label.selected span {
+      background: var(--pill-file-background);
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    input:focus-visible + span {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
+  }
+
+  .contrast-adjustment-actions {
+    display: flex;
+    align-items: stretch;
+    gap: .5rem;
+
+    button {
+      flex: 1 1 0;
+      align-self: stretch;
+      display: inline-flex;
+      align-items: center;
+      height: auto;
+      justify-content: center;
+      min-width: 0;
+    }
+  }
+
+  .contrast-undo-button {
+    align-self: flex-start;
+    padding-inline: 0;
+    margin-inline-start: .15rem;
+  }
+
+  .contrast-advanced-options {
+    margin-block-start: .5rem;
+
+    summary {
+      color: var(--text-secondary-color);
+      cursor: pointer;
+      font-size: .85em;
+      font-weight: 600;
+      width: fit-content;
+    }
+  }
+
+  .contrast-advanced-options-content {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-block-start: .75rem;
+    padding: .65rem .75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--element-radius);
+    background: var(--container-color);
+  }
+
   label:not(.subtext) {
     font-size: .9em;
     font-weight: 400;

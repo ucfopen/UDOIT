@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
 import InfoIcon from '../Icons/InfoIcon'
 import CloseIcon from '../Icons/CloseIcon'
 import './InfoPopover.css'
@@ -9,17 +9,38 @@ export default function InfoPopover({
   title = t('fix.button.learn_more'),
   content,
   action = null,
+  hoverOnly = false,
+  iconClassName = 'icon-md',
 }) {
 
-  const uuid = crypto.randomUUID()
-
   const [open, setOpen] = useState(false)
+  const titleId = useId()
+  const triggerRef = useRef(null)
+  const dialogRef = useRef(null)
+  const closeTimerRef = useRef(null)
 
-  const getCoords = (e) => {
+  useEffect(() => () => clearTimeout(closeTimerRef.current), [])
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && dialog.open) {
+        e.preventDefault()
+        e.stopPropagation()
+        dialog.close()
+        setOpen(false)
+      }
+    }
+
+    dialog.addEventListener('keydown', handleEscape)
+    return () => dialog.removeEventListener('keydown', handleEscape)
+  }, [])
+
+  const getCoords = () => {
     const margin = 16
     
     // Measure and adjust position so mouse is at bottom-left
-    const rect = e.currentTarget.getBoundingClientRect()
+    const rect = triggerRef.current.getBoundingClientRect()
     let newX = rect.x + rect.width + margin
     let newY = rect.y
 
@@ -27,7 +48,7 @@ export default function InfoPopover({
     const vw = window.innerWidth
     const vh = window.innerHeight
 
-    const dialog = document.getElementById(uuid + '-info-popover-dialog')
+    const dialog = dialogRef.current
     const dialogRect = dialog.getBoundingClientRect()
     
     // Adjust X if dialog overflows right edge
@@ -50,58 +71,85 @@ export default function InfoPopover({
     return { x: newX, y: newY }
   }
 
-  const handleOpen = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    const dialog = document.getElementById(uuid + '-info-popover-dialog')
-    if (dialog) {
-      dialog.showModal()
-      const { x, y } = getCoords(e)
+  const openPopover = (modal) => {
+    const dialog = dialogRef.current
+    if (dialog && !dialog.open) {
+      modal ? dialog.showModal() : dialog.show()
+      const { x, y } = getCoords()
       dialog.style.left = `${x}px`
       dialog.style.top = `${y}px`
-      dialog.focus()
+      if (modal) dialog.focus()
       setOpen(true)
     }
   }
 
-  const handleClose = (e) => {
+  const handleOpen = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    openPopover(true)
+  }
+
+  const handleClose = (e) => {
+    e?.preventDefault()
+    e?.stopPropagation()
     
-    const dialog = document.getElementById(uuid + '-info-popover-dialog')
+    const dialog = dialogRef.current
     if (dialog && dialog.open) {
       dialog.close()
     }
     setOpen(false)
   }
 
+  const cancelClose = () => {
+    clearTimeout(closeTimerRef.current)
+  }
+
+  const scheduleClose = () => {
+    cancelClose()
+    closeTimerRef.current = setTimeout(() => handleClose(), 100)
+  }
+
   return (
-    <>
+    <span
+      className="info-popover"
+      onMouseEnter={hoverOnly ? () => {
+        cancelClose()
+        openPopover(false)
+      } : undefined}
+      onMouseLeave={hoverOnly ? scheduleClose : undefined}
+    >
       <button
+        ref={triggerRef}
         type="button"
-        className="info-popover-btn"
+        className={`info-popover-btn${hoverOnly ? ' info-popover-btn-hover-only' : ''}`}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls="info-popover-dialog"
         aria-label={triggerAriaLabel}
-        onClick={handleOpen}
+        onClick={hoverOnly ? undefined : handleOpen}
         onKeyDown={(e) => {
           if(e.key === 'Enter' || e.key === ' ') {
-            handleOpen(e)
+            if (hoverOnly) {
+              e.preventDefault()
+              openPopover(false)
+            } else {
+              handleOpen(e)
+            }
           }
         }}
       >
         <InfoIcon
-          className="icon-md"
+          className={iconClassName}
         />
       </button>
 
       <dialog
-        id={uuid + '-info-popover-dialog'}
+        ref={dialogRef}
         className="info-popover-dialog"
-        aria-labelledby={uuid + 'info-popover-title'}
+        aria-labelledby={titleId}
         tabIndex="-1"
+        onMouseEnter={hoverOnly ? cancelClose : undefined}
+        onMouseLeave={hoverOnly ? scheduleClose : undefined}
+        onClose={(e) => e.stopPropagation()}
         onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
@@ -114,7 +162,7 @@ export default function InfoPopover({
         }}
       >
         <div className="info-popover-title">
-          <h2 id={uuid + '-info-popover-title'}>{title}</h2>
+          <h2 id={titleId}>{title}</h2>
           <CloseIcon
             className="icon-sm close-icon me-0"
             onClick={handleClose}
@@ -133,6 +181,6 @@ export default function InfoPopover({
         <div className="info-popover-content" dangerouslySetInnerHTML={{__html: content}} />
         {action && <div className="info-popover-action">{action}</div>}
       </dialog>
-    </>
+    </span>
   )
 }
