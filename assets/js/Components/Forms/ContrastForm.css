@@ -3,6 +3,10 @@
   .instructions {
     font-size: .9em;
     color: var(--text-secondary-color);
+
+    strong {
+      font-weight: bold;
+    }
   }
 
   .gradient-row {

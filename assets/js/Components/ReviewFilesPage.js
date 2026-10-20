@@ -1539,22 +1539,15 @@ export default function ReviewFilesPage({
                 </div>
               )}
               {!isDisabled && unusedFiles.length > 0 && (
-                <div className="select-all-unused-toggle-row">
+                <label className="mb-2">
                   <ToggleSwitch
-                    labelId="selectAllUnusedFiles"
-                    initialValue={
-                      unusedFiles.length > 0 &&
-                      deleteFileQueue.length === unusedFiles.length
-                    }
+                    initialValue={unusedFiles.length > 0 && deleteFileQueue.length === unusedFiles.length}
                     updateToggle={updateSelectAllUnusedFilesToggle}
                   />
-                  <div
-                    id="selectAllUnusedFiles"
-                    className="align-self-center subtext"
-                  >
-                    {t("files.label.select_all_unused_files")}
+                  <div className="subtext">
+                    {t('files.label.select_all_unused_files')}
                   </div>
-                </div>
+                </label>
               )}
               {unusedFiles.length === 0 ?
                 <div className="flex-column gap-2 p-3 text-center">

@@ -1,11 +1,11 @@
 import * as Html from './Html'
 
 // regexes
-// Match IBM Equal Access scanner pattern:
-// /^[ \t\r\n]*[( ]*[1-9]*[\*\-).][ \t][A-Z,a-z]+/
-export const numberedPattern = /^\s*[(\s]*([1-9]\d*)\s*[.\)\-]\s+/
-export const letteredPattern = /^\s*[(\s]*([a-zA-Z])\s*[.\)\-]\s+/ // IBM doesn't actually catch letter lists right now ;(
-export const bulletPattern = /^\s*([\*\-])\s+/  // Only * and -, requires space after
+// Keep these aligned with Equal Access's list_markup_review prefixes.
+export const numberedPattern = /^\s*[(\s]*(\d+)\s*[-.):]\)?\s+/
+export const romanPattern = /^\s*[(\s]*((?:i{1,3}|iv|vi{0,3}|ix|xi{0,3}|xiv|xv))\s*[-.):]\)?\s+/i
+export const letteredPattern = /^\s*[(\s]*([a-zA-Z])\s*[-.):]\)?\s+/
+export const bulletPattern = /^\s*([\u2022\u25cb\u25cf\u25e6\u25aa\u25a0\u25b8\u25ba\u2713\u2717\u2726*\-\u2013\u2014o])\s+/i
 
 export function groupListIssues(issues, parsedDocuments) {
   const listIssues = []
@@ -113,8 +113,8 @@ function groupByProximity(listIssues, parsedDocuments) {
           listInfo.type !== lastListInfo.type ||
           domIndex !== lastDomIndex + 1 ||
           (listInfo.type === 'numbered' && listInfo.value === 1 && lastListInfo.value > 1) ||
-          (listInfo.type === 'lettered' && listInfo.value === 1 && lastListInfo.value > 1) ||
-          (listInfo.type === 'lettered' && listInfo.isUpperCase !== lastListInfo.isUpperCase)
+          (listInfo.type === 'roman' && listInfo.value === 1 && lastListInfo.value > 1) ||
+          (listInfo.type === 'lettered' && listInfo.value === 1 && lastListInfo.value > 1)
         
         if (shouldStartNewGroup) {
           if (currentGroup.length > 0) {
@@ -145,12 +145,18 @@ function groupByProximity(listIssues, parsedDocuments) {
 function extractListInfo(text) {
   let match = text.match(numberedPattern)
   if (match) return { type: 'numbered', value: parseInt(match[1]), prefix: match[0] }
+
+  match = text.match(romanPattern)
+  if (match) {
+    const numeral = match[1]
+    return { type: 'roman', value: romanToNumber(numeral), prefix: match[0] }
+  }
   
   match = text.match(letteredPattern)
   if (match) {
     const letter = match[1]
     const value = letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0) + 1
-    return { type: 'lettered', value, isUpperCase: letter === letter.toUpperCase(), prefix: match[0] }
+    return { type: 'lettered', value, prefix: match[0] }
   }
   
   match = text.match(bulletPattern)
@@ -159,11 +165,23 @@ function extractListInfo(text) {
   return null
 }
 
+function romanToNumber(numeral) {
+  const values = { i: 1, v: 5, x: 10 }
+  const characters = numeral.toLowerCase().split('')
+
+  return characters.reduce((total, character, index) => {
+    const value = values[character]
+    return total + (value < (values[characters[index + 1]] || 0) ? -value : value)
+  }, 0)
+}
+
 function createParentIssue(group) {
   const issueGroup = group.issues
   const elements = group.elements
   
-  if (issueGroup.length === 1) return issueGroup[0]
+  // Equal Access can report only the first item in a sequence of sibling
+  // elements. Keep the complete derived group even when it has one issue.
+  if (issueGroup.length === 1 && elements.length === 1) return issueGroup[0]
   
   const firstIssue = issueGroup[0]
   const contentItemId = firstIssue.contentItemId
@@ -178,10 +196,11 @@ function createParentIssue(group) {
     newHtml: null,
     isGrouped: true,
     groupedIssues: issueGroup,
-    groupCount: issueGroup.length,
+    groupCount: elements.length,
     groupedIssueIds: issueGroup.map(i => i.id),
     // Store each element's HTML individually for removal later
     groupedElementsHtml: elements.map(el => el.outerHTML),
+    groupedElementsXpaths: elements.map(el => Html.findXpathFromElement(el)),
   }
   
   let metadata = {}
@@ -191,7 +210,7 @@ function createParentIssue(group) {
     metadata = firstIssue.metadata || {}
   }
   
-  metadata.listGroupCount = issueGroup.length
+  metadata.listGroupCount = elements.length
   metadata.listGroupIds = issueGroup.map(i => i.id)
   metadata.listGroupXpaths = elements.map(el => Html.findXpathFromElement(el))
   metadata.isListGroup = true
