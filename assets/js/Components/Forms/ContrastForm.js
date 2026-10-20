@@ -7,6 +7,7 @@ import LightIcon from '../Icons/LightIcon'
 import MagicIcon from '../Icons/MagicIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import SliderSelect from '../Widgets/SliderSelect'
 import InfoPopover from '../Widgets/InfoPopover'
 import './ContrastForm.css'
 
@@ -277,7 +278,6 @@ export default function ContrastForm({
     setOriginalTextColor(tempTextColor ? { ...tempTextColor } : null)
     
     setShowAllColors(false)
-    setContrastTarget('AA')
     setAutoAdjustFeedbackKey(null)
     lastProcessedPreview.current = ''
     setActiveOption(FORM_OPTIONS.SET_COLOR)
@@ -296,6 +296,11 @@ export default function ContrastForm({
     setCurrentBgColors(colors =>
       colors.map((c, i) => i === idx ? Contrast.setLuminance(c, value) : c)
     )
+  }
+
+  const handleContrastTarget = (newTarget) => {
+    setContrastTarget(newTarget);
+    setAutoAdjustFeedbackKey(null);
   }
 
   useEffect(() => {
@@ -481,49 +486,30 @@ export default function ContrastForm({
   return (
     <>
       <section className="contrast-adjustment">
-        <fieldset className="contrast-target-level">
-          <legend>
-            {t('form.contrast.label.target_level')}
+        <div className="flex-row flex-wrap justify-content-between align-items-center gap-2">
+          <div className="flex-row align-items-center gap-1">
+            <div id="target-level">
+              {t('form.contrast.label.target_level')}
+            </div>
             <InfoPopover
               t={t}
               title={t('form.contrast.label.target_help')}
               content={t('form.contrast.tooltip.target', { aa: minRatio, aaa: minAAARatio })}
               triggerAriaLabel={t('form.contrast.label.target_help')}
-              hoverOnly
-              iconClassName="icon-sm"
             />
-          </legend>
-          <div className="contrast-target-options">
-            <label className={contrastTarget === 'AA' ? 'selected' : ''}>
-              <input
-                type="radio"
-                name="contrastTargetLevel"
-                value="AA"
-                checked={contrastTarget === 'AA'}
-                onChange={() => {
-                  setContrastTarget('AA')
-                  setAutoAdjustFeedbackKey(null)
-                }}
-                disabled={isDisabled}
-              />
-              <span>{t('form.contrast.label.target_aa')}</span>
-            </label>
-            <label className={contrastTarget === 'AAA' ? 'selected' : ''}>
-              <input
-                type="radio"
-                name="contrastTargetLevel"
-                value="AAA"
-                checked={contrastTarget === 'AAA'}
-                onChange={() => {
-                  setContrastTarget('AAA')
-                  setAutoAdjustFeedbackKey(null)
-                }}
-                disabled={isDisabled}
-              />
-              <span>{t('form.contrast.label.target_aaa')}</span>
-            </label>
           </div>
-        </fieldset>
+
+          <SliderSelect
+            labelId = 'target-level'
+            groupName = 'contrastTargetSelect'
+            activeOption = {contrastTarget}
+            setActiveOption = {handleContrastTarget}
+            options = {[
+              {name: t('form.contrast.label.target_aa'), value: 'AA'},
+              {name: t('form.contrast.label.target_aaa'), value: 'AAA'},]}
+            isDisabled = {isDisabled}
+          />
+        </div>
         <div className="contrast-adjustment-actions">
           <button
             className="btn-small btn-icon-left btn-secondary"

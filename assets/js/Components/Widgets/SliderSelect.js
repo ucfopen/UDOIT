@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import './SliderSelect.css'
 
 export default function SliderSelect({
+  labelId = undefined,
   groupName = 'sliderSelect',
   isDisabled = false,
   activeOption = '',
@@ -39,7 +40,11 @@ export default function SliderSelect({
 
     
   return (
-    <div className={`slider-select ${isDisabled ? 'disabled' : ''}`}>
+    <div
+      className={`slider-select ${isDisabled ? 'disabled' : ''}`}
+      role="radiogroup"
+      aria-labelledby={labelId}
+      >
       {options.map((option) => (
         <div
           key={option.value + '-key'}
@@ -56,7 +61,7 @@ export default function SliderSelect({
               setActiveOption(option.value)
             }
           }}
-          role="button"
+          role="radio"
           >
           <label aria-hidden="true">
             {option.name}
