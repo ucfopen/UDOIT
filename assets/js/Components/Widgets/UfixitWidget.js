@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import BarrierInformation from './BarrierInformation'
-import FileForm from '../Forms/FileForm'
+// import BarrierInformation from './BarrierInformation'
+import DecisionQuestion from './DecisionQuestion'
+import DecisionHelpButton from './DecisionHelpButton'
 import StatusPill from './StatusPill'
-import { formFromIssue, formNameFromRule } from '../../Services/Ufixit'
+import IssueAffects from './IssueAffects'
+import { formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
-import { ISSUE_FILTER, UFIXIT_OPTIONS } from '../../Services/Constants'
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function UfixitWidget({
   t,
   instanceInfo,
+  UfixitForm,
   activeContentItem,
   activeOption,
   setActiveOption,
@@ -18,14 +21,14 @@ export default function UfixitWidget({
   isErrorFoundInContent,
   handleTempActiveIssue,
   tempActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed,
   setFormInvalid,
+  showLearnMore,
   handleLearnMoreClick,
   clickedInfo,
   setClickedInfo,
   setElementFocus,
-  setPreviewData
+  setPreviewData,
+  saveDisabled
 }) {
 
   const [formErrors, setFormErrors] = useState({})
@@ -35,21 +38,9 @@ export default function UfixitWidget({
       ? FileForm
       : formFromIssue(tempActiveIssue.issueData)
 
-  useEffect(() => {
-    if(!tempActiveIssue) {
-      setMarkAsReviewed(false)
-      return
-    }
-
-    if(tempActiveIssue.isModified === undefined) {
-      setMarkAsReviewed(tempActiveIssue.status === ISSUE_FILTER.RESOLVED || tempActiveIssue.status === ISSUE_FILTER.FIXEDANDRESOLVED)
-    }
-  }, [tempActiveIssue])
-
   const handleActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
-    tempIssue.isModified = true
     handleTempActiveIssue(tempIssue, optionOverride, contentItem)
   }
 
@@ -67,7 +58,7 @@ export default function UfixitWidget({
     if(activeOption === '') {
       invalid = true
     }
-    else if(!markAsReviewed) {
+    else {
       Object.keys(formErrors).forEach(optionKey => {
         if(formErrors[optionKey].length > 0) {
           for(let i = 0; i < formErrors[optionKey].length; i++) {
@@ -80,40 +71,34 @@ export default function UfixitWidget({
       })
     }
     setFormInvalid(invalid)
-  }, [formErrors, activeOption, markAsReviewed])
+  }, [formErrors, activeOption])
 
   const handleOptionChange = (option) => {
     setActiveOption(option)
-
-    if (option === UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
-      setMarkAsReviewed(true)
-    }
-    else {
-      setMarkAsReviewed(false)
-    }
   }
 
   return (
     <>
       {UfixitForm && tempActiveIssue ? (
         <>
-          <div className="ufixit-widget flex-column flex-grow-1">
+          <div
+            className={`ufixit-widget flex-column flex-grow-1 ${showLearnMore ? 'hidden' : ''}`}
+            inert={showLearnMore ? true : undefined}
+            aria-hidden={showLearnMore ? true : false}
+          >
 
-            <BarrierInformation
+            <IssueAffects
+              t={t}
+              tempActiveIssue={tempActiveIssue}
+            />
+
+            <DecisionQuestion
               t={t}
               tempActiveIssue={tempActiveIssue}
               handleLearnMoreClick={handleLearnMoreClick}
             />
 
-            <div className="flex-row justify-content-between mt-3 mb-3">
-              <h3 className="ufixit-widget-label m-0 align-self-center">{t('fix.label.barrier_repair')}</h3>
-              <div className="align-self-start flex-shrink-0">
-                <StatusPill
-                  t={t}
-                  issue={tempActiveIssue} />
-              </div>
-            </div>
-            <div className="flex-column gap-1 flex-grow-1">
+            <div className="flex-column gap-1">
               <UfixitForm
                 t={t}
                 instanceInfo={instanceInfo}
@@ -125,8 +110,6 @@ export default function UfixitWidget({
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT)}
                 doesIssueBelongToForm={doesIssueBelongToForm}
-                markAsReviewed={markAsReviewed}
-                setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}
@@ -134,7 +117,23 @@ export default function UfixitWidget({
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
                 setElementFocus={setElementFocus}
-                setPreviewData={setPreviewData} />
+                setPreviewData={setPreviewData}
+                handleLearnMoreClick={handleLearnMoreClick} />
+
+              <DecisionHelpButton
+                t={t}
+                tempActiveIssue={tempActiveIssue}
+                handleLearnMoreClick={handleLearnMoreClick}
+              />
+            </div>
+            <div className="mt-3 w-100 flex-row justify-content-center">
+              <button
+                onClick={handleIssueSave}
+                className="btn btn-primary btn-icon-left"
+                disabled={saveDisabled}
+                tabIndex="0">
+                {t('form.submit')}
+              </button>
             </div>
           </div>
         </>

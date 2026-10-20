@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import RadioSelector from '../Widgets/RadioSelector';
 import OptionFeedback from '../Widgets/OptionFeedback';
+import ToggleSwitch from '../Widgets/ToggleSwitch';
 import * as Html from '../../Services/Html';
 import { UFIXIT_OPTIONS } from '../../Services/Constants';
 
@@ -17,8 +18,7 @@ export default function TableHeadersForm({
 
   const FORM_OPTIONS = {
     SELECT_DIRECTION: UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
-    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE
   }
 
   const radioOptions = [
@@ -26,42 +26,58 @@ export default function TableHeadersForm({
     'row',
     'both'
   ]
-  const [selectedValue, setSelectedValue] = useState('')
+  const [selectedValue, setSelectedValue] = useState('');
+  const [extractCaption, setExtractCaption] = useState(false);
+  const [hasPotentialCaption, setHasPotentialCaption] = useState(false);
 
   useEffect(() => {
     if(!activeIssue) {
       return
     }
 
-    const html = Html.getIssueHtml(activeIssue)
-    const table = Html.toElement(html)
-    const decorationOnly = (table.getAttribute('role') === 'presentation')
-    const headerDirection = getTableHeaderDirection(table)
-    setSelectedValue(headerDirection)
+    const html = Html.getIssueHtml(activeIssue);
+    const table = Html.toElement(html);
+    const decorationOnly = (table.getAttribute('role') === 'presentation');
+    const headerDirection = getTableHeaderDirection(table);
+    setSelectedValue(headerDirection);
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-    let startingOption = ''
+    // If the table's first row only has one cell, it may be the table title (<caption>).
+    // This occurs a LOT in user-created content. If so, let's help them fix it here.
+    let tempHasPotentialCaption = false;
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    // First, if there is already a <caption> element, skip this check.
+    let existingCaption = table.querySelector('caption');
+
+    if (!existingCaption) {
+      let firstRow = table.querySelector('tr');
+      
+      if (firstRow.children.length === 1) {
+        tempHasPotentialCaption = true;
+      }
     }
+
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    let startingOption = '';
+
     if (fixed) {
       if (decorationOnly) {
-        startingOption = FORM_OPTIONS.MARK_DECORATIVE
+        startingOption = FORM_OPTIONS.MARK_DECORATIVE;
       }
       else if(headerDirection !== '') {
-        startingOption = FORM_OPTIONS.SELECT_DIRECTION
+        startingOption = FORM_OPTIONS.SELECT_DIRECTION;
       }
     }
-    setActiveOption(startingOption)
-    
+
+    setActiveOption(startingOption);
+    setHasPotentialCaption(tempHasPotentialCaption);
+    setExtractCaption(false);
+
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [activeOption, selectedValue])
+  }, [activeOption, selectedValue, extractCaption])
 
   const getTableHeaderDirection = (table) => {
 
@@ -121,13 +137,32 @@ export default function TableHeadersForm({
       }
     }
 
+    // Remove the <thead> and move its children to the <tbody>
+    let tableHead = table.querySelector("thead");
+    let tableBody = table.querySelector("tbody");
+
+    if (tableHead && tableBody) {
+      tableBody.prepend(...tableHead.children);
+      tableHead.remove();
+    }
+
+    // If the user says the first row is really the title, then remove its content
+    // and put it in a <caption>.
+    if (activeOption === FORM_OPTIONS.SELECT_DIRECTION && extractCaption) {
+      let firstRow = table.querySelector('tr');
+      const newCaption = document.createElement('caption');
+      newCaption.innerText = firstRow.innerText?.trim();
+      table.prepend(newCaption);
+      firstRow.remove();
+    }
+
     return table
   }
 
   const fixHeaders = () => {
-    const html = activeIssue.initialHtml
-    let table = Html.toElement(html)
-''
+    const html = activeIssue.initialHtml;
+    let table = Html.toElement(html);
+
     if(!table || !table.rows || table.rows.length === 0) {
       return Html.toString(table)
     }
@@ -146,16 +181,6 @@ export default function TableHeadersForm({
       }
     }
 
-    if ('col' === selectedValue || 'both' === selectedValue) {
-      let row = table.rows[0]
-      
-      for (let cell of row.cells) {
-        let newCell = Html.renameElement(cell, 'th')
-        newCell.setAttribute('scope', 'col')
-        row.replaceChild(newCell, cell)        
-      }
-    }
-
     if ('row' === selectedValue || 'both' === selectedValue) {
       for (let row of table.rows) {
         let firstCell = row.cells[0]
@@ -165,17 +190,34 @@ export default function TableHeadersForm({
       }
     }
 
+    // Create a <thead> row before the <tbody> with its first row.
+    if ('col' === selectedValue || 'both' === selectedValue) {
+      let firstRow = table.rows[0]
+      
+      // If the user has selected the extractCaption option, there may be a table with no more rows.
+      if (firstRow) {
+        for (let cell of firstRow.cells) {
+          let newCell = Html.renameElement(cell, 'th')
+          newCell.setAttribute('scope', 'col')
+          firstRow.replaceChild(newCell, cell)        
+        }
+
+        let tableBody = table.querySelector("tbody");
+        if (tableBody) {
+          let tableHeader = Html.toElement("<thead></thead>");
+          let rowClone = Html.toElement(Html.toString(firstRow));
+          tableHeader.append(rowClone);
+          tableBody.before(tableHeader);
+          firstRow.remove();
+        }
+      }
+    }
+
     return Html.toString(table)
   }
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
-    }
     
     issue.newHtml = fixHeaders()
     handleActiveIssue(issue)
@@ -200,8 +242,6 @@ export default function TableHeadersForm({
     setSelectedValue(newValue)
   }
 
-  
-
   return (
     <>
       {/* OPTION 1: Add label. ID: "SELECT_DIRECTION" */}
@@ -212,10 +252,11 @@ export default function TableHeadersForm({
           setActiveOption = {setActiveOption}
           option = {FORM_OPTIONS.SELECT_DIRECTION}
           labelId = "headerDirectionLabel"
-          labelText = {t('form.table_headers.selection_description')}
+          labelText = {t('form.table_headers.decision.data')}
         />
         {activeOption === FORM_OPTIONS.SELECT_DIRECTION && (
           <>
+            <div className="instructions mb-2">{t('form.table_headers.selection_description')}</div>
             <div className="flex-column indented gap-1" role="radiogroup" aria-labelledby="headerDirectionLabel">
               { radioOptions.map(value => (
                 <RadioSelector
@@ -229,6 +270,16 @@ export default function TableHeadersForm({
                 />
               ))}
             </div>
+            { hasPotentialCaption && (
+              <label>
+                <ToggleSwitch
+                  initialValue={extractCaption}
+                  updateToggle={setExtractCaption}
+                  disabled={isDisabled}
+                />
+                <div>{t('form.table_headers.label.caption')}</div>
+              </label>
+            )}
             <OptionFeedback
               t={t}
               feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]}
@@ -244,18 +295,7 @@ export default function TableHeadersForm({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_DECORATIVE}
-          labelText = {t('form.table_headers.decoration_only')}
-        />
-      </div>
-
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
+          labelText = {t('form.table_headers.decision.no_data')}
         />
       </div>
     </>

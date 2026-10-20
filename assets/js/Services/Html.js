@@ -1,3 +1,5 @@
+import { TAG_IMPLICIT_ROLE } from './Constants';
+
 // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
 // in the required parent element. This function wraps the error HTML in the required parent element so that
 // the DOMParser can parse it correctly.
@@ -87,7 +89,6 @@ export function getInnerText(element) {
     return ''
   }
 
-  // TODO: add logic that looks for multiple text nodes, factors in children elements, etc
   return element.innerText
 }
 
@@ -158,7 +159,7 @@ export function setAttribute(element, name, value) {
   return element
 }
 
-export function removeAttribute(element, name) {
+export function removeAttribute(element, name, value = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
@@ -167,7 +168,14 @@ export function removeAttribute(element, name) {
     return null
   }
 
-  element.removeAttribute(name)
+  // So we can only remove attributes of certain values, like removeAttribute(element, "role", "presentation")
+  if (value) {
+    if (element.getAttribute(name) !== value) {
+      return element;
+    }
+  }
+
+  element.removeAttribute(name);
 
   return element
 }
@@ -226,6 +234,21 @@ export function removeClass(element, className) {
   return element;
 }
 
+export function hasClass(element, className) {
+    if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return null
+  }
+
+  let classes = element.getAttribute('class')?.split(' ') || [];
+  classes = classes.filter(item => item === className);
+
+  return (classes.length > 0);
+}
+
 export function getTagName(element) {
   if ('string' === typeof element) {
     element = toElement(element)
@@ -236,6 +259,30 @@ export function getTagName(element) {
   }
 
   return element.tagName
+}
+
+export function getRole(element) {
+  if (!element) {
+    return "";
+  }
+
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return null
+  }
+
+  let role = getAttribute(element, "role")?.toLowerCase().trim();
+  if (!role || role === "") {
+    let tagName = getTagName(element);
+    if (tagName && typeof(tagName) === "string") {
+      role = TAG_IMPLICIT_ROLE[tagName.toLowerCase().trim()];
+    }
+  }
+
+  return role || "";
 }
 
 export function removeTag(element, tagName) {
@@ -319,10 +366,8 @@ export function renameElement(element, newName) {
 
   let newElement = document.createElement(newName)
 
-  // Copy children
-  while (element.firstChild) {
-    newElement.appendChild(element.firstChild)
-  }
+  // Copy children and text
+  newElement.innerHTML = element.innerHTML;
 
   // Copy the attributes
   for (const attr of element.attributes) {
@@ -474,7 +519,6 @@ export const elementOrChildrenHasStyleAttributes = (
     return false
   }
 
-  const childTags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
   if (elementHasStyleAttribute(element)) {
     return true
   }
@@ -526,7 +570,7 @@ export const removeStyleAttributesFromElementAndChildren = (
   const children = element.querySelectorAll(tags.join(','))
 
   // Remove color styles from the main element
-  element = removeElementStyleAttributes(element)
+  removeElementStyleAttributes(element)
 
   // Remove color styles from immediate child elements as well. Further descendants are ignored.
   for (let i = 0; i < children.length; i++) {
@@ -535,6 +579,54 @@ export const removeStyleAttributesFromElementAndChildren = (
   }
 
   return element
+}
+
+export const removeStyleTags = (
+  element, 
+  tags = ['strong', 'b', 'em', 'i', 'del', 's', 'u', 'mark']
+) => {
+  /* We want to strip all tags made for styles, so something like:
+   <h2>This is an <strong>IMPORTANT</strong> heading</h2>
+   becomes:
+   <h2>This is an IMPORTANT heading</h2>
+
+   It looks like it should be easy to do a string replace or a Regex function for
+   this, but tags may not be empty (<strong style="..." class="...">), so it would
+   be safer to examine each child element.
+  */
+
+  const cleanChildren = (parentElement, tags) => {
+    let children = parentElement.children;
+    for (let child of children) {
+      child = cleanChildren(child, tags);
+
+      let childTag = getTagName(child).toLowerCase();
+      if (tags.includes(childTag)) {
+        let replaceTagElement = document.createElement('replaceme');
+        replaceTagElement.innerHTML = child.innerHTML;
+        parentElement.replaceChild(replaceTagElement, child);
+      }
+      else if (childTag === "span") {
+        // If the span's only attribute is "style", remove it, too.
+        let spanAttrs = child.getAttributeNames();
+        if (spanAttrs.length === 0 || (spanAttrs.length === 1 && spanAttrs[0].toLowerCase() === 'style')) {
+          let replaceTagElement = document.createElement('replaceme');
+          replaceTagElement.innerHTML = child.innerHTML;
+          parentElement.replaceChild(replaceTagElement, child);
+        }
+      }
+    }
+    return parentElement;
+  }
+
+  element = cleanChildren(element, tags);
+  
+  let cleanedString = toString(element);
+  cleanedString = cleanedString.replaceAll("<replaceme>", "").replaceAll("</replaceme>", "");
+  let cleanedElement = toElement(cleanedString);
+
+  element = cleanedElement;
+  return cleanedElement;
 }
 
 export const findXpathFromElement = (element, id = null) => {
@@ -558,7 +650,7 @@ export const findXpathFromElement = (element, id = null) => {
   return '/' + path.join('/')
 }
 
-export const findElementWithXpath = (content, xpath) => {
+export const findElementWithXpath = (content, xpath, ignoreParent = false) => {
   if (!content || !xpath) {
     return null
   }
@@ -572,11 +664,15 @@ export const findElementWithXpath = (content, xpath) => {
     return null
   }
 
-  if(!content.querySelector('html') && !content.querySelector('body')) {
-    // If the content doesn't have html and body tags, remove that part from the xpath, if present.
-    if(xpath.startsWith('html[1]/body[1]/')) {
-      xpath = xpath.replace('html[1]/body[1]/', '')
-    }
+  // Remove html and body tags from the xpath, if present.
+  if(xpath.startsWith('html[1]/body[1]/')) {
+    xpath = xpath.replace('html[1]/body[1]/', '')
+  }
+
+  // Start the search in the body, if the element was nested in a fake HTML document.
+  let targetElement = content;
+  if (targetElement.querySelector("html > body") !== null) {
+    targetElement = targetElement.querySelector("html > body");
   }
 
   if(xpath.length > 0) {
@@ -585,17 +681,38 @@ export const findElementWithXpath = (content, xpath) => {
       if (match) {
         let tag = match[1]
         let index = parseInt(match[2], 10)
-        return `${tag}:nth-of-type(${index})`
+        return {tag, index};
       }
       return part
     });
     
-    let selector = pathParts.join(' > ')
-    let element = content.querySelector(selector)
-    if(element) {
-      return element
+    if (ignoreParent) {
+      pathParts.shift();
+    }
+    
+    // Drill down through each element's children to find the target child by xpath.
+    for (let i = 0; i < pathParts.length; i++) {
+      if (pathParts[i].tag && targetElement.children) {
+        let childrenByTag = Array.from(targetElement.children).filter(
+          child => child.tagName.toLowerCase() === pathParts[i].tag.toLowerCase()
+        );
+        if (childrenByTag[pathParts[i].index - 1]) {
+          targetElement = childrenByTag[pathParts[i].index - 1];
+        }
+        else {
+          return null;
+        }
+      }
+      else {
+        return null;
+      }
+    }
+    
+    if(targetElement) {
+      return targetElement
     }
   }
+
   return null
 }
 

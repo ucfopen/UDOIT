@@ -18,30 +18,32 @@ export default function EmbeddedContentTitleForm({
 
   const FORM_OPTIONS = {
     ADD_LABEL: UFIXIT_OPTIONS.ADD_TEXT,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    MARK_DECORATIVE: UFIXIT_OPTIONS.MARK_DECORATIVE
   }
 
   const [textInputValue, setTextInputValue] = useState("")
 
   useEffect(() => {
-    const html = Html.getIssueHtml(activeIssue)
-    const element = Html.toElement(html)
-    const initialText = Html.getAccessibleName(element)
-    setTextInputValue(initialText)
-
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-    let startingOption = ''
-
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    if (!activeIssue) {
+      return;
     }
+    const html = Html.getIssueHtml(activeIssue);
+    const element = Html.toElement(html);
+    const initialText = Html.getAccessibleName(element);
+    setTextInputValue(initialText);
+
+    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    let startingOption = '';
+
     if (fixed) {
       if(initialText !== '') {
-        startingOption = FORM_OPTIONS.ADD_LABEL
+        startingOption = FORM_OPTIONS.ADD_LABEL;
+      }
+      else {
+        startingOption = FORM_OPTIONS.MARK_DECORATIVE;
       }
     }
-    setActiveOption(startingOption)
+    setActiveOption(startingOption);
 
   }, [activeIssue])
 
@@ -52,28 +54,34 @@ export default function EmbeddedContentTitleForm({
 
   const updateHtmlContent = () => {
 
-    let issue = activeIssue
+    let issue = activeIssue;
+    let html = Html.getIssueHtml(activeIssue);
+    let updatedElement = Html.toElement(html);
 
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
+    if (activeOption === FORM_OPTIONS.ADD_LABEL) {
+      Html.removeAttribute(updatedElement, "role", "presentation");
+      Html.removeAttribute(updatedElement, "role", "none");
+      Html.removeClass(updatedElement, issue.ignoreClass);
+      Html.setAttribute(updatedElement, "aria-label", textInputValue);
+      if (activeIssue.scanRuleId == 'media_alt_exists') {
+        Html.setAttribute(updatedElement, "label", textInputValue);
+      }
+      else {
+        Html.setAttribute(updatedElement, "title", textInputValue);
+      }
     }
 
-    let html = Html.getIssueHtml(activeIssue)
-    let updatedElement = Html.toElement(html)
-
-    if (activeIssue.scanRuleId == 'media_alt_exists') {
-      updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-      updatedElement = Html.setAttribute(updatedElement, "label", textInputValue)
-    }
-    else {
-      updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-      updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
+    if (activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
+      Html.removeAttribute(updatedElement, "aria-labelledby");
+      Html.removeAttribute(updatedElement, "aria-label");
+      Html.removeAttribute(updatedElement, "label");
+      Html.removeAttribute(updatedElement, "title");
+      Html.addClass(updatedElement, issue.ignoreClass);
+      Html.setAttribute(updatedElement, "role", "presentation");
     }
 
-    issue.newHtml = Html.toString(updatedElement)
-    handleActiveIssue(issue)
+    issue.newHtml = Html.toString(updatedElement);
+    handleActiveIssue(issue);
   }
 
   const checkFormErrors = () => {
@@ -120,10 +128,11 @@ export default function EmbeddedContentTitleForm({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.ADD_LABEL}
           labelId = 'add-label-label'
-          labelText = {t('form.embedded_content_title.label.text')}
+          labelText = {t('form.embedded_content_title.decision.interactive')}
         />
         {activeOption === FORM_OPTIONS.ADD_LABEL && (
           <>
+            <label htmlFor="labelInputValue">{t('form.embedded_content_title.label.text')}</label>
             <input
               aria-labelledby="add-label-label"
               type="text"
@@ -143,14 +152,14 @@ export default function EmbeddedContentTitleForm({
         )}
       </div>
 
-      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+      {/* OPTION 2: Mark as Decorative. ID: "MARK_DECORATIVE" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DECORATIVE ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
+          option={FORM_OPTIONS.MARK_DECORATIVE}
+          labelText = {t('form.embedded_content_title.decision.decorative')}
         />
       </div>
     </>
