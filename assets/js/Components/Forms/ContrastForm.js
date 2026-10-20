@@ -181,6 +181,8 @@ export default function ContrastForm({
   // Generate updated HTML with new colors
   const processHtml = (html, bgColors) => {
     let element = Html.toElement(html);
+    if (!element) return null
+
     if (bgColors.length > 1) {
       let gradientHtml = originalBgColors[0].originalString;
       // There is an issue where a simple string replace can overwrite things.
@@ -229,6 +231,8 @@ export default function ContrastForm({
   const updatePreview = () => {
     const html = Html.getIssueHtml(activeIssue)
     const newHtml = processHtml(html, currentBgColors)
+    if (newHtml === null) return
+
     if (activeIssue.newHtml !== newHtml) {
       activeIssue.newHtml = newHtml
       handleActiveIssue(activeIssue)
