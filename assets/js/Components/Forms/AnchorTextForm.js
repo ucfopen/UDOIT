@@ -197,10 +197,9 @@ export default function AnchorTextForm ({
                     initialValue={hideText}
                     updateToggle={setHideText}
                     disabled={isDisabled}
-                    small={false}
                   />
                   <div>{t('form.anchor.label.hide_text')}</div>
-                  </label>
+                </label>
               )}
             </>    
           )}

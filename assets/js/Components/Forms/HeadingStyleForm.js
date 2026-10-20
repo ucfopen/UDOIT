@@ -196,7 +196,6 @@ export default function HeadingStyleForm ({
                   initialValue={removeStyling}
                   updateToggle={setRemoveStyling}
                   disabled={isDisabled}
-                  small={true}
                 />
                 <div>{t('form.heading_style.label.remove_styling')}</div>
               </label>

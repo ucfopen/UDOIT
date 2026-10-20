@@ -208,7 +208,6 @@ export default function KeyboardTabbableForm({
                 initialValue={mergeText}
                 updateToggle={setMergeText}
                 disabled={isDisabled}
-                small={false}
               />
               <div>{t('form.keyboard_tabbable.label.merge_text')}</div>
             </label>

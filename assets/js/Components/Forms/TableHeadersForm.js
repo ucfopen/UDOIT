@@ -197,17 +197,17 @@ export default function TableHeadersForm({
       // If the user has selected the extractCaption option, there may be a table with no more rows.
       if (firstRow) {
         for (let cell of firstRow.cells) {
-        let newCell = Html.renameElement(cell, 'th')
-        newCell.setAttribute('scope', 'col')
+          let newCell = Html.renameElement(cell, 'th')
+          newCell.setAttribute('scope', 'col')
           firstRow.replaceChild(newCell, cell)        
-      }
+        }
 
-      let tableBody = table.querySelector("tbody");
-      if (tableBody) {
-        let tableHeader = Html.toElement("<thead></thead>");
+        let tableBody = table.querySelector("tbody");
+        if (tableBody) {
+          let tableHeader = Html.toElement("<thead></thead>");
           let rowClone = Html.toElement(Html.toString(firstRow));
-        tableHeader.append(rowClone);
-        tableBody.before(tableHeader);
+          tableHeader.append(rowClone);
+          tableBody.before(tableHeader);
           firstRow.remove();
         }
       }
@@ -276,7 +276,6 @@ export default function TableHeadersForm({
                   initialValue={extractCaption}
                   updateToggle={setExtractCaption}
                   disabled={isDisabled}
-                  small={false}
                 />
                 <div>{t('form.table_headers.label.caption')}</div>
               </label>

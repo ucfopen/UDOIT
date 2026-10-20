@@ -418,7 +418,7 @@ export default function LanguageForm ({
               <ToggleSwitch
                 initialValue={manualEntry}
                 updateToggle={setManualEntry}
-                small={false}
+                disabled={isDisabled}
               />
               <div>{t(`form.language.label.useBCP`)}</div>
             </label>

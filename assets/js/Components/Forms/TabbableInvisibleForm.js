@@ -271,7 +271,6 @@ export default function TabbableInvisibleForm({
                     initialValue={hideText}
                     updateToggle={setHideText}
                     disabled={isDisabled}
-                    small={true}
                   />
                   <div>{t('form.tabbable_invisible.label.hide_text')}</div>
                 </label>
@@ -285,7 +284,6 @@ export default function TabbableInvisibleForm({
                     initialValue={insertBefore}
                     updateToggle={setInsertBefore}
                     disabled={isDisabled || hideText}
-                    small={true}
                   />
                   <div>{t('form.tabbable_invisible.label.insert_before')}</div>
                 </label>

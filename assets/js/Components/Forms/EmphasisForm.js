@@ -145,7 +145,6 @@ export default function EmphasisForm({
                 initialValue={useBold}
                 updateToggle={setUseBold}
                 disabled={isDisabled}
-                small={false}
               />
               <div>{t('form.emphasis.label.bold')}</div>
             </label>
@@ -154,7 +153,6 @@ export default function EmphasisForm({
                 initialValue={useItalics}
                 updateToggle={setUseItalics}
                 disabled={isDisabled}
-                small={false}
               />
               <div>{t('form.emphasis.label.italic')}</div>
             </label>
@@ -182,7 +180,6 @@ export default function EmphasisForm({
                 initialValue={removeColor}
                 updateToggle={setRemoveColor}
                 disabled={isDisabled}
-                small={false}
               />
               <div>{t('form.emphasis.label.remove_color')}</div>
             </label>
