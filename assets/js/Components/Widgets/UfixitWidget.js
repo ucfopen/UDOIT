@@ -32,11 +32,6 @@ export default function UfixitWidget({
 }) {
 
   const [formErrors, setFormErrors] = useState({})
-  const UfixitForm = !tempActiveIssue
-    ? null
-    : tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT
-      ? FileForm
-      : formFromIssue(tempActiveIssue.issueData)
 
   const handleActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
