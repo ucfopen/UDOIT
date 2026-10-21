@@ -1,15 +1,11 @@
 import React, { useState } from 'react'
 import FormExternalLink from './FormExternalLink'
-import MediaCaptionsEditor from '../Captions/MediaCaptionsEditor'
 
 export default function MediaCaptionsForm({
   t,
   instanceInfo,
-  activeIssue,
-  addMessage,
-  isDisabled
+  activeIssue
 }) {
-  const [showModal, setShowModal] = useState(false)
 
   let baseUrl = '';
   if (activeIssue?.contentUrl) {
@@ -44,50 +40,6 @@ export default function MediaCaptionsForm({
         instanceInfo={instanceInfo}
         activeIssue={activeIssue}
       />
-      {/* <button
-        type="button"
-        className="btn-secondary"
-        onClick={() => setShowModal(true)}
-      >
-        {'Open Captions Editor'}
-      </button>
-      {showModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <div style={{
-            background: '#fff',
-            padding: 24,
-            borderRadius: 8,
-            maxWidth: '90vw',
-            height: '90vh',
-            overflow: 'auto'
-          }}>
-            <button
-              type="button"
-              style={{ float: 'right' }}
-              onClick={() => setShowModal(false)}
-            >
-              {t('Close') || 'Close'}
-            </button>
-            <MediaCaptionsEditor
-              t={t}
-              settings={settings}
-              addMessage={addMessage}
-              initialVideoUrl={initialVideoUrl}
-              initialMatch={initialMatch}
-            />
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }

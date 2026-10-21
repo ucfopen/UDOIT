@@ -16,7 +16,6 @@ import ProgressIcon from './Icons/ProgressIcon.js'
 import RightArrowIcon from './Icons/RightArrowIcon'
 
 import Api from '../Services/Api'
-import { parseVTT, buildVttText, vttToMS, formatTimeVTT, formatVTTTime, computeVTTDuration } from "../Services/Captions";
 import * as Html from '../Services/Html.js'
 import { primaryLanguages } from '../Services/Lang'
 import * as Text from '../Services/Text'

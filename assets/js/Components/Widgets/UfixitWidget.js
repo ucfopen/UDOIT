@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
-// import BarrierInformation from './BarrierInformation'
 import DecisionQuestion from './DecisionQuestion'
 import DecisionHelpButton from './DecisionHelpButton'
-import StatusPill from './StatusPill'
 import IssueAffects from './IssueAffects'
 import { formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'

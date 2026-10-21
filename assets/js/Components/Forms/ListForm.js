@@ -7,15 +7,12 @@ import { numberedPattern, romanPattern, letteredPattern, bulletPattern } from '.
 
 export default function ListForm({
   t,
-  instanceInfo,
   activeIssue,
   activeContentItem,
-  isDisabled,
   handleActiveIssue,
   isContentLoading,
   activeOption,
   setActiveOption,
-  formErrors,
   setFormErrors,
   setPreviewData
 }) {

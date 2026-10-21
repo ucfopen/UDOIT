@@ -8,7 +8,7 @@ import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import CloseIcon from './Icons/CloseIcon'
-import { FORM_CLASSIFICATIONS, formFromIssue, formNameFromRule } from '../Services/Ufixit'
+import { formFromIssue, formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 
 import './FixIssuesPage.css'

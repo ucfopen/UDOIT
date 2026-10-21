@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FORM_CLASSIFICATIONS, formNameFromRule, formNames } from '../../Services/Ufixit'
 import { VALID_IMAGE_TAGS, UFIXIT_OPTIONS } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'

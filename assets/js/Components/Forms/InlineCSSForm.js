@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import RadioSelector from '../Widgets/RadioSelector'
 import * as Html from '../../Services/Html'
@@ -10,9 +10,7 @@ export default function InlineCSSForm ({
   isDisabled,
   handleActiveIssue,
   activeOption,
-  setActiveOption,
-  formErrors,
-  setFormErrors
+  setActiveOption
  }) {
 
   const FORM_OPTIONS = {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { formNameFromRule } from '../../Services/Ufixit'
-import { ISSUE_FILTER } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'
 
 export default function DecisionQuestion ({

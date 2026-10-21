@@ -11,7 +11,6 @@ export default function BlockquoteForm({
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  activeContentItem,
   activeOption,
   setActiveOption,
   formErrors,

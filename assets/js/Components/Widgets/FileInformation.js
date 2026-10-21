@@ -1,5 +1,4 @@
 import React from 'react'
-import ContentPageIcon from '../Icons/ContentPageIcon'
 import FileTypeIcon from '../Icons/FileTypeIcon'
 import * as Text from '../../Services/Text'
 
