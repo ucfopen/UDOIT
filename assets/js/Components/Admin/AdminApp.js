@@ -3,7 +3,6 @@ import AdminHeader from "./AdminHeader";
 import AdminDashboard from "./AdminDashboard";
 import CoursesPage from "./CoursesPage";
 import ReportsPage from "./ReportsPage";
-import Api from "../../Services/Api";
 import MessageTray from "../Widgets/MessageTray";
 import AdminFilters from "../Admin/AdminFilters";
 import ProgressIcon from "../Icons/ProgressIcon";
@@ -11,6 +10,7 @@ import ProgressIcon from "../Icons/ProgressIcon";
 import { ISSUE_FILTER } from "../../Services/Settings";
 
 import "../../../css/udoit4-theme.css";
+import { api } from "../../Services/Api";
 
 export default function AdminApp(initialData) {
   // If there are multiple accounts available, the first account is the selected accountId
@@ -65,7 +65,6 @@ export default function AdminApp(initialData) {
   const loadCourses = (filters) => {
     setLoadingCourses(true);
 
-    const api = new Api(instanceInfo);
     api
       .getAdminCourses(filters)
       .then((response) => response.json())
@@ -141,6 +140,11 @@ export default function AdminApp(initialData) {
 
     setCourses(tempCourses);
   };
+
+
+  useEffect(() => {
+    api.setInstanceInfo(instanceInfo);
+  }, [instanceInfo]);
 
   return (
     <div

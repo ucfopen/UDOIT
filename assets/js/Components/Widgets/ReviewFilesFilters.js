@@ -114,31 +114,25 @@ export default function ReviewFilesFilters({
           </div>
         </div>
 
-        <div className="flex-row gap-1 pe-2">
+        <label className="pe-2">
           <ToggleSwitch
-            labelId={"unusedFiles"}
             initialValue={activeFilters[FILTER.TYPE.UTILIZATION] === FILTER.ALL}
             updateToggle={updateUnusedFilesToggle}
           />
-          <div
-            id="unusedFiles"
-            className="align-self-center subtext">
+          <div className="subtext">
               {t('filter.label.toggle.show_unused')}
           </div>
-        </div>
+        </label>
 
-        <div className="flex-row gap-1 pe-2">
+        <label className="pe-2">
           <ToggleSwitch
-            labelId={"completeFiles"}
             initialValue={activeFilters[FILTER.TYPE.RESOLUTION] === FILTER.ALL}
             updateToggle={updateCompleteFilesToggle}
           />
-          <div
-            id="completeFiles"
-            className="align-self-center subtext">
+          <div className="subtext">
               {t('filter.label.toggle.show_reviewed')}
           </div>
-        </div>
+        </label>
 
       </div>
       

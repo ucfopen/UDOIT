@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SortableTable from "../Widgets/SortableTable";
-import Api from "../../Services/Api";
+import { api } from "../../Services/Api";
 import SummaryIcon from "../Icons/SummaryIcon";
 import ReportIcon from "../Icons/ReportIcon";
 
@@ -228,8 +228,6 @@ export default function CoursePage({
   };
 
   const handleScanClick = (course) => {
-    let api = new Api(instanceInfo);
-
     // For unscanned courses, course.id will be the LMS course ID (string/number)
     // and hasReport will be false. We need to create the course in UDOIT first.
     // For scanned courses, course.id is the UDOIT database ID (number).
@@ -342,7 +340,6 @@ export default function CoursePage({
 
   const checkForReport = (course) => {
     const newReportInterval = 5000;
-    let api = new Api(instanceInfo);
     const courseId = course.udoitId || course.id;
     const originalId = course.originalId; // Save the original ID for removal
 

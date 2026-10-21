@@ -1,6 +1,7 @@
 import * as Html from "./Html";
 import { ISSUE_STATE, MEDIA_FILE_TYPES } from "./Constants";
 import { groupListIssues } from './Lists' 
+import { formNames, formNameFromRule } from './Ufixit'
 
 /** With all of the data inconsistency between the old and new issues, we need to double-check some things:
  *    1. If the issue is ACTIVE (found in the scan) but should be ignored, either because of the old
@@ -14,6 +15,36 @@ import { groupListIssues } from './Lists'
  *    3. To avoid confusion, once we take data out of the database, we are formatting the issue object with more
  *      understandable fields: xpath, sourceHtml, and newHtml.
  **/
+
+const checkAriaHiddenNontabbable = (issue, element, parsedDocument) => {
+  // This issue looks to see if the element is in a working toggle, like an accordion.
+  // I will assume that if the toggle-able element has an id, and another element has
+  // the matching `aria-controls` attribute, then this one is fine.
+  let ariaHiddenParentElement = element.closest('[aria-hidden="true"]');
+  if (!ariaHiddenParentElement) {
+    return false;
+  }
+
+  let hiddenElementId = Html.getAttribute(ariaHiddenParentElement, 'id');
+  if (hiddenElementId) {
+    // If another element controls the element with the `aria-hidden` attribute, ignore this error.
+    if (parsedDocument.querySelector(`[aria-controls="${hiddenElementId}"]`)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+const checkElementTabbableVisible = (issue, element) => {
+  const tagName = Html.getTagName(element)?.toLowerCase();
+  if (tagName === "a") {
+    issue.scanRuleId = "a_text_purpose";
+  } else if (tagName === "area") {
+    issue.scanRuleId = "area_alt_exists";
+  }
+  return false;
+}
 
 const checkTextBlockHeading = (issue, element) => {
   let issueIgnored = false;
@@ -54,6 +85,15 @@ const checkStyleColorMisuse = (issue, element) => {
 
   return false;
 };
+
+const checkTableHeadersRelated = (issue, element) => {
+  let parentTable = element.closest('table');
+  if (parentTable) {
+    issue.xpath = Html.findXpathFromElement(parentTable);
+    issue.sourceHtml = Html.toString(parentTable);
+  }
+  return false;
+}
 
 const checkTextContrastSufficient = (issue, element, parsedDocument) => {
   if (!element || !parsedDocument) {
@@ -162,14 +202,20 @@ const checkImgAltBackground = (issue, element) => {
 };
 
 const runCustomChecks = (issue, element, parsedDocument = null) => {
-  if (issue.scanRuleId === "style_color_misuse") {
+  if (issue.scanRuleId === "aria_hidden_nontabbable") {
+    return checkAriaHiddenNontabbable(issue, element, parsedDocument);
+  } else if (issue.scanRuleId === "element_tabbable_visible") {
+    return checkElementTabbableVisible(issue, element);
+  } else if (issue.scanRuleId === "img_alt_background") {
+    return checkImgAltBackground(issue, element);
+  } else if (issue.scanRuleId === "style_color_misuse") {
     return checkStyleColorMisuse(issue, element);
+  } else if (issue.scanRuleId === "table_headers_related") {
+    return checkTableHeadersRelated(issue, element);
   } else if (issue.scanRuleId === "text_block_heading") {
     return checkTextBlockHeading(issue, element);
   } else if (issue.scanRuleId === "text_contrast_sufficient") {
     return checkTextContrastSufficient(issue, element, parsedDocument);
-  } else if (issue.scanRuleId === "img_alt_background") {
-    return checkImgAltBackground(issue, element);
   }
   return false;
 };
@@ -374,6 +420,8 @@ export function analyzeReport(report) {
     }
   });
 
+  let contentItemXpathForm = {};
+
   report.issues.forEach((issue) => {
     // By default, we assume the issue is included in the final report.
     let issueIgnored = false;
@@ -413,6 +461,27 @@ export function analyzeReport(report) {
         } else {
           // If we can't find the element in the content item body, we have to ignore the issue.
           issueIgnored = true;
+        }
+
+        // Lastly, if the same ContentItem + XPath is already an issue FOR THE SAME FORM, then ignore.
+        if (!contentItemXpathForm[contentItemId]) {
+          contentItemXpathForm[contentItemId] = {};
+        }
+        if (!contentItemXpathForm[contentItemId][issue.xpath]) {
+          contentItemXpathForm[contentItemId][issue.xpath] = [];
+        }
+
+        // The Review-Only form instead uses the scan rule to check for duplicates.
+        let formName = formNameFromRule(issue.scanRuleId);
+        if (formName === formNames.REVIEW_ONLY) {
+          formName = issue.scanRuleId;
+        }
+
+        if (contentItemXpathForm[contentItemId][issue.xpath].includes(formName)) {
+          issueIgnored = true;
+        }
+        else {
+          contentItemXpathForm[contentItemId][issue.xpath].push(formName);
         }
       }
     } else {

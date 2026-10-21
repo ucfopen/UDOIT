@@ -69,7 +69,7 @@ class LocalApiAccessibilityService {
                 'json' => [
                     'html' => $html,
                     'guidelineIds' => 'WCAG_2_1',
-                    'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
+                    'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation', 'potentialrecommendation']
                 ],
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -143,7 +143,7 @@ class LocalApiAccessibilityService {
         $jsonPayload = json_encode([
             "html" => $html,
             "guidelineIds" => "WCAG_2_1",
-            'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
+            'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation', 'potentialrecommendation']
         ]);
 
         // Use cURL instead of file_get_contents for better error handling

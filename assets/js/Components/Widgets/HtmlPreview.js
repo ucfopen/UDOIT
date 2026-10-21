@@ -1,6 +1,6 @@
 import React, { useState, useEffect, use } from 'react'
 import { FORM_CLASSIFICATIONS, formNameFromRule, formNames } from '../../Services/Ufixit'
-import { UFIXIT_OPTIONS } from '../../Services/Constants'
+import { VALID_IMAGE_TAGS, UFIXIT_OPTIONS } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import './FixIssuesContentPreview.css'
@@ -56,7 +56,14 @@ export default function HtmlPreview({
       return doc
     }
 
-    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT){
+    const formName = formNameFromRule(activeIssue.scanRuleId);
+
+    if (formName === formNames.TABBABLE_INVISIBLE &&
+        (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.issueData.newHtml === '')) {
+      return doc;
+    }
+
+    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formName) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT){
       const allElements = doc.querySelectorAll('*')
       allElements.forEach((el) => {
         if (el.id?.includes('ufixit-alt-text-preview')) {
@@ -70,7 +77,7 @@ export default function HtmlPreview({
       })
     }
 
-    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT) {
+    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formName) && activeOption === UFIXIT_OPTIONS.SELECT_ELEMENT) {
       doc.querySelectorAll('.ufixit-temp-selected').forEach((el) => {
         el.classList.remove('ufixit-temp-selected')
       })
@@ -96,9 +103,21 @@ export default function HtmlPreview({
     }
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
-    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && errorElement) {
+    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formName) && errorElement) {
       let altText = Html.getAccessibleName(errorElement, doc)
       altText = Html.sanitizeString(altText)
+
+      // In the element_tabbable_visible form, it is possible to have alt text in a nested image.
+      if (!altText && formName === formNames.TABBABLE_INVISIBLE) {
+        for (const child of errorElement.children) {
+          let childTag = Html.getTagName(child)?.toLowerCase();
+          if (VALID_IMAGE_TAGS.includes(childTag)) {
+            if (altText === "") {
+              altText = Html.getAccessibleName(child);
+            }
+          }
+        }
+      }
       
       // If there is alt text to show...
       if (altText && altText.trim() !== '') {
@@ -147,7 +166,7 @@ export default function HtmlPreview({
       }
     }
 
-    if (FORM_CLASSIFICATIONS.HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.HEADINGS_RELATED.includes(formName)) {
       const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
       if (errorElement && headingTags.includes(errorElement.tagName.toLowerCase())) {
@@ -162,6 +181,33 @@ export default function HtmlPreview({
         headingElement.classList.add('ufixit-heading-highlight')
         headingElement.setAttribute('ufixit-heading-type', headingType)
       })
+    }
+
+    if (FORM_CLASSIFICATIONS.SENSORY_RELATED.includes(formName)) {
+      let innerHTML = errorElement.innerHTML;
+      if (Array.isArray(previewData)) {
+        previewData.forEach((sensoryWord) => {
+          const regex = new RegExp(`\\b${sensoryWord}+(?![^<>]*>)\\b`, 'gi');
+          innerHTML =  innerHTML.replace(regex, `<mark class="ufixit-mark" data-mark-start="${t('form.sensory_misuse.mark.start')}" data-mark-end="${t('form.sensory_misuse.mark.end')}">\$&</mark>`);
+        })
+      }
+      errorElement.innerHTML = innerHTML
+    }
+
+    if (FORM_CLASSIFICATIONS.MULTI_PART_RELATED.includes(formName)) {
+      if (Array.isArray(previewData)) {
+        previewData.forEach(childData => {
+          if (childData.xpath) {
+            let errorChild = Html.findElementWithXpath(errorElement, childData.xpath, true);
+            if (errorChild) {
+              Html.addClass(errorChild, "ufixit-aria-child-valid");
+              if (previewData.length > 1) {
+                Html.setAttribute(errorChild, "ufixit-error-number", childData.number);
+              }
+            }
+          }
+        });
+      }
     }
 
     return doc
@@ -253,7 +299,7 @@ export default function HtmlPreview({
         setIsErrorFoundInContent(false)
       }
       else {
-        if(activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT) {
+        if(activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.newHtml === '') {
           // The element has already been deleted, so DON'T do anything else.
         }
         else if(editedElement) { 
@@ -355,19 +401,26 @@ export default function HtmlPreview({
   }, [isErrorFoundInContent])
 
   useEffect(() => {
-    const element = document.getElementsByClassName('ufixit-error-highlight')[0]
-    if (element) {
-      element.scrollIntoView({ behavior: 'instant', block: 'center' })
-    }
-
-    const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
-    if(clickedInfo?.xpath){
-      const focusedElement = Html.findElementWithXpath(doc, clickedInfo.xpath)
-      if(focusedElement && elementFocus){
-        focusedElement.focus()
+    const animationFrame = requestAnimationFrame(() => {
+      const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
+      const element = doc?.getElementsByClassName('ufixit-error-highlight')[0]
+      if (element) {
+        const containerRect = doc.getBoundingClientRect()
+        const elementRect = element.getBoundingClientRect()
+        const elementTop = doc.scrollTop + elementRect.top - containerRect.top
+        doc.scrollTop = elementTop - ((doc.clientHeight - elementRect.height) / 2)
       }
-    }
-  }, [taggedContent])
+
+      if(clickedInfo?.xpath){
+        const focusedElement = Html.findElementWithXpath(doc, clickedInfo.xpath)
+        if(focusedElement && elementFocus){
+          focusedElement.focus()
+        }
+      }
+    })
+
+    return () => cancelAnimationFrame(animationFrame)
+  }, [taggedContent, activeIssue?.id])
     
   return (
     <>

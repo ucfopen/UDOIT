@@ -138,13 +138,12 @@ export default function SettingsPage({
             />
           </div>
 
-          <div className="settings-row">
-            <label id="label-dark-mode">{t('settings.label.dark_mode')}</label>
+          <label className="settings-row">
+            <div>{t('settings.label.dark_mode')}</div>
             <ToggleSwitch
-              labelId="label-dark-mode"
               initialValue={darkMode}
               updateToggle={handleDarkModeChange} />
-          </div>
+          </label>
 
           <div className='divider' />
           

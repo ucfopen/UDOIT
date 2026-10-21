@@ -24,6 +24,20 @@
         opacity: 0;
         width: 0;
         height: 0;
+
+        &:focus-visible,
+        &:focus,
+        &:hover {
+            outline: none;
+            border: none;
+        }
+    }
+
+    &:has(input:focus-visible) {
+        .slider {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
     }
 
     /* The slider */
@@ -51,15 +65,15 @@
             transition: transform var(--transition-time);
             border-radius: 50%;
         }
-
-        &:focus {
-            outline: 2px solid var(--focus-color);
-            outline-offset: 2px;
-        }
     }
 
-    input:checked + .slider {
+    input:checked:not(:disabled) + .slider {
         background-color: var(--progress-bar-color);
+    }
+
+    input:disabled + .slider {
+        background-color: var(--button-disabled-background-color);
+        cursor: not-allowed;
     }
 
     input:focus + .slider {
@@ -70,5 +84,13 @@
         -webkit-transform: translateX(var(--slider-switch-displacement));
         -ms-transform: translateX(var(--slider-switch-displacement));
         transform: translateX(var(--slider-switch-displacement));
+    }
+
+    &:not(:has(input:disabled)) + label {
+        cursor: pointer;
+    }
+
+    &:has(input:disabled) + label {
+        cursor: not-allowed;
     }
 }
