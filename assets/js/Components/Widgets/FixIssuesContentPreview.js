@@ -83,7 +83,7 @@ export default function FixIssuesContentPreview({
     <>
       {/* "Live Preview" Header with link to content */}
       <div className="live-preview-header">
-        <h3 id="live-preview-label">Live Preview</h3>
+        <h3 id="live-preview-label">{t("fix.label.live_preview")}</h3>
         { activeIssue && (
           <a
             href={activeIssue.contentUrl.includes("question") ? activeIssue.contentUrl.replace(/\/questions.*/, "/edit#questions_tab")  : activeIssue.contentUrl}

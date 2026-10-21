@@ -57,10 +57,12 @@ class CanvasApi {
         $response = $this->httpClient->request('GET', $url, $options);
         $lmsResponse->setResponse($response);
         $content = $lmsResponse->getContent();
-
         // If error is invalid token, refresh API token and try again
         if ($lmsResponse->getStatusCode() >= 500) {
             throw new \Exception('msg.sync.error.api');
+        }
+        else if ($lmsResponse->getStatusCode() == 403) {
+            throw new \Exception('msg.sync.error.forbidden');
         }
         else if ($lmsResponse->getStatusCode() >= 400) {
             throw new \Exception('msg.sync.error.connection');
@@ -232,6 +234,7 @@ class CanvasApi {
             $url = "https://{$this->baseUrl}/api/v1/{$url}";
         }
 
+        $output = new ConsoleOutput;
         $response = $this->httpClient->request('PUT', $url, $options);
         $lmsResponse->setResponse($response);
 
@@ -240,6 +243,7 @@ class CanvasApi {
             // TODO: If error is invalid token, refresh API token and try again
 
             foreach ($content['errors'] as $error) {
+                $output->writeln("NOTICED " . $lmsResponse->getStatusCode() . ": " . $error['message']);
                 $lmsResponse->setError($error['message']);
             }
         }

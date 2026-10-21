@@ -13,7 +13,9 @@ use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class FileItemsController extends ApiController
@@ -90,9 +92,6 @@ class FileItemsController extends ApiController
             // Save content to LMS
             $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
             $responseContent = $lmsResponse->getContent();
-
-            $output->writeln(json_encode($responseContent, JSON_PRETTY_PRINT));
-
 
             // If the new file was successfully posted, update the FileItem metadata to point to this replacement
             if (isset($responseContent['id'])) {
@@ -195,6 +194,91 @@ class FileItemsController extends ApiController
             $apiResponse->addLogMessages($util->getUnreadMessages()); 
         }
         catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
+
+    #[Route('/api/files/{file}/download', methods: ['GET'], name: 'download_file')]
+    public function downloadFile(Request $request, FileItem $file): Response
+    {
+        $output = new ConsoleOutput();
+        $url = $file->getDownloadUrl();
+        $output->writeln("Attempting file download from URL: " . $url);
+
+        $contentType = 'video/mp4';
+        try {
+            $metadata = json_decode($file->getMetadata(), true);
+            if(isset($metadata['content-type'])){
+                $contentType = $metadata['content-type'];
+            }
+        } catch (e) {
+            $output->writeln("No file metadata found.");
+        }
+
+        $headers = [
+            'Content-Type' => $contentType,
+            'User-Agent' => 'UDOIT/4.0.0', //'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/Chrome',
+        ];
+
+        $response = new StreamedResponse(function () use ($url, $output) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'UDOIT/4.0.0',); //'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/Chrome');
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) {
+                echo $data;
+                flush();
+                return strlen($data);
+            });
+
+            $result = curl_exec($ch);
+            
+            if ($result === false) {
+                $error = curl_error($ch);
+                curl_close($ch);
+                $output->writeln("cURL error: " . curl_error($ch));
+            }
+            curl_close($ch);
+        }, 200, $headers);
+
+        return $response;
+    }
+
+    #[Route('/api/media/{mediaId}/tracks', methods: ['GET'], name: 'get_tracks')]
+    public function getTracks(Request $request, LmsFetchService $lmsFetch) {
+        $apiResponse = new ApiResponse();    
+        try {
+            $mediaId = $request->get('mediaId');
+            $user = $this->getUser();
+            $tracks = $lmsFetch->getMediaTracks($mediaId, $user);
+
+            
+            $apiResponse->setData([
+                'tracks' => $tracks
+            ]);
+        }
+        catch(\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
+
+    #[Route('/api/media/{mediaId}/settracks', methods: ['POST'], name: 'set_tracks')]
+    public function setTracks(Request $request, LmsPostService $lmsPost) {
+        $mediaId = $request->get('mediaId');
+        $user = $this->getUser();
+        $apiResponse = new ApiResponse();
+
+        try{
+            $content= \json_decode($request->getContent(), true);
+            $tracks = $content['tracks'];
+            $apiResponse = $lmsPost->setMediaTracks($mediaId, $tracks, $user);
+        }
+        catch(\Exception $e){
             $apiResponse->addError($e->getMessage());
         }
 

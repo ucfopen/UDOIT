@@ -127,7 +127,6 @@ class DashboardController extends AbstractController
         $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
         $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
-        $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : '';
 
         $lms = $this->lmsApi->getLms();
 
@@ -139,7 +138,6 @@ class DashboardController extends AbstractController
             'roles' => $this->session->get('roles'),
             'language' => $lang,
             'labels' => (array) $this->util->getTranslation($lang),
-            'excludedRuleIds' => $excludedRuleIds,
             'contentTypes' => $lms->getContentTypes(),
             'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',

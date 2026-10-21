@@ -1,37 +1,40 @@
 import React from 'react'
 import ContentPageIcon from '../Icons/ContentPageIcon'
-import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import FileTypeIcon from '../Icons/FileTypeIcon'
+import * as Text from '../../Services/Text'
 
 const FileInformation = (
 {
     t,
-    file
+    fileData
 }
 ) => {
     
+  const fileName = fileData.fileName || fileData.name;
+  const fileType = fileData.fileType || fileData.type;
+  const fileTypeText = Text.getReadableFileType(t, fileType);
+  const fileSize = Text.getReadableFileSize((fileData.fileSize || fileData.size));
+  const fileLink = fileData.lmsUrl || null;
 
   return (
     <>
-    {file && <div className='flex-row gap-2 align-items-start'>
-        <FileTypeIcon type={file.fileIconType} className="icon-md icon-block no-fill" aria-hidden="true"/>
+      {fileData && <div className='flex-row gap-2 align-items-start'>
+        <FileTypeIcon type={fileType} className="icon-md icon-block no-fill" aria-hidden="true"/>
         <div className='flex-column font-smaller w-100'>
-            {file?.fileLink ?  
-            <a href={file.fileLink} target='_blank'>
-                <div className='flex-row align-items-center justify-content-between gap-1'>
-                    {file.fileName}
-                    <ExternalLinkIcon className="icon-sm link-color align-self-start" aria-hidden="true"/>
-                </div>
+          { fileLink ?  
+            <a href={fileLink} target='_blank' className="fw-bold no-default-underline">
+              {fileName}
             </a>
-            :  
-            <div>{file.fileName}</div>
-            }
-            <div className='font-smaller flex-row pt-1 mt-2 border-top gap-2'>
-                <div>{t("form.file.label.file_type")}: <span className='fw-bold'>{file.fileType}</span> </div>
-                <div>{t("form.file.label.file_size")}: <span className='fw-bold'>{file.fileSize}</span> </div>
-            </div>
+          :  
+            <div className="fw-bold">{fileName}</div>
+          }
+          <div className='font-smaller flex-row gap-1 pt-1'>
+            <div className='fw-light'>{fileTypeText}</div>
+            <div className='align-items-center'>•</div>
+            <div className='fw-light'>{fileSize}</div>
+          </div>
         </div>
-    </div>}
+      </div>}
     </>
   )
 }
