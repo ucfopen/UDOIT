@@ -117,10 +117,6 @@ export default function ReviewFilesPage({
   const [isDisabled, setIsDisabled] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
 
-  const [unusedFiles, setUnusedFiles] = useState([])
-  const [deleteFileQueue, setDeleteFileQueue] = useState([])
-  const [unusedDialogModal, setUnusedDialogModal] = useState(false) // Keeps track of if we need to use unused files modal or the default file modal
-
   const [unusedFiles, setUnusedFiles] = useState([]);
   const [deleteFileQueue, setDeleteFileQueue] = useState([]);
   const [unusedDialogModal, setUnusedDialogModal] = useState(false); // Keeps track of if we need to use unused files modal or the default file modal
