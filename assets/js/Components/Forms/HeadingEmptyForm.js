@@ -19,13 +19,13 @@ export default function HeadingEmptyForm({
   const FORM_OPTIONS = {
     ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
     DELETE_HEADING: UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    REPLACE_WITH_PARAGRAPH: UFIXIT_OPTIONS.SELECT_TAG
   }
 
   const [textInputValue, setTextInputValue] = useState('')
 
   useEffect(() => {
-    if(!activeIssue) {
+    if (!activeIssue) {
       return
     }
 
@@ -36,16 +36,16 @@ export default function HeadingEmptyForm({
     setTextInputValue(initialText)
 
     const fixed = activeIssue.newHtml && activeIssue.status > 0;
-    const reviewed = Html.hasClass(element, activeIssue.ignoreClass);
     const deleted = !activeIssue.newHtml
+    const headingReplaced = element?.tagName?.toLowerCase() === 'p';
     let startingOption = ''
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
-    }
     if (fixed) {
       if (deleted) {
         startingOption = FORM_OPTIONS.DELETE_HEADING
+      }
+      else if (headingReplaced) {
+        startingOption = FORM_OPTIONS.REPLACE_WITH_PARAGRAPH
       }
       else if (initialText !== '') {
         startingOption = FORM_OPTIONS.ADD_TEXT
@@ -53,7 +53,6 @@ export default function HeadingEmptyForm({
     }
     handleOptionChange(startingOption)
     setFormErrors([])
-  
   }, [activeIssue])
 
   useEffect(() => {
@@ -69,16 +68,16 @@ export default function HeadingEmptyForm({
 
   const updateHtmlContent = (optionOverride = activeOption) => {
     let issue = activeIssue
+    let baseHtml = issue.sourceHtml;
 
-    if (optionOverride === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-    }
-    else if (optionOverride === FORM_OPTIONS.DELETE_HEADING) {
+    if (optionOverride === FORM_OPTIONS.DELETE_HEADING) {
       issue.newHtml = ''
+    } 
+    else if (optionOverride === FORM_OPTIONS.REPLACE_WITH_PARAGRAPH) {
+      issue.newHtml = '<p>&nbsp;</p>'
     }
     else {
-      const html = Html.getIssueHtml(activeIssue)
-      issue.newHtml = Html.toString(Html.setInnerText(html, textInputValue))
+      issue.newHtml = Html.toString(Html.setInnerText(baseHtml, textInputValue))
     }
 
     handleActiveIssue(issue, optionOverride)
@@ -88,6 +87,7 @@ export default function HeadingEmptyForm({
     let tempErrors = {
       [FORM_OPTIONS.ADD_TEXT]: [],
       [FORM_OPTIONS.DELETE_HEADING]: [],
+      [FORM_OPTIONS.REPLACE_WITH_PARAGRAPH]: [],
     }
     
     if (optionOverride === FORM_OPTIONS.ADD_TEXT) {
@@ -105,7 +105,41 @@ export default function HeadingEmptyForm({
 
   return (
     <>
-      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
+      {/* OPTION 1: Delete Heading. ID: "DELETE_HEADING" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_HEADING ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={handleOptionChange}
+          option={FORM_OPTIONS.DELETE_HEADING}
+          labelText = {t('form.heading_empty.decision.delete')}
+        />
+        {activeOption === FORM_OPTIONS.DELETE_HEADING && (
+          <OptionFeedback
+            t={t}
+            feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]}
+          />
+        )}
+      </div>
+      
+      {/* OPTION 2: Replace with an empty paragraph. ID: "REPLACE_WITH_PARAGRAPH" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.REPLACE_WITH_PARAGRAPH ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={handleOptionChange}
+          option={FORM_OPTIONS.REPLACE_WITH_PARAGRAPH}
+          labelText = {t('form.heading_empty.decision.replace')}
+        />
+        {activeOption === FORM_OPTIONS.REPLACE_WITH_PARAGRAPH && (
+          <OptionFeedback
+            t={t}
+            feedbackArray={formErrors[FORM_OPTIONS.REPLACE_WITH_PARAGRAPH]}
+          />
+        )}
+      </div>
+
+      {/* OPTION 3: Add text. ID: "ADD_TEXT" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -113,10 +147,11 @@ export default function HeadingEmptyForm({
           setActiveOption={handleOptionChange}
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
-          labelText = {t('form.heading_empty.label.text')}
+          labelText = {t('form.heading_empty.decision.text')}
         />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
+            <div className="instructions mb-2">{t('form.heading_empty.label.text')}</div>
             <input
               aria-labelledby="add-text-label"
               name="linkTextInput"
@@ -134,34 +169,6 @@ export default function HeadingEmptyForm({
             />
           </>
         )}
-      </div>
-      
-      {/* OPTION 2: Delete Heading. ID: "DELETE_HEADING" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_HEADING ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={handleOptionChange}
-          option={FORM_OPTIONS.DELETE_HEADING}
-          labelText = {t('form.heading_empty.label.remove_heading')}
-        />
-        {activeOption === FORM_OPTIONS.DELETE_HEADING && (
-          <OptionFeedback
-            t={t}
-            feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]}
-          />
-        )}
-      </div>
-      
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={handleOptionChange}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
-        />
       </div>
     </>
   )
