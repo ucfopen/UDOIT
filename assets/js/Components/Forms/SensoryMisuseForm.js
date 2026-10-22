@@ -267,7 +267,7 @@ export default function SensoryMisuseForm({
 
         <div
           inert={activeOption === FORM_OPTIONS.EDIT_TEXT ? undefined : true}
-          className={activeOption === FORM_OPTIONS.EDIT_TEXT ? "" : "hidden"}>
+          className={`flex-column${activeOption === FORM_OPTIONS.EDIT_TEXT ? "" : " hidden"}`}>
           <div className="instructions mb-3">{t('form.sensory_misuse.label.instructions')}</div>
           { sensoryErrors.length > 0 ? (
             <div className="flex-row flex-wrap gap-1 mb-3">
