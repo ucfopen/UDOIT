@@ -65,7 +65,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	authModule := auth.New(client, db)
+	authModule := auth.New(client)
 	lmsDataModule := lmsdata.New(db, lmsModule)
 	i18nModule := i18n.New()
 	usersModule := users.New(db, i18nModule, authModule)

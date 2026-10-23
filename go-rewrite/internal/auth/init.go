@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"database/sql"
 	"time"
 
 	"rewritetest/internal/auth/internal/application"
@@ -16,7 +15,7 @@ type Module struct {
 	getPrincipalFromSessionUseCase *application.GetPrincipalFromSessionUseCase
 }
 
-func New(client *redis.Client, db *sql.DB) *Module {
+func New(client *redis.Client) *Module {
 	sessionTTL := 24 * time.Hour
 
 	redisSessionRepository := infrastructure.NewRedisSessionRepository(client, sessionTTL, "session:")
