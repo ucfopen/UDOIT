@@ -64,20 +64,13 @@ export default function SensoryMisuseForm({
 
     let html = Html.getIssueHtml(activeIssue)
     setEditorHtml(html);
-    const matchedWords = checkForSensoryWords(html);
-
     setFormErrors([]);
 
     const fixed = activeIssue.newHtml && activeIssue.status > 0;
     let startingOption = '';
 
     if (fixed) {
-      if (matchedWords.length > 0) {
-        startingOption = FORM_OPTIONS.EDIT_TEXT;
-      }
-      else {
-        startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
-      }
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED;
     }
 
     setActiveOption(startingOption);
