@@ -15,7 +15,7 @@ import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon.js'
 import RightArrowIcon from './Icons/RightArrowIcon'
 
-import Api from '../Services/Api'
+import { api } from "../Services/Api";
 import * as Html from '../Services/Html.js'
 import { primaryLanguages } from '../Services/Lang'
 import * as Text from '../Services/Text'
@@ -1295,7 +1295,6 @@ export default function ReviewFilesPage({
         track.locale = primaryLanguages[track.locale] + '-' + track.kind;
       }
     })
-    const api = new Api(instanceInfo)
     api.setMediaTracks(mediaEntryId, saveVttArray)
       .then((responseStr) => responseStr.json())
       .then((response) => {
