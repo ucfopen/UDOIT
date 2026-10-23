@@ -13,7 +13,6 @@ import (
 
 type Module struct {
 	handler           *internal.Handler
-	i18nService       application.I18NService
 	createUserUseCase *application.CreateUserUseCase
 	authenticator     auth.Authenticator
 }
@@ -26,7 +25,6 @@ func New(db *sql.DB, i18nService application.I18NService, authenticator auth.Aut
 
 	return &Module{
 		handler:           handler,
-		i18nService:       i18nService,
 		createUserUseCase: createUserUseCase,
 		authenticator:     authenticator,
 	}
