@@ -101,7 +101,7 @@ export default function UfixitWidget({
                 handleActiveIssue={handleActiveIssue}
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
-                isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT)}
+                isDisabled={isContentLoading || !isErrorFoundInContent}
                 doesIssueBelongToForm={doesIssueBelongToForm}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}

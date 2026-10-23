@@ -67,7 +67,7 @@ export default function AriaChildValidForm({
     setLocalHtml(html);
     setFormErrors([]);
 
-    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    const fixed = activeIssue.status > 0;
     const deleted = !activeIssue.newHtml;
     
     let startingOption = '';
