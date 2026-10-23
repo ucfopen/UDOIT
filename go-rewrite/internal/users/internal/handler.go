@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"rewritetest/internal/auth"
 	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/users/internal/application"
 
@@ -14,10 +15,6 @@ import (
 
 type Handler struct {
 	updatePreferencesUseCase *application.UpdatePreferencesUseCase
-}
-
-type Authenticator interface {
-	WithAuth() gin.HandlerFunc
 }
 
 type UpdatePreferencesRequest struct {
@@ -36,7 +33,7 @@ func NewHandler(updatePreferencesUseCase *application.UpdatePreferencesUseCase) 
 	}
 }
 
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator Authenticator) {
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator auth.Authenticator) {
 	rg.Use(authenticator.WithAuth())
 	rg.GET("/hello", h.handleHello)
 	rg.PATCH("/:userId/preferences", h.handleUpdatePreferences)

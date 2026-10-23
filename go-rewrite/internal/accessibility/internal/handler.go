@@ -4,8 +4,9 @@ import (
 	"strconv"
 
 	"rewritetest/internal/accessibility/internal/application"
+	"rewritetest/internal/auth"
 	"rewritetest/internal/shared/apperr"
-	"rewritetest/internal/shared/auth"
+	sharedAuth "rewritetest/internal/shared/auth"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,11 +32,7 @@ func NewHandler(
 	}
 }
 
-type Authenticator interface {
-	WithAuth() gin.HandlerFunc
-}
-
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator Authenticator) {
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator auth.Authenticator) {
 	rg.Use(authenticator.WithAuth())
 	rg.POST("/scan/courses/:courseId", h.handleScanCourse)
 	rg.PATCH("/mark-reviewed/issues/:id", h.handleMarkHTMLIssueAsReviewed)
@@ -43,7 +40,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator Authenticato
 }
 
 func (h *Handler) handleScanCourse(c *gin.Context) {
-	principal, ok := auth.GetPrincipal(c)
+	principal, ok := sharedAuth.GetPrincipal(c)
 	if !ok {
 		c.Error(apperr.Unauthorized())
 		return
@@ -80,7 +77,7 @@ func (h *Handler) handleScanCourse(c *gin.Context) {
 
 func (h *Handler) handleMarkHTMLIssueAsReviewed(c *gin.Context) {
 
-	principal, ok := auth.GetPrincipal(c)
+	principal, ok := sharedAuth.GetPrincipal(c)
 	if !ok {
 		c.Error(apperr.Unauthorized())
 		return
@@ -110,7 +107,7 @@ func (h *Handler) handleMarkHTMLIssueAsReviewed(c *gin.Context) {
 
 func (h *Handler) handleMarkFileIssueAsReviewed(c *gin.Context) {
 
-	principal, ok := auth.GetPrincipal(c)
+	principal, ok := sharedAuth.GetPrincipal(c)
 	if !ok {
 		c.Error(apperr.Unauthorized())
 		return

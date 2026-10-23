@@ -8,17 +8,14 @@ import (
 	"rewritetest/internal/accessibility/internal/application"
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/accessibility/internal/infrastructure"
+	"rewritetest/internal/auth"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Authenticator interface {
-	WithAuth() gin.HandlerFunc
-}
-
 type Module struct {
 	handler       *internal.Handler
-	authenticator internal.Authenticator
+	authenticator auth.Authenticator
 	htmlIssueRepo domain.HTMLIssueRepository
 	fileIssueRepo domain.FileIssueRepository
 }
@@ -26,7 +23,7 @@ type Module struct {
 func New(
 	db *sql.DB,
 	lmsDataService application.LMSDataService,
-	authenticator Authenticator,
+	authenticator auth.Authenticator,
 ) *Module {
 	httpClient := &http.Client{}
 	baseURL := "http://udoit3-ace:3000"

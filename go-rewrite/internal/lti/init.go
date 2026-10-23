@@ -6,7 +6,6 @@
 package lti
 
 import (
-	"context"
 	"database/sql"
 	"time"
 
@@ -21,16 +20,6 @@ import (
 type Module struct {
 	handler                     *internal.Handler
 	registerRegistrationUseCase *application.RegisterRegistrationUseCase
-}
-
-type RegisterRegistrationInput struct {
-	Issuer               string
-	ClientID             string
-	TenantID             int64
-	LoginAuthEndpoint    string
-	JWKEndpoint          string
-	ServiceAuthEndpoint  string
-	ServiceLoginEndpoint string
 }
 
 func (m *Module) RegisterRoutes(rg *gin.RouterGroup) {
@@ -80,16 +69,4 @@ func New(
 		handler:                     handler,
 		registerRegistrationUseCase: registerRegistrationUseCase,
 	}
-}
-
-func (m *Module) RegisterRegistration(ctx context.Context, input RegisterRegistrationInput) error {
-	return m.registerRegistrationUseCase.Execute(ctx, application.RegisterRegistrationCommand{
-		Issuer:               input.Issuer,
-		ClientID:             input.ClientID,
-		TenantID:             input.TenantID,
-		LoginAuthEndpoint:    input.LoginAuthEndpoint,
-		JWKEndpoint:          input.JWKEndpoint,
-		ServiceAuthEndpoint:  input.ServiceAuthEndpoint,
-		ServiceLoginEndpoint: input.ServiceLoginEndpoint,
-	})
 }
