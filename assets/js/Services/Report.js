@@ -95,6 +95,17 @@ const checkTableHeadersRelated = (issue, element) => {
   return false;
 }
 
+const checkTableLayoutLinearized = (issue, element) => {
+  const tagName = Html.getTagName(element)?.toLowerCase();
+  if (tagName === 'table') {
+    // If the table only has one cell, there is nothing to linearize.
+    if (element.rows?.length === 1 && element.rows[0].cells?.length === 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const checkTextContrastSufficient = (issue, element, parsedDocument) => {
   if (!element || !parsedDocument) {
     return false;
@@ -212,6 +223,8 @@ const runCustomChecks = (issue, element, parsedDocument = null) => {
     return checkStyleColorMisuse(issue, element);
   } else if (issue.scanRuleId === "table_headers_related") {
     return checkTableHeadersRelated(issue, element);
+  } else if (issue.scanRuleId === "table_layout_linearized") {
+    return checkTableLayoutLinearized(issue, element);
   } else if (issue.scanRuleId === "text_block_heading") {
     return checkTextBlockHeading(issue, element);
   } else if (issue.scanRuleId === "text_contrast_sufficient") {

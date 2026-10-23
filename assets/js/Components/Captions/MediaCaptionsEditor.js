@@ -19,12 +19,11 @@ import MediaCaptionsCueList from "./MediaCaptionsCueList";
 import MediaCaptionsLoadingProgress from "./MediaCaptionsLoadingProgress";
 import MediaCaptionsPlaybackControls from "./MediaCaptionsPlaybackControls";
 import OptionFeedback from "../Widgets/OptionFeedback";
-import SliderSelect from "../Widgets/SliderSelect";
 import mediaCaptionsProcessing from "./mediaCaptionsProcessing";
 import useWaveformKeyboard from "./useWaveformKeyboard";
 
 import Api from '../../Services/Api';
-import { parseVTT, buildVttText, vttToS, formatTimeVTT, formatVTTTime, truncateVttTime } from "../../Services/Captions";
+import { parseVTT, buildVttText, vttToS, formatTimeVTT, formatVTTTime } from "../../Services/Captions";
 import { DEFAULT_USER_SETTINGS } from "../../Services/Constants";
 import { primaryLanguages } from '../../Services/Lang';
 import * as Text from '../../Services/Text';
@@ -1105,7 +1104,6 @@ export default function MediaCaptionsEditor({
                       disabled={isDisabled || !cues || cues?.length === 0}
                       aria-label={t('form.media.button.export_vtt')}
                       title={t('form.media.button.export_vtt')}
-                      disabled={cues.length === 0}
                       onClick={handleExport}>
                       <DownloadIcon className="icon-md" />
                     </button>

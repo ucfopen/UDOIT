@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import FormExternalLink from './FormExternalLink'
 import RadioSelector from '../Widgets/RadioSelector'
+import * as Html from '../../Services/Html'
 
 export default function UfixitReviewOnly({
   t,

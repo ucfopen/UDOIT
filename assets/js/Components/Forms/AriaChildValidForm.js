@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import CodeIcon from '../Icons/CodeIcon'
@@ -67,7 +67,7 @@ export default function AriaChildValidForm({
     setLocalHtml(html);
     setFormErrors([]);
 
-    const fixed = activeIssue.newHtml && activeIssue.status > 0;
+    const fixed = activeIssue.status > 0;
     const deleted = !activeIssue.newHtml;
     
     let startingOption = '';

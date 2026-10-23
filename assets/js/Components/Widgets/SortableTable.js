@@ -202,7 +202,7 @@ export default function SortableTable({
           <tbody>
             {pagedRows.map((row, index) => {
               const isRowClickable = !!row.onClick;
-              const rowAriaLabel = row.name?.display || row.name || row.courseTitle || ''
+              const rowAriaLabel = row.label || row.name?.display || row.name || row.courseTitle || ''
               return (
                 <tr
                   id={row.id ? row.id : `row${index}`}
@@ -217,7 +217,6 @@ export default function SortableTable({
                       row.onClick()
                     }
                   }}
-                  aria-label={row.label ? row.label : ''}
                 >
                   {headers.map(({ id, alignText, divider }) => (
                     <td
