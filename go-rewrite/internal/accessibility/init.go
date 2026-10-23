@@ -1,0 +1,62 @@
+package accessibility
+
+import (
+	"database/sql"
+	"net/http"
+
+	"rewritetest/internal/accessibility/internal"
+	"rewritetest/internal/accessibility/internal/application"
+	"rewritetest/internal/accessibility/internal/infrastructure"
+	"rewritetest/internal/auth"
+
+	"github.com/gin-gonic/gin"
+)
+
+type Module struct {
+	handler       *internal.Handler
+	authenticator auth.Authenticator
+}
+
+func New(
+	db *sql.DB,
+	lmsDataService application.LMSDataService,
+	authenticator auth.Authenticator,
+) *Module {
+	httpClient := &http.Client{}
+	baseURL := "http://udoit3-ace:3000"
+	contentScanner := infrastructure.NewEqualAccessScanner(httpClient, baseURL)
+	reportRepository := infrastructure.NewMySQLReportRepository(db)
+	htmlIssueRepository := infrastructure.NewMySQLIssueRepository(db)
+	fileIssueRepository := infrastructure.NewMySQLFileIssueRepository(db)
+	scanRepository := infrastructure.NewMySQLCourseScanRepository(db)
+
+	scanCourseUseCase := application.NewScanCourseUseCase(
+		htmlIssueRepository,
+		fileIssueRepository,
+		lmsDataService,
+		contentScanner,
+		scanRepository,
+	)
+	createReportUseCase := application.NewCreateReportUseCase(
+		reportRepository,
+		htmlIssueRepository,
+	)
+	markHtmlAsReviewedUseCase := application.NewHtmlIssueReviewedUseCase(
+		htmlIssueRepository,
+	)
+
+	markFileAsReviewedUseCase := application.NewFileissueReviewedUseCase(
+		fileIssueRepository,
+	)
+
+	handler := internal.NewHandler(scanCourseUseCase, createReportUseCase, markHtmlAsReviewedUseCase, markFileAsReviewedUseCase)
+
+	return &Module{
+		handler:       handler,
+		authenticator: authenticator,
+	}
+}
+
+func (m *Module) RegisterRoutes(rg *gin.RouterGroup) {
+	m.handler.RegisterRoutes(rg, m.authenticator)
+}
