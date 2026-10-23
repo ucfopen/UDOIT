@@ -6,7 +6,6 @@ import (
 
 	"rewritetest/internal/accessibility/internal"
 	"rewritetest/internal/accessibility/internal/application"
-	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/accessibility/internal/infrastructure"
 	"rewritetest/internal/auth"
 
@@ -16,8 +15,6 @@ import (
 type Module struct {
 	handler       *internal.Handler
 	authenticator auth.Authenticator
-	htmlIssueRepo domain.HTMLIssueRepository
-	fileIssueRepo domain.FileIssueRepository
 }
 
 func New(
@@ -57,8 +54,6 @@ func New(
 	return &Module{
 		handler:       handler,
 		authenticator: authenticator,
-		htmlIssueRepo: htmlIssueRepository,
-		fileIssueRepo: fileIssueRepository,
 	}
 }
 
