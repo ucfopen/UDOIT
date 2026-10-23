@@ -3,12 +3,13 @@ package lmsdata
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"rewritetest/internal/lms"
 	fileReferencesDomain "rewritetest/internal/lmsdata/internal/file_references/domain"
 	filesdomain "rewritetest/internal/lmsdata/internal/files/domain"
 
 	"rewritetest/internal/shared/auth"
-	"time"
 )
 
 type FileReferenceResolver interface {
@@ -42,7 +43,6 @@ type FileReference struct {
 	FileID        int64
 }
 
-
 func (m *Module) replaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []FileReference) error {
 	domainReferences := make([]*fileReferencesDomain.FileReference, len(fileReferences))
 	for i, fileReference := range fileReferences {
@@ -66,7 +66,6 @@ type FileReferenceInput struct {
 	Value         string
 	XPath         string
 }
-
 
 func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal, request AddFileReferencesRequest) error {
 	course, err := m.GetCourse(ctx, request.CourseID)
@@ -116,9 +115,9 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 			ExternalData: file.ExternalData,
 		}
 	}
-	
+
 	resolved, err := m.integration.ResolveFileReferences(ctx, lms.ResolveFileReferencesRequest{
-		Course:     lms.CourseInfo{
+		Course: lms.CourseInfo{
 			ID:           course.ID,
 			ExternalID:   course.ExternalID,
 			ExternalData: course.ExternalData,

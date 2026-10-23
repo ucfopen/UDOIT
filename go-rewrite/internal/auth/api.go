@@ -2,9 +2,10 @@ package auth
 
 import (
 	"context"
+	"time"
+
 	"rewritetest/internal/auth/internal"
 	"rewritetest/internal/auth/internal/application"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,6 +2,7 @@ package lms
 
 import (
 	"context"
+
 	"rewritetest/internal/lms/internal/domain"
 	"rewritetest/internal/lms/internal/infrastructure/providers/canvas"
 	"rewritetest/internal/shared/apperr"

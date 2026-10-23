@@ -2,10 +2,10 @@ package lms
 
 import (
 	"context"
-	"rewritetest/internal/lms/internal/domain"
 	"time"
-)
 
+	"rewritetest/internal/lms/internal/domain"
+)
 
 type ResolveFileReferencesRequest struct {
 	Course         CourseInfo

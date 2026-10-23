@@ -76,7 +76,6 @@ func (h *Handler) handleScanCourse(c *gin.Context) {
 }
 
 func (h *Handler) handleMarkHTMLIssueAsReviewed(c *gin.Context) {
-
 	principal, ok := sharedAuth.GetPrincipal(c)
 	if !ok {
 		c.Error(apperr.Unauthorized())
@@ -106,7 +105,6 @@ func (h *Handler) handleMarkHTMLIssueAsReviewed(c *gin.Context) {
 }
 
 func (h *Handler) handleMarkFileIssueAsReviewed(c *gin.Context) {
-
 	principal, ok := sharedAuth.GetPrincipal(c)
 	if !ok {
 		c.Error(apperr.Unauthorized())

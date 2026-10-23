@@ -149,7 +149,8 @@ func (e *EqualAccessScanner) logReferenceSummary(references []scanReference) {
 		}
 	}
 
-	slog.Info("scanner references extracted",
+	slog.Info(
+		"scanner references extracted",
 		"total", len(references),
 		"by_kind", countByKind,
 		"by_content_item", countByContentItem,

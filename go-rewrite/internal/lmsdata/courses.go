@@ -43,9 +43,9 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 	lmsContentItems := make([]lms.ExistingContentItem, len(currentContentItems))
 	for i, item := range currentContentItems {
 		lmsContentItems[i] = lms.ExistingContentItem{
-			ID:               item.ID,
-			ExternalID:       item.ExternalID,
-			ExternalData:     item.ExternalData,
+			ID:           item.ID,
+			ExternalID:   item.ExternalID,
+			ExternalData: item.ExternalData,
 		}
 	}
 

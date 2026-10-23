@@ -16,9 +16,9 @@ type GetCourseContentRequest struct {
 }
 
 type ExistingContentItem struct {
-	ID							int64
-	ExternalData		map[string]any
-	ExternalID   		string
+	ID           int64
+	ExternalData map[string]any
+	ExternalID   string
 }
 
 type ExternalCourseContent struct {
@@ -51,7 +51,7 @@ func (m *Module) GetCourseContent(ctx context.Context, req GetCourseContentReque
 		ID:           req.CourseID,
 		ExternalID:   req.ExternalCourseID,
 		ExternalData: req.ExternalCourseData,
-}, lmsContent, req.UserID)
+	}, lmsContent, req.UserID)
 	if err != nil {
 		return ExternalCourseContent{}, err
 	}
