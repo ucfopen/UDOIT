@@ -315,6 +315,10 @@ export default function ListForm({
       return
     }
 
+    if (bookmarkElement.closest('p') && bookmarkElement.closest('p').parentNode) {
+      bookmarkElement = bookmarkElement.closest('p');
+    }
+
     let tempIsListGroup = false
     let tempListGroupXpaths = []
 
@@ -322,19 +326,19 @@ export default function ListForm({
     // If the content in the editor is not a single element (like several paragraps NOT in an <ol>),
     // then we need to add each one's xpath to the previewData so the HtmlPreview can group them in a div.
     if (editorElement?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-      if (editorElement.childNodes.length > 1) {
+      if (editorElement.children.length > 1) {
         tempIsListGroup = true
       }
-      for (let i = 0; i < editorElement.childNodes.length; i++) {
-
+      let childCounter = 0;
+      while (editorElement.children.length > 0) {
         // The editorElement does not have an xpath since it's not in the document. We have to insert it first,
         // then find the inserted element in the document, then get the xpath from that.
-        const child = editorElement.childNodes[i]
-        Html.addClass(child, 'udoit-list-group-temp-item-' + i.toString())
-        bookmarkElement.parentNode.insertBefore(child, bookmarkElement)
-        let embeddedElement = doc.querySelector('.udoit-list-group-temp-item-' + i.toString())
+        childCounter++;
+        Html.addClass(editorElement.children[0], 'udoit-list-group-temp-item-' + childCounter.toString())
+        bookmarkElement.parentNode.insertBefore(editorElement.children[0], bookmarkElement)
+        let embeddedElement = doc.querySelector('.udoit-list-group-temp-item-' + childCounter.toString())
         if (embeddedElement) {
-          Html.removeClass(embeddedElement, 'udoit-list-group-temp-item-' + i.toString())
+          Html.removeClass(embeddedElement, 'udoit-list-group-temp-item-' + childCounter.toString())
           tempListGroupXpaths.push(Html.findXpathFromElement(embeddedElement))
         }
       }
