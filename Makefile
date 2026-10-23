@@ -3,7 +3,6 @@ ifneq (,$(wildcard ./.ins.env))
     include .ins.env
     export
 endif
-
 # ──────────────────────────────────────────────
 # Variables
 # ──────────────────────────────────────────────
@@ -70,10 +69,24 @@ migrate-down:
 # Utilities
 # ──────────────────────────────────────────────
 
+.PHONY: clean-cache purge-symfony
+
 ## Clear the Symfony cache
 clean-cache:
 	$(COMPOSE) run --rm php bin/console cache:clear
 	rm -rf ./var/cache/prod/
+
+purge-symfony:
+	rm -rf vendor ./var/cache
+
+frontend-install:
+	$(COMPOSE) run --rm yarn yarn install
+
+backend-install:
+	$(COMPOSE) run --rm composer composer install --no-interaction --no-progress --optimize-autoloader
+
+install-deps: frontend-install backend-install
+
 
 .PHONY: admin-panel-retrieve-data
 
@@ -87,6 +100,40 @@ admin-panel-retrieve-data: clean-cache
 		exit 1; \
 	fi
 	$(COMPOSE) run --rm php php bin/console app:admin-panel-retrieval $(foreach table,$(TABLES),--tables=$(table))
+
+# ──────────────────────────────────────────────
+# Formatting and Linting
+# ──────────────────────────────────────────────
+
+# All of these commands require dev dependencies to be installed
+# Make sure your APP_ENV is "dev" when you install dependencies
+
+# To run these two commands, ensure your node_modules is up to date.
+# If it isn't, run frontend-install
+frontend-fmt:
+	$(COMPOSE) run --rm yarn yarn pretty
+
+frontend-lint:
+	$(COMPOSE) run --rm yarn yarn lint
+
+# To run these two commands, ensure your vendor folder is up to date.
+# If it isn't, run backend-install
+backend-fmt:
+	@composer run-script --list | grep -q ''
+	$(COMPOSE) run --rm composer composer format
+
+backend-lint:
+	$(COMPOSE) run --rm composer composer lint
+
+
+format: frontend-fmt backend-fmt
+
+lint:
+	@frontend_rc=0; backend_rc=0; \
+	$(MAKE) frontend-lint || frontend_rc=$$?; \
+	$(MAKE) backend-lint || backend_rc=$$?; \
+	[ $$frontend_rc -eq 0 ] && [ $$backend_rc -eq 0 ]
+
 # ──────────────────────────────────────────────
 # Institution Seeding
 # ──────────────────────────────────────────────

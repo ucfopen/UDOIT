@@ -45,6 +45,11 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^4.3",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-beberlei-assert": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^13.0",
         "symfony/browser-kit": "^7.4",
         "symfony/css-selector": "^7.4",
@@ -60,6 +65,7 @@
         },
         "sort-packages": true,
         "allow-plugins": {
+            "phpstan/extension-installer": true,
             "symfony/flex": true
         }
     },
@@ -89,7 +95,15 @@
         "symfony/polyfill-php83": "*",
         "symfony/polyfill-php84": "*"
     },
-    "scripts": {},
+    "scripts": {
+        "format": "vendor/bin/php-cs-fixer fix",
+        "lint": [
+            "@lint:container",
+            "@lint:phpstan"
+        ],
+        "lint:phpstan": "vendor/bin/phpstan analyse src tests",
+        "lint:container": "php bin/console lint:container"
+    },
     "conflict": {
         "symfony/symfony": "*"
     },

@@ -1,0 +1,4 @@
+{
+  "experimentalTernaries": true,
+  "experimentalOperatorPosition": "start"
+}
