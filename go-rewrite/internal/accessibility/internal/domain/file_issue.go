@@ -103,3 +103,7 @@ func (f *FileIssue) CreatedAt() time.Time {
 func (f *FileIssue) ID() int64 {
 	return f.id
 }
+
+func (f *FileIssue) FileID() int64 {
+	return f.fileID
+}

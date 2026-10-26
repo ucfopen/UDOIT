@@ -150,6 +150,7 @@ func (m *Module) CreateCourse(ctx context.Context, title string, tenantID int64,
 
 type Course struct {
 	ID           int64
+	TenantID     int64
 	ExternalID   string
 	ExternalData map[string]any
 }
@@ -165,6 +166,7 @@ func (m *Module) GetCourse(ctx context.Context, courseID int64) (Course, error) 
 
 	return Course{
 		ID:           course.ID(),
+		TenantID:     course.TenantID(),
 		ExternalID:   course.ExternalID(),
 		ExternalData: course.ExternalData(),
 	}, nil

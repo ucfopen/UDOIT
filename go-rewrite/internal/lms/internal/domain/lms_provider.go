@@ -15,6 +15,7 @@ import (
 type FullLMSProvider interface {
 	FileProvider
 	FileReferenceProvider
+	FileUploadProvider
 	AuthenticationProvider
 	ScanProvider
 	LTIProvider
@@ -41,6 +42,44 @@ type LMSFile struct {
 }
 type FileProvider interface {
 	DeleteFile(ctx context.Context, principal auth.Principal, file LMSFile) error
+}
+
+type FileUploadTarget struct {
+	Method    string
+	URL       string
+	Fields    map[string]string
+	Headers   map[string]string
+	ExpiresAt time.Time
+}
+
+type UploadedFile struct {
+	FileName     string
+	FileType     string
+	UpdatedAt    time.Time
+	FileSize     int64
+	DownloadURL  string
+	ExternalID   string
+	ExternalData map[string]any
+}
+
+type FileUploadProvider interface {
+	BeginFileUpload(
+		ctx context.Context,
+		principal auth.Principal,
+		course LMSCourse,
+		file CourseFile,
+		newFileName string,
+		newFileSize int64,
+	) (FileUploadTarget, error)
+
+	CompleteFileUpload(
+		ctx context.Context,
+		principal auth.Principal,
+		course LMSCourse,
+		file CourseFile,
+		newFileName string,
+		uploadResponse map[string]any,
+	) (UploadedFile, error)
 }
 
 type FileReferenceProvider interface {

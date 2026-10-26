@@ -22,11 +22,20 @@ const issueIDInput = document.getElementById("issue-id-input");
 // consider rename? these are long
 const markFileIssueBtn = document.getElementById("mark-file-issue");
 const fileIssueIDInput = document.getElementById("file-issue-id-input");
+const uploadFileIssueIDInput = document.getElementById("upload-file-issue-id");
+const replacementFileInput = document.getElementById("replacement-file");
+const replaceFileButton = document.getElementById("begin-file-upload");
+const uploadStatusEl = document.getElementById("upload-status");
 
 const storedDefaults = loadDefaults();
 applyDefaults(storedDefaults);
 
 let lastRequestConfig = null;
+let uploadState = {
+  sessionID: "",
+  instruction: null,
+  file: null,
+};
 renderLaunchContext();
 
 checkAuthBtn.addEventListener("click", async () => {
@@ -134,6 +143,75 @@ markFileIssueBtn.addEventListener("click", async () => {
   });
   
   console.log("marked issue as reviewed")
+});
+
+replaceFileButton.addEventListener("click", async () => {
+  const fileIssueID = Number(uploadFileIssueIDInput.value || 0);
+  const file = replacementFileInput.files?.[0];
+  if (!fileIssueID || !file) {
+    uploadStatusEl.textContent = "Choose an issue and file first";
+    uploadStatusEl.classList.add("error");
+    return;
+  }
+
+  uploadStatusEl.textContent = "Negotiating upload...";
+  uploadStatusEl.classList.remove("error");
+  try {
+    const response = await fetch(`/go/accessibility/file-issues/${fileIssueID}/upload`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileName: file.name, fileSize: file.size }),
+    });
+    const payload = await readJSON(response);
+    if (!response.ok) throw new Error(payload?.error?.message || `Begin upload failed (${response.status})`);
+    console.log(payload)
+
+    uploadState = {
+      sessionID: payload.uploadSessionId,
+      instruction: payload,
+      file,
+    };
+    
+    uploadStatusEl.textContent = "Uploading to target";
+
+    const formData = new FormData();
+    for (let [key, value] of Object.entries(payload.fields || {})) {
+      formData.append(key, value);
+    }
+
+    formData.append("file", file);
+
+    const uploadTargetResponse = await fetch(payload.url, {
+      method: payload.method || "POST",
+      headers: payload.headers || {},
+      body: formData,
+    })
+
+    if (!uploadTargetResponse.ok) throw new Error(`Upload to target failed (${uploadTargetResponse.status})`);
+    const uploadResponse = await readUploadResponse(uploadTargetResponse);
+
+    uploadStatusEl.textContent = "Upload to target complete, finalizing replacement...";
+    const completeResponse = await fetch(`/go/accessibility/file-issues/${fileIssueID}/upload/complete`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uploadSessionId: uploadState.sessionID,
+        uploadResponse,
+      }),
+    });
+
+    const completePayload = await readJSON(completeResponse);
+    if (!completeResponse.ok) throw new Error(completePayload?.error?.message || `Complete upload failed (${completeResponse.status})`);
+
+    uploadStatusEl.textContent = "Replacement complete";
+
+    renderPayload(completePayload);
+  } catch (error) {
+    uploadStatusEl.textContent = error instanceof Error ? error.message : String(error);
+    uploadStatusEl.classList.add("error");
+  }
 });
 
 saveDefaultsBtn.addEventListener("click", () => {
@@ -290,4 +368,26 @@ function renderError(message) {
 
 function renderNotice(message) {
   responseOutputEl.textContent = `Notice\n\n${message}`;
+}
+
+async function readJSON(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
+
+async function readUploadResponse(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text, status: response.status };
+  }
+}
+
+function renderPayload(payload) {
+  responseOutputEl.textContent = JSON.stringify(payload, null, 2);
 }

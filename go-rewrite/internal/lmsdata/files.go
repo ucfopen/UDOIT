@@ -9,6 +9,7 @@ import (
 	fileReferencesDomain "rewritetest/internal/lmsdata/internal/file_references/domain"
 	filesdomain "rewritetest/internal/lmsdata/internal/files/domain"
 
+	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -197,4 +198,44 @@ func (m *Module) GetFilesByCourse(ctx context.Context, courseID int64) ([]File, 
 	}
 
 	return result, nil
+}
+
+func (m *Module) GetFile(ctx context.Context, fileID int64) (File, error) {
+	file, err := m.fileRepository.GetFileByID(ctx, fileID)
+	if err != nil {
+		return File{}, err
+	}
+	if file == nil {
+		return File{}, apperr.New(apperr.CodeNotFound, "The requested file was not found.")
+	}
+
+	return toFile(file), nil
+}
+
+func (m *Module) UpdateFile(ctx context.Context, file File) error {
+	return m.fileRepository.UpdateFile(ctx, filesdomain.RehydrateFile(
+		file.ID,
+		file.CourseID,
+		file.FileName,
+		file.FileType,
+		file.UpdatedAt,
+		file.FileSize,
+		file.DownloadURL,
+		file.ExternalID,
+		file.ExternalData,
+	))
+}
+
+func toFile(file *filesdomain.File) File {
+	return File{
+		CourseID:     file.CourseID(),
+		ID:           file.ID(),
+		FileName:     file.FileName(),
+		FileType:     file.FileType(),
+		UpdatedAt:    file.UpdatedAt(),
+		FileSize:     file.FileSize(),
+		DownloadURL:  file.DownloadURL(),
+		ExternalID:   file.ExternalID(),
+		ExternalData: file.ExternalData(),
+	}
 }

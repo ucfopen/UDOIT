@@ -196,8 +196,7 @@ func (p *CanvasLMSProvider) GetContent(
 	for i, file := range files {
 		fileIDStr := strconv.FormatInt(file.ID, 10)
 		fileExternalData := map[string]any{
-			"file_id":      file.ID,
-			"context_type": file.ContextType,
+			"file_id": file.ID,
 		}
 
 		fileSyncItems[i] = domain.CourseFile{

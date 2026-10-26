@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
+	urlpkg "net/url"
 	"strings"
 	"time"
 
@@ -24,7 +24,7 @@ type canvasCredential struct {
 }
 
 func (p *CanvasLMSProvider) BeginAuthentication(ctx context.Context, userID int64, targetLinkURI string) (domain.AuthChallenge, error) {
-	baseURL, err := url.Parse(p.config.baseURL)
+	baseURL, err := urlpkg.Parse(p.config.baseURL)
 	if err != nil {
 		return domain.AuthChallenge{}, apperr.New(
 			apperr.CodeInternal, "Invalid Canvas base URL",
@@ -82,14 +82,14 @@ type TokenResponse struct {
 }
 
 func (p *CanvasLMSProvider) ProcessOAuthRedirect(ctx context.Context, authAttempt domain.AuthAttempt, code string) (string, error) {
-	baseURL, err := url.Parse(p.config.baseURL)
+	baseURL, err := urlpkg.Parse(p.config.baseURL)
 	if err != nil {
 		return "", apperr.Validation("Invalid Canvas base URL", apperr.WithCause(err))
 	}
 
 	baseURL.Path = "/login/oauth2/token"
 
-	formData := url.Values{}
+	formData := urlpkg.Values{}
 	formData.Set("grant_type", "authorization_code")
 	formData.Set("client_id", p.config.clientID)
 	formData.Set("client_secret", p.config.clientSecret)
@@ -232,6 +232,7 @@ func (p *CanvasLMSProvider) refreshAccessToken(ctx context.Context, cred canvasC
 type CanvasRequest struct {
 	Path   string
 	URL    string
+	Query  urlpkg.Values
 	Body   any
 	Method string
 	Config canvasConfig
@@ -253,6 +254,20 @@ func (p *CanvasLMSProvider) doAuthenticatedRequest(ctx context.Context, req Canv
 	url := req.URL
 	if url == "" {
 		url = req.Config.baseURL + req.Path
+	}
+	if len(req.Query) > 0 {
+		parsedURL, err := urlpkg.Parse(url)
+		if err != nil {
+			return nil, apperr.Internal("Failed to parse request URL", apperr.WithCause(err))
+		}
+		query := parsedURL.Query()
+		for key, values := range req.Query {
+			for _, value := range values {
+				query.Add(key, value)
+			}
+		}
+		parsedURL.RawQuery = query.Encode()
+		url = parsedURL.String()
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, req.Method, url, bodyReader)

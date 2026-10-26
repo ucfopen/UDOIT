@@ -71,6 +71,25 @@
       </section>
 
       <section class="card">
+        <h2>Replace File Issue</h2>
+        <p class="muted">Upload directly to the LMS, then finalize the replacement in the backend.</p>
+        <div class="form-grid">
+          <label>
+            File Issue ID
+            <input id="upload-file-issue-id" type="number" min="1" required />
+          </label>
+          <label>
+            Replacement File
+            <input id="replacement-file" type="file" required />
+          </label>
+        </div>
+        <div class="inline-row">
+          <button type="button" id="begin-file-upload">Upload replacement</button>
+          <span class="status" id="upload-status">Not started</span>
+        </div>
+      </section>
+
+      <section class="card">
         <h2>Preferences Update</h2>
         <p class="muted">Exercise an authenticated write path in the rewrite backend.</p>
         <form id="prefs-form" class="form-grid">
