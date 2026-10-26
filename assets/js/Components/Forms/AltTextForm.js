@@ -79,6 +79,18 @@ export default function AltTextForm ({
       element = Html.setAttribute(element, "title", textInputValue)
     }
 
+    // The style_background_decorative rule flags any inline CSS background image, even after it has been
+    // marked as decorative or given alt text, so we also add the `udoit-ignore-[rule_id]` class once it is fixed.
+    if (issue.scanRuleId === 'style_background_decorative') {
+      const ignoreClass = issue.ignoreClass || 'udoit-ignore-style-background-decorative'
+      if (activeOption === FORM_OPTIONS.ADD_TEXT || activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
+        element = Html.addClass(element, ignoreClass)
+      }
+      else {
+        element = Html.removeClass(element, ignoreClass)
+      }
+    }
+
     issue.newHtml = Html.toString(element)
     handleActiveIssue(issue)
   }
