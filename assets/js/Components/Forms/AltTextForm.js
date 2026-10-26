@@ -79,6 +79,11 @@ export default function AltTextForm ({
       element = Html.setAttribute(element, "title", textInputValue)
     }
 
+    // The `style_background_decorative` error type will always fire as long as there is an image.
+    if (activeOption !== '' && issue.scanRuleId === 'style_background_decorative') {
+      Html.addClass(element, issue.ignoreClass);
+    }
+
     issue.newHtml = Html.toString(element)
     handleActiveIssue(issue)
   }
