@@ -6,13 +6,12 @@ use App\Entity\Issue;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\EqualAccessService;
-use App\Services\PhpAllyService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IssuesController extends ApiController
@@ -50,16 +49,6 @@ class IssuesController extends ApiController
             $newHtml = $issueUpdate['newHtml'];
             $fullPageHtml = $issueUpdate['fullPageHtml'];
             $xpath = $issueUpdate['xpath'];
-            $markAsReviewed = $issueUpdate['markAsReviewed'];
-
-            $reviewUpdated = false;
-            $oldStatus = $issue->getStatus();
-            if($markAsReviewed === false && ($oldStatus === 2 || $oldStatus === 3)) {
-                $reviewUpdated = true;
-            }
-            if($markAsReviewed === true && ($oldStatus === 0 || $oldStatus === 1)) {
-                $reviewUpdated = true;
-            }
 
             $contentUpdated = true;
             // Check if new HTML is different from original HTML
@@ -70,10 +59,10 @@ class IssuesController extends ApiController
                         $issue->getNewHtml() === $newHtml
                     )
                 ) {
-              $contentUpdated = false;
+                $contentUpdated = false;
             }
 
-            if(!$reviewUpdated && !$contentUpdated) {
+            if(!$contentUpdated) {
                 throw new \Exception('form.error.same_html');
             }
 
@@ -95,15 +84,7 @@ class IssuesController extends ApiController
                 // So if "mark as reviewed" is UNchecked, we can't know if the content was otherwise fixed.
                 // We will assume it was, since a human has definitely looked at it.
                 $newStatus = Issue::$issueStatusActive;
-                if($reviewUpdated && $markAsReviewed) {
-                    if($issue->getStatus() === Issue::$issueStatusFixed) {
-                        $newStatus = Issue::$issueStatusFixedAndResolved;
-                    } else if($issue->getStatus() === Issue::$issueStatusActive) {
-                        $newStatus = Issue::$issueStatusResolved;
-                    }
-                } else if ($reviewUpdated && !$markAsReviewed) {
-                    $newStatus = Issue::$issueStatusFixed;
-                } else if ($contentUpdated) {
+                if ($contentUpdated) {
                     $newStatus = Issue::$issueStatusFixed;
                 }
 

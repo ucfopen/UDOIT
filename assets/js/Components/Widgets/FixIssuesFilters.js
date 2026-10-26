@@ -2,21 +2,18 @@ import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 import Combobox from '../Widgets/Combobox'
 import ToggleSwitch from './ToggleSwitch'
+import { ISSUE_FILTER as FILTER } from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
 
 export default function FixIssuesFilters({
   t,
-  settings,
-  
   activeFilters,
   handleSearchTerm,
   searchTerm,
   sections,
   updateActiveFilters
  }) {
-
-  const FILTER = settings.ISSUE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.SEVERITY]: t('filter.label.severity'),
@@ -49,8 +46,7 @@ export default function FixIssuesFilters({
 
   const [usedFilters, setUsedFilters] = useState(null)
   const [detailedFilters, setDetailedFilters] = useState(null)
-  // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
-  const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : settings.DEFAULT_USER_SETTINGS.SHOW_FILTERS)
+  const [showFilters, setShowFilters] = useState(true);
 
   // When the page loads, only show the "Modules" filter is there are modules to filter by...
   useEffect(() => {
@@ -124,31 +120,25 @@ export default function FixIssuesFilters({
           </div>
         </div>
 
-        <div className="flex-row gap-1 pe-2">
+        <label className="pe-2">
           <ToggleSwitch
-            labelId={"unpublished"}
             initialValue={activeFilters[FILTER.TYPE.PUBLISHED] === FILTER.ALL}
             updateToggle={updateUnpublishedToggle}
           />
-          <div
-            id="unpublished"
-            className="align-self-center subtext">
-              {t('filter.label.toggle.show_unpublished')}
+          <div className="subtext">
+            {t('filter.label.toggle.show_unpublished')}
           </div>
-        </div>
+        </label>
 
-        <div className="flex-row gap-1 pe-2">
+        <label className="pe-2">
           <ToggleSwitch
-            labelId={"resolvedIssues"}
             initialValue={activeFilters[FILTER.TYPE.RESOLUTION] === FILTER.ALL}
             updateToggle={updateResolvedIssuesToggle}
           />
-          <div
-            id="resolvedIssues"
-            className="align-self-center subtext">
-              {t('filter.label.toggle.show_resolved')}
+          <div className="subtext">
+            {t('filter.label.toggle.show_resolved')}
           </div>
-        </div>
+        </label>
 
       </div>
 
@@ -162,7 +152,6 @@ export default function FixIssuesFilters({
                   id={detailedFilters[index].value}
                   label={detailedFilters[index].label}
                   options={detailedFilters[index].options}
-                  settings={settings}
                 />
               </div>
             )

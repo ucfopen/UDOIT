@@ -18,7 +18,8 @@
 
   #resolutionsChart {
     max-width: 100%;
-    min-height: 400px;
+    min-height: 20em;
+    max-height: 25em;
   }
 
   .print-area * {

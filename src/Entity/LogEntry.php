@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\LogEntryRepository")]
+#[ORM\Table(name: 'log_entry')]
 class LogEntry implements \JsonSerializable
 {
     #[ORM\Id]

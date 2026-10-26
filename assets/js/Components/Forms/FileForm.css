@@ -1,8 +1,29 @@
 @layer udoit-component {
 
+  .file-label-pill {
+    color: var(--text-secondary-color);
+    font-size: 0.75em;
+    font-weight: 400;
+    white-space: nowrap;
+    line-height: 1.5;
+    width: fit-content;
+
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--element-radius) * .5);
+    padding: 0.25em 0.5em;
+    align-self: flex-start;
+
+    &.file-new {
+      color: var(--pill-success-text);
+      background-color: var(--pill-success-background);
+      border-color: var(--pill-success-border);
+    }
+  }
+
   #file-drop-zone {
     border: 2px dashed var(--gray);
-    border-radius: 8px;
+    border-radius: var(--element-radius);
     padding: 1rem 2rem;
     text-align: center;
     cursor: pointer;
@@ -53,36 +74,34 @@
   }
 
   .file-info-container{
-    background-color: white;
+    background-color: var(--white);
     border: solid;
     border-color: var(--gray-lighter);
-    border-radius: 0.5em;
+    border-radius: var(--element-radius);
   }
 
   .file-upload-container{
-    background-color: white;
+    background-color: var(--container-color);
     border: dotted;
-    border-radius: 0.5em;
+    border-radius: var(--element-radius);
     cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
+
+    &.uploaded {
+      border-style: solid;
+      border-color: var(--selection-color);
+      cursor: default;
+      padding: .75em 1em;
+    }
   }
 
-  .upload-icon {
-    background-color: var(--gray-lighter);
-    border-radius: 0.5em;
-  }
-
-  .upload-instructions{
-    font-size: 0.65em;
-  }
-
-  .uploaded{
-    border: solid;
-    border-width: 2px;
-    border-color: var(--primary-color-light);
-    cursor: default;
-  }
-
-  .remove-file{
+  .remove-file {
     cursor: pointer;
   }
 
@@ -90,7 +109,7 @@
     background-color: white;
     border: solid;
     border-color: var(--gray-lighter);
-    border-radius: 0.5em;
+    border-radius: var(--element-radius);
   }
 
 
@@ -103,7 +122,7 @@
     background-color: var(--gray-lightest);
     border: solid;
     border-color: var(--gray-lighter);
-    border-radius: 0.5em;
+    border-radius: var(--element-radius);
    }
 
    .file-msg{
@@ -114,7 +133,7 @@
     background-color: white;
     border: solid;
     border-color: var(--gray-lighter);
-    border-radius: 0.5em;
+    border-radius: var(--element-radius);
    }
 
    .option-instruction{

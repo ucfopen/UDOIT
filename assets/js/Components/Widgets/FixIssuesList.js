@@ -5,11 +5,12 @@ import StatusPill from './StatusPill'
 import SortIcon from '../Icons/SortIcon'
 
 import './FixIssuesList.css'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function FixIssuesList({
   t,
-  settings,
-  
+  unfilteredIssues,
+  selectedSeverity,
   groupedList,
   setActiveIssue
 }) {
@@ -33,13 +34,13 @@ export default function FixIssuesList({
      "Known Barrier, Page, 'Welcome to the course', found in: 'Introduction Module' */
   const getIssueLabel = (issue) => {
     let label = ''
-    if(issue.status === settings.ISSUE_FILTER.ACTIVE) {
+    if(issue.status === ISSUE_FILTER.ACTIVE) {
       label += t(`filter.label.severity.${issue.severity.toLowerCase()}_single`) + ', '
     }
-    else if (issue.status === settings.ISSUE_FILTER.FIXED || issue.status == settings.ISSUE_FILTER.FIXEDANDRESOLVED) {
+    else if (issue.status === ISSUE_FILTER.FIXED || issue.status == ISSUE_FILTER.FIXEDANDRESOLVED) {
       label += t('filter.label.resolution.fixed_single') + ', '
     }
-    else if (issue.status === settings.ISSUE_FILTER.RESOLVED) {
+    else if (issue.status === ISSUE_FILTER.RESOLVED) {
       label += t('filter.label.resolution.resolved_single') + ', '
     }
 
@@ -63,10 +64,42 @@ export default function FixIssuesList({
     setOpenList(updatedList)
   }
 
+  const checkBarriersResolved = (selectedSeverity, unfilteredIssues) => {
+
+    const solvedStatus = [
+      ISSUE_FILTER.FIXED,
+      ISSUE_FILTER.RESOLVED,
+      ISSUE_FILTER.FIXEDANDRESOLVED,
+    ]
+
+    // Get specified section (Known, Potential) if it exists
+    if (selectedSeverity !== ISSUE_FILTER.ALL) {
+      const severityIssues = unfilteredIssues.filter(issue => 
+        issue.severity === selectedSeverity
+      );
+
+      return severityIssues.every(issue => solvedStatus.includes(issue.status));
+    } 
+    else {
+      return unfilteredIssues.every(issue => solvedStatus.includes(issue.status))
+    };
+  }
+
+  const barriersResolved = checkBarriersResolved(selectedSeverity, unfilteredIssues);
+
   return (
     <div className="ufixit-list-container flex-column">
       <div className="ufixit-list-scrollable flex-grow-1" tabIndex="-1">
-        { groupedList.length > 0 ? groupedList.map((group, i) => {
+        { (barriersResolved && groupedList.length === 0) ? (
+          <div className="flex-column gap-3 mt-3">
+            <div className="flex-row align-self-center ms-3 me-3">
+              <h2 className="mt-0 mb-0 primary-dark">{t('report.label.barriers_resolved')}</h2>
+            </div>
+            <div className="flex-row align-self-center ms-3 me-3">
+              {t('report.msg.barriers_resolved', {selectedSeverity : selectedSeverity === ISSUE_FILTER.ISSUE ? t('filter.label.severity.issue').toLowerCase() : selectedSeverity === ISSUE_FILTER.POTENTIAL ? t('filter.label.severity.potential').toLowerCase() : t('report.label.issue').toLowerCase()})}
+            </div>
+          </div>
+          ) : groupedList.length > 0 ? groupedList.map((group, i) => {
           return (
             <div className={`ufixit-list-section-container ${openList[group.formLabel] ? 'open' : 'closed'}`} key={i}>
               <div className={`ufixit-list-heading flex-row gap-3 justify-content-between ${openList[group.formLabel] ? 'open' : 'closed'}`}
@@ -94,7 +127,7 @@ export default function FixIssuesList({
               <div
                 id={`list-items-${i}`}
                 className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
-                aria-hidden={openList[group.formLabel] ? 'false' : 'true'}
+                inert={openList[group.formLabel] ? undefined : true}
                 tabIndex="-1">
                 { group.issues.map((issue, j) => {
                   return (
@@ -114,9 +147,7 @@ export default function FixIssuesList({
                       role="link"
                       tabIndex={openList[group.formLabel] ? '0' : '-1'}>
                         <div className="flex-row gap-2" aria-hidden="true">
-                          <div className="ufixit-list-content-type-icon-container">
-                            <ContentTypeIcon type={issue.contentType} className="gray icon-md"/>
-                          </div>
+                          <ContentTypeIcon type={issue.contentType} className="icon-block icon-md align-self-center"/>
                           <div className="flex-column justify-content-center">
                             <div className="list-item-title">
                               {issue.contentTitle}
@@ -129,7 +160,6 @@ export default function FixIssuesList({
                       <div className="flex-row" aria-hidden="true">
                         <StatusPill
                           t={t}
-                          settings={settings}
                           issue={issue}
                         />
                       </div>

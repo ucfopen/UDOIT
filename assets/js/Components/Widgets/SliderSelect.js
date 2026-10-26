@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import './SliderSelect.css'
 
 export default function SliderSelect({
+  labelId = undefined,
   groupName = 'sliderSelect',
   isDisabled = false,
   activeOption = '',
@@ -39,13 +40,17 @@ export default function SliderSelect({
 
     
   return (
-    <div className={`slider-select ${isDisabled ? 'disabled' : ''}`}>
+    <div
+      className={`slider-select ${isDisabled ? 'disabled' : ''}`}
+      role="radiogroup"
+      aria-labelledby={labelId}
+      >
       {options.map((option) => (
         <div
           key={option.value + '-key'}
           className={`flex-row slider-option-container${activeOption === option.value ? ' active' : ''}`}
           tabIndex="0"
-          aria-label={option.name}
+          aria-label={typeof option.name === 'string' ? option.name : option.value}
           aria-selected={activeOption === option.value}
           onClick={() => {
             setActiveOption(option.value)
@@ -56,10 +61,12 @@ export default function SliderSelect({
               setActiveOption(option.value)
             }
           }}
-          role="button"
+          role="radio"
           >
           <label aria-hidden="true">
+            {option.name}
             <input
+              tabIndex="-1"
               type="radio"
               id={option.value}
               name={groupName}
@@ -69,7 +76,6 @@ export default function SliderSelect({
               onChange={() => {
                 setActiveOption(option.value)
               }} />
-            {option.name}
           </label>
         </div>
       ))}

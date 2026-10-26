@@ -9,6 +9,7 @@ use JsonSerializable;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\InstitutionRepository")]
+#[ORM\Table(name: 'institution')]
 
 class Institution implements JsonSerializable
 {

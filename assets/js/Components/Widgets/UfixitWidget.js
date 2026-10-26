@@ -1,65 +1,50 @@
 import React, { useState, useEffect } from 'react'
-import BarrierInformation from './BarrierInformation'
-import FileForm from '../Forms/FileForm'
+// import BarrierInformation from './BarrierInformation'
+import DecisionQuestion from './DecisionQuestion'
+import DecisionHelpButton from './DecisionHelpButton'
 import StatusPill from './StatusPill'
-import { formFromIssue } from '../../Services/Ufixit'
+import IssueAffects from './IssueAffects'
+import { formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
-
-
+import { UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function UfixitWidget({
   t,
-  settings,
-
+  instanceInfo,
+  UfixitForm,
   activeContentItem,
-  handleActiveContentItem,
+  activeOption,
+  setActiveOption,
   addMessage,
   handleIssueSave,
   isContentLoading,
   isErrorFoundInContent,
-  setTempActiveIssue,
+  handleTempActiveIssue,
   tempActiveIssue,
-  triggerLiveUpdate,
-  markAsReviewed,
-  setMarkAsReviewed,
   setFormInvalid,
-  handleLearnMoreClick,
   showLearnMore,
+  handleLearnMoreClick,
   clickedInfo,
   setClickedInfo,
-  handleContentIssueSave,
-  setElementFocus
+  setElementFocus,
+  setPreviewData,
+  saveDisabled
 }) {
 
-  const [UfixitForm, setUfixitForm] = useState(null)
-  const [activeOption, setActiveOption] = useState('')
   const [formErrors, setFormErrors] = useState({})
 
-  useEffect(() => {
-    if(!tempActiveIssue) {
-      setUfixitForm(null)
-      setMarkAsReviewed(false)
-      return
-    }
-
-    if(tempActiveIssue.isModified === undefined) {
-      setMarkAsReviewed(tempActiveIssue.status === settings.ISSUE_FILTER.RESOLVED || tempActiveIssue.status === settings.ISSUE_FILTER.FIXEDANDRESOLVED)
-    }
-
-    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
-      setUfixitForm(() => { return FileForm })
-    }
-    else {
-      setUfixitForm(() => formFromIssue(tempActiveIssue.issueData))
-    }
-  }, [tempActiveIssue])
-
-  const handleActiveIssue = (newIssue) => {
-    const tempIssue = Object.create(tempActiveIssue)
+  const handleActiveIssue = (newIssue, optionOverride = activeOption, contentItem = null) => {
+    const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
-    tempIssue.isModified = newIssue?.isModified || false
-    setTempActiveIssue(tempIssue)
-    //triggerLiveUpdate()
+    handleTempActiveIssue(tempIssue, optionOverride, contentItem)
+  }
+
+  const doesIssueBelongToForm = (formName, issueData = tempActiveIssue?.issueData) => {
+    if(!issueData || !formName) {
+      return false
+    }
+    const issueForm = formNameFromRule(issueData.scanRuleId)
+    return issueForm === formName
   }
 
   useEffect(() => {
@@ -68,7 +53,7 @@ export default function UfixitWidget({
     if(activeOption === '') {
       invalid = true
     }
-    else if(!markAsReviewed) {
+    else {
       Object.keys(formErrors).forEach(optionKey => {
         if(formErrors[optionKey].length > 0) {
           for(let i = 0; i < formErrors[optionKey].length; i++) {
@@ -81,68 +66,69 @@ export default function UfixitWidget({
       })
     }
     setFormInvalid(invalid)
-  }, [formErrors, activeOption, markAsReviewed])
+  }, [formErrors, activeOption])
 
   const handleOptionChange = (option) => {
     setActiveOption(option)
-
-    if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
-      setMarkAsReviewed(true)
-    }
-    else {
-      setMarkAsReviewed(false)
-    }
   }
-
-  const fullHtml = activeContentItem?.body
 
   return (
     <>
       {UfixitForm && tempActiveIssue ? (
         <>
-          <div className="ufixit-widget flex-column flex-grow-1"
-            aria-hidden={showLearnMore ? "false" : "true"}
-            style={{ display: showLearnMore ? "none" : "flex" }}>
+          <div
+            className={`ufixit-widget flex-column flex-grow-1 ${showLearnMore ? 'hidden' : ''}`}
+            inert={showLearnMore ? true : undefined}
+            aria-hidden={showLearnMore ? true : false}
+          >
 
-            <BarrierInformation
+            <IssueAffects
               t={t}
-              settings={settings}
+              tempActiveIssue={tempActiveIssue}
+            />
+
+            <DecisionQuestion
+              t={t}
               tempActiveIssue={tempActiveIssue}
               handleLearnMoreClick={handleLearnMoreClick}
             />
 
-            <div className="flex-row justify-content-between mt-3 mb-2">
-              <h3 className="ufixit-widget-label m-0 align-self-center">{t('fix.label.barrier_repair')}</h3>
-              <div className="align-self-start flex-shrink-0">
-                <StatusPill
-                  t={t}
-                  settings={settings}
-                  issue={tempActiveIssue} />
-              </div>
-            </div>
-            <div className="flex-column gap-1 flex-grow-1">
+            <div className="flex-column gap-1">
               <UfixitForm
                 t={t}
-                settings={settings}
-
+                instanceInfo={instanceInfo}
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
-                handleActiveContentItem={handleActiveContentItem}
                 addMessage={addMessage}
                 handleActiveIssue={handleActiveIssue}
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
-                isDisabled={isContentLoading || !isErrorFoundInContent}
-                markAsReviewed={markAsReviewed}
-                setMarkAsReviewed={setMarkAsReviewed}
+                isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT)}
+                doesIssueBelongToForm={doesIssueBelongToForm}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}
                 setFormErrors={setFormErrors}
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
-                handleContentIssueSave={handleContentIssueSave}
-                setElementFocus={setElementFocus} />
+                setElementFocus={setElementFocus}
+                setPreviewData={setPreviewData}
+                handleLearnMoreClick={handleLearnMoreClick} />
+
+              <DecisionHelpButton
+                t={t}
+                tempActiveIssue={tempActiveIssue}
+                handleLearnMoreClick={handleLearnMoreClick}
+              />
+            </div>
+            <div className="mt-3 w-100 flex-row justify-content-center">
+              <button
+                onClick={handleIssueSave}
+                className="btn btn-primary btn-icon-left"
+                disabled={saveDisabled}
+                tabIndex="0">
+                {t('form.submit')}
+              </button>
             </div>
           </div>
         </>

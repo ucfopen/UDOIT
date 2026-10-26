@@ -9,6 +9,10 @@
 !/assets/js/Components/Icons/
 ###< symfony/framework-bundle ###
 
+###> php linter cache ###
+.php-cs-fixer.*
+###> php linter cache ###
+
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache
@@ -20,6 +24,16 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
+###> Yarn ###
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+###< Yarn ###
 
 ###
 /.vscode/

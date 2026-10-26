@@ -2,29 +2,8 @@
     "cidilabs/phpally": {
         "version": "dev-master"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.3"
-    },
-    "doctrine/annotations": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "a2759dd6123694c8d901d0ec80006e044c2e6457"
-        },
-        "files": [
-            "config/routes/annotations.yaml"
-        ]
-    },
-    "doctrine/cache": {
-        "version": "1.10.0"
-    },
     "doctrine/collections": {
         "version": "1.6.4"
-    },
-    "doctrine/common": {
-        "version": "2.12.0"
     },
     "doctrine/data-fixtures": {
         "version": "1.4.2"
@@ -99,26 +78,11 @@
     "doctrine/sql-formatter": {
         "version": "1.1.0"
     },
-    "egulias/email-validator": {
-        "version": "2.1.17"
-    },
     "firebase/php-jwt": {
         "version": "v5.2.0"
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.3"
-    },
-    "guzzlehttp/guzzle": {
-        "version": "6.5.2"
-    },
-    "guzzlehttp/promises": {
-        "version": "v1.3.1"
-    },
     "guzzlehttp/psr7": {
         "version": "1.6.1"
-    },
-    "htmlawed/htmlawed": {
-        "version": "1.1.22"
     },
     "kaltura/api-client-library": {
         "version": "v17.5.0"
@@ -135,24 +99,6 @@
             "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
         }
     },
-    "knpuniversity/oauth2-client-bundle": {
-        "version": "1.20",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.20",
-            "ref": "80acc9223a205cbf5d9828fd616c82a374d281dd"
-        },
-        "files": [
-            "config/packages/knpu_oauth2_client.yaml"
-        ]
-    },
-    "laminas/laminas-code": {
-        "version": "4.3.0"
-    },
-    "league/oauth2-client": {
-        "version": "2.4.1"
-    },
     "monolog/monolog": {
         "version": "2.0.2"
     },
@@ -165,23 +111,11 @@
     "nikic/php-parser": {
         "version": "v4.3.0"
     },
-    "oro/doctrine-extensions": {
-        "version": "2.0.0"
-    },
     "phar-io/manifest": {
         "version": "2.0.1"
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "phpdocumentor/reflection-common": {
-        "version": "2.0.0"
-    },
-    "phpdocumentor/reflection-docblock": {
-        "version": "4.3.4"
-    },
-    "phpdocumentor/type-resolver": {
-        "version": "1.1.0"
     },
     "phpspec/prophecy": {
         "version": "1.13.0"
@@ -224,9 +158,6 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
-    "psr/http-client": {
-        "version": "1.0.1"
-    },
     "psr/http-factory": {
         "version": "1.0.1"
     },
@@ -244,12 +175,6 @@
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
-    },
-    "sebastian/code-unit": {
-        "version": "1.0.8"
-    },
-    "sebastian/code-unit-reverse-lookup": {
-        "version": "2.0.3"
     },
     "sebastian/comparator": {
         "version": "4.0.6"
@@ -281,41 +206,26 @@
     "sebastian/recursion-context": {
         "version": "4.0.4"
     },
-    "sebastian/resource-operations": {
-        "version": "3.0.3"
-    },
     "sebastian/type": {
         "version": "2.3.1"
     },
     "sebastian/version": {
         "version": "3.0.2"
     },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
+    "sentry/sentry-symfony": {
+        "version": "5.9",
         "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "5.0",
+            "ref": "12f504985eb24e3b20a9e41e0ec7e398798d18f0"
         },
         "files": [
-            "config/packages/sensio_framework_extra.yaml"
+            "config/packages/sentry.yaml"
         ]
     },
     "setasign/fpdi": {
         "version": "v2.3.3"
-    },
-    "symfony/apache-pack": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "410b9325a37ef86f1e47262c61738f6202202bca"
-        },
-        "files": [
-            "public/.htaccess"
-        ]
     },
     "symfony/asset": {
         "version": "v5.0.5"
@@ -446,18 +356,6 @@
     "symfony/intl": {
         "version": "v5.0.5"
     },
-    "symfony/mailer": {
-        "version": "4.3",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.3",
-            "ref": "15658c2a0176cda2e7dba66276a2030b52bd81b2"
-        },
-        "files": [
-            "config/packages/mailer.yaml"
-        ]
-    },
     "symfony/maker-bundle": {
         "version": "1.0",
         "recipe": {
@@ -478,9 +376,6 @@
         "files": [
             "config/packages/messenger.yaml"
         ]
-    },
-    "symfony/mime": {
-        "version": "v5.0.5"
     },
     "symfony/monolog-bridge": {
         "version": "v5.0.5"
@@ -538,17 +433,11 @@
     "symfony/polyfill-intl-icu": {
         "version": "v1.14.0"
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.14.0"
-    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.14.0"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.14.0"
-    },
-    "symfony/polyfill-php80": {
-        "version": "v1.17.0"
     },
     "symfony/polyfill-php81": {
         "version": "v1.23.0"
@@ -564,9 +453,6 @@
     },
     "symfony/property-info": {
         "version": "v5.0.5"
-    },
-    "symfony/proxy-manager-bridge": {
-        "version": "v5.0.11"
     },
     "symfony/routing": {
         "version": "4.2",
@@ -717,8 +603,5 @@
     },
     "twig/twig": {
         "version": "v3.0.3"
-    },
-    "webmozart/assert": {
-        "version": "1.7.0"
     }
 }

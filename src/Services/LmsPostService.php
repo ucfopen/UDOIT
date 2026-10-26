@@ -100,6 +100,21 @@ class LmsPostService {
         }
     }
 
+    public function batchDeleteFromLms($paths, $user){
+        $lms = $this->lmsApi->getLms();
+        $this->lmsUser->validateApiKey($user);
+        
+        try{
+            return $lms->batchDeleteContent($paths);
+        }
+        catch(\Exception){
+            $this->util->createMessage('Failed to delete unused files.', 'error');
+            return;
+        }
+
+         
+    }
+
     public function saveFileToLms(FileItem $file, UploadedFile $uploadedFile, User $user)
     {
         $lms = $this->lmsApi->getLms();
@@ -168,5 +183,20 @@ class LmsPostService {
         }
 
         return $cnt;
+    }
+
+    public function setMediaTracks($mediaId, $tracks, User $user){
+        $lms = $this->lmsApi->getLms();
+        $apiStatus = $this->lmsUser->validateApiKey($user);
+        if(!$apiStatus['success']){
+            $this->util->exitWithMessage($apiStatus['message']);
+        }
+
+        $lmsResponse = $lms->setMediaTracks($mediaId, $tracks, $user);
+        if(!$lmsResponse){
+            return;
+        }
+
+        return $lmsResponse;
     }
 }

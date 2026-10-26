@@ -3,23 +3,22 @@
   .settings-page-container {
 
     h2 {
-      margin: 0 0 .5rem 0;
+      margin: 0 0 calc(.5 * var(--spacer)) 0;
     }
 
     .page-container {
       display: flex;
       flex-direction: row;
-      gap: 1rem;
+      gap: var(--spacer);
       width: 100%;
       flex-wrap: wrap;
-      padding-block-end: 1rem;
+      padding-block-end: var(--spacer);
       justify-content: center;
 
       .settings-column {
         display: flex;
         flex-direction: column;
-        flex: 1 1 auto;
-        width: 60%;
+        flex: 1 1 35em;
         max-width: 50em;
 
         .settings-container {
@@ -29,15 +28,19 @@
           .settings-row {
             display: flex;
             flex-direction: row;
-            gap: .5rem;
+            gap: calc(.5 * var(--spacer));
             justify-content: space-between;
             flex-wrap: wrap;
             align-items: center;
-            margin: .5rem 0;
+            margin: calc(.5 * var(--spacer)) 0;
 
             label {
               color: var(--text-secondary-color);
             }
+          }
+
+          label.settings-row {
+            color: var(--text-secondary-color);
           }
 
           .divider {
@@ -55,17 +58,15 @@
       .about-column {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        width: 60%;
+        gap: var(--spacer);
         max-width: 50em;
-        flex: 1 1;
+        flex: 1 1 20em;
         justify-content: center;
 
         .callout-container {
           padding: 1.5rem;
           flex: 1 1;
-          box-sizing: content-box;
-          min-width: 25rem;
+          box-sizing: border-box;
           max-width: 100%;
           height: fit-content;
 
