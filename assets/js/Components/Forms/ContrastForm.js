@@ -260,7 +260,7 @@ export default function ContrastForm({
     const foregroundElementStyle = Contrast.getComputedStyle(fullPageHtml, focusXpath || activeIssue.xpath)
     const hasFocusedText = Boolean(
       (focusXpath && focusXpath !== activeIssue.xpath) ||
-      (activeIssue.status > 0 && activeIssue.newHtml !== ''))
+      (activeIssue.status > 0 && Boolean(activeIssue.newHtml)))
 
     const sizeFromScanner = Number(metadata.messageArgs?.[1])
     const weightFromScanner = metadata.messageArgs?.[2]
