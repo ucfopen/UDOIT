@@ -157,18 +157,17 @@ export default function BlockquoteForm({
 
         {activeOption === FORM_OPTIONS.ADD_CITATION && (
           <>
-            <div className="instructions mb-2">{t('form.blockquote.label.text')}</div>
-            <input
-              aria-labelledby="add-text-label"
-              type="text"
-              tabIndex="0"
-              id="altTextInput"
-              name="altTextInput"
-              className="w-100"
-              value={textInputValue}
-              disabled={isDisabled}
-              onChange={handleInput}
-            />
+            <label>
+              <div className="instructions mb-2">{t('form.blockquote.label.text')}</div>
+              <input
+                type="text"
+                tabIndex="0"
+                className="w-100"
+                value={textInputValue}
+                disabled={isDisabled}
+                onChange={handleInput}
+              />
+            </label>
             <label>
               <ToggleSwitch
                 initialValue={hideCitation}
