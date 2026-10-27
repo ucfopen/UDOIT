@@ -687,6 +687,13 @@
   "form.keyboard_tabbable.decision.add_tabindex": "Area is Interactive and Can be Clicked",
   "form.keyboard_tabbable.decision.remove_role": "Area is Not Interactive",
   "form.keyboard_tabbable.label.merge_text": "Merge into surrounding text",
+  "form.interactive_role.title": "Interactive Roles Must Match Their Function",
+  "form.interactive_role.summary": "Interactive roles should only be used when an element has a matching, keyboard-operable function.",
+  "form.interactive_role.learn_more": "<h3>Interactive Roles in Canvas</h3><p>Adding an ARIA role, such as <code>role=&quot;link&quot;</code>, does not make an element interactive. In Canvas content, use a real <code>&lt;a href&gt;</code> element for links. If the highlighted element is not intended to be interactive, remove its stale role.</p><h3>Best Practices</h3><ul><li>Use an <code>&lt;a href&gt;</code> element for navigation</li><li>Remove interactive roles from content that does not provide an interactive function</li><li>Use native HTML controls whenever they are supported</li></ul>",
+  "form.interactive_role.label.question": "The highlighted element has conflicting information. Should it be a link or plain text content?",
+  "form.interactive_role.label.make_link": "Make It a Link",
+  "form.interactive_role.label.remove_role": "Make It Plain Text Content",
+  "form.interactive_role.msg.href_required": "A link destination is required",
   
   "form.label.title": "Interactive and Landmark Areas Should Have Labels",
   "form.label.summary": "Interactive elements like buttons, links, and form fields should have descriptive labels that help users understand their purpose. Landmark regions should also have unique labels to help users navigate the page.",
