@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
-import { formNames } from '../../Services/Ufixit'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 import { UFIXIT_OPTIONS } from '../../Services/Constants'
@@ -10,7 +9,6 @@ export default function HeadingEmptyForm({
   t,
   activeIssue,
   isDisabled,
-  doesIssueBelongToForm,
   handleActiveIssue,
   activeOption,
   setActiveOption,
@@ -59,17 +57,11 @@ export default function HeadingEmptyForm({
   }, [activeIssue])
 
   useEffect(() => {
-    if(!doesIssueBelongToForm(formNames.HEADING_EMPTY, activeIssue?.issueData)) {
-      return
-    }
     updateHtmlContent()
     checkFormErrors()
   }, [textInputValue])
 
   const handleOptionChange = (option) => {
-    if(!doesIssueBelongToForm(formNames.HEADING_EMPTY, activeIssue?.issueData)) {
-      return
-    }
     updateHtmlContent(option)
     checkFormErrors(option)
     setActiveOption(option)

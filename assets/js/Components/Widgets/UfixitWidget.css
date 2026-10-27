@@ -81,6 +81,10 @@
     &:has(.css-switch) {
       margin-top: 1em;
     }
+
+    &:has(input[type="text"]) {
+      display: block;
+    }
   }
 
   .instructions {

@@ -103,7 +103,7 @@ export default function TabbableInvisibleForm({
       setHideText(tempHideText);
       setLinkUrl(tempLinkUrl);
 
-      const fixed = activeIssue.status > 1;
+      const fixed = activeIssue.status > 0;
       const deleted = !activeIssue.newHtml;
       let startingOption = '';
 
@@ -171,6 +171,9 @@ export default function TabbableInvisibleForm({
                 // If we're hiding the text, then the nested image requires alt text.
                 if (hideText) {
                   Html.setAttribute(child, "alt", textInputValue);
+                  Html.removeAttribute(child, "aria-hidden");
+                  Html.removeAttribute(child, "role", "presentation");
+                  Html.removeAttribute(child, "role", "none");
                   Html.addClass(element, issue.ignoreClass);
                 }
                 // If we're not hiding the text, the image should be marked as decorative (alt="").
@@ -253,17 +256,17 @@ export default function TabbableInvisibleForm({
         />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
-            <div className="instructions mb-2">{t('form.tabbable_invisible.label.text')}</div>
-            <input
-              name="linkTextInput"
-              id="linkTextInput"
-              className="w-100"
-              type="text"
-              value={textInputValue}
-              onChange={handleInput}
-              tabIndex="0"
-              disabled={isDisabled}
-            />
+            <label>
+              <div>{t('form.tabbable_invisible.label.text')}</div>
+              <input
+                className="w-100"
+                type="text"
+                value={textInputValue}
+                onChange={handleInput}
+                tabIndex="0"
+                disabled={isDisabled}
+              />
+            </label>
             { hasNestedImage && (
               <>
                 <label>

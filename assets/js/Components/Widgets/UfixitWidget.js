@@ -37,14 +37,6 @@ export default function UfixitWidget({
     handleTempActiveIssue(tempIssue, optionOverride, contentItem)
   }
 
-  const doesIssueBelongToForm = (formName, issueData = tempActiveIssue?.issueData) => {
-    if(!issueData || !formName) {
-      return false
-    }
-    const issueForm = formNameFromRule(issueData.scanRuleId)
-    return issueForm === formName
-  }
-
   useEffect(() => {
     let invalid = false
     
@@ -101,8 +93,7 @@ export default function UfixitWidget({
                 handleActiveIssue={handleActiveIssue}
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
-                isDisabled={isContentLoading || !isErrorFoundInContent}
-                doesIssueBelongToForm={doesIssueBelongToForm}
+                isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT)}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}
