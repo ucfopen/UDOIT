@@ -430,17 +430,13 @@ export default function FixIssuesPage({
     const originalElementTag = Html.getTagName(originalElement)
     const editedElementTag = Html.getTagName(editedElement)
 
-    if(!originalElement) {
-      setIsErrorFoundInContent(false)
-    }
-    else {
+    if(originalElement) {
       if(option === UFIXIT_OPTIONS.DELETE_ELEMENT || issue.issueData.newHtml === '') {
         originalElement.remove()
       }
       else if(editedElement) { 
         originalElement.replaceWith(editedElement);
       }
-      setIsErrorFoundInContent(true)
     }
 
     let updatedHtml = Html.toString(editedElement)
