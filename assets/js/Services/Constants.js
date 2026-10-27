@@ -105,6 +105,7 @@ export const UFIXIT_OPTIONS = {
   MARK_DECORATIVE: 'mark-decorative',
   REVIEW_CONTENT: 'review-content',
   SELECT_ATTRIBUTE_VALUE: 'select-attribute-value',
+  SELECT_ELEMENT: 'select-element',
   SELECT_TAG: 'select-tag'
 }
 

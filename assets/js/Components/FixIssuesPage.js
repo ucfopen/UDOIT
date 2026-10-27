@@ -903,7 +903,7 @@ export default function FixIssuesPage({
                       setClickedInfo={setClickedInfo}
                       setElementFocus={setElementFocus}
                       setPreviewData={setPreviewData}
-                      saveDisabled={formInvalid || !isErrorFoundInContent || noChanges || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                      saveDisabled={formInvalid || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT) || noChanges || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                     />
                   </>
                 )}

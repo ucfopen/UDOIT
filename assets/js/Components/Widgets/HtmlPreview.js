@@ -57,8 +57,7 @@ export default function HtmlPreview({
 
     const formName = formNameFromRule(activeIssue.scanRuleId);
 
-    if (formName === formNames.TABBABLE_INVISIBLE &&
-        (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.issueData.newHtml === '')) {
+    if (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.issueData.newHtml === '') {
       return doc;
     }
 
