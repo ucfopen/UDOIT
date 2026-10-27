@@ -81,7 +81,7 @@ const formTypes = {
   [formNames.FOCUS_VISIBLE]: FocusVisibleForm,
   [formNames.HEADING_EMPTY]: HeadingEmptyForm,
   [formNames.HEADING_STYLE]: HeadingStyleForm,
-  [formNames.INVALID_CSS]: InlineCSSForm,
+  [formNames.INLINE_CSS]: InlineCSSForm,
   [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,

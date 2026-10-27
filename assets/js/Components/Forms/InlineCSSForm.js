@@ -16,7 +16,6 @@ export default function InlineCSSForm ({
   const FORM_OPTIONS = {
     REMOVE_STYLING: UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
     DEEMPHASIZE_STYLING: UFIXIT_OPTIONS.EDIT_ATTRIBUTE,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
   const getInlineCSS = () => {
@@ -38,13 +37,9 @@ export default function InlineCSSForm ({
       return
     }
 
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0
     let startingOption = ''
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
-    }
     if (fixed) {
 
       let tempstyles = getInlineCSS()
@@ -81,13 +76,6 @@ export default function InlineCSSForm ({
 
   const updateHtmlContent = () => {
     let issue = activeIssue
-
-    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
-    }
-
     let html = getIssueHtml(activeIssue)
     let updatedElement = Html.toElement(html)
 
@@ -143,7 +131,7 @@ export default function InlineCSSForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.REMOVE_STYLING}
-          labelText = {t('form.invalid_css.label.remove_style')}
+          labelText = {t('form.inline_css.label.remove_style')}
           />
       </div>
 
@@ -154,18 +142,7 @@ export default function InlineCSSForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.DEEMPHASIZE_STYLING}
-          labelText = {t('form.invalid_css.label.remove_important')}
-          />
-      </div>
-
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
+          labelText = {t('form.inline_css.label.remove_important')}
           />
       </div>
     </>
