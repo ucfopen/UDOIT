@@ -1040,9 +1040,9 @@
   main {
     height: calc(100vh - 3.5em);
     min-height: 20em;
-    width: stretch;
+    width: 100%;
     max-width: var(--content-max-width);
-    box-sizing: content-box;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
