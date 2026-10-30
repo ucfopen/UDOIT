@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"log/slog"
 	"net/http"
 
 	"rewritetest/internal/accessibility/internal/domain"
@@ -87,8 +86,6 @@ func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.Sca
 		return domain.ScanContentResult{}, err
 	}
 
-	e.logReferenceSummary(result.References)
-
 	scanResults := make([]domain.ScanResult, 0, len(result.Results))
 	for _, issue := range result.Results {
 		severity, err := domain.ParseIssueSeverity(issue.Severity)
@@ -123,38 +120,6 @@ func (e *EqualAccessScanner) ScanContent(ctx context.Context, items []domain.Sca
 		Issues:     scanResults,
 		References: scanReferences,
 	}, nil
-}
-
-func (e *EqualAccessScanner) logReferenceSummary(references []scanReference) {
-	if len(references) == 0 {
-		slog.Info("scanner references extracted", "total", 0)
-		return
-	}
-
-	countByKind := map[string]int{}
-	countByContentItem := map[int64]int{}
-	valuesByKind := map[string][]string{}
-	uniqueValues := map[string]struct{}{}
-	allValues := make([]string, 0)
-	for _, ref := range references {
-		countByKind[ref.Kind]++
-		countByContentItem[ref.ContentItemID]++
-
-		valuesByKind[ref.Kind] = append(valuesByKind[ref.Kind], ref.Value)
-		if _, exists := uniqueValues[ref.Value]; !exists {
-			uniqueValues[ref.Value] = struct{}{}
-			allValues = append(allValues, ref.Value)
-		}
-	}
-
-	slog.Info(
-		"scanner references extracted",
-		"total", len(references),
-		"by_kind", countByKind,
-		"by_content_item", countByContentItem,
-		"values", allValues,
-		"values_by_kind", valuesByKind,
-	)
 }
 
 var _ domain.Scanner = (*EqualAccessScanner)(nil)
