@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import RadioSelector from '../Widgets/RadioSelector';
 import OptionFeedback from '../Widgets/OptionFeedback';
 import ToggleSwitch from '../Widgets/ToggleSwitch';
+import InfoPopover from '../Widgets/InfoPopover';
 import * as Html from '../../Services/Html';
 import { UFIXIT_OPTIONS } from '../../Services/Constants';
 
@@ -29,6 +30,7 @@ export default function TableHeadersForm({
   const [selectedValue, setSelectedValue] = useState('');
   const [extractCaption, setExtractCaption] = useState(false);
   const [hasPotentialCaption, setHasPotentialCaption] = useState(false);
+  const [tableText, setTableText] = useState('');
 
   useEffect(() => {
     if(!activeIssue) {
@@ -70,6 +72,7 @@ export default function TableHeadersForm({
 
     setActiveOption(startingOption);
     setHasPotentialCaption(tempHasPotentialCaption);
+    setTableText(table?.innerText?.trim());
     setExtractCaption(false);
 
   }, [activeIssue])
@@ -168,17 +171,16 @@ export default function TableHeadersForm({
     }
 
     removeHeaders(table)
-    const decorationRoles = ['presentation', 'none']
 
     if (activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
       Html.setAttribute(table, 'role', 'presentation')
+      Html.addClass(table, 'udoit-ignore-table-layout-linearized');   // Every time a decorative table is made, a NEW error will get caught.
       return Html.toString(table)
     }
     else {
-      let role = Html.getAttribute(table, 'role')
-      if (role && typeof(role.toLowerCase) === "function" && decorationRoles.includes(role.toLowerCase())) {
-        Html.removeAttribute(table, 'role')
-      }
+      Html.removeAttribute(table, 'role', 'presentation');
+      Html.removeAttribute(table, 'role', 'none');
+      Html.removeClass(table, 'udoit-ignore-table-layout-linearized');
     }
 
     if ('row' === selectedValue || 'both' === selectedValue) {
@@ -297,6 +299,26 @@ export default function TableHeadersForm({
           option={FORM_OPTIONS.MARK_DECORATIVE}
           labelText = {t('form.table_headers.decision.no_data')}
         />
+        {activeOption === FORM_OPTIONS.MARK_DECORATIVE && tableText !== '' && (
+          <>
+            <div className="instructions mb-2 flex-row align-items-center gap-1">
+            <div>
+              {t('form.table_headers.decoration_only.linearized')}
+            </div>
+            <InfoPopover
+              t={t}
+              title={t('form.table_headers.info.linearize.title')}
+              content={t('form.table_headers.info.linearize.content')}
+              triggerAriaLabel={t('form.table_headers.info.linearize.title')}
+            />
+          </div>
+            <textarea
+              readOnly
+              rows="6"
+              value={ (tableText || '') }>
+            </textarea>
+          </>
+        )}
       </div>
     </>
   )

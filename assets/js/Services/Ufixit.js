@@ -266,6 +266,7 @@ const rulesToFormNameMap = {
 
   table_headers_exists: formNames.TABLE_HEADERS,
   table_headers_related: formNames.TABLE_HEADERS,
+  table_layout_linearized: formNames.TABLE_HEADERS,
   table_structure_misuse: formNames.TABLE_HEADERS,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE
@@ -415,7 +416,6 @@ export function disabilitiesFromRule(ruleId) {
       case 'input_onchange_review':
       case 'marquee_elem_avoid':
       case 'media_autostart_controllable':
-      case 'table_layout_linearized':
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case 'application_content_accessible':
