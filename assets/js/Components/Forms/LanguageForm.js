@@ -1,4 +1,4 @@
-import React, { act, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import OptionFeedback from '../Widgets/OptionFeedback'

@@ -79,6 +79,11 @@ export default function AltTextForm ({
       element = Html.setAttribute(element, "title", textInputValue)
     }
 
+    // The `style_background_decorative` error type will always fire as long as there is an image.
+    if (activeOption !== '' && issue.scanRuleId === 'style_background_decorative') {
+      Html.addClass(element, issue.ignoreClass);
+    }
+
     issue.newHtml = Html.toString(element)
     handleActiveIssue(issue)
   }
@@ -153,22 +158,22 @@ export default function AltTextForm ({
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.ADD_TEXT}
           labelId = 'add-text-label'
-          labelText = {t('form.alt_text.decision.informational')} /* {t('form.alt_text.label.text')} */
+          labelText = {t('form.alt_text.decision.informational')}
         />
 
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
-            <label htmlFor="altTextInput">{t('form.alt_text.label.text')}</label>
-            <input
-              type="text"
-              tabIndex="0"
-              id="altTextInput"
-              name="altTextInput"
-              className="w-100"
-              value={textInputValue}
-              disabled={isDisabled}
-              onChange={handleInput}
-            />
+            <label>
+              <div>{t('form.alt_text.label.text')}</div>
+              <input
+                type="text"
+                tabIndex="0"
+                className="w-100"
+                value={textInputValue}
+                disabled={isDisabled}
+                onChange={handleInput}
+              />
+            </label>
             <div className="subtext">{t("form.alt_text.feedback.characters", { current: characterCount, total: maxLength })}</div>
             <OptionFeedback
               t={t}

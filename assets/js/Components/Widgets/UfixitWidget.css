@@ -81,6 +81,10 @@
     &:has(.css-switch) {
       margin-top: 1em;
     }
+
+    &:has(input[type="text"]) {
+      display: block;
+    }
   }
 
   .instructions {
@@ -114,6 +118,7 @@
   textarea {
     field-sizing: content;
     resize: none;
+    font-size: calc(.85 * var(--font-size));
     min-height: 3lh;
     max-height: 8lh;
     width: 100%;

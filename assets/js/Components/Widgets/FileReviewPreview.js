@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
-import * as Text from '../../Services/Text'
 import './FixIssuesContentPreview.css'
 import FileInformation from './FileInformation'
 import ProgressIcon from '../Icons/ProgressIcon'
@@ -15,8 +14,6 @@ export default function FixIssuesContentPreview({
 
   const [fileReferenceHolder, setFileReferenceHolder] = useState({})
   const [singleReferencesOnly, setSingleReferencesOnly] = useState(true)
-  const [currentFile, setCurrentFile] = useState(null)
-  const [oldFile, setOldFile] = useState(null)
 
   const ORIGINAL_LABEL = "-original"
   const REPLACED_LABEL = "-replaced"

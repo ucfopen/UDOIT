@@ -2,16 +2,14 @@ import React, {useState, useEffect} from 'react'
 import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
-import { formNames } from '../../Services/Ufixit'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
-import { UFIXIT_OPTIONS } from '../../Services/Constants'
+import { VALID_IMAGE_TAGS, UFIXIT_OPTIONS } from '../../Services/Constants'
 
 export default function AnchorTextForm ({
   t,
   activeIssue,
   isDisabled,
-  doesIssueBelongToForm,
   handleActiveIssue,
   activeOption,
   setActiveOption,
@@ -25,105 +23,161 @@ export default function AnchorTextForm ({
   }
 
   const [textInputValue, setTextInputValue] = useState("")
+  const [hasNestedImage, setHasNestedImage] = useState(false);
+  const [hideText, setHideText] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
-  const [hideText, setHideText] = useState(false) 
-
-  const html = Html.getIssueHtml(activeIssue)
-  const element = Html.toElement(html)
-  const elementTag = Html.getTagName(element)?.toLowerCase() || ''
-  const hasImage = elementTag === 'a' && !!element.querySelector('img')
 
   useEffect(() => {
     if(!activeIssue) {
       return
     }
-    const html = Html.getIssueHtml(activeIssue)
-    let initialText = ''
-    if(Html.getTagName(html)?.toLowerCase() === 'a') {
-      initialText = Html.getInnerText(html)
-    } else if(Html.getTagName(html)?.toLowerCase() === 'area') {
-      initialText = Html.getAttribute(html, 'alt') || ''
-    }
-    setLinkUrl(Html.getAttribute(html, 'href') || '')
-    setTextInputValue(initialText)
+    const html = Html.getIssueHtml(activeIssue);
+    const element = Html.toElement(html);
 
-    const fixed = activeIssue.status > 0
-    const deleted = !activeIssue.newHtml
-    let startingOption = ''
+    let tempHasNestedImage = false;
+    let tempTextInputValue = "";
+    let tempImgAltValue = "";
+    let tempHideText = false;
+    let tempLinkUrl = Html.getAttribute(element, "href") || '';
+
+    if (element.children.length > 0) {
+
+      // Does the element contain a nested image inside? If so, we can allow alt text instead of on-screen text.
+      for (const child of element?.children) {
+        let childTag = Html.getTagName(child)?.toLowerCase();
+        if (VALID_IMAGE_TAGS.includes(childTag)) {
+          tempHasNestedImage = true;
+          if (tempImgAltValue === "") {
+            tempImgAltValue = Html.getAccessibleName(child);
+          }
+        }
+      }
+    }
+
+    // Does the element contain text?
+    const initialText = Html.getInnerText(element);
+    if (initialText) {
+      tempTextInputValue = initialText;
+    }
+    // Does the element have alt text (or aria-label, etc)?
+    else {
+      const accessibleName = Html.getAccessibleName(element);
+      if (accessibleName) {
+        tempTextInputValue = accessibleName;
+        if (tempHasNestedImage) {
+          tempHideText = true;
+        }
+      }
+      // If not, does it have a nested image with alt text?
+      else if (tempImgAltValue !== '') {
+        tempTextInputValue = tempImgAltValue;
+        tempHideText = true;
+      }
+    }
+
+    setTextInputValue(tempTextInputValue);
+    setHasNestedImage(tempHasNestedImage);
+    setHideText(tempHideText);
+    setLinkUrl(tempLinkUrl);
+
+    const fixed = activeIssue.status > 0;
+    const deleted = !activeIssue.newHtml;
+    let startingOption = '';
 
     if (fixed) {
       if (deleted) {
-        startingOption = FORM_OPTIONS.DELETE_ELEMENT
+        startingOption = FORM_OPTIONS.DELETE_ELEMENT;
       }
-      else if (initialText !== '') {
-        startingOption = FORM_OPTIONS.ADD_TEXT
+      else if (tempTextInputValue !== '') {
+        startingOption = FORM_OPTIONS.ADD_TEXT;
       }
     }
-    handleOptionChange(startingOption)
+
+    setActiveOption(startingOption);
 
   }, [activeIssue])
 
   useEffect(() => {
-    if(!doesIssueBelongToForm(formNames.ANCHOR_TEXT, activeIssue?.issueData)) {
-      return
-    }
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, hideText])
+  }, [activeOption, textInputValue, hideText])
 
-  const handleOptionChange = (option) => {
-    if(!doesIssueBelongToForm(formNames.ANCHOR_TEXT, activeIssue?.issueData)) {
-      return
-    }
-    updateHtmlContent(option)
-    checkFormErrors(option)
-    setActiveOption(option)
-  }
 
-  const updateHtmlContent = (optionOverride = activeOption) => {
+  const updateHtmlContent = () => {
     let issue = activeIssue
 
+    if (activeOption === FORM_OPTIONS.DELETE_ELEMENT) {
+      issue.newHtml = '';
+      handleActiveIssue(issue);
+      return
+    }
+
     const html = Html.getIssueHtml(activeIssue)
-    const deleteLink = (optionOverride === FORM_OPTIONS.DELETE_ELEMENT)
     let element = Html.toElement(html)
     let elementTag = Html.getTagName(element)?.toLowerCase() || ''
     
     if(elementTag === 'a') {
-      if(deleteLink) {
-        element = null
-      } else if (hasImage && hideText) {
-        element = Html.setInnerText(element, '')
-        element = Html.setAttribute(element, 'aria-label', textInputValue);
-        element.querySelector('img').setAttribute('aria-hidden', 'true');
-      } else {
-        element = Html.removeAttribute(element, 'aria-label')
-        element = Html.setInnerText(element, textInputValue)
-        element.querySelector('img')?.removeAttribute('aria-hidden');
+      Html.removeAttribute(element, "aria-labelledby");
+      Html.removeAttribute(element, "aria-label");
+      Html.removeAttribute(element, "aria-hidden");
+      Html.removeAttribute(element, "title");
+      Html.removeAttribute(element, "alt");
+
+      if (element.children.length === 0) {
+        element.innerText = textInputValue;
+      }
+      else {
+        // Step 1: Remove all existing text nodes from the Element. Then we can put the new one in the right place.
+        for (const child of element?.childNodes) {
+          if (child.nodeType === 3) {   // Text Node
+            child.remove();
+          }
+        }
+
+        if (hasNestedImage) {
+          for(const child of element?.children) {
+            let childTag = Html.getTagName(child)?.toLowerCase();
+            if (VALID_IMAGE_TAGS.includes(childTag)) {
+              // If we're hiding the text, then the nested image requires alt text.
+              if (hideText) {
+                Html.setAttribute(child, "alt", textInputValue);
+                Html.removeAttribute(child, "aria-hidden");
+                Html.removeAttribute(child, "role", "presentation");
+                Html.removeAttribute(child, "role", "none");
+                Html.addClass(element, issue.ignoreClass);
+              }
+              // If we're not hiding the text, the image should be marked as decorative (alt="").
+              else {
+                Html.setAttribute(child, "alt", "");
+                Html.setAttribute(child, "role", "presentation");
+                Html.setAttribute(child, "aria-hidden", true);
+              }
+            }
+          }
+        }
+        
+        if (!hideText) {
+          element.children[element.children.length - 1].insertAdjacentText("afterend", textInputValue);
+        }
       }
     }
     if(elementTag === 'area') {
-      if(deleteLink) {
-        element = Html.setAttribute(element, 'href', '')
-        element = Html.setAttribute(element, 'alt', '')
-        element = Html.setAttribute(element, 'title', '')
-      } else {
-        element = Html.setAttribute(element, 'href', linkUrl)
-        element = Html.setAttribute(element, 'alt', textInputValue)
-        element = Html.setAttribute(element, 'title', textInputValue)
-      }
+      element = Html.setAttribute(element, 'href', linkUrl)
+      element = Html.setAttribute(element, 'alt', textInputValue)
+      element = Html.setAttribute(element, 'title', textInputValue)
     }
     
     issue.newHtml = Html.toString(element)
-    handleActiveIssue(issue, optionOverride)
+    handleActiveIssue(issue)
   }
 
-  const checkFormErrors = (optionOverride = activeOption) => {
+  const checkFormErrors = () => {
     let tempErrors = {
       [FORM_OPTIONS.ADD_TEXT]: [],
       [FORM_OPTIONS.DELETE_ELEMENT]: [],
     }
     
-    if(optionOverride === FORM_OPTIONS.ADD_TEXT) {
+    if(activeOption === FORM_OPTIONS.ADD_TEXT) {
       if(!Text.isTextDescriptive(textInputValue)) {
         tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
       }
@@ -150,7 +204,7 @@ export default function AnchorTextForm ({
           <RadioSelector
             activeOption={activeOption}
             isDisabled={isDisabled}
-            setActiveOption={handleOptionChange}
+            setActiveOption={setActiveOption}
             option={FORM_OPTIONS.DELETE_ELEMENT}
             labelText = {t('form.anchor_text.decision.delete')}
           />
@@ -167,39 +221,40 @@ export default function AnchorTextForm ({
           <RadioSelector
             activeOption={activeOption}
             isDisabled={isDisabled}
-            setActiveOption={handleOptionChange}
+            setActiveOption={setActiveOption}
             option={FORM_OPTIONS.ADD_TEXT}
-            labelId = 'add-text-label'
             labelText = {t('form.anchor_text.decision.add_context')}
           />
 
           {activeOption === FORM_OPTIONS.ADD_TEXT && (
             <>
-              <div className="instructions mb-2">{t('form.anchor.link_text')}</div>
-              <input
-                aria-labelledby="add-text-label"
-                name="linkTextInput"
-                id="linkTextInput"
-                className="w-100"
-                type="text"
-                value={textInputValue}
-                onChange={handleInput}
-                tabIndex="0"
-                disabled={isDisabled}
-              />
+              <label>
+                <div>{t('form.anchor.label.link_text')}</div>
+                <input
+                  className="w-100"
+                  type="text"
+                  value={textInputValue}
+                  onChange={handleInput}
+                  tabIndex="0"
+                  disabled={isDisabled}
+                />
+              </label>
               <OptionFeedback
                 t={t}
                 feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
               />
-              {hasImage && (
-                <label>
-                  <ToggleSwitch
-                    initialValue={hideText}
-                    updateToggle={setHideText}
-                    disabled={isDisabled}
-                  />
-                  <div>{t('form.anchor.label.hide_text')}</div>
-                </label>
+              {hasNestedImage && (
+                <>
+                  <label>
+                    <ToggleSwitch
+                      initialValue={hideText}
+                      updateToggle={setHideText}
+                      disabled={isDisabled}
+                    />
+                    <div>{t('form.anchor.label.hide_text')}</div>
+                  </label>
+                  <div className="subtext">{t('form.tabbable_invisible.label.hide_text_desc')}</div>
+                </>
               )}
             </>    
           )}

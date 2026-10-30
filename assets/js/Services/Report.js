@@ -1,5 +1,5 @@
 import * as Html from "./Html";
-import { ISSUE_STATE, MEDIA_FILE_TYPES } from "./Constants";
+import { ISSUE_STATE, MEDIA_FILE_TYPES, VALID_IMAGE_TAGS } from "./Constants";
 import { groupListIssues } from './Lists' 
 import { formNames, formNameFromRule } from './Ufixit'
 
@@ -33,6 +33,14 @@ const checkAriaHiddenNontabbable = (issue, element, parsedDocument) => {
     }
   }
 
+  return false;
+}
+
+const checkAriaRoleValid = (issue, element) => {
+  const tagName = Html.getTagName(element)?.toLowerCase();
+  if (VALID_IMAGE_TAGS.includes(tagName)) {
+    issue.scanRuleId = "img_alt_valid";
+  }
   return false;
 }
 
@@ -91,6 +99,17 @@ const checkTableHeadersRelated = (issue, element) => {
   if (parentTable) {
     issue.xpath = Html.findXpathFromElement(parentTable);
     issue.sourceHtml = Html.toString(parentTable);
+  }
+  return false;
+}
+
+const checkTableLayoutLinearized = (issue, element) => {
+  const tagName = Html.getTagName(element)?.toLowerCase();
+  if (tagName === 'table') {
+    // If the table only has one cell, there is nothing to linearize.
+    if (element.rows?.length === 1 && element.rows[0].cells?.length === 1) {
+      return true;
+    }
   }
   return false;
 }
@@ -204,6 +223,8 @@ const checkImgAltBackground = (issue, element) => {
 const runCustomChecks = (issue, element, parsedDocument = null) => {
   if (issue.scanRuleId === "aria_hidden_nontabbable") {
     return checkAriaHiddenNontabbable(issue, element, parsedDocument);
+  } else if (issue.scanRuleId === "aria_role_valid") {
+    return checkAriaRoleValid(issue, element);
   } else if (issue.scanRuleId === "element_tabbable_visible") {
     return checkElementTabbableVisible(issue, element);
   } else if (issue.scanRuleId === "img_alt_background") {
@@ -212,6 +233,8 @@ const runCustomChecks = (issue, element, parsedDocument = null) => {
     return checkStyleColorMisuse(issue, element);
   } else if (issue.scanRuleId === "table_headers_related") {
     return checkTableHeadersRelated(issue, element);
+  } else if (issue.scanRuleId === "table_layout_linearized") {
+    return checkTableLayoutLinearized(issue, element);
   } else if (issue.scanRuleId === "text_block_heading") {
     return checkTextBlockHeading(issue, element);
   } else if (issue.scanRuleId === "text_contrast_sufficient") {

@@ -1,5 +1,4 @@
 import React from 'react'
-
 import SeverityIcon from '../Icons/SeverityIcon'
 import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'

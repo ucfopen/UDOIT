@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
@@ -17,8 +16,7 @@ import { api } from '../Services/Api'
 export default function ReportsPage({
   t,
   preferences,
-  report, 
-  instanceInfo, 
+  report,
   quickSearchTerm
 }) {
 
