@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { formNameFromRule } from '../../Services/Ufixit'
-import { ISSUE_FILTER } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'
 
 export default function DecisionQuestion ({
@@ -79,13 +78,15 @@ export default function DecisionQuestion ({
           dangerouslySetInnerHTML={{__html: formSummary}}
         />
         { showLearnMore && (
-          <button
-            id="decide-button"
-            className="btn-text btn-icon-left btn-small mt-2 flex-row justify-self-end"
-            onClick={() => handleLearnMoreClick()} >
-              <InfoIcon className="icon-md link-color" alt="" aria-hidden="true" />
-            <div>{t('fix.button.learn_more')}</div>
-          </button>
+          <div className="flex-row w-100 justify-content-end mt-2">
+            <button
+              id="decide-button"
+              className="btn-text btn-icon-left btn-small"
+              onClick={() => handleLearnMoreClick()} >
+                <InfoIcon className="icon-md link-color" alt="" aria-hidden="true" />
+              <div>{t('fix.button.learn_more')}</div>
+            </button>
+          </div>
         )}
       </div>
     </>

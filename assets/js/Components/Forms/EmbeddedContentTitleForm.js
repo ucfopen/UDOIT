@@ -132,18 +132,17 @@ export default function EmbeddedContentTitleForm({
         />
         {activeOption === FORM_OPTIONS.ADD_LABEL && (
           <>
-            <label htmlFor="labelInputValue">{t('form.embedded_content_title.label.text')}</label>
-            <input
-              aria-labelledby="add-label-label"
-              type="text"
-              tabIndex="0"
-              id="labelInputValue"
-              name="labelInputValue"
-              className="w-100"
-              value={textInputValue}
-              disabled={isDisabled}
-              onChange={handleInput}
-            />
+            <label>
+              <div>{t('form.embedded_content_title.label.text')}</div>
+              <input
+                type="text"
+                tabIndex="0"
+                className="w-100"
+                value={textInputValue}
+                disabled={isDisabled}
+                onChange={handleInput}
+              />
+            </label>
             <OptionFeedback
               t={t}
               feedbackArray={formErrors[FORM_OPTIONS.ADD_LABEL]}

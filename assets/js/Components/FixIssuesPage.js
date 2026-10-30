@@ -8,7 +8,7 @@ import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import CloseIcon from './Icons/CloseIcon'
-import { FORM_CLASSIFICATIONS, formFromIssue, formNameFromRule } from '../Services/Ufixit'
+import { formFromIssue, formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 
 import './FixIssuesPage.css'
@@ -430,17 +430,13 @@ export default function FixIssuesPage({
     const originalElementTag = Html.getTagName(originalElement)
     const editedElementTag = Html.getTagName(editedElement)
 
-    if(!originalElement) {
-      setIsErrorFoundInContent(false)
-    }
-    else {
+    if(originalElement) {
       if(option === UFIXIT_OPTIONS.DELETE_ELEMENT || issue.issueData.newHtml === '') {
         originalElement.remove()
       }
       else if(editedElement) { 
         originalElement.replaceWith(editedElement);
       }
-      setIsErrorFoundInContent(true)
     }
 
     let updatedHtml = Html.toString(editedElement)
@@ -907,7 +903,7 @@ export default function FixIssuesPage({
                       setClickedInfo={setClickedInfo}
                       setElementFocus={setElementFocus}
                       setPreviewData={setPreviewData}
-                      saveDisabled={formInvalid || !isErrorFoundInContent || noChanges || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                      saveDisabled={formInvalid || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT) || noChanges || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                     />
                   </>
                 )}

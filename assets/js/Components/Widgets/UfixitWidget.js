@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
-// import BarrierInformation from './BarrierInformation'
 import DecisionQuestion from './DecisionQuestion'
 import DecisionHelpButton from './DecisionHelpButton'
-import StatusPill from './StatusPill'
 import IssueAffects from './IssueAffects'
 import { formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
@@ -37,14 +35,6 @@ export default function UfixitWidget({
     const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
     handleTempActiveIssue(tempIssue, optionOverride, contentItem)
-  }
-
-  const doesIssueBelongToForm = (formName, issueData = tempActiveIssue?.issueData) => {
-    if(!issueData || !formName) {
-      return false
-    }
-    const issueForm = formNameFromRule(issueData.scanRuleId)
-    return issueForm === formName
   }
 
   useEffect(() => {
@@ -104,7 +94,6 @@ export default function UfixitWidget({
                 handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || (!isErrorFoundInContent && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT)}
-                doesIssueBelongToForm={doesIssueBelongToForm}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}

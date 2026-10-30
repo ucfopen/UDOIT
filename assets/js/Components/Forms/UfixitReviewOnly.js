@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { UFIXIT_OPTIONS } from '../../Services/Constants'
 import FormExternalLink from './FormExternalLink'
 import RadioSelector from '../Widgets/RadioSelector'
+import * as Html from '../../Services/Html'
 
 export default function UfixitReviewOnly({
   t,
@@ -44,8 +45,19 @@ export default function UfixitReviewOnly({
   }, [activeOption])
 
   const updateHtmlContent = () => {
-    let issue = activeIssue
-    handleActiveIssue(issue)
+    let issue = activeIssue;
+    const html = Html.getIssueHtml(issue);
+    let element = Html.toElement(html);
+
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      Html.addClass(element, issue.ignoreClass);
+    }
+    else {
+      Html.removeClass(element, issue.ignoreClass);
+    }
+
+    issue.newHtml = Html.toString(element);
+    handleActiveIssue(issue);
   }
 
   const checkFormErrors = () => {

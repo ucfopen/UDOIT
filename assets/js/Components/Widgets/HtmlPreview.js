@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FORM_CLASSIFICATIONS, formNameFromRule, formNames } from '../../Services/Ufixit'
 import { VALID_IMAGE_TAGS, UFIXIT_OPTIONS } from '../../Services/Constants'
 import InfoIcon from '../Icons/InfoIcon'
@@ -11,7 +11,6 @@ export default function HtmlPreview({
   activeContentItem,
   activeIssue,
   activeOption,
-  isErrorFoundInContent,
   setIsErrorFoundInContent,
   clickedInfo,
   setClickedInfo,
@@ -58,8 +57,7 @@ export default function HtmlPreview({
 
     const formName = formNameFromRule(activeIssue.scanRuleId);
 
-    if (formName === formNames.TABBABLE_INVISIBLE &&
-        (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.issueData.newHtml === '')) {
+    if (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.issueData.newHtml === '') {
       return doc;
     }
 
@@ -108,7 +106,7 @@ export default function HtmlPreview({
       altText = Html.sanitizeString(altText)
 
       // In the element_tabbable_visible form, it is possible to have alt text in a nested image.
-      if (!altText && formName === formNames.TABBABLE_INVISIBLE) {
+      if (!altText && (formName === formNames.TABBABLE_INVISIBLE || formName === formNames.ANCHOR_TEXT)) {
         for (const child of errorElement.children) {
           let childTag = Html.getTagName(child)?.toLowerCase();
           if (VALID_IMAGE_TAGS.includes(childTag)) {
@@ -271,7 +269,7 @@ export default function HtmlPreview({
       else {
         errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
         if(!errorElement) {
-          if(activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT) {
+          if(activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT && activeIssue?.issueData?.newHtml !== "") {
             setShowMessage(true)
             setIsErrorFoundInContent(false)
           }
@@ -287,22 +285,26 @@ export default function HtmlPreview({
         }
       }
     }
-
+    else if (activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT && activeIssue?.issueData?.newHtml === '') {
+      setShowMessage(false)
+      setIsErrorFoundInContent(false)
+    }
     else {
       // Original single-issue logic
       let xpath = activeIssue?.issueData?.newXpath || activeIssue?.issueData?.xpath || ''
       errorElement = Html.findElementWithXpath(doc, xpath)
-      let editedElement = Html.getIssueHtml(activeIssue?.issueData)
     
-      if(!errorElement && activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT) {
-        setShowMessage(true)
-        setIsErrorFoundInContent(false)
+      if(!errorElement) {
+        if ( activeIssue?.issueData?.status > 0
+            || (activeOption !== UFIXIT_OPTIONS.DELETE_ELEMENT
+                && activeIssue?.issueData?.newHtml !== "")) {
+          setShowMessage(true)
+          setIsErrorFoundInContent(false)
+        }
       }
       else {
-        if(activeOption === UFIXIT_OPTIONS.DELETE_ELEMENT || activeIssue.newHtml === '') {
-          // The element has already been deleted, so DON'T do anything else.
-        }
-        else if(editedElement) { 
+        let editedElement = Html.getIssueHtml(activeIssue?.issueData)
+        if(editedElement) { 
           errorElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(editedElement)))
           let tempElement = errorElement.nextSibling
           errorElement.remove()
@@ -395,10 +397,6 @@ export default function HtmlPreview({
   useEffect(() => {
     checkTaggedContentUpdate()
   }, [])
-
-  useEffect(() => {
-    setShowMessage(!isErrorFoundInContent)
-  }, [isErrorFoundInContent])
 
   useEffect(() => {
     const animationFrame = requestAnimationFrame(() => {

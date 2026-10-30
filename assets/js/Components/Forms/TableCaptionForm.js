@@ -18,8 +18,7 @@ export default function TableCaptionForm({
   
   const FORM_OPTIONS = {
     ADD_TEXT: UFIXIT_OPTIONS.ADD_TEXT,
-    DELETE_CAPTION: UFIXIT_OPTIONS.DELETE_ELEMENT,
-    MARK_AS_REVIEWED: UFIXIT_OPTIONS.MARK_AS_REVIEWED
+    DELETE_ELEMENT: UFIXIT_OPTIONS.DELETE_ELEMENT
   }
 
   const [textInputValue, setTextInputValue] = useState('')
@@ -35,17 +34,13 @@ export default function TableCaptionForm({
     setTextInputValue(initialText)
     setFormErrors([])
 
-    const fixed = activeIssue.newHtml && activeIssue.status > 0;
-    const reviewed = Html.hasClass(element, activeIssue.ignoreClass);
+    const fixed = activeIssue.status > 0;
     const deleted = !activeIssue.newHtml
     let startingOption = ''
 
-    if (reviewed) {
-      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
-    }
     if (fixed) {
       if (deleted) {
-        startingOption = FORM_OPTIONS.DELETE_CAPTION
+        startingOption = FORM_OPTIONS.DELETE_ELEMENT
       }
       else if (initialText !== '') {
         startingOption = FORM_OPTIONS.ADD_TEXT
@@ -63,15 +58,13 @@ export default function TableCaptionForm({
   const updateHtmlContent = () => {
     let issue = activeIssue
 
-    if (activeOption === FORM_OPTIONS.ADD_TEXT) {
-      const element = Html.toElement(Html.getIssueHtml(activeIssue))
+    if (activeOption === FORM_OPTIONS.DELETE_ELEMENT) {
+      issue.newHtml = '';
+    }
+    else if (activeOption === FORM_OPTIONS.ADD_TEXT) {
+      const html = Html.getIssueHtml(issue)
+      let element = Html.toElement(html)
       issue.newHtml = Html.toString(Html.setInnerText(element, textInputValue))
-    }
-    else if(activeOption === FORM_OPTIONS.DELETE_CAPTION) {
-      issue.newHtml = ''
-    }
-    else if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      issue.newHtml = issue.initialHtml
     }
 
     handleActiveIssue(issue)
@@ -99,7 +92,7 @@ export default function TableCaptionForm({
 
   return (
     <>
-      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
+      {/* OPTION 1: Add descriptive caption. ID: "ADD_TEXT" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -131,25 +124,14 @@ export default function TableCaptionForm({
         )}
       </div>
 
-      {/* OPTION 2: Delete Link. ID: "DELETE_CAPTION" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_CAPTION ? 'selected' : ''}`}>
+      {/* OPTION 2: Delete Caption. ID: "DELETE_ELEMENT" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ELEMENT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.DELETE_CAPTION}
+          option={FORM_OPTIONS.DELETE_ELEMENT}
           labelText = {t('form.table_caption.label.remove_caption')}
-        />
-      </div>
-
-      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={setActiveOption}
-          option={FORM_OPTIONS.MARK_AS_REVIEWED}
-          labelText = {t('fix.label.no_changes')}
         />
       </div>
     </>
