@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"rewritetest/internal/accessibility/internal/application"
+	"rewritetest/internal/accessibility/internal/domain"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -28,7 +28,7 @@ func (r *RedisFileUploadSessionRepository) key(id string) string {
 	return r.prefix + id
 }
 
-func (r *RedisFileUploadSessionRepository) Create(ctx context.Context, session application.FileUploadSession) error {
+func (r *RedisFileUploadSessionRepository) Create(ctx context.Context, session domain.FileUploadSession) error {
 	data, err := json.Marshal(session)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (r *RedisFileUploadSessionRepository) Create(ctx context.Context, session a
 	return r.client.Set(ctx, r.key(session.ID), data, expiration).Err()
 }
 
-func (r *RedisFileUploadSessionRepository) GetByID(ctx context.Context, id string) (*application.FileUploadSession, error) {
+func (r *RedisFileUploadSessionRepository) GetByID(ctx context.Context, id string) (*domain.FileUploadSession, error) {
 	data, err := r.client.Get(ctx, r.key(id)).Bytes()
 	if err != nil {
 		if err == redis.Nil {
@@ -51,7 +51,7 @@ func (r *RedisFileUploadSessionRepository) GetByID(ctx context.Context, id strin
 		return nil, err
 	}
 
-	var session application.FileUploadSession
+	var session domain.FileUploadSession
 	if err := json.Unmarshal(data, &session); err != nil {
 		return nil, err
 	}
@@ -67,4 +67,4 @@ func (r *RedisFileUploadSessionRepository) DeleteByID(ctx context.Context, id st
 	return r.client.Del(ctx, r.key(id)).Err()
 }
 
-var _ application.FileUploadSessionRepository = (*RedisFileUploadSessionRepository)(nil)
+var _ domain.FileUploadSessionRepository = (*RedisFileUploadSessionRepository)(nil)

@@ -47,15 +47,15 @@ func (s handlerFileDataService) GetCourse(context.Context, int64) (lmsdata.Cours
 type handlerFileUploader struct{}
 
 type handlerSessionRepository struct {
-	sessions map[string]application.FileUploadSession
+	sessions map[string]domain.FileUploadSession
 }
 
-func (r *handlerSessionRepository) Create(_ context.Context, session application.FileUploadSession) error {
+func (r *handlerSessionRepository) Create(_ context.Context, session domain.FileUploadSession) error {
 	r.sessions[session.ID] = session
 	return nil
 }
 
-func (r *handlerSessionRepository) GetByID(_ context.Context, id string) (*application.FileUploadSession, error) {
+func (r *handlerSessionRepository) GetByID(_ context.Context, id string) (*domain.FileUploadSession, error) {
 	session, ok := r.sessions[id]
 	if !ok {
 		return nil, nil
@@ -106,7 +106,7 @@ func TestBeginFileReplacementRouteReturnsUploadInstruction(t *testing.T) {
 			course: lmsdata.Course{ID: 12, TenantID: 7},
 		},
 		handlerFileUploader{},
-		&handlerSessionRepository{sessions: make(map[string]application.FileUploadSession)},
+		&handlerSessionRepository{sessions: make(map[string]domain.FileUploadSession)},
 		15*time.Minute,
 	)
 	handler := NewHandler(nil, nil, nil, nil, beginUseCase, nil)

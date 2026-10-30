@@ -62,18 +62,18 @@ func (u *replacementFileUploader) CompleteFileUpload(_ context.Context, request 
 }
 
 type replacementSessionRepository struct {
-	sessions map[string]FileUploadSession
+	sessions map[string]domain.FileUploadSession
 }
 
-func (r *replacementSessionRepository) Create(_ context.Context, session FileUploadSession) error {
+func (r *replacementSessionRepository) Create(_ context.Context, session domain.FileUploadSession) error {
 	if r.sessions == nil {
-		r.sessions = make(map[string]FileUploadSession)
+		r.sessions = make(map[string]domain.FileUploadSession)
 	}
 	r.sessions[session.ID] = session
 	return nil
 }
 
-func (r *replacementSessionRepository) GetByID(_ context.Context, id string) (*FileUploadSession, error) {
+func (r *replacementSessionRepository) GetByID(_ context.Context, id string) (*domain.FileUploadSession, error) {
 	session, ok := r.sessions[id]
 	if !ok {
 		return nil, nil
@@ -189,7 +189,7 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 		},
 	}
 	dataService := &replacementFileDataService{file: file, course: course}
-	sessions := &replacementSessionRepository{sessions: map[string]FileUploadSession{
+	sessions := &replacementSessionRepository{sessions: map[string]domain.FileUploadSession{
 		"session-1": {
 			ID: "session-1", UserID: principal.AgentID, TenantID: principal.TenantID,
 			FileIssueID: issue.ID(), FileID: file.ID, NewFileName: "new.pdf",

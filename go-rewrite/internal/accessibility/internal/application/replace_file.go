@@ -49,7 +49,7 @@ type BeginFileReplacementUseCase struct {
 	fileIssueReader FileIssueReader
 	fileDataService FileDataService
 	fileUploader    FileUploader
-	sessionRepo     FileUploadSessionRepository
+	sessionRepo     domain.FileUploadSessionRepository
 	sessionTTL      time.Duration
 }
 
@@ -57,7 +57,7 @@ func NewBeginFileReplacementUseCase(
 	fileIssueReader FileIssueReader,
 	fileDataService FileDataService,
 	fileUploader FileUploader,
-	sessionRepo FileUploadSessionRepository,
+	sessionRepo domain.FileUploadSessionRepository,
 	sessionTTL time.Duration,
 ) *BeginFileReplacementUseCase {
 	return &BeginFileReplacementUseCase{
@@ -88,7 +88,7 @@ func (u *BeginFileReplacementUseCase) Execute(ctx context.Context, cmd BeginFile
 
 	sessionID := uuid.NewString()
 	expiresAt := time.Now().Add(u.sessionTTL)
-	if err := u.sessionRepo.Create(ctx, FileUploadSession{
+	if err := u.sessionRepo.Create(ctx, domain.FileUploadSession{
 		ID:          sessionID,
 		UserID:      cmd.Principal.AgentID,
 		TenantID:    cmd.Principal.TenantID,
@@ -118,14 +118,14 @@ type CompleteFileReplacementUseCase struct {
 	fileIssueReader FileIssueReader
 	fileDataService FileDataService
 	fileUploader    FileUploader
-	sessionRepo     FileUploadSessionRepository
+	sessionRepo     domain.FileUploadSessionRepository
 }
 
 func NewCompleteFileReplacementUseCase(
 	fileIssueReader FileIssueReader,
 	fileDataService FileDataService,
 	fileUploader FileUploader,
-	sessionRepo FileUploadSessionRepository,
+	sessionRepo domain.FileUploadSessionRepository,
 ) *CompleteFileReplacementUseCase {
 	return &CompleteFileReplacementUseCase{
 		fileIssueReader: fileIssueReader,

@@ -7,6 +7,7 @@ import (
 
 	"rewritetest/internal/accessibility/internal"
 	"rewritetest/internal/accessibility/internal/application"
+	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/accessibility/internal/infrastructure"
 	"rewritetest/internal/auth"
 	"rewritetest/internal/lms"
@@ -18,7 +19,7 @@ import (
 type Module struct {
 	handler                 *internal.Handler
 	authenticator           auth.Authenticator
-	uploadSessionRepository application.FileUploadSessionRepository
+	uploadSessionRepository domain.FileUploadSessionRepository
 }
 
 func New(
