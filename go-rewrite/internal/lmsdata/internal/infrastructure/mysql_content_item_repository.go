@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"rewritetest/internal/lmsdata/internal/content/domain"
-	contentsqlc "rewritetest/internal/lmsdata/internal/content/infrastructure/sqlc"
+	"rewritetest/internal/lmsdata/internal/domain"
+	contentsqlc "rewritetest/internal/lmsdata/internal/infrastructure/sqlc"
 )
 
 type MySQLContentItemRepository struct {

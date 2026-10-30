@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"rewritetest/internal/lmsdata/internal/courses/domain"
-	"rewritetest/internal/lmsdata/internal/courses/infrastructure"
+	"rewritetest/internal/lmsdata/internal/domain"
+	"rewritetest/internal/lmsdata/internal/infrastructure"
 
 	"github.com/stretchr/testify/require"
 )

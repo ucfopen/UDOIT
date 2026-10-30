@@ -52,8 +52,14 @@ func (r *MySQLCourseScanRepository) Complete(ctx context.Context, scan *domain.C
 	if scan.CompletedAt == nil {
 		return sql.ErrNoRows
 	}
+
+	nullCompletedAt := sql.NullTime{
+		Time:  *scan.CompletedAt,
+		Valid: true,
+	}
+
 	return r.queries.CompleteCourseScan(ctx, accessibilitysqlc.CompleteCourseScanParams{
-		CompletedAt: *scan.CompletedAt,
+		CompletedAt: nullCompletedAt,
 		ID:          uint64(scan.ID()),
 	})
 }

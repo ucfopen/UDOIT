@@ -16,28 +16,6 @@ sql:
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/lmsdata/internal/courses/infrastructure/queries/*.sql"
-    gen:
-      go:
-        package: "coursessqlc"
-        out: "internal/lmsdata/internal/courses/infrastructure/sqlc"
-        sql_package: "database/sql"
-
-  - engine: "mysql"
-    schema:
-      - "db/migrations/*.up.sql"
-    queries:
-      - "internal/lmsdata/internal/files/infrastructure/queries/*.sql"
-    gen:
-      go:
-        package: "filessqlc"
-        out: "internal/lmsdata/internal/files/infrastructure/sqlc"
-        sql_package: "database/sql"
-
-  - engine: "mysql"
-    schema:
-      - "db/migrations/*.up.sql"
-    queries:
       - "internal/lms/internal/infrastructure/queries/*.sql"
     gen:
       go:
@@ -81,16 +59,6 @@ sql:
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/lmsdata/internal/content/infrastructure/queries/*.sql"
-    gen:
-      go:
-        package: "contentsqlc"
-        out: "internal/lmsdata/internal/content/infrastructure/sqlc"
-        sql_package: "database/sql"
-  - engine: "mysql"
-    schema:
-      - "db/migrations/*.up.sql"
-    queries:
       - "internal/accessibility/internal/infrastructure/queries/*.sql"
     gen:
       go:
@@ -102,9 +70,9 @@ sql:
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/lmsdata/internal/file_references/infrastructure/queries/*.sql"
+      - "internal/lmsdata/internal/infrastructure/queries/*.sql"
     gen:
       go:
-        package: "file_referencessqlc"
-        out: "internal/lmsdata/internal/file_references/infrastructure/sqlc"
+        package: "lmsdatasqlc"
+        out: "internal/lmsdata/internal/infrastructure/sqlc"
         sql_package: "database/sql"

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	contentdomain "rewritetest/internal/lmsdata/internal/content/domain"
+	"rewritetest/internal/lmsdata/internal/domain"
 )
 
 type ContentItem struct {
@@ -37,7 +37,7 @@ func (m *Module) GetContentItemsByCourse(ctx context.Context, courseID int64) ([
 }
 
 func (m *Module) CreateContentItem(ctx context.Context, contentItem ContentItem) error {
-	return m.contentItemRepository.Create(ctx, contentdomain.NewContentItem(
+	return m.contentItemRepository.Create(ctx, domain.NewContentItem(
 		contentItem.CourseID,
 		contentItem.ContentHash,
 		contentItem.ExternalID,
@@ -48,9 +48,9 @@ func (m *Module) CreateContentItem(ctx context.Context, contentItem ContentItem)
 
 // CreateManyContentItems upserts content items and returns their database IDs.
 func (m *Module) CreateManyContentItems(ctx context.Context, contentItems []ContentItem) (map[string]int64, error) {
-	domainContentItems := make([]*contentdomain.ContentItem, len(contentItems))
+	domainContentItems := make([]*domain.ContentItem, len(contentItems))
 	for i, item := range contentItems {
-		domainContentItems[i] = contentdomain.NewContentItem(
+		domainContentItems[i] = domain.NewContentItem(
 			item.CourseID,
 			item.ContentHash,
 			item.ExternalID,

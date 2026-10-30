@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"rewritetest/internal/lms"
-	coursesapplication "rewritetest/internal/lmsdata/internal/courses/application"
+	"rewritetest/internal/lmsdata/internal/application"
 	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 )
@@ -140,7 +140,7 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 }
 
 func (m *Module) CreateCourse(ctx context.Context, title string, tenantID int64, externalID string, externalData map[string]any) (int64, error) {
-	return m.createCourseUseCase.Execute(ctx, coursesapplication.CreateCourseCommand{
+	return m.createCourseUseCase.Execute(ctx, application.CreateCourseCommand{
 		Title:        title,
 		TenantID:     tenantID,
 		ExternalID:   externalID,

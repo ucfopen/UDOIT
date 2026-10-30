@@ -39,6 +39,7 @@ func fetchPaginated[T any](
 
 			if resp.StatusCode != http.StatusOK {
 				err = apperr.Internal("Unexpected status code: " + resp.Status)
+				slog.Info("unexpected status code", "url", url, "path", path, "status", resp.Status)
 				return
 			}
 

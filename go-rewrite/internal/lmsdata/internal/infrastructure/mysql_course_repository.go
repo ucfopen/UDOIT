@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"rewritetest/internal/lmsdata/internal/courses/domain"
-	coursessqlc "rewritetest/internal/lmsdata/internal/courses/infrastructure/sqlc"
+	"rewritetest/internal/lmsdata/internal/domain"
+	lmsdatasqlc "rewritetest/internal/lmsdata/internal/infrastructure/sqlc"
 )
 
 type MySQLCourseRepository struct {
-	queries *coursessqlc.Queries
+	queries *lmsdatasqlc.Queries
 }
 
 func NewMySQLCourseRepository(db *sql.DB) *MySQLCourseRepository {
 	return &MySQLCourseRepository{
-		queries: coursessqlc.New(db),
+		queries: lmsdatasqlc.New(db),
 	}
 }
 
@@ -25,7 +25,7 @@ func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Cours
 		return 0, err
 	}
 
-	result, err := r.queries.CreateCourse(ctx, coursessqlc.CreateCourseParams{
+	result, err := r.queries.CreateCourse(ctx, lmsdatasqlc.CreateCourseParams{
 		Title:        course.Title(),
 		IsActive:     course.IsActive(),
 		IsDirty:      course.IsDirty(),

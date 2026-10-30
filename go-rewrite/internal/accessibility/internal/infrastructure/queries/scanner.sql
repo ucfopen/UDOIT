@@ -9,7 +9,7 @@ VALUES (
   sqlc.arg(scanned_by),
   sqlc.arg(content_fixed),
   sqlc.arg(content_resolved)
- )
+ );
 
 -- name: GetLastCompletedCourseScan :one
 SELECT completed_at

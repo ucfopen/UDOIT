@@ -191,6 +191,7 @@ replaceFileButton.addEventListener("click", async () => {
     if (!uploadTargetResponse.ok) throw new Error(`Upload to target failed (${uploadTargetResponse.status})`);
     const uploadResponse = await readUploadResponse(uploadTargetResponse);
 
+
     uploadStatusEl.textContent = "Upload to target complete, finalizing replacement...";
     const completeResponse = await fetch(`/go/accessibility/file-issues/${fileIssueID}/upload/complete`, {
       method: "POST",

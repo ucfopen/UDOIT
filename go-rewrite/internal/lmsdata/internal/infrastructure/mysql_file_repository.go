@@ -6,17 +6,17 @@ import (
 	"encoding/json"
 	"time"
 
-	"rewritetest/internal/lmsdata/internal/files/domain"
-	filessqlc "rewritetest/internal/lmsdata/internal/files/infrastructure/sqlc"
+	"rewritetest/internal/lmsdata/internal/domain"
+	lmsdatasqlc "rewritetest/internal/lmsdata/internal/infrastructure/sqlc"
 )
 
 type MySQLFileRepository struct {
-	queries *filessqlc.Queries
+	queries *lmsdatasqlc.Queries
 }
 
 func NewMySQLFileRepository(db *sql.DB) *MySQLFileRepository {
 	return &MySQLFileRepository{
-		queries: filessqlc.New(db),
+		queries: lmsdatasqlc.New(db),
 	}
 }
 
@@ -90,7 +90,7 @@ func (r *MySQLFileRepository) UpdateFile(ctx context.Context, file *domain.File)
 		return err
 	}
 
-	return r.queries.UpdateFile(ctx, filessqlc.UpdateFileParams{
+	return r.queries.UpdateFile(ctx, lmsdatasqlc.UpdateFileParams{
 		CourseID:     uint64(file.CourseID()),
 		FileName:     sql.NullString{String: file.FileName(), Valid: file.FileName() != ""},
 		FileType:     sql.NullString{String: file.FileType(), Valid: file.FileType() != ""},
@@ -119,7 +119,7 @@ func (r *MySQLFileRepository) UpsertByCourse(ctx context.Context, courseID int64
 			return err
 		}
 
-		err = r.queries.UpsertFileByCourseExternalID(ctx, filessqlc.UpsertFileByCourseExternalIDParams{
+		err = r.queries.UpsertFileByCourseExternalID(ctx, lmsdatasqlc.UpsertFileByCourseExternalIDParams{
 			CourseID:     uint64(courseID),
 			FileName:     sql.NullString{String: record.FileName, Valid: record.FileName != ""},
 			FileType:     sql.NullString{String: record.FileType, Valid: record.FileType != ""},

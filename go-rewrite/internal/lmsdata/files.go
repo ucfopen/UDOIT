@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"rewritetest/internal/lms"
-	fileReferencesDomain "rewritetest/internal/lmsdata/internal/file_references/domain"
-	filesdomain "rewritetest/internal/lmsdata/internal/files/domain"
+	"rewritetest/internal/lmsdata/internal/domain"
 
 	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
@@ -45,9 +44,9 @@ type FileReference struct {
 }
 
 func (m *Module) replaceFileReferences(ctx context.Context, contentItemIDs []int64, fileReferences []FileReference) error {
-	domainReferences := make([]*fileReferencesDomain.FileReference, len(fileReferences))
+	domainReferences := make([]*domain.FileReference, len(fileReferences))
 	for i, fileReference := range fileReferences {
-		domainReferences[i] = fileReferencesDomain.NewFileReference(fileReference.ContentItemID, fileReference.FileID)
+		domainReferences[i] = domain.NewFileReference(fileReference.ContentItemID, fileReference.FileID)
 	}
 
 	return m.fileReferenceRepository.ReplaceForContentItems(ctx, contentItemIDs, domainReferences)
@@ -160,9 +159,9 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 }
 
 func (m *Module) SyncFilesForCourse(ctx context.Context, courseID int64, files []FileSyncInput) error {
-	records := make([]filesdomain.CourseFileSyncRecord, len(files))
+	records := make([]domain.CourseFileSyncRecord, len(files))
 	for i, file := range files {
-		records[i] = filesdomain.CourseFileSyncRecord{
+		records[i] = domain.CourseFileSyncRecord{
 			FileName:     file.FileName,
 			FileType:     file.FileType,
 			UpdatedAt:    file.UpdatedAt.Format(time.RFC3339),
@@ -213,7 +212,7 @@ func (m *Module) GetFile(ctx context.Context, fileID int64) (File, error) {
 }
 
 func (m *Module) UpdateFile(ctx context.Context, file File) error {
-	return m.fileRepository.UpdateFile(ctx, filesdomain.RehydrateFile(
+	return m.fileRepository.UpdateFile(ctx, domain.RehydrateFile(
 		file.ID,
 		file.CourseID,
 		file.FileName,
@@ -226,7 +225,7 @@ func (m *Module) UpdateFile(ctx context.Context, file File) error {
 	))
 }
 
-func toFile(file *filesdomain.File) File {
+func toFile(file *domain.File) File {
 	return File{
 		CourseID:     file.CourseID(),
 		ID:           file.ID(),
