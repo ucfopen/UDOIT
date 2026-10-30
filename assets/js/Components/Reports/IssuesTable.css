@@ -2,6 +2,7 @@
   display: inline-flex;
   align-items: center;
   gap: .75em;
+  line-height: normal;
 }
 
 .sr-only {

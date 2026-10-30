@@ -4,7 +4,7 @@ import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 
 export default function FormExternalLink({
   t,
-  settings,
+  instanceInfo,
   activeIssue
 }) {
 
@@ -12,7 +12,7 @@ export default function FormExternalLink({
 
   useEffect(() => {
     if (activeIssue) {
-      setEditorLink(findEditURLWithIssue(activeIssue, settings))
+      setEditorLink(findEditURLWithIssue(activeIssue, instanceInfo))
     }
     else {
       setEditorLink('')
@@ -22,9 +22,9 @@ export default function FormExternalLink({
   return (
     <>
       { editorLink !== '' && (<div className="mt-3 flex-row justify-content-end">
-        <a href={editorLink} target="_blank" rel="noreferrer" className="flex-row gap-1">
-          <span>{t('form.review_only.link.edit')}</span>
-          <ExternalLinkIcon className="icon-md link-color" />
+        <a href={editorLink} target="_blank" rel="noreferrer" className="flex-row align-items-center udoit-link">
+          {t('form.review_only.link.edit')}
+          <ExternalLinkIcon className="icon-sm ps-2" aria-hidden="true" alt="" />
         </a>
       </div>) }
     </>

@@ -10,7 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class UserController extends AbstractController
@@ -25,7 +25,7 @@ class UserController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
-    #[Route('/api/users/{user}', name: 'user_put',  methods: ['PUT'])]
+    #[Route('/api/users/{user}/preferences', name: 'user_preferences_patch',  methods: ['PATCH'])]
     public function update(SessionService $sessionService, User $user, Request $request, UtilityService $util): JsonResponse
     {
         $apiResponse = new ApiResponse();
@@ -36,38 +36,48 @@ class UserController extends AbstractController
             // Check if user is updating their own info
             $userIdFromSession = $sessionService->getSession()->get('userId');
 
-            $output->writeln(json_encode($userIdFromSession));
-            $output->writeln(json_encode($user->getId()));
             if ($user->getId() !== $userIdFromSession) {
                 throw new \Exception("msg.no_permissions");
             }
 
             $userVals = \json_decode($request->getContent(), true);
 
+            $oldPreferences = $user->getPreferences();
+            $oldLang = $oldPreferences['lang'] ?? 'en';
             
-            $oldRoles = $user->getRoles();
-            $oldLang = $oldRoles['lang'] ?? 'en';
+            $allowedPreferences = [
+                'textSpacing',
+                'fontSize',
+                'fontFamily',
+                'darkMode',
+                'alertTimeout',
+                'lang'
+            ];
+
+            $newPreferences = $oldPreferences;
             
-            $newRoles = $userVals['roles'] ?? [];
-            $newLang = $newRoles['lang'] ?? 'en';
-
-            $changeLang = ($oldLang !== $newLang);
-
-            $user->setRoles($newRoles);
-            if (empty($userVals['hasApiKey'])) {
-            $user->setApiKey('');
-            $user->setRefreshToken('');
+            foreach($userVals as $preferenceKey => $preferenceVal)
+            {
+                if (!in_array($preferenceKey, $allowedPreferences)) continue;
+                $newPreferences[$preferenceKey] = $preferenceVal;
             }
+            
+            $changeLang = (!empty($newPreferences['lang']) && $oldLang !== $newPreferences['lang']);
+
+            $user->setPreferences($newPreferences);
 
             $responseObject = [
-                'user' => $user,
-                'language' => $newLang,
-                'labels' => [],
+                'user' => [
+                    'id'       => $user->getId(),
+                    'username' => $user->getUserIdentifier(),
+                    'name'     => $user->getName(),
+                ],
+                'labels' => NULL,
             ];
 
             if ($changeLang) {
                 $this->util = $util;
-                $labels = $this->util->getTranslation($newLang);
+                $labels = $this->util->getTranslation($newPreferences['lang']);
                 $responseObject['labels'] = $labels;
             }
 

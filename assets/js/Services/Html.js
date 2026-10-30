@@ -1,3 +1,5 @@
+import { TAG_IMPLICIT_ROLE } from './Constants';
+
 // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
 // in the required parent element. This function wraps the error HTML in the required parent element so that
 // the DOMParser can parse it correctly.
@@ -41,7 +43,23 @@ export function toElement(htmlString) {
   if (SPECIAL_CASES[tagName]) {
       return tempDoc.querySelector(tagName)
   } else {
+    if(tempDoc.body.childNodes.length === 1) {
       return tempDoc.body.firstElementChild
+    }
+    else {
+      // If there are multiple top-level nodes, we return a DocumentFragment containing all of them
+      // This is the equivalent of empty tags (<> and </>) in React. HOWEVER, it then means we need to
+      // verify later that we're not dealing with a DocumentFragment, becaute they are missing a lot
+      // of the properties and methods of a normal element (like tagName and innerText).
+
+      // Why do it this way? We don't want to lose any nodes AND we don't want to arbitraribly wrap content
+      // in a div, which could cause other issues with the HTML structure and styling.
+      const fragment = document.createDocumentFragment()
+      Array.from(tempDoc.body.childNodes).forEach(node => {
+        fragment.appendChild(node)
+      })
+      return fragment
+    }
   }
 }
 
@@ -49,6 +67,16 @@ export function toString(element) {
   if (!element) {
     return ''
   }
+  else if (element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+    let html = ''
+    element.childNodes.forEach(node => {
+      html += node.outerHTML || node.textContent
+    })
+    return html
+  } else if (element?.nodeType === Node.TEXT_NODE) {
+    return element.textContent
+  }
+
   return element.outerHTML
 }
 
@@ -57,11 +85,10 @@ export function getInnerText(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return ''
   }
 
-  // TODO: add logic that looks for multiple text nodes, factors in children elements, etc
   return element.innerText
 }
 
@@ -99,7 +126,7 @@ export function hasAttribute(element, name) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return false
   }
 
@@ -111,7 +138,7 @@ export function getAttribute(element, name) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -123,7 +150,7 @@ export function setAttribute(element, name, value) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -132,16 +159,23 @@ export function setAttribute(element, name, value) {
   return element
 }
 
-export function removeAttribute(element, name) {
+export function removeAttribute(element, name, value = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
-  element.removeAttribute(name)
+  // So we can only remove attributes of certain values, like removeAttribute(element, "role", "presentation")
+  if (value) {
+    if (element.getAttribute(name) !== value) {
+      return element;
+    }
+  }
+
+  element.removeAttribute(name);
 
   return element
 }
@@ -151,7 +185,7 @@ export function getClasses(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return []
   }
 
@@ -165,7 +199,7 @@ export function addClass(element, className) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -183,16 +217,36 @@ export function removeClass(element, className) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
   let classes = getClasses(element)
   classes = classes.filter(item => item !== className)
 
-  element.setAttribute('class', classes.join(' '))
-
+  if(classes.length === 0) {
+    element.removeAttribute('class')
+  }
+  else {
+    element.setAttribute('class', classes.join(' '))
+  }
+  
   return element;
+}
+
+export function hasClass(element, className) {
+    if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return null
+  }
+
+  let classes = element.getAttribute('class')?.split(' ') || [];
+  classes = classes.filter(item => item === className);
+
+  return (classes.length > 0);
 }
 
 export function getTagName(element) {
@@ -200,11 +254,35 @@ export function getTagName(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
   return element.tagName
+}
+
+export function getRole(element) {
+  if (!element) {
+    return "";
+  }
+
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return null
+  }
+
+  let role = getAttribute(element, "role")?.toLowerCase().trim();
+  if (!role || role === "") {
+    let tagName = getTagName(element);
+    if (tagName && typeof(tagName) === "string") {
+      role = TAG_IMPLICIT_ROLE[tagName.toLowerCase().trim()];
+    }
+  }
+
+  return role || "";
 }
 
 export function removeTag(element, tagName) {
@@ -212,7 +290,7 @@ export function removeTag(element, tagName) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -230,7 +308,7 @@ export function getChild(element, tagName) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -269,7 +347,8 @@ export function getTextContent(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  // Note that we don't reject Node.TEXT_NODE here because they DO have a .textContent property.
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
     return ''
   }
 
@@ -281,16 +360,14 @@ export function renameElement(element, newName) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
   let newElement = document.createElement(newName)
 
-  // Copy children
-  while (element.firstChild) {
-    newElement.appendChild(element.firstChild)
-  }
+  // Copy children and text
+  newElement.innerHTML = element.innerHTML;
 
   // Copy the attributes
   for (const attr of element.attributes) {
@@ -305,7 +382,7 @@ export function prepareLink(element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -324,54 +401,29 @@ export function prepareLink(element) {
   return element;
 }
 
-export function processStaticHtml(nodes, settings) {    
-  let baseUrl = document.referrer.endsWith('/') ? document.referrer.slice(0, -1) : document.referrer
-
-  if (settings) {
-    baseUrl = `https://${settings.institution.lmsDomain}`
-  }
-
-  for (let node of nodes) {
-    if (('tag' === node.type) && ('a' === node.name)) {
-      node.attribs.target = '_blank'
-    }
-    if (('tag' === node.type) && ('img' === node.name)) {
-      if (node.attribs.src && node.attribs.src.startsWith('/')) {
-        node.attribs.src = `${baseUrl}${node.attribs.src}`
-      }
-    }
-
-    if (Array.isArray(node.children) && node.children.length > 0) {
-      node.children = processStaticHtml(node.children)
-    }
-  }
-
-  return nodes    
-}
-
 export function getIssueHtml(issue) {
   return issue.newHtml ? issue.newHtml : issue.sourceHtml
 }
 
-export function getAccessibleName(element) {
+export function getAccessibleName(element, tempDocument = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
 
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return ''
   }
 
   /* Accessible Names for different elements can be computed differently, as described here:
     https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
 
-  // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  // 1. If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
   let ariaLabelledby = getAttribute(element, "aria-labelledby")
   if(ariaLabelledby){
     let displayText = []
     const ariaLabelledByIDs = ariaLabelledby.split(" ")
     ariaLabelledByIDs.forEach((id) => {
-       const element = document.getElementById(id)
+       const element = tempDocument ? tempDocument.getElementById(id) : document.getElementById(id)
        if(element){
          displayText.push(getInnerText(element))
        }
@@ -386,7 +438,7 @@ export function getAccessibleName(element) {
   }
 
   // 3. Run a BUNCH of tag-specific and role-specific logic.
-  let tagName = getTagName(element).toLowerCase()
+  let tagName = getTagName(element)?.toLowerCase()
   let type = getAttribute(element, 'type')?.toLowerCase()
   
   let value = getAttribute(element, 'value')
@@ -467,7 +519,6 @@ export const elementOrChildrenHasStyleAttributes = (
     return false
   }
 
-  const childTags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
   if (elementHasStyleAttribute(element)) {
     return true
   }
@@ -482,6 +533,17 @@ export const elementOrChildrenHasStyleAttributes = (
   }
 
   return false
+}
+
+export const sanitizeString = (str) => {
+  if (!str || typeof str !== 'string') {
+    return ''
+  }
+
+  let tempElement = document.createElement('div')
+  tempElement.textContent = str
+
+  return tempElement.innerHTML
 }
 
 export const removeStyleAttributesFromElementAndChildren = (
@@ -508,7 +570,7 @@ export const removeStyleAttributesFromElementAndChildren = (
   const children = element.querySelectorAll(tags.join(','))
 
   // Remove color styles from the main element
-  element = removeElementStyleAttributes(element)
+  removeElementStyleAttributes(element)
 
   // Remove color styles from immediate child elements as well. Further descendants are ignored.
   for (let i = 0; i < children.length; i++) {
@@ -519,8 +581,56 @@ export const removeStyleAttributesFromElementAndChildren = (
   return element
 }
 
+export const removeStyleTags = (
+  element, 
+  tags = ['strong', 'b', 'em', 'i', 'del', 's', 'u', 'mark']
+) => {
+  /* We want to strip all tags made for styles, so something like:
+   <h2>This is an <strong>IMPORTANT</strong> heading</h2>
+   becomes:
+   <h2>This is an IMPORTANT heading</h2>
+
+   It looks like it should be easy to do a string replace or a Regex function for
+   this, but tags may not be empty (<strong style="..." class="...">), so it would
+   be safer to examine each child element.
+  */
+
+  const cleanChildren = (parentElement, tags) => {
+    let children = parentElement.children;
+    for (let child of children) {
+      child = cleanChildren(child, tags);
+
+      let childTag = getTagName(child).toLowerCase();
+      if (tags.includes(childTag)) {
+        let replaceTagElement = document.createElement('replaceme');
+        replaceTagElement.innerHTML = child.innerHTML;
+        parentElement.replaceChild(replaceTagElement, child);
+      }
+      else if (childTag === "span") {
+        // If the span's only attribute is "style", remove it, too.
+        let spanAttrs = child.getAttributeNames();
+        if (spanAttrs.length === 0 || (spanAttrs.length === 1 && spanAttrs[0].toLowerCase() === 'style')) {
+          let replaceTagElement = document.createElement('replaceme');
+          replaceTagElement.innerHTML = child.innerHTML;
+          parentElement.replaceChild(replaceTagElement, child);
+        }
+      }
+    }
+    return parentElement;
+  }
+
+  element = cleanChildren(element, tags);
+  
+  let cleanedString = toString(element);
+  cleanedString = cleanedString.replaceAll("<replaceme>", "").replaceAll("</replaceme>", "");
+  let cleanedElement = toElement(cleanedString);
+
+  element = cleanedElement;
+  return cleanedElement;
+}
+
 export const findXpathFromElement = (element, id = null) => {
-  if (!element) {
+  if (!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
     return null
   }
 
@@ -540,7 +650,7 @@ export const findXpathFromElement = (element, id = null) => {
   return '/' + path.join('/')
 }
 
-export const findElementWithXpath = (content, xpath) => {
+export const findElementWithXpath = (content, xpath, ignoreParent = false) => {
   if (!content || !xpath) {
     return null
   }
@@ -554,23 +664,55 @@ export const findElementWithXpath = (content, xpath) => {
     return null
   }
 
+  // Remove html and body tags from the xpath, if present.
+  if(xpath.startsWith('html[1]/body[1]/')) {
+    xpath = xpath.replace('html[1]/body[1]/', '')
+  }
+
+  // Start the search in the body, if the element was nested in a fake HTML document.
+  let targetElement = content;
+  if (targetElement.querySelector("html > body") !== null) {
+    targetElement = targetElement.querySelector("html > body");
+  }
+
   if(xpath.length > 0) {
     let pathParts = xpath.split('/').map(part => {
       let match = part.match(/(\w+)\[(\d+)\]/)
       if (match) {
         let tag = match[1]
         let index = parseInt(match[2], 10)
-        return `${tag}:nth-of-type(${index})`
+        return {tag, index};
       }
       return part
     });
     
-    let selector = pathParts.join(' > ')
-    let element = content.querySelector(selector)
-    if(element) {
-      return element
+    if (ignoreParent) {
+      pathParts.shift();
+    }
+    
+    // Drill down through each element's children to find the target child by xpath.
+    for (let i = 0; i < pathParts.length; i++) {
+      if (pathParts[i].tag && targetElement.children) {
+        let childrenByTag = Array.from(targetElement.children).filter(
+          child => child.tagName.toLowerCase() === pathParts[i].tag.toLowerCase()
+        );
+        if (childrenByTag[pathParts[i].index - 1]) {
+          targetElement = childrenByTag[pathParts[i].index - 1];
+        }
+        else {
+          return null;
+        }
+      }
+      else {
+        return null;
+      }
+    }
+    
+    if(targetElement) {
+      return targetElement
     }
   }
+
   return null
 }
 
@@ -590,13 +732,17 @@ export const findElementWithError = (content, errorHtml) => {
 }
 
 export function findElementWithIssue(content, issue) {
+  if (!content || !issue || !issue.xpath) {
+    return null
+  }
+
   let xpath = issue.xpath
   if(xpath.startsWith('/html[1]/body[1]')) {
     return findElementWithXpath(content, xpath)
   }
   else {
     let errorHtml = issue?.sourceHtml || undefined
-    if(issue.status.toString() === '1') {
+    if(issue.status.toString() === '1' || issue.status.toString() === '3') {
       errorHtml = issue?.newHtml || undefined
     }
 
@@ -604,7 +750,7 @@ export function findElementWithIssue(content, issue) {
       return null
     }
 
-    return findElementWithError(content, issue.sourceHtml)
+    return findElementWithError(content, errorHtml)
   }
 }
 
@@ -613,22 +759,8 @@ export function generateElementID(element){
       return element.id
     }
 
-    let generated_id = ""
-
-    if(element.tagName == "img"){
-      const altText= getAttribute(element, 'alt')
-      if(altText){
-        generated_id = altText + "-udoit-clickable-id"
-      }
-      else{
-        generated_id = "image-udoit-clickable-id"
-      }
-    }
-    else{
-      const textContent = getInnerText(element).trim()
-      const firstWord = textContent.split(/\s+/)[0]
-      generated_id = firstWord + "-udoit-clickable-id"
-    }
+    const tagName = element?.tagName?.toLowerCase() || 'element'
+    let generated_id = tagName + "-udoit-clickable-id"
 
     let i = 1
     while(document.getElementById(generated_id)){
@@ -640,14 +772,14 @@ export function generateElementID(element){
 }
 
 export function getAriaAttributes(element){
-   const ariaAttributes = []
-   if(!element){
-    return ariaAttributes
-   }
+  if(typeof element == "string"){
+    element = toElement(element)
+  }
 
-   if(typeof element == "string"){
-      element = toElement(element)
-   }
+  const ariaAttributes = []
+  if(!element || element?.nodeType === Node.DOCUMENT_FRAGMENT_NODE || element?.nodeType === Node.TEXT_NODE) {
+    return ariaAttributes
+  }
 
   for(const attr of element.attributes){
     if(attr.name.startsWith("aria-")){

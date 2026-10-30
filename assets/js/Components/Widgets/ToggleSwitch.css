@@ -24,6 +24,20 @@
         opacity: 0;
         width: 0;
         height: 0;
+
+        &:focus-visible,
+        &:focus,
+        &:hover {
+            outline: none;
+            border: none;
+        }
+    }
+
+    &:has(input:focus-visible) {
+        .slider {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
     }
 
     /* The slider */
@@ -34,8 +48,8 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: var(--gray-light);
-        -webkit-transition: background-color (--transition-time);
+        background-color: var(--border-color);
+        -webkit-transition: background-color var(--transition-time);
         transition: background-color var(--transition-time);
         border-radius: var(--slider-height);
     
@@ -51,24 +65,32 @@
             transition: transform var(--transition-time);
             border-radius: 50%;
         }
-
-        &:focus {
-            outline: 2px solid var(--focus-color);
-            outline-offset: 2px;
-        }
     }
 
-    input:checked + .slider {
-        background-color: var(--pill-success-text);
+    input:checked:not(:disabled) + .slider {
+        background-color: var(--progress-bar-color);
+    }
+
+    input:disabled + .slider {
+        background-color: var(--button-disabled-background-color);
+        cursor: not-allowed;
     }
 
     input:focus + .slider {
-        box-shadow: 0 0 1px var(--pill-success-text);
+        box-shadow: 0 0 1px var(--progress-bar-color);
     }
 
     input:checked + .slider:before {
         -webkit-transform: translateX(var(--slider-switch-displacement));
         -ms-transform: translateX(var(--slider-switch-displacement));
         transform: translateX(var(--slider-switch-displacement));
+    }
+
+    &:not(:has(input:disabled)) + label {
+        cursor: pointer;
+    }
+
+    &:has(input:disabled) + label {
+        cursor: not-allowed;
     }
 }

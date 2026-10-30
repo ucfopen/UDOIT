@@ -4,6 +4,10 @@
   gap: 6px;
 }
 
+.info-popover {
+  display: inline-flex;
+}
+
 .info-popover-btn {
   border: none;
   background: none;
@@ -21,17 +25,20 @@
 
 .info-popover-btn:hover,
 .info-popover-btn:focus {
-  fill: var(--selection-color);
-  background: var(--pill-success-background);
+  fill: var(--focus-color);
+  background: var(--pill-file-background);
 }
 
 .info-popover-btn:hover {
-  border-color: var(--pill-success-border);
+  border-color: var(--pill-file-border);
 }
 
-.info-popover-btn:focus {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 1px;
+.info-popover-btn-hover-only:hover {
+  box-shadow: 0px 1px 2px var(--shadow-color);
+}
+
+.info-popover-btn-hover-only:focus {
+  outline: none;
 }
 
 /* The popover dialog itself */
@@ -41,10 +48,16 @@
   z-index: 1000;
   background: var(--white);
   border-radius: var(--window-radius);
-  min-width: 20em;
-  max-width: 25em;
-  border: none;
+  width: clamp(20em, 40vw, 40em);
+  border: 1px solid var(--border-color);
   outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
 }
 
 .info-popover-title {
@@ -53,7 +66,7 @@
   justify-content: space-between;
   gap: .5em;
   padding: .75em 1em;
-  background-color: var(--background-color);
+  background-color: var(--table-header-background-color);
   border-bottom: 1px solid var(--border-color);
   align-items: center;
   text-decoration: none !important;
@@ -64,25 +77,6 @@
     text-transform: uppercase;
     font-weight: 500;
   }
-
-  [role="button"] {
-    cursor: pointer;
-    border-radius: 50%;
-    padding: .2em;
-    border: 1px solid transparent;
-    box-shadow: none;
-    fill: var(--text-disabled-color);
-
-    &:hover, &:focus {
-      fill: var(--text-color);
-      background-color: var(--gray-lighter);
-    }
-
-    &:focus {
-      outline-offset: -2px;
-      outline: 2px solid var(--focus-color);
-    }
-  }
 }
 
 .info-popover-content {
@@ -91,13 +85,20 @@
   font-size: 1.1em;
   color: var(--text-secondary-color);
   font-weight: 300;
+  background-color: var(--container-color);
+
+  ul, ol {
+    li:not(:last-child) {
+      padding-block-end: .75em;
+    }
+  }
 }
 
 .info-popover-action {
-  border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: row;
   justify-content: end;
   gap: 1rem;
-  padding: .75rem 1rem;
+  padding: 0 1rem .5rem 1rem;
+  background-color: var(--container-color);
 }

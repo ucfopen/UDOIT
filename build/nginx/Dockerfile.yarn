@@ -1,0 +1,6 @@
+FROM node:24-slim
+
+RUN corepack enable yarn
+RUN corepack prepare yarn@stable --activate
+RUN yarn -v
+WORKDIR /app

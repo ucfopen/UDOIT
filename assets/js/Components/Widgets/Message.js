@@ -8,7 +8,7 @@ import CloseIcon from '../Icons/CloseIcon'
 
 export default function Message ({
   t,
-  settings,
+  preferences,
   messageObject,
   pauseTimer,
   resumeTimer,
@@ -44,7 +44,7 @@ export default function Message ({
 
   const handleResume = () => {
 
-    let tempTimer = settings?.user?.roles?.alert_timeout || "5000"
+    let tempTimer = preferences.alertTimeout || "5000"
     if (tempTimer === 'none') {
       return
     }
@@ -87,9 +87,9 @@ export default function Message ({
         title={t('label.close_message')}>
         <CloseIcon className="icon-sm text-color" />
       </button>
-      { settings?.user?.roles?.alert_timeout !== 'none' && (
+      { preferences.alertTimeout !== 'none' && (
         <div className="messageTrayAnimatedBorderContainer">
-          <div className={`messageTrayAnimatedBorder ${messageObject.id} ${messageObject.severity} ${!isPaused ? `ms${settings?.user?.roles?.alert_timeout}` : ''}`}/>
+          <div className={`messageTrayAnimatedBorder ${messageObject.id} ${messageObject.severity} ${!isPaused ? `ms${preferences.alertTimeout}` : ''}`}/>
         </div>
       ) }
     </div>

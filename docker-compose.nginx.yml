@@ -52,14 +52,25 @@ services:
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.composer
-      command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader"
+      command: >
+        sh -c '
+          if [ "$APP_ENV" = "dev" ]; then
+            echo "composer install (dev)" &&
+            composer install --no-interaction --no-progress --optimize-autoloader;
+          else
+            echo "composer install (prod)" &&
+            composer install --no-dev --no-interaction --no-progress --optimize-autoloader;
+          fi
+        '
       volumes:
         - ./:/app
       env_file:
         - .env
   yarn:
       container_name: udoit3-yarn
-      image: node:20
+      build:
+        context: ./build/nginx
+        dockerfile: Dockerfile.yarn
       volumes:
         - ./:/app
       env_file:
@@ -70,15 +81,12 @@ services:
         yarn install &&
         yarn watch'
   ace:
-      # platform: linux/amd64
-      container_name: udoit3-ace
-      build:
-        context: ./equal-access-server
-        dockerfile: Dockerfile.ace
-      ports:
-        - "3000:3000"
-      environment:
-        - PORT=3000
+    container_name: udoit3-ace
+    image: ghcr.io/ucfopen/equal-access-server:main
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
 
 volumes:
   web:

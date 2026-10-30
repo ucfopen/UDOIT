@@ -30,6 +30,9 @@ class User implements UserInterface, JsonSerializable
     #[ORM\Column(type: "json", nullable: true)]
     private $roles = [];
 
+    #[ORM\Column(type: "json", nullable: true)]
+    private $preferences;
+
     #[ORM\ManyToOne(targetEntity: "App\Entity\Institution", inversedBy: "users")]
     #[ORM\JoinColumn(nullable: false)]
     private $institution;
@@ -60,6 +63,7 @@ class User implements UserInterface, JsonSerializable
     public function __construct()
     {
         $this->reports = new ArrayCollection();
+        $this->preferences = (object) [];
     }
 
     public function getId(): ?int
@@ -108,6 +112,20 @@ class User implements UserInterface, JsonSerializable
         return $this;
     }
 
+    public function getPreferences(): array
+    {
+        $preferences = $this->preferences;
+
+        return array_unique($preferences);
+    }
+
+    public function setPreferences(array $preferences): self
+    {
+        $this->preferences = $preferences;
+
+        return $this;
+    }
+ 
     /**
      * @see UserInterface
      */
@@ -235,6 +253,7 @@ class User implements UserInterface, JsonSerializable
             'name' => $this->getName(),
             'lmsUserId' => $this->getLmsUserId(),
             'roles' => $this->getRoles(),
+            'preferences' => $this->getPreferences(),
             'lastLogin' => $this->getLastLogin()->format($dateFormat),
             'created' => $this->getCreated()->format($dateFormat),
             'hasApiKey' => !empty($apiKey),

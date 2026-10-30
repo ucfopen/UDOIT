@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 #[ORM\Entity(repositoryClass: FileItemRepository::class)]
+#[ORM\Table(name: 'file_item')]
 class FileItem implements \JsonSerializable
 {
     #[ORM\Id]

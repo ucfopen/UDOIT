@@ -1,5 +1,5 @@
 .ufixit-widget {
-  padding: 1.25rem 1.5rem;
+  padding: 1.25em 1.5em;
   overflow-y: auto;
   color: var(--text-color);
 
@@ -25,13 +25,24 @@
 .resolve-option {
   border: 1px solid var(--border-color);
   border-radius: var(--element-radius);
-  padding: 1rem 1rem;
+  padding: 1em 1em;
   line-height: normal;
   align-content: center;
 
   &.selected {
-    border-color: var(--selection-color);
-    background-color: var(--selection-color-light);
+    border-color: var(--selection-color-border);
+    background-color: var(--selection-color-background);
+
+    &:has(.feedback-error) {
+      background-color: var(--background-color);
+      border-color: var(--border-color);
+
+      input[type="radio"] {
+        &:checked {
+          border-color: var(--text-color);
+        }  
+      }   
+    }
   }
 
   .option-label {
@@ -42,92 +53,169 @@
     cursor: pointer;
     align-items: center;
 
-    /* Custom CSS-only radio button styling adapted from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */  
-    > input[type="radio"] {
-      /* Remove default appearance */
-      -webkit-appearance: none;
-      appearance: none;
-      background-color: transparent;
-      margin: 0;
-
-      /* Draw a circle for the border */
-      font: inherit;
-      color: var(--text-color);
-      width: 1.15em;
-      height: 1.15em;
-      border: 0.15em solid var(--text-color);
-      border-radius: 50%;
-      margin-right: .75rem;
-      transition: 120ms border-width ease-in-out;
-      flex-shrink: 0;
-
-      &:checked {
-        border-color: var(--selection-color);
-        border-width: .4em;
-      }
-
-      &:focus {
-        outline: 2px solid var(--focus-color);
-        outline-offset: 2px;
-      }
-    }
-
     &.disabled {
       color: var(--text-disabled-color);
       cursor: not-allowed;
-
-      > input[type="radio"] {
-        border-color: var(--text-disabled-color) !important;
-        cursor: not-allowed;
-      }
     }
   }
 
   > .option-label {
     + * {
       width: 100%;
-      margin-block-start: 1rem;
-      /* border-block-start: 1px solid var(--selection-color);
-      padding-block-start: .5rem; */
+      margin-block-start: 1em;
+      display: flex;
     }
+  }
+
+  label {
+    align-items: center;
+
+    &:has(input:not(:disabled)) {
+      cursor: pointer;
+    }
+
+    &:has(input:disabled) {
+      cursor: not-allowed;
+    }
+
+    &:has(.css-switch) {
+      margin-top: 1em;
+    }
+  }
+
+  .instructions {
+    margin-block-end: calc(1.0 * var(--spacer));
   }
 
   .subtext {
     text-align: end;
-    margin-block-start: .5rem;
-  }
-
-  .option-feedback {
-    margin-top: .5em;
-    font-size: .85em;
-    font-weight: 300;
-    text-align: end;
-    line-height: normal;
-    font-style: italic;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
+    margin-block-start: .5em;
   }
 
   .indented {
-    margin-inline-start: 1.9em;
+    padding-inline-start: 1.25em;
+    box-sizing: border-box;
+  }
+
+  input[type=checkbox] {
+    accent-color: var(--success-color);
+    display: flex;
+    align-self: center;
+
+    &:disabled {
+      accent-color: var(--button-disabled-background-color);
+    }
+  }
+
+  input[type=text] {
+    margin-block-start: calc(0.5 * var(--spacer));
+  }
+
+  textarea {
+    field-sizing: content;
+    resize: none;
+    min-height: 3lh;
+    max-height: 8lh;
+    width: 100%;
+    box-sizing: border-box;
+    border-color: var(--border-color);
+    border-radius: var(--element-radius);
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 2px;
+      
+    }
+
+    &[readonly] {
+      background-color: var(--background-color);
+      cursor: not-allowed;
+    }
+  }
+
+  @supports (-webkit-appearance: none) or (-moz-appearance: none) {
+    input[type=checkbox] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+
+      font-size: clamp(12px, .75em, 18px);
+      height: 1.6em;
+      min-height: 1.6em;
+      max-height: 1.6em;
+      width: 1.6em;
+      min-width: 1.6em;
+      max-width: 1.6em;
+
+      outline: none;
+      position: relative;
+      margin: 0;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      border-radius: .5em;
+      background-color: var(--white);
+      transition: background-color var(--transition-time), border-color var(--transition-time);
+      box-sizing: border-box;
+
+      &:before {
+        box-sizing: border-box;
+      }
+
+      &:after {
+        content: "";
+        display: block;
+        left: 0;
+        top: 0;
+        position: absolute;
+        box-sizing: border-box;
+        width: calc(1em * .45);
+        height: calc(1em * .9);
+        border: calc(1em * 0.15) solid var(--white);
+        border-top: 0;
+        border-left: 0;
+        left: calc(1em * .55);
+        top: calc(1em * .2);
+        transform: rotate(40deg);
+        opacity: 0;
+        transition: opacity var(--transition-time);
+      }
+
+      &:checked {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+
+        &:after {
+          opacity: 1;
+        }
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+      }
+
+      &:not(:disabled) + label {
+        cursor: pointer;
+      }
+    }
   }
 }
 
 #btn-learn-more-open {
-  font-size: .85em
+  float: right;
+  margin: 0 0 .4em 1em;
 }
 
 .dialog-indicator-background {
-  background-color: var(--help-color-light);
-  border: 1px solid var(--help-color);
+  background-color: var(--help-color-background);
+  border: 1px solid var(--help-color-border);
   border-radius: var(--element-radius);
-  padding: .75rem 1rem;
+  padding: .75em 1em;
+  box-sizing: border-box;
+  width: min(100%, 40em);
+  margin: auto;
 }
 
 .dialog-indicator-container {
-  max-width: calc(40em / .9);
   margin: 0 auto;  
   color: var(--help-color-text);
   font-size: .85em;
@@ -142,9 +230,9 @@
 }
 
 .indicator-container {
-  border: 1px solid var(--help-color);
+  border: 1px solid var(--help-color-text);
   background-color: var(--white);
-  border-radius: 2rem;
+  border-radius: 2em;
   display: flex;
   align-self: center;
   box-sizing: border-box;
@@ -154,19 +242,23 @@
 
   svg {
     fill: var(--help-color-text);
-    padding: .15rem;
+    padding: .15em;
   }
 }
 
 .ufixit-instructions {
   font-size: .9em;
   font-weight: 300;
+
+  strong {
+    font-weight: bold;
+  }
 }
 
 .clarification-container {
-  padding-top: .5rem;
-  border-top: 1px solid var(--help-color);
-  margin-top: .5rem;
+  padding-top: .5em;
+  border-top: 1px solid var(--help-color-border);
+  margin-top: .5em;
 
   .clarification-text {
     font-weight: 400;
@@ -202,7 +294,7 @@
 
   .instructions-helper {
     margin-top: .25em;
-    padding-left: 1.8rem;
+    padding-left: 1.8em;
     font-weight: 400;
     font-style: italic;
     font-size: .9em;
@@ -223,7 +315,7 @@
   }
 
   .btn-icon-only.btn-transparent {
-    padding: .15rem .25rem;
+    padding: .15em .25em;
     fill: var(--link-color);
     background-color: transparent;
     border-color: transparent;
@@ -243,7 +335,7 @@
 
   /* Specific to the ContrastForm Widget... Could be its own CSS file */
   .ratio-container {
-    padding: .25rem .5rem;
+    padding: .25em .5em;
     border: 2px solid var(--issue-color);
 
     &.ratio-valid {
@@ -257,7 +349,7 @@
     }
 
     .ratio-value {
-      font-size: 1.25rem;
+      font-size: 1.25em;
       font-weight: 600;
     }
 
@@ -299,12 +391,12 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-top: 1em;
+    margin-bottom: 1em;
 
     caption {
       font-weight: bold;
-      margin-bottom: .5rem;
+      margin-bottom: .5em;
     }
 
     thead tr {
@@ -312,7 +404,7 @@
       color: var(--white);
 
       th {
-        padding: .25rem .5rem;
+        padding: .25em .5em;
       }
     }
 
@@ -324,7 +416,7 @@
       }
 
       td {
-        padding: .25rem;
+        padding: .25em;
         border-bottom: 1px solid var(--border-color);
       }
     }
@@ -335,7 +427,7 @@
 
 .ufixit-widget-toggle-view-container {
   width: 100%;
-  padding: .2rem 0px;
+  padding: .2em 0px;
   cursor: pointer;
 
   color: var(--primary-color-dark);
@@ -368,7 +460,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(1.5px);
   background-color: transparent;
   z-index: 1000;
   padding: 0 5px;
@@ -378,7 +470,7 @@
     width: 100%;
     box-sizing: border-box;
     max-width: 600px;
-    padding: 1rem;
+    padding: 1em;
     background-color: var(--white);
     border: 1px solid var(--gray);
     border-radius: 8px;
@@ -411,27 +503,8 @@
   }
 }
 
-.ufixit-widget-dialog-header {
-  padding: 1rem 1rem .75rem 1rem;
-  background-color: var(--primary-color-light);
-  position: sticky;
-  top: 0;
-  box-shadow: 0 2px 2px var(--shadow-color);
-
-  .close-icon { 
-    padding: .25rem;
-    border-radius: 2rem;
-    cursor:pointer;
-    background-color: transparent;
-
-    &:hover, &:focus {
-      background-color: var(--white);
-    }
-  }
-}
-
 .ufixit-widget-dialog-content {
-  padding: 0 1rem;
+  padding: 0 1em;
   color: var(--text-color);
   font-size: 1em;
   line-height: 1.5;
@@ -439,10 +512,17 @@
   overflow-y: auto;
 }
 
+.learn-more-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 dialog::backdrop {
   pointer-events: none;
   background: var(--backdrop-color);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(1.5px);
+  border-radius: var(--window-radius);
 }
 
 .file-review-status-container{

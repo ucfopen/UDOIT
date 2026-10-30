@@ -4,13 +4,13 @@ import CloseIcon from '../Icons/CloseIcon'
 import FilterOnIcon from '../Icons/FilterOnIcon'
 import FilterOffIcon from '../Icons/FilterOffIcon'
 import Combobox from './Combobox'
+import { FILE_FILTER as FILTER} from '../../Services/Constants'
 
 import './FixIssuesFilters.css'
 
 export default function ReviewFilesFilters({
   t,
   settings,
-  
   activeFilters,
   handleSearchTerm,
   searchTerm,
@@ -18,7 +18,6 @@ export default function ReviewFilesFilters({
   updateActiveFilters
  }) {
 
-  const FILTER = settings.FILE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.UTILIZATION]: t('filter.label.utilization'),
@@ -54,8 +53,7 @@ export default function ReviewFilesFilters({
 
   const [usedFilters, setUsedFilters] = useState(null)
   const [detailedFilters, setDetailedFilters] = useState(null)
-  // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
-  const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : settings.DEFAULT_USER_SETTINGS.SHOW_FILTERS)
+  const [showFilters, setShowFilters] = useState(true)
 
   // When the page loads, only show the "Modules" filter is there are modules to filter by...
   useEffect(() => {

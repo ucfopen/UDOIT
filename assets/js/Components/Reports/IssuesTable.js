@@ -13,7 +13,7 @@ export default function IssuesTable({
     { id: "label", text: t('report.header.issue_type') },
     { id: "type", text: t('report.header.severity')},
     { id: "active", text: t('report.header.active'), alignText: 'center' },
-    { id: "handled", text: t('report.header.handled'), alignText: 'center' }
+    { id: "resolved", text: t('report.header.resolved'), alignText: 'center' }
   ]
 
   if (isAdmin && (selectedCourse == null)) {
