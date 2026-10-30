@@ -33,8 +33,6 @@ type contentScanRequestItem struct {
 	HTML          string `json:"html"`
 }
 
-// scanResponse represents the structure of the scan results returned by the
-// EqualAccess scanning service.
 type contentScanResponse struct {
 	Results    []processedScanIssue `json:"results"`
 	References []scanReference      `json:"references"`
