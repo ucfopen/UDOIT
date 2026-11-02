@@ -18,7 +18,7 @@ VALUES (
   sqlc.arg(external_data)
 )
 ON DUPLICATE KEY UPDATE
-  id = LAST_INSERT_ID(id), -- Ensure the existing ID is returned with LastInsertID() on duplicate key
+  id = LAST_INSERT_ID(id),
   content_changed_at = IF(content_hash <> sqlc.arg(content_hash), sqlc.arg(content_changed_at), content_changed_at),
   content_hash = sqlc.arg(content_hash),
-  external_data = sqlc.arg(external_data)
+  external_data = sqlc.arg(external_data);

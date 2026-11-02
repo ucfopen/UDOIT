@@ -6,20 +6,17 @@ import (
 	"encoding/json"
 	"errors"
 
-	"rewritetest/internal/lmsdata/internal/domain"
-	contentsqlc "rewritetest/internal/lmsdata/internal/infrastructure/sqlc"
+	"rewritetest/internal/lms/internal/domain"
+	lmssqlc "rewritetest/internal/lms/internal/infrastructure/sqlc"
 )
 
 type MySQLContentItemRepository struct {
-	queries *contentsqlc.Queries
+	queries *lmssqlc.Queries
 	db      *sql.DB
 }
 
 func NewMySQLContentItemRepository(db *sql.DB) *MySQLContentItemRepository {
-	return &MySQLContentItemRepository{
-		queries: contentsqlc.New(db),
-		db:      db,
-	}
+	return &MySQLContentItemRepository{queries: lmssqlc.New(db), db: db}
 }
 
 func (r *MySQLContentItemRepository) GetByID(ctx context.Context, id int64) (*domain.ContentItem, error) {
@@ -38,32 +35,23 @@ func (r *MySQLContentItemRepository) GetByCourseID(ctx context.Context, courseID
 	if err != nil {
 		return nil, err
 	}
-
 	contentItems := make([]*domain.ContentItem, 0, len(rows))
 	for _, row := range rows {
-		contentItem, err := r.toDomain(contentsqlc.GetContentItemByIDRow(row))
+		contentItem, err := r.toDomain(lmssqlc.GetContentItemByIDRow(row))
 		if err != nil {
 			return nil, err
 		}
 		contentItems = append(contentItems, contentItem)
 	}
-
 	return contentItems, nil
 }
 
 func (r *MySQLContentItemRepository) Create(ctx context.Context, contentItem *domain.ContentItem) (*domain.ContentItem, error) {
-	externalData, err := json.Marshal(contentItem.ExternalData())
+	params, err := contentItemParams(contentItem)
 	if err != nil {
 		return nil, err
 	}
-	result, err := r.queries.CreateContentItem(ctx, contentsqlc.CreateContentItemParams{
-		CourseID:         uint64(contentItem.CourseID()),
-		ContentHash:      contentItem.ContentHash(),
-		ExternalID:       contentItem.ExternalID(),
-		ExternalData:     externalData,
-		ContentChangedAt: contentItem.ContentChangedAt(),
-	})
-
+	result, err := r.queries.CreateContentItem(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -83,50 +71,45 @@ func (r *MySQLContentItemRepository) CreateMany(ctx context.Context, contentItem
 		return nil, err
 	}
 	defer tx.Rollback()
-
 	qtx := r.queries.WithTx(tx)
-
-	domainContentItemsParams := make([]contentsqlc.CreateContentItemParams, len(contentItems))
-	for i, item := range contentItems {
-
-		externalData, err := json.Marshal(item.ExternalData())
+	persisted := make([]*domain.ContentItem, 0, len(contentItems))
+	for _, contentItem := range contentItems {
+		params, err := contentItemParams(contentItem)
 		if err != nil {
 			return nil, err
 		}
-
-		domainContentItemsParams[i] = contentsqlc.CreateContentItemParams{
-			CourseID:         uint64(item.CourseID()),
-			ContentHash:      item.ContentHash(),
-			ExternalID:       item.ExternalID(),
-			ExternalData:     externalData,
-			ContentChangedAt: item.ContentChangedAt(),
-		}
-	}
-
-	persisted := make([]*domain.ContentItem, 0, len(contentItems))
-
-	for _, params := range domainContentItemsParams {
 		result, err := qtx.CreateContentItem(ctx, params)
 		if err != nil {
 			return nil, err
 		}
-
-		insertedID, err := result.LastInsertId()
+		id, err := result.LastInsertId()
 		if err != nil {
 			return nil, err
 		}
-		item, err := r.getByIDTx(ctx, qtx, insertedID)
+		item, err := r.getByIDTx(ctx, qtx, id)
 		if err != nil {
 			return nil, err
 		}
 		persisted = append(persisted, item)
 	}
-
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
-
 	return persisted, nil
+}
+
+func contentItemParams(item *domain.ContentItem) (lmssqlc.CreateContentItemParams, error) {
+	externalData, err := json.Marshal(item.ExternalData())
+	if err != nil {
+		return lmssqlc.CreateContentItemParams{}, err
+	}
+	return lmssqlc.CreateContentItemParams{
+		CourseID:         uint64(item.CourseID()),
+		ContentHash:      item.ContentHash(),
+		ContentChangedAt: item.ContentChangedAt(),
+		ExternalID:       item.ExternalID(),
+		ExternalData:     externalData,
+	}, nil
 }
 
 func (r *MySQLContentItemRepository) getByID(ctx context.Context, id int64) (*domain.ContentItem, error) {
@@ -137,7 +120,7 @@ func (r *MySQLContentItemRepository) getByID(ctx context.Context, id int64) (*do
 	return r.toDomain(row)
 }
 
-func (r *MySQLContentItemRepository) getByIDTx(ctx context.Context, queries *contentsqlc.Queries, id int64) (*domain.ContentItem, error) {
+func (r *MySQLContentItemRepository) getByIDTx(ctx context.Context, queries *lmssqlc.Queries, id int64) (*domain.ContentItem, error) {
 	row, err := queries.GetContentItemByID(ctx, uint64(id))
 	if err != nil {
 		return nil, err
@@ -145,7 +128,7 @@ func (r *MySQLContentItemRepository) getByIDTx(ctx context.Context, queries *con
 	return r.toDomain(row)
 }
 
-func (r *MySQLContentItemRepository) toDomain(row contentsqlc.GetContentItemByIDRow) (*domain.ContentItem, error) {
+func (r *MySQLContentItemRepository) toDomain(row lmssqlc.GetContentItemByIDRow) (*domain.ContentItem, error) {
 	var externalData map[string]any
 	if err := json.Unmarshal(row.ExternalData, &externalData); err != nil {
 		return nil, err
