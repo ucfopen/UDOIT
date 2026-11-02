@@ -8,7 +8,7 @@ import (
 
 type MockLTIUserLinkRepository struct {
 	GetBySubAndIssuerFunc func(ctx context.Context, sub string, issuer string) (*domain.LTIUserLink, error)
-	CreateFunc            func(ctx context.Context, link *domain.LTIUserLink) error
+	CreateFunc            func(ctx context.Context, link *domain.LTIUserLink) (*domain.LTIUserLink, error)
 }
 
 func (m *MockLTIUserLinkRepository) GetBySubAndIssuer(ctx context.Context, sub string, issuer string) (*domain.LTIUserLink, error) {
@@ -19,7 +19,7 @@ func (m *MockLTIUserLinkRepository) GetBySubAndIssuer(ctx context.Context, sub s
 	panic("GetBySubAndIssuerFunc not implemented")
 }
 
-func (m *MockLTIUserLinkRepository) Create(ctx context.Context, link *domain.LTIUserLink) error {
+func (m *MockLTIUserLinkRepository) Create(ctx context.Context, link *domain.LTIUserLink) (*domain.LTIUserLink, error) {
 	if m.CreateFunc != nil {
 		return m.CreateFunc(ctx, link)
 	}
@@ -46,9 +46,9 @@ func NewMapMockLTIUserLinkRepository() *MockLTIUserLinkRepository {
 			}
 			return link, nil
 		},
-		CreateFunc: func(_ context.Context, link *domain.LTIUserLink) error {
+		CreateFunc: func(_ context.Context, link *domain.LTIUserLink) (*domain.LTIUserLink, error) {
 			userLinks[key(link.Sub(), link.Issuer())] = link
-			return nil
+			return link, nil
 		},
 	}
 }

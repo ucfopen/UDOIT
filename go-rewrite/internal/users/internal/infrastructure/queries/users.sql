@@ -4,6 +4,12 @@ FROM user
 WHERE id = sqlc.arg(id)
 LIMIT 1;
 
+-- name: GetUserByUsername :one
+SELECT id, username, name, preferences
+FROM user
+WHERE username = sqlc.arg(username)
+LIMIT 1;
+
 -- name: CreateUser :execresult
 INSERT INTO user (username, name, preferences)
 VALUES (sqlc.arg(username), sqlc.arg(name), sqlc.arg(preferences));

@@ -8,11 +8,11 @@ import (
 )
 
 type MockLTICourseLinkRepository struct {
-	CreateFunc                func(ctx context.Context, link domain.LTICourseLink) error
+	CreateFunc                func(ctx context.Context, link domain.LTICourseLink) (domain.LTICourseLink, error)
 	GetByTenantAndContextFunc func(ctx context.Context, tenantID int64, contextID string) (domain.LTICourseLink, error)
 }
 
-func (m *MockLTICourseLinkRepository) Create(ctx context.Context, link domain.LTICourseLink) error {
+func (m *MockLTICourseLinkRepository) Create(ctx context.Context, link domain.LTICourseLink) (domain.LTICourseLink, error) {
 	if m.CreateFunc != nil {
 		return m.CreateFunc(ctx, link)
 	}
@@ -40,9 +40,9 @@ func NewMapMockLTICourseLinkRepository() *MockLTICourseLinkRepository {
 	}
 
 	return &MockLTICourseLinkRepository{
-		CreateFunc: func(_ context.Context, link domain.LTICourseLink) error {
+		CreateFunc: func(_ context.Context, link domain.LTICourseLink) (domain.LTICourseLink, error) {
 			courseLinks[key(link.TenantID(), link.ContextID())] = link
-			return nil
+			return link, nil
 		},
 		GetByTenantAndContextFunc: func(_ context.Context, tenantID int64, contextID string) (domain.LTICourseLink, error) {
 			link, ok := courseLinks[key(tenantID, contextID)]

@@ -21,19 +21,19 @@ func NewRedisAuthAttemptRepository(client *redis.Client, ttl time.Duration, pref
 	return &RedisAuthAttemptRepository{client: client, ttl: ttl, prefix: prefix}
 }
 
-func (r *RedisAuthAttemptRepository) Create(ctx context.Context, authAttempt domain.AuthAttempt) error {
+func (r *RedisAuthAttemptRepository) Create(ctx context.Context, authAttempt domain.AuthAttempt) (domain.AuthAttempt, error) {
 	key := r.key(authAttempt.State)
 	data, err := json.Marshal(authAttempt)
 	if err != nil {
-		return err
+		return domain.AuthAttempt{}, err
 	}
 
 	err = r.client.Set(ctx, key, data, r.ttl).Err()
 	if err != nil {
-		return err
+		return domain.AuthAttempt{}, err
 	}
 
-	return nil
+	return authAttempt, nil
 }
 
 func (r *RedisAuthAttemptRepository) GetByState(ctx context.Context, state string) (domain.AuthAttempt, error) {

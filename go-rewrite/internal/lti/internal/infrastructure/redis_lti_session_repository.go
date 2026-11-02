@@ -39,7 +39,7 @@ type LTISessionStorageDTO struct {
 	ExpiresAt     time.Time `json:"expires_at"`
 }
 
-func (r *RedisLTISessionRepository) Create(ctx context.Context, session *domain.LTISession) error {
+func (r *RedisLTISessionRepository) Create(ctx context.Context, session *domain.LTISession) (*domain.LTISession, error) {
 	expiration := r.ttl
 	if !session.ExpiresAt().IsZero() {
 		expiration = time.Until(session.ExpiresAt())
@@ -47,10 +47,13 @@ func (r *RedisLTISessionRepository) Create(ctx context.Context, session *domain.
 
 	data, err := json.Marshal(ToLTISessionStorageDTO(session))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return r.client.Set(ctx, r.key(session.State()), data, expiration).Err()
+	if err := r.client.Set(ctx, r.key(session.State()), data, expiration).Err(); err != nil {
+		return nil, err
+	}
+	return session, nil
 }
 
 func (r *RedisLTISessionRepository) GetByState(ctx context.Context, state string) (*domain.LTISession, error) {

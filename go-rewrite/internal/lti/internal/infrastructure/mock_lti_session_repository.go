@@ -7,12 +7,12 @@ import (
 )
 
 type MockLTISessionRepository struct {
-	CreateFunc     func(ctx context.Context, session *domain.LTISession) error
+	CreateFunc     func(ctx context.Context, session *domain.LTISession) (*domain.LTISession, error)
 	GetByStateFunc func(ctx context.Context, state string) (*domain.LTISession, error)
 	DeleteFunc     func(ctx context.Context, sessionID string) error
 }
 
-func (m *MockLTISessionRepository) Create(ctx context.Context, session *domain.LTISession) error {
+func (m *MockLTISessionRepository) Create(ctx context.Context, session *domain.LTISession) (*domain.LTISession, error) {
 	if m.CreateFunc != nil {
 		return m.CreateFunc(ctx, session)
 	}
@@ -44,9 +44,9 @@ func NewMapMockLTISessionRepository() *MockLTISessionRepository {
 	sessions := map[string]*domain.LTISession{}
 
 	return &MockLTISessionRepository{
-		CreateFunc: func(_ context.Context, session *domain.LTISession) error {
+		CreateFunc: func(_ context.Context, session *domain.LTISession) (*domain.LTISession, error) {
 			sessions[session.State()] = session
-			return nil
+			return session, nil
 		},
 		GetByStateFunc: func(_ context.Context, state string) (*domain.LTISession, error) {
 			session, ok := sessions[state]

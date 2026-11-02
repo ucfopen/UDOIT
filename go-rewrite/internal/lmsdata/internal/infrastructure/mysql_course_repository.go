@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"rewritetest/internal/lmsdata/internal/domain"
 	lmsdatasqlc "rewritetest/internal/lmsdata/internal/infrastructure/sqlc"
@@ -19,10 +20,10 @@ func NewMySQLCourseRepository(db *sql.DB) *MySQLCourseRepository {
 	}
 }
 
-func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Course) (int64, error) {
+func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Course) (*domain.Course, error) {
 	externalDataJSON, err := json.Marshal(course.ExternalData())
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	result, err := r.queries.CreateCourse(ctx, lmsdatasqlc.CreateCourseParams{
@@ -35,21 +36,24 @@ func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Cours
 		TenantID:     uint64(course.TenantID()),
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-
 	lastInsertID, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return lastInsertID, nil
+	return r.getByID(ctx, lastInsertID)
 }
 
 func (r *MySQLCourseRepository) GetByID(ctx context.Context, courseID int64) (*domain.Course, error) {
+	return r.getByID(ctx, courseID)
+}
+
+func (r *MySQLCourseRepository) getByID(ctx context.Context, courseID int64) (*domain.Course, error) {
 	courseRow, err := r.queries.GetCourseByID(ctx, uint64(courseID))
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err

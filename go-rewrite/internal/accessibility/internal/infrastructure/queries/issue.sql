@@ -1,7 +1,7 @@
 -- name: DeleteHTMLIssuesByContentItemIDs :exec
 DELETE FROM html_issue WHERE content_item_id IN (sqlc.slice('content_item_ids'));
 
--- name: CreateIssue :exec
+-- name: CreateIssue :execresult
 INSERT INTO html_issue (content_item_id, scan_rule, content_xpath, status, severity, fixed_by, fixed_at, details)
 VALUES (
   sqlc.arg('content_item_id'),

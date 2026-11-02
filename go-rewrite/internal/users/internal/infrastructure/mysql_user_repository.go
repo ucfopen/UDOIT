@@ -38,14 +38,11 @@ func (r *MySQLUserRepository) GetByID(ctx context.Context, id int64) (*domain.Us
 	return &user, nil
 }
 
-func (r *MySQLUserRepository) Create(ctx context.Context, user *domain.User) error {
+func (r *MySQLUserRepository) Create(ctx context.Context, user *domain.User) (*domain.User, error) {
 	prefsJSON, err := json.Marshal(user.Preferences())
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	var id int64
-
 	result, err := r.queries.CreateUser(
 		ctx,
 		userssqlc.CreateUserParams{
@@ -55,17 +52,26 @@ func (r *MySQLUserRepository) Create(ctx context.Context, user *domain.User) err
 		},
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	id, err = result.LastInsertId()
+	id, err := result.LastInsertId()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	user.SetID(id)
-
-	return nil
+	row, err := r.queries.GetUserByID(ctx, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	var prefs domain.Preferences
+	if len(row.Preferences) > 0 {
+		if err := json.Unmarshal(row.Preferences, &prefs); err != nil {
+			return nil, err
+		}
+	}
+	created := domain.RehydrateUser(int64(row.ID), row.Username, row.Name, prefs)
+	return &created, nil
 }
 
 func (r *MySQLUserRepository) Update(ctx context.Context, user *domain.User) error {

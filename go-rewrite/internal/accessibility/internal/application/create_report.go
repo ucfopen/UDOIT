@@ -58,7 +58,7 @@ func (u *CreateReportUseCase) Execute(ctx context.Context, cmd CreateReportComma
 		resolvedCount,
 	)
 
-	err = u.reportRepository.Create(ctx, report)
+	_, err = u.reportRepository.Create(ctx, report)
 	if err != nil {
 		return err
 	}

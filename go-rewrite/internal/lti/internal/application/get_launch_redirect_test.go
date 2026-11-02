@@ -18,7 +18,7 @@ func TestGetLaunchRedirect_Success(t *testing.T) {
 	registrationRepo := infrastructure.NewMapMockRegistrationRepository()
 	sessionRepo := infrastructure.NewMapMockLTISessionRepository()
 
-	require.NoError(t, registrationRepo.Create(context.Background(), *domain.NewRegistration(
+	_, err := registrationRepo.Create(context.Background(), *domain.NewRegistration(
 		"https://issuer.example",
 		"client-1",
 		"https://issuer.example/login",
@@ -26,7 +26,8 @@ func TestGetLaunchRedirect_Success(t *testing.T) {
 		"https://issuer.example/service-auth",
 		"https://issuer.example/service-login",
 		5,
-	)))
+	))
+	require.NoError(t, err)
 
 	uc := application.NewGetLaunchRedirectUseCase(registrationRepo, sessionRepo)
 	redirectURL, err := uc.Execute(context.Background(), application.GetLaunchRedirectQuery{

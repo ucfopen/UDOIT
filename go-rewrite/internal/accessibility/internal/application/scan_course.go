@@ -6,6 +6,7 @@ import (
 
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/lmsdata"
+	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -44,8 +45,12 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		return err
 	}
 	scan := domain.NewCourseScan(courseID, principal.AgentID, time.Now())
-	if err := u.scanRepository.Start(ctx, scan); err != nil {
+	scan, err = u.scanRepository.Start(ctx, scan)
+	if err != nil {
 		return err
+	}
+	if scan == nil {
+		return apperr.Internal("Course scan repository returned no persisted scan")
 	}
 
 	scanData, err := u.lmsDataService.SynchronizeCourse(ctx, principal, courseID, lastCompletedAt)
@@ -111,7 +116,7 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		))
 	}
 
-	if err := u.htmlIssueRepository.CreateMany(ctx, newIssues); err != nil {
+	if _, err := u.htmlIssueRepository.CreateMany(ctx, newIssues); err != nil {
 		return err
 	}
 	scan.Complete(time.Now())

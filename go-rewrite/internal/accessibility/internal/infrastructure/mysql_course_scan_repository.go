@@ -31,21 +31,28 @@ func (r *MySQLCourseScanRepository) LastCompletedAt(ctx context.Context, courseI
 	return completedAt.Time, nil
 }
 
-func (r *MySQLCourseScanRepository) Start(ctx context.Context, scan *domain.CourseScan) error {
+func (r *MySQLCourseScanRepository) Start(ctx context.Context, scan *domain.CourseScan) (*domain.CourseScan, error) {
 	result, err := r.queries.CreateCourseScan(ctx, accessibilitysqlc.CreateCourseScanParams{
 		CourseID:  uint64(scan.CourseID),
 		ScannedBy: uint64(scan.ScannedBy),
 		StartedAt: scan.StartedAt,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	scan.SetID(id)
-	return nil
+	row, err := r.queries.GetCourseScanByID(ctx, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	var completedAt *time.Time
+	if row.CompletedAt.Valid {
+		completedAt = &row.CompletedAt.Time
+	}
+	return domain.RehydrateCourseScan(int64(row.ID), int64(row.CourseID), int64(row.ScannedBy), row.StartedAt, completedAt), nil
 }
 
 func (r *MySQLCourseScanRepository) Complete(ctx context.Context, scan *domain.CourseScan) error {

@@ -17,7 +17,7 @@ type FileUploadSession struct {
 }
 
 type FileUploadSessionRepository interface {
-	Create(context.Context, FileUploadSession) error
+	Create(context.Context, FileUploadSession) (FileUploadSession, error)
 	GetByID(context.Context, string) (*FileUploadSession, error)
 	DeleteByID(context.Context, string) error
 }

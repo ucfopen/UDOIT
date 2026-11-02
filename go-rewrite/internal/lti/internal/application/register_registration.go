@@ -38,7 +38,8 @@ func (u *RegisterRegistrationUseCase) Execute(ctx context.Context, cmd RegisterR
 	}
 
 	if existing == nil {
-		return u.registrationRepository.Create(ctx, *registration)
+		_, err := u.registrationRepository.Create(ctx, *registration)
+		return err
 	}
 
 	return u.registrationRepository.Save(ctx, *registration)

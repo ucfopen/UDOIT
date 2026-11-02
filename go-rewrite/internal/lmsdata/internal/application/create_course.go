@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"rewritetest/internal/lmsdata/internal/domain"
+	"rewritetest/internal/shared/apperr"
 )
 
 type CreateCourseUseCase struct {
@@ -24,13 +25,16 @@ type CreateCourseCommand struct {
 	ExternalData map[string]any
 }
 
-func (u *CreateCourseUseCase) Execute(ctx context.Context, cmd CreateCourseCommand) (int64, error) {
+func (u *CreateCourseUseCase) Execute(ctx context.Context, cmd CreateCourseCommand) (*domain.Course, error) {
 	course := domain.NewCourse(cmd.Title, cmd.TenantID, true, true, cmd.ExternalID, cmd.ExternalData, time.Now())
 
-	courseID, err := u.courseRepository.Create(ctx, course)
+	persistedCourse, err := u.courseRepository.Create(ctx, course)
 	if err != nil {
-		return 0, err
+		return nil, err
+	}
+	if persistedCourse == nil {
+		return nil, apperr.Internal("Course repository returned no persisted course")
 	}
 
-	return courseID, nil
+	return persistedCourse, nil
 }

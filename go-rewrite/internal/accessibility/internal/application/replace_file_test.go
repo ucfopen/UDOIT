@@ -65,12 +65,12 @@ type replacementSessionRepository struct {
 	sessions map[string]domain.FileUploadSession
 }
 
-func (r *replacementSessionRepository) Create(_ context.Context, session domain.FileUploadSession) error {
+func (r *replacementSessionRepository) Create(_ context.Context, session domain.FileUploadSession) (domain.FileUploadSession, error) {
 	if r.sessions == nil {
 		r.sessions = make(map[string]domain.FileUploadSession)
 	}
 	r.sessions[session.ID] = session
-	return nil
+	return session, nil
 }
 
 func (r *replacementSessionRepository) GetByID(_ context.Context, id string) (*domain.FileUploadSession, error) {

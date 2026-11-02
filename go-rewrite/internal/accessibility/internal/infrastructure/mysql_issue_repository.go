@@ -42,14 +42,18 @@ func (r *MySQLIssueRepository) DeleteByContentItemIDs(ctx context.Context, conte
 	return r.queries.DeleteHTMLIssuesByContentItemIDs(ctx, uintContentItemIDs)
 }
 
-func (r *MySQLIssueRepository) CreateMany(ctx context.Context, issues []*domain.HTMLIssue) error {
+func (r *MySQLIssueRepository) CreateMany(ctx context.Context, issues []*domain.HTMLIssue) ([]*domain.HTMLIssue, error) {
+	if len(issues) == 0 {
+		return []*domain.HTMLIssue{}, nil
+	}
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer tx.Rollback()
 
 	qtx := r.queries.WithTx(tx)
+	persisted := make([]*domain.HTMLIssue, 0, len(issues))
 
 	for _, issue := range issues {
 		var nullableFixedby sql.NullInt64
@@ -64,10 +68,10 @@ func (r *MySQLIssueRepository) CreateMany(ctx context.Context, issues []*domain.
 
 		detailsJSON, err := json.Marshal(issue.Details())
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		err = qtx.CreateIssue(ctx, accessibilitysqlc.CreateIssueParams{
+		result, err := qtx.CreateIssue(ctx, accessibilitysqlc.CreateIssueParams{
 			ContentItemID: uint64(issue.ContentItemID()),
 			ScanRule:      issue.ScanRule().String(),
 			ContentXpath:  issue.ContentXPath(),
@@ -78,15 +82,40 @@ func (r *MySQLIssueRepository) CreateMany(ctx context.Context, issues []*domain.
 			Details:       detailsJSON,
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
+		id, err := result.LastInsertId()
+		if err != nil {
+			return nil, err
+		}
+		row, err := qtx.GetHTMLIssueByID(ctx, uint64(id))
+		if err != nil {
+			return nil, err
+		}
+		details := map[string]any{}
+		if err := json.Unmarshal(row.Details, &details); err != nil {
+			return nil, err
+		}
+		scanRule, err := domain.ParseScanRule(row.ScanRule)
+		if err != nil {
+			return nil, err
+		}
+		status, err := domain.ParseIssueStatus(row.Status)
+		if err != nil {
+			return nil, err
+		}
+		severity, err := domain.ParseIssueSeverity(row.Severity)
+		if err != nil {
+			return nil, err
+		}
+		persisted = append(persisted, domain.RehydrateHTMLIssue(int64(row.ID), int64(row.ContentItemID), scanRule, row.ContentXpath, status, severity, row.FixedBy.Int64, row.FixedAt.Time, details, row.CreatedAt, row.UpdatedAt))
 	}
 
 	if err := tx.Commit(); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return persisted, nil
 }
 
 func (r *MySQLIssueRepository) GetByCourseID(ctx context.Context, courseID int64) ([]*domain.HTMLIssue, error) {

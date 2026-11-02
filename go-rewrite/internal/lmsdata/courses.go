@@ -100,9 +100,13 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 	}
 
 	if len(contentToPersist) > 0 {
-		idMap, err := m.CreateManyContentItems(ctx, contentToPersist)
+		persistedContent, err := m.CreateManyContentItems(ctx, contentToPersist)
 		if err != nil {
 			return CourseSynchronization{}, err
+		}
+		idMap := make(map[string]int64, len(persistedContent))
+		for _, item := range persistedContent {
+			idMap[item.ExternalID] = item.ID
 		}
 		for i := range changedContent {
 			if id, ok := idMap[changedContent[i].ExternalID]; ok {
@@ -140,12 +144,16 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 }
 
 func (m *Module) CreateCourse(ctx context.Context, title string, tenantID int64, externalID string, externalData map[string]any) (int64, error) {
-	return m.createCourseUseCase.Execute(ctx, application.CreateCourseCommand{
+	course, err := m.createCourseUseCase.Execute(ctx, application.CreateCourseCommand{
 		Title:        title,
 		TenantID:     tenantID,
 		ExternalID:   externalID,
 		ExternalData: externalData,
 	})
+	if err != nil {
+		return 0, err
+	}
+	return course.ID(), nil
 }
 
 type Course struct {

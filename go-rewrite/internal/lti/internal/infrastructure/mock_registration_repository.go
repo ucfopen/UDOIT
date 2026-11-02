@@ -7,12 +7,12 @@ import (
 )
 
 type MockRegistrationRepository struct {
-	CreateFunc                 func(ctx context.Context, registration domain.Registration) error
+	CreateFunc                 func(ctx context.Context, registration domain.Registration) (*domain.Registration, error)
 	SaveFunc                   func(ctx context.Context, registration domain.Registration) error
 	GetByIssuerAndClientIDFunc func(ctx context.Context, issuer string, clientID string) (*domain.Registration, error)
 }
 
-func (m *MockRegistrationRepository) Create(ctx context.Context, registration domain.Registration) error {
+func (m *MockRegistrationRepository) Create(ctx context.Context, registration domain.Registration) (*domain.Registration, error) {
 	if m.CreateFunc != nil {
 		return m.CreateFunc(ctx, registration)
 	}
@@ -42,15 +42,18 @@ var _ domain.RegistrationRepository = (*MockRegistrationRepository)(nil)
 
 func NewMapMockRegistrationRepository() *MockRegistrationRepository {
 	registrations := map[string]domain.Registration{}
+	var nextID int64 = 1
 
 	key := func(issuer string, clientID string) string {
 		return issuer + "::" + clientID
 	}
 
 	return &MockRegistrationRepository{
-		CreateFunc: func(_ context.Context, registration domain.Registration) error {
-			registrations[key(registration.Issuer, registration.ClientID)] = registration
-			return nil
+		CreateFunc: func(_ context.Context, registration domain.Registration) (*domain.Registration, error) {
+			persisted := domain.RehydrateRegistration(nextID, registration.Issuer, registration.ClientID, registration.LoginAuthEndpoint, registration.JWKEndpoint, registration.ServiceAuthEndpoint, registration.ServiceLoginEndpoint, registration.TenantID)
+			nextID++
+			registrations[key(registration.Issuer, registration.ClientID)] = *persisted
+			return persisted, nil
 		},
 		SaveFunc: func(_ context.Context, registration domain.Registration) error {
 			registrations[key(registration.Issuer, registration.ClientID)] = registration

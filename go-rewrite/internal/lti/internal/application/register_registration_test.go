@@ -17,7 +17,7 @@ func TestRegisterRegistration_CreatesWhenMissing(t *testing.T) {
 	createCalls := 0
 
 	originalCreate := repo.CreateFunc
-	repo.CreateFunc = func(ctx context.Context, registration domain.Registration) error {
+	repo.CreateFunc = func(ctx context.Context, registration domain.Registration) (*domain.Registration, error) {
 		createCalls++
 		return originalCreate(ctx, registration)
 	}
@@ -53,13 +53,14 @@ func TestRegisterRegistration_SavesWhenExisting(t *testing.T) {
 		"https://issuer.example/service-login-old",
 		3,
 	)
-	require.NoError(t, repo.Create(context.Background(), *seed))
+	_, err := repo.Create(context.Background(), *seed)
+	require.NoError(t, err)
 
 	createCalls := 0
 	saveCalls := 0
 	originalCreate := repo.CreateFunc
 	originalSave := repo.SaveFunc
-	repo.CreateFunc = func(ctx context.Context, registration domain.Registration) error {
+	repo.CreateFunc = func(ctx context.Context, registration domain.Registration) (*domain.Registration, error) {
 		createCalls++
 		return originalCreate(ctx, registration)
 	}
@@ -69,7 +70,7 @@ func TestRegisterRegistration_SavesWhenExisting(t *testing.T) {
 	}
 
 	uc := application.NewRegisterRegistrationUseCase(repo)
-	err := uc.Execute(context.Background(), application.RegisterRegistrationCommand{
+	err = uc.Execute(context.Background(), application.RegisterRegistrationCommand{
 		Issuer:               "https://issuer.example",
 		ClientID:             "client-1",
 		TenantID:             3,

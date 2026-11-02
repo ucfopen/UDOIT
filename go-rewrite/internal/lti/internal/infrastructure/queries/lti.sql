@@ -1,4 +1,4 @@
--- name: CreateRegistration :exec
+-- name: CreateRegistration :execresult
 INSERT INTO registration (
   issuer,
   client_id,
@@ -30,10 +30,16 @@ WHERE issuer = sqlc.arg(issuer)
   AND client_id = sqlc.arg(client_id);
 
 -- name: GetRegistrationByIssuerAndClientID :one
-SELECT issuer, client_id, tenant_id, login_auth_endpoint, jwk_endpoint, service_auth_endpoint, service_login_endpoint
+SELECT id, issuer, client_id, tenant_id, login_auth_endpoint, jwk_endpoint, service_auth_endpoint, service_login_endpoint
 FROM registration
 WHERE issuer = sqlc.arg(issuer)
   AND client_id = sqlc.arg(client_id)
+LIMIT 1;
+
+-- name: GetRegistrationByID :one
+SELECT id, issuer, client_id, tenant_id, login_auth_endpoint, jwk_endpoint, service_auth_endpoint, service_login_endpoint
+FROM registration
+WHERE id = sqlc.arg(id)
 LIMIT 1;
 
 -- name: GetLTIUserLinkBySubAndIssuer :one

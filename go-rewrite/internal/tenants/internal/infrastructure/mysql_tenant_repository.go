@@ -16,18 +16,22 @@ func NewMySQLTenantRepository(db *sql.DB) *MySQLTenantRepository {
 	return &MySQLTenantRepository{queries: tenantssqlc.New(db)}
 }
 
-func (r *MySQLTenantRepository) Create(ctx context.Context, lmsKey string) (int64, error) {
+func (r *MySQLTenantRepository) Create(ctx context.Context, lmsKey string) (*domain.Tenant, error) {
 	result, err := r.queries.CreateTenant(ctx, lmsKey)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return id, nil
+	row, err := r.queries.GetByID(ctx, uint64(id))
+	if err != nil {
+		return nil, err
+	}
+	return domain.NewTenant(int64(row.ID), row.LmsKey), nil
 }
 
 func (r *MySQLTenantRepository) GetByID(ctx context.Context, tenantID int64) (*domain.Tenant, error) {

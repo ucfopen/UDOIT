@@ -18,6 +18,16 @@ func NewCourseScan(courseID, scannedBy int64, startedAt time.Time) *CourseScan {
 	}
 }
 
+func RehydrateCourseScan(id, courseID, scannedBy int64, startedAt time.Time, completedAt *time.Time) *CourseScan {
+	return &CourseScan{
+		id:          id,
+		CourseID:    courseID,
+		ScannedBy:   scannedBy,
+		StartedAt:   startedAt,
+		CompletedAt: completedAt,
+	}
+}
+
 func (s *CourseScan) ID() int64 { return s.id }
 
 func (s *CourseScan) SetID(id int64) { s.id = id }

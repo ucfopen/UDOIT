@@ -8,7 +8,7 @@ import (
 
 type MockUserRepository struct {
 	GetByIDFunc func(ctx context.Context, id int64) (*domain.User, error)
-	CreateFunc  func(ctx context.Context, user *domain.User) error
+	CreateFunc  func(ctx context.Context, user *domain.User) (*domain.User, error)
 	UpdateFunc  func(ctx context.Context, user *domain.User) error
 
 	GetByIDCallCount int
@@ -25,7 +25,7 @@ func (m *MockUserRepository) GetByID(ctx context.Context, id int64) (*domain.Use
 	panic("GetByID function not implemented in MockUserRepository")
 }
 
-func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) error {
+func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) (*domain.User, error) {
 	m.CreateCallCount++
 	if m.CreateFunc != nil {
 		return m.CreateFunc(ctx, user)
@@ -47,6 +47,7 @@ var _ domain.UserRepository = &MockUserRepository{}
 
 func NewMapMockUserRepository() *MockUserRepository {
 	userMap := make(map[int64]*domain.User)
+	var nextID int64 = 1
 
 	return &MockUserRepository{
 		GetByIDFunc: func(ctx context.Context, id int64) (*domain.User, error) {
@@ -56,9 +57,11 @@ func NewMapMockUserRepository() *MockUserRepository {
 			}
 			return user, nil
 		},
-		CreateFunc: func(ctx context.Context, user *domain.User) error {
-			userMap[user.ID()] = user
-			return nil
+		CreateFunc: func(ctx context.Context, user *domain.User) (*domain.User, error) {
+			persisted := domain.RehydrateUser(nextID, user.Username(), user.Name(), user.Preferences())
+			nextID++
+			userMap[persisted.ID()] = &persisted
+			return &persisted, nil
 		},
 		UpdateFunc: func(ctx context.Context, user *domain.User) error {
 			if _, exists := userMap[user.ID()]; !exists {

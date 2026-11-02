@@ -6,34 +6,19 @@ import (
 	"errors"
 
 	"rewritetest/internal/lti/internal/domain"
+	ltisqlc "rewritetest/internal/lti/internal/infrastructure/sqlc"
 )
 
 type MySQLLTIUserLinkRepository struct {
-	db *sql.DB
+	queries *ltisqlc.Queries
 }
 
 func NewMySQLLTIUserLinkRepository(db *sql.DB) *MySQLLTIUserLinkRepository {
-	return &MySQLLTIUserLinkRepository{
-		db: db,
-	}
+	return &MySQLLTIUserLinkRepository{queries: ltisqlc.New(db)}
 }
 
 func (r *MySQLLTIUserLinkRepository) GetBySubAndIssuer(ctx context.Context, sub, issuer string) (*domain.LTIUserLink, error) {
-	query := `
-		SELECT sub, issuer, user_id
-		FROM lti_user_link
-		WHERE sub = ? AND issuer = ?
-	`
-
-	row := r.db.QueryRowContext(ctx, query, sub, issuer)
-
-	var (
-		subVal    string
-		issuerVal string
-		userIDVal int64
-	)
-
-	err := row.Scan(&subVal, &issuerVal, &userIDVal)
+	row, err := r.queries.GetLTIUserLinkBySubAndIssuer(ctx, ltisqlc.GetLTIUserLinkBySubAndIssuerParams{Sub: sub, Issuer: issuer})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -41,17 +26,16 @@ func (r *MySQLLTIUserLinkRepository) GetBySubAndIssuer(ctx context.Context, sub,
 		return nil, err
 	}
 
-	link := domain.NewLTIUserLink(subVal, issuerVal, userIDVal)
+	link := domain.NewLTIUserLink(row.Sub, row.Issuer, int64(row.UserID))
 
 	return link, nil
 }
 
-func (r *MySQLLTIUserLinkRepository) Create(ctx context.Context, link *domain.LTIUserLink) error {
-	query := `
-		INSERT INTO lti_user_link (sub, issuer, user_id)
-		VALUES (?, ?, ?)
-	`
-
-	_, err := r.db.ExecContext(ctx, query, link.Sub(), link.Issuer(), link.UserID())
-	return err
+func (r *MySQLLTIUserLinkRepository) Create(ctx context.Context, link *domain.LTIUserLink) (*domain.LTIUserLink, error) {
+	if err := r.queries.CreateLTIUserLink(ctx, ltisqlc.CreateLTIUserLinkParams{
+		Sub: link.Sub(), Issuer: link.Issuer(), UserID: uint64(link.UserID()),
+	}); err != nil {
+		return nil, err
+	}
+	return r.GetBySubAndIssuer(ctx, link.Sub(), link.Issuer())
 }

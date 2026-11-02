@@ -63,7 +63,7 @@ func (p *CanvasLMSProvider) BeginAuthentication(ctx context.Context, userID int6
 		CreatedAt:     time.Now(),
 		ExpiresAt:     time.Now().Add(time.Hour), // TODO: Make expiration time configurable
 	}
-	err = p.authAttemptRepository.Create(ctx, authAttempt)
+	_, err = p.authAttemptRepository.Create(ctx, authAttempt)
 	if err != nil {
 		return domain.AuthChallenge{}, err
 	}

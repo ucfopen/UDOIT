@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/users/internal/domain"
 )
 
@@ -18,9 +19,12 @@ func NewCreateUserUseCase(userRepository domain.UserRepository) *CreateUserUseCa
 
 func (uc *CreateUserUseCase) Execute(ctx context.Context, username string, name string) (domain.User, error) {
 	user := domain.NewUser(username, name)
-	err := uc.userRepository.Create(ctx, &user)
+	persistedUser, err := uc.userRepository.Create(ctx, &user)
 	if err != nil {
 		return domain.User{}, err
 	}
-	return user, nil
+	if persistedUser == nil {
+		return domain.User{}, apperr.Internal("User repository returned no persisted user")
+	}
+	return *persistedUser, nil
 }

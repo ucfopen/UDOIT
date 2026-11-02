@@ -88,7 +88,7 @@ func (u *BeginFileReplacementUseCase) Execute(ctx context.Context, cmd BeginFile
 
 	sessionID := uuid.NewString()
 	expiresAt := time.Now().Add(u.sessionTTL)
-	if err := u.sessionRepo.Create(ctx, domain.FileUploadSession{
+	persistedSession, err := u.sessionRepo.Create(ctx, domain.FileUploadSession{
 		ID:          sessionID,
 		UserID:      cmd.Principal.AgentID,
 		TenantID:    cmd.Principal.TenantID,
@@ -97,12 +97,13 @@ func (u *BeginFileReplacementUseCase) Execute(ctx context.Context, cmd BeginFile
 		NewFileName: cmd.NewFileName,
 		NewFileSize: cmd.NewFileSize,
 		ExpiresAt:   expiresAt,
-	}); err != nil {
+	})
+	if err != nil {
 		return BeginFileReplacementResult{}, err
 	}
 
 	return BeginFileReplacementResult{
-		UploadSessionID: sessionID,
+		UploadSessionID: persistedSession.ID,
 		Instruction:     instruction,
 	}, nil
 }

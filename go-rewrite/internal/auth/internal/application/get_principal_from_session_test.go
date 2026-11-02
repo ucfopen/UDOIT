@@ -18,7 +18,7 @@ func TestGetPrincipalFromSession_Success(t *testing.T) {
 	createdAt := time.Now()
 	expiresAt := createdAt.Add(10 * time.Minute)
 
-	err := sessionRepo.Create(context.Background(), domain.NewSession("session-1", 7, 9, createdAt, expiresAt))
+	_, err := sessionRepo.Create(context.Background(), domain.NewSession("session-1", 7, 9, createdAt, expiresAt))
 	require.NoError(t, err)
 
 	uc := NewGetPrincipalFromSessionUseCase(sessionRepo)

@@ -36,18 +36,8 @@ func (m *Module) GetContentItemsByCourse(ctx context.Context, courseID int64) ([
 	return result, nil
 }
 
-func (m *Module) CreateContentItem(ctx context.Context, contentItem ContentItem) error {
-	return m.contentItemRepository.Create(ctx, domain.NewContentItem(
-		contentItem.CourseID,
-		contentItem.ContentHash,
-		contentItem.ExternalID,
-		contentItem.ExternalData,
-		contentItem.ContentChangedAt,
-	))
-}
-
-// CreateManyContentItems upserts content items and returns their database IDs.
-func (m *Module) CreateManyContentItems(ctx context.Context, contentItems []ContentItem) (map[string]int64, error) {
+// CreateManyContentItems upserts content items and returns the persisted items.
+func (m *Module) CreateManyContentItems(ctx context.Context, contentItems []ContentItem) ([]ContentItem, error) {
 	domainContentItems := make([]*domain.ContentItem, len(contentItems))
 	for i, item := range contentItems {
 		domainContentItems[i] = domain.NewContentItem(
@@ -59,5 +49,20 @@ func (m *Module) CreateManyContentItems(ctx context.Context, contentItems []Cont
 		)
 	}
 
-	return m.contentItemRepository.CreateMany(ctx, domainContentItems)
+	persisted, err := m.contentItemRepository.CreateMany(ctx, domainContentItems)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]ContentItem, len(persisted))
+	for i, item := range persisted {
+		result[i] = ContentItem{
+			ID:               item.ID(),
+			ExternalID:       item.ExternalID(),
+			ExternalData:     item.ExternalData(),
+			ContentHash:      item.ContentHash(),
+			ContentChangedAt: item.ContentChangedAt(),
+			CourseID:         item.CourseID(),
+		}
+	}
+	return result, nil
 }

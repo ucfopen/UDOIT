@@ -92,10 +92,19 @@ func (u *GetLaunchRedirectUseCase) Execute(ctx context.Context, query GetLaunchR
 		return "", apperr.Internal("Failed to generate nonce parameter")
 	}
 
+	ltiSession := domain.NewLTISession(state, nonce, query.Issuer, query.ClientID, query.TargetLinkURI, registration.TenantID, time.Now(), time.Now().Add(ttl))
+	persistedSession, err := u.ltiSessionRepository.Create(ctx, ltiSession)
+	if err != nil {
+		return "", apperr.Internal("Failed to create LTI session", apperr.WithCause(err))
+	}
+	if persistedSession == nil {
+		return "", apperr.Internal("LTI session repository returned no persisted session")
+	}
+
 	params := baseURL.Query()
 	params.Set("client_id", registration.ClientID)
-	params.Set("state", state)
-	params.Set("nonce", nonce)
+	params.Set("state", persistedSession.State())
+	params.Set("nonce", persistedSession.Nonce())
 	params.Set("redirect_uri", query.RedirectURI)
 	params.Set("scope", "openid")
 	params.Set("response_type", "id_token")
@@ -106,11 +115,6 @@ func (u *GetLaunchRedirectUseCase) Execute(ctx context.Context, query GetLaunchR
 		params.Set("lti_message_hint", query.LTIMessageHint)
 	}
 	baseURL.RawQuery = params.Encode()
-
-	ltiSession := domain.NewLTISession(state, nonce, query.Issuer, query.ClientID, query.TargetLinkURI, registration.TenantID, time.Now(), time.Now().Add(ttl))
-	if err := u.ltiSessionRepository.Create(ctx, ltiSession); err != nil {
-		return "", apperr.Internal("Failed to create LTI session", apperr.WithCause(err))
-	}
 
 	return baseURL.String(), nil
 }

@@ -27,10 +27,17 @@ func NewRegisterTenantUseCase(tenantRepository domain.TenantRepository, lmsTypeV
 	}
 }
 
-func (u *RegisterTenantUseCase) Execute(ctx context.Context, cmd RegisterTenantCommand) (int64, error) {
+func (u *RegisterTenantUseCase) Execute(ctx context.Context, cmd RegisterTenantCommand) (*domain.Tenant, error) {
 	if !u.lmsTypeValidator.IsValidLMSType(cmd.LMSKey) {
-		return 0, apperr.Validation("Invalid LMS type")
+		return nil, apperr.Validation("Invalid LMS type")
 	}
 
-	return u.tenantRepository.Create(ctx, cmd.LMSKey)
+	tenant, err := u.tenantRepository.Create(ctx, cmd.LMSKey)
+	if err != nil {
+		return nil, err
+	}
+	if tenant == nil {
+		return nil, apperr.Internal("Tenant repository returned no persisted tenant")
+	}
+	return tenant, nil
 }

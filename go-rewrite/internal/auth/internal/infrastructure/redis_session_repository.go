@@ -35,7 +35,7 @@ type SessionStorageDTO struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-func (r *RedisSessionRepository) Create(ctx context.Context, session domain.Session) error {
+func (r *RedisSessionRepository) Create(ctx context.Context, session domain.Session) (domain.Session, error) {
 	expiration := r.ttl
 	if !session.ExpiresAt().IsZero() {
 		expiration = time.Until(session.ExpiresAt())
@@ -43,10 +43,13 @@ func (r *RedisSessionRepository) Create(ctx context.Context, session domain.Sess
 
 	data, err := json.Marshal(ToSessionStorageDTO(session))
 	if err != nil {
-		return err
+		return domain.Session{}, err
 	}
 
-	return r.client.Set(ctx, r.key(session.ID()), data, expiration).Err()
+	if err := r.client.Set(ctx, r.key(session.ID()), data, expiration).Err(); err != nil {
+		return domain.Session{}, err
+	}
+	return session, nil
 }
 
 func (r *RedisSessionRepository) GetByID(ctx context.Context, id string) (*domain.Session, error) {

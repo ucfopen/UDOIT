@@ -28,10 +28,10 @@ func (r *RedisFileUploadSessionRepository) key(id string) string {
 	return r.prefix + id
 }
 
-func (r *RedisFileUploadSessionRepository) Create(ctx context.Context, session domain.FileUploadSession) error {
+func (r *RedisFileUploadSessionRepository) Create(ctx context.Context, session domain.FileUploadSession) (domain.FileUploadSession, error) {
 	data, err := json.Marshal(session)
 	if err != nil {
-		return err
+		return domain.FileUploadSession{}, err
 	}
 
 	expiration := r.ttl
@@ -39,7 +39,10 @@ func (r *RedisFileUploadSessionRepository) Create(ctx context.Context, session d
 		expiration = time.Until(session.ExpiresAt)
 	}
 
-	return r.client.Set(ctx, r.key(session.ID), data, expiration).Err()
+	if err := r.client.Set(ctx, r.key(session.ID), data, expiration).Err(); err != nil {
+		return domain.FileUploadSession{}, err
+	}
+	return session, nil
 }
 
 func (r *RedisFileUploadSessionRepository) GetByID(ctx context.Context, id string) (*domain.FileUploadSession, error) {

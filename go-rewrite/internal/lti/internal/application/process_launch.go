@@ -219,9 +219,14 @@ func (u *ProcessLaunchUseCase) resolveUser(ctx context.Context, claims jwt.MapCl
 			return 0, err
 		}
 		userLink = domain.NewLTIUserLink(sub, session.Issuer(), userID)
-		if err := u.ltiUserLinkRepository.Create(ctx, userLink); err != nil {
+		persistedUserLink, err := u.ltiUserLinkRepository.Create(ctx, userLink)
+		if err != nil {
 			return 0, err
 		}
+		if persistedUserLink == nil {
+			return 0, apperr.Internal("LTI user-link repository returned no persisted link")
+		}
+		userLink = persistedUserLink
 	}
 
 	return userLink.UserID(), nil
@@ -268,8 +273,12 @@ func (u *ProcessLaunchUseCase) resolveCourse(ctx context.Context, claims jwt.Map
 		}
 
 		courseLink = domain.NewLTICourseLink(tenant.ID, contextID, courseID)
-		if err = u.ltiCourseLinkRepository.Create(ctx, courseLink); err != nil {
+		courseLink, err = u.ltiCourseLinkRepository.Create(ctx, courseLink)
+		if err != nil {
 			return 0, err
+		}
+		if courseLink == (domain.LTICourseLink{}) {
+			return 0, apperr.Internal("LTI course-link repository returned no persisted link")
 		}
 
 	}

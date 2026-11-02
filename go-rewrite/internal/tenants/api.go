@@ -13,7 +13,14 @@ type Tenant struct {
 }
 
 func (m *Module) RegisterTenant(ctx context.Context, lmsKey string) (int64, error) {
-	return m.registerTenantUseCase.Execute(ctx, application.RegisterTenantCommand{LMSKey: lmsKey})
+	tenant, err := m.registerTenantUseCase.Execute(ctx, application.RegisterTenantCommand{LMSKey: lmsKey})
+	if err != nil {
+		return 0, err
+	}
+	if tenant == nil {
+		return 0, apperr.Internal("Tenant repository returned no persisted tenant")
+	}
+	return tenant.ID(), nil
 }
 
 func (m *Module) GetTenant(ctx context.Context, tenantID int64) (Tenant, error) {
