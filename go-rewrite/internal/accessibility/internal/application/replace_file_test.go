@@ -21,7 +21,7 @@ func (r replacementFileIssueReader) GetByID(context.Context, int64) (*domain.Fil
 
 type replacementFileDataService struct {
 	file         lmsdata.File
-	course       lmsdata.Course
+	course       lms.Course
 	updatedFile  lmsdata.File
 	updateCalled bool
 }
@@ -36,7 +36,7 @@ func (s *replacementFileDataService) UpdateFile(_ context.Context, file lmsdata.
 	return nil
 }
 
-func (s *replacementFileDataService) GetCourse(context.Context, int64) (lmsdata.Course, error) {
+func (s *replacementFileDataService) GetCourse(context.Context, int64) (lms.Course, error) {
 	return s.course, nil
 }
 
@@ -86,7 +86,7 @@ func (r *replacementSessionRepository) DeleteByID(_ context.Context, id string) 
 	return nil
 }
 
-func replacementContext() (*domain.FileIssue, lmsdata.File, lmsdata.Course, auth.Principal) {
+func replacementContext() (*domain.FileIssue, lmsdata.File, lms.Course, auth.Principal) {
 	issue, err := domain.RehydrateFileIssue(9, 34, nil, nil, time.Now(), time.Now())
 	if err != nil {
 		panic(err)
@@ -102,7 +102,7 @@ func replacementContext() (*domain.FileIssue, lmsdata.File, lmsdata.Course, auth
 		ExternalID:   "file:34",
 		ExternalData: map[string]any{"file_id": int64(34), "context_type": "Course"},
 	}
-	course := lmsdata.Course{
+	course := lms.Course{
 		ID:           12,
 		TenantID:     7,
 		ExternalID:   "course:12",
@@ -121,6 +121,7 @@ func TestBeginFileReplacementUsesIssueContext(t *testing.T) {
 
 	useCase := NewBeginFileReplacementUseCase(
 		replacementFileIssueReader{issue: issue},
+		&replacementFileDataService{file: file, course: course},
 		&replacementFileDataService{file: file, course: course},
 		uploader,
 		sessions,
@@ -155,6 +156,7 @@ func TestBeginFileReplacementRejectsWrongTenantBeforeUpload(t *testing.T) {
 
 	useCase := NewBeginFileReplacementUseCase(
 		replacementFileIssueReader{issue: issue},
+		&replacementFileDataService{file: file, course: course},
 		&replacementFileDataService{file: file, course: course},
 		uploader,
 		sessions,
@@ -198,6 +200,7 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 
 	useCase := NewCompleteFileReplacementUseCase(
 		replacementFileIssueReader{issue: issue},
+		dataService,
 		dataService,
 		uploader,
 		sessions,

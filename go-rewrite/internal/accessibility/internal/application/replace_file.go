@@ -20,7 +20,10 @@ type FileIssueReader interface {
 type FileDataService interface {
 	GetFile(context.Context, int64) (lmsdata.File, error)
 	UpdateFile(context.Context, lmsdata.File) error
-	GetCourse(context.Context, int64) (lmsdata.Course, error)
+}
+
+type CourseRetriever interface {
+	GetCourse(context.Context, int64) (lms.Course, error)
 }
 
 type AccessibilityDataService interface {
@@ -48,6 +51,7 @@ type BeginFileReplacementResult struct {
 type BeginFileReplacementUseCase struct {
 	fileIssueReader FileIssueReader
 	fileDataService FileDataService
+	courseRetriever CourseRetriever
 	fileUploader    FileUploader
 	sessionRepo     domain.FileUploadSessionRepository
 	sessionTTL      time.Duration
@@ -56,6 +60,7 @@ type BeginFileReplacementUseCase struct {
 func NewBeginFileReplacementUseCase(
 	fileIssueReader FileIssueReader,
 	fileDataService FileDataService,
+	courseRetriever CourseRetriever,
 	fileUploader FileUploader,
 	sessionRepo domain.FileUploadSessionRepository,
 	sessionTTL time.Duration,
@@ -63,6 +68,7 @@ func NewBeginFileReplacementUseCase(
 	return &BeginFileReplacementUseCase{
 		fileIssueReader: fileIssueReader,
 		fileDataService: fileDataService,
+		courseRetriever: courseRetriever,
 		fileUploader:    fileUploader,
 		sessionRepo:     sessionRepo,
 		sessionTTL:      sessionTTL,
@@ -70,7 +76,7 @@ func NewBeginFileReplacementUseCase(
 }
 
 func (u *BeginFileReplacementUseCase) Execute(ctx context.Context, cmd BeginFileReplacementCommand) (BeginFileReplacementResult, error) {
-	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, cmd.Principal, cmd.FileIssueID)
+	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
 	if err != nil {
 		return BeginFileReplacementResult{}, err
 	}
@@ -118,6 +124,7 @@ type CompleteFileReplacementCommand struct {
 type CompleteFileReplacementUseCase struct {
 	fileIssueReader FileIssueReader
 	fileDataService FileDataService
+	courseRetriever CourseRetriever
 	fileUploader    FileUploader
 	sessionRepo     domain.FileUploadSessionRepository
 }
@@ -125,12 +132,14 @@ type CompleteFileReplacementUseCase struct {
 func NewCompleteFileReplacementUseCase(
 	fileIssueReader FileIssueReader,
 	fileDataService FileDataService,
+	courseRetriever CourseRetriever,
 	fileUploader FileUploader,
 	sessionRepo domain.FileUploadSessionRepository,
 ) *CompleteFileReplacementUseCase {
 	return &CompleteFileReplacementUseCase{
 		fileIssueReader: fileIssueReader,
 		fileDataService: fileDataService,
+		courseRetriever: courseRetriever,
 		fileUploader:    fileUploader,
 		sessionRepo:     sessionRepo,
 	}
@@ -148,7 +157,7 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 		return lmsdata.File{}, err
 	}
 
-	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, cmd.Principal, cmd.FileIssueID)
+	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
 	if err != nil {
 		return lmsdata.File{}, err
 	}
@@ -185,28 +194,29 @@ func loadFileContext(
 	ctx context.Context,
 	fileIssueReader FileIssueReader,
 	fileDataService FileDataService,
+	courseRetriever CourseRetriever,
 	principal auth.Principal,
 	fileIssueID int64,
-) (lmsdata.File, lmsdata.Course, error) {
+) (lmsdata.File, lms.Course, error) {
 	issue, err := fileIssueReader.GetByID(ctx, fileIssueID)
 	if err != nil {
-		return lmsdata.File{}, lmsdata.Course{}, err
+		return lmsdata.File{}, lms.Course{}, err
 	}
 	if issue == nil {
-		return lmsdata.File{}, lmsdata.Course{}, apperr.New(apperr.CodeNotFound, "File issue not found")
+		return lmsdata.File{}, lms.Course{}, apperr.New(apperr.CodeNotFound, "File issue not found")
 	}
 
 	file, err := fileDataService.GetFile(ctx, issue.FileID())
 	if err != nil {
-		return lmsdata.File{}, lmsdata.Course{}, err
+		return lmsdata.File{}, lms.Course{}, err
 	}
 
-	course, err := fileDataService.GetCourse(ctx, file.CourseID)
+	course, err := courseRetriever.GetCourse(ctx, file.CourseID)
 	if err != nil {
-		return lmsdata.File{}, lmsdata.Course{}, err
+		return lmsdata.File{}, lms.Course{}, err
 	}
 	if course.TenantID != principal.TenantID {
-		return lmsdata.File{}, lmsdata.Course{}, apperr.Forbidden("You do not have access to this file issue")
+		return lmsdata.File{}, lms.Course{}, apperr.Forbidden("You do not have access to this file issue")
 	}
 
 	return file, course, nil
@@ -225,7 +235,7 @@ func toLMSFileInfo(file lmsdata.File) lms.FileInfo {
 	}
 }
 
-func toLMSCourseInfo(course lmsdata.Course) lms.CourseInfo {
+func toLMSCourseInfo(course lms.Course) lms.CourseInfo {
 	return lms.CourseInfo{
 		ID:           course.ID,
 		ExternalID:   course.ExternalID,

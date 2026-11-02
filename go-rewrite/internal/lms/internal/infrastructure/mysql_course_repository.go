@@ -6,18 +6,16 @@ import (
 	"encoding/json"
 	"errors"
 
-	"rewritetest/internal/lmsdata/internal/domain"
-	lmsdatasqlc "rewritetest/internal/lmsdata/internal/infrastructure/sqlc"
+	"rewritetest/internal/lms/internal/domain"
+	lmssqlc "rewritetest/internal/lms/internal/infrastructure/sqlc"
 )
 
 type MySQLCourseRepository struct {
-	queries *lmsdatasqlc.Queries
+	queries *lmssqlc.Queries
 }
 
 func NewMySQLCourseRepository(db *sql.DB) *MySQLCourseRepository {
-	return &MySQLCourseRepository{
-		queries: lmsdatasqlc.New(db),
-	}
+	return &MySQLCourseRepository{queries: lmssqlc.New(db)}
 }
 
 func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Course) (*domain.Course, error) {
@@ -25,8 +23,7 @@ func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Cours
 	if err != nil {
 		return nil, err
 	}
-
-	result, err := r.queries.CreateCourse(ctx, lmsdatasqlc.CreateCourseParams{
+	result, err := r.queries.CreateCourse(ctx, lmssqlc.CreateCourseParams{
 		Title:        course.Title(),
 		IsActive:     course.IsActive(),
 		IsDirty:      course.IsDirty(),
@@ -38,12 +35,11 @@ func (r *MySQLCourseRepository) Create(ctx context.Context, course *domain.Cours
 	if err != nil {
 		return nil, err
 	}
-	lastInsertID, err := result.LastInsertId()
+	id, err := result.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
-
-	return r.getByID(ctx, lastInsertID)
+	return r.getByID(ctx, id)
 }
 
 func (r *MySQLCourseRepository) GetByID(ctx context.Context, courseID int64) (*domain.Course, error) {
@@ -51,31 +47,18 @@ func (r *MySQLCourseRepository) GetByID(ctx context.Context, courseID int64) (*d
 }
 
 func (r *MySQLCourseRepository) getByID(ctx context.Context, courseID int64) (*domain.Course, error) {
-	courseRow, err := r.queries.GetCourseByID(ctx, uint64(courseID))
+	row, err := r.queries.GetCourseByID(ctx, uint64(courseID))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
 	}
-
 	var externalData map[string]any
-	if err := json.Unmarshal(courseRow.ExternalData, &externalData); err != nil {
+	if err := json.Unmarshal(row.ExternalData, &externalData); err != nil {
 		return nil, err
 	}
-
-	course := domain.RehydrateCourse(
-		int64(courseRow.ID),
-		courseRow.Title,
-		int64(courseRow.TenantID),
-		courseRow.IsActive,
-		courseRow.IsDirty,
-		courseRow.ExternalID,
-		externalData,
-		courseRow.UpdatedAt,
-	)
-
-	return course, nil
+	return domain.RehydrateCourse(int64(row.ID), row.Title, int64(row.TenantID), row.IsActive, row.IsDirty, row.ExternalID, externalData, row.UpdatedAt), nil
 }
 
 var _ domain.CourseRepository = (*MySQLCourseRepository)(nil)

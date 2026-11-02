@@ -13,7 +13,7 @@ type Course struct {
 	updatedAt    time.Time
 }
 
-func NewCourse(title string, tenantID int64, isActive bool, isDirty bool, externalID string, externalData map[string]any, updatedAt time.Time) *Course {
+func NewCourse(title string, tenantID int64, isActive, isDirty bool, externalID string, externalData map[string]any, updatedAt time.Time) *Course {
 	return &Course{
 		title:        title,
 		tenantID:     tenantID,
@@ -25,7 +25,7 @@ func NewCourse(title string, tenantID int64, isActive bool, isDirty bool, extern
 	}
 }
 
-func RehydrateCourse(id int64, title string, tenantID int64, isActive bool, isDirty bool, externalID string, externalData map[string]any, updatedAt time.Time) *Course {
+func RehydrateCourse(id int64, title string, tenantID int64, isActive, isDirty bool, externalID string, externalData map[string]any, updatedAt time.Time) *Course {
 	return &Course{
 		id:           id,
 		title:        title,

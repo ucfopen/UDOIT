@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"rewritetest/internal/lmsdata/internal/domain"
-	"rewritetest/internal/lmsdata/internal/infrastructure"
+	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/infrastructure"
 
 	"github.com/stretchr/testify/require"
 )
@@ -23,15 +23,10 @@ func TestCreateCourse_Success(t *testing.T) {
 			return domain.RehydrateCourse(42, course.Title(), course.TenantID(), course.IsActive(), course.IsDirty(), course.ExternalID(), course.ExternalData(), course.UpdatedAt()), nil
 		},
 	}
-
 	uc := NewCreateCourseUseCase(repo)
 	course, err := uc.Execute(context.Background(), CreateCourseCommand{
-		Title:        "Biology 101",
-		TenantID:     12,
-		ExternalID:   "ext-course-1",
-		ExternalData: map[string]any{"lms": "canvas"},
+		Title: "Biology 101", TenantID: 12, ExternalID: "ext-course-1", ExternalData: map[string]any{"lms": "canvas"},
 	})
-
 	require.NoError(t, err)
 	require.Equal(t, int64(42), course.ID())
 }
@@ -39,13 +34,9 @@ func TestCreateCourse_Success(t *testing.T) {
 func TestCreateCourse_RepositoryErrorIsReturned(t *testing.T) {
 	expectedErr := errors.New("insert failed")
 	repo := &infrastructure.MockCourseRepository{
-		CreateFunc: func(_ context.Context, _ *domain.Course) (*domain.Course, error) {
-			return nil, expectedErr
-		},
+		CreateFunc: func(_ context.Context, _ *domain.Course) (*domain.Course, error) { return nil, expectedErr },
 	}
-
 	uc := NewCreateCourseUseCase(repo)
 	_, err := uc.Execute(context.Background(), CreateCourseCommand{Title: "Biology 101", TenantID: 12})
-
 	require.ErrorIs(t, err, expectedErr)
 }

@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"rewritetest/internal/lms"
-	"rewritetest/internal/lmsdata/internal/application"
-	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -15,7 +13,7 @@ type CourseContentRetriever interface {
 }
 
 type CourseSynchronization struct {
-	Course          Course
+	Course          lms.Course
 	ChangedContents []ScannableContent
 	Files           []File
 }
@@ -30,7 +28,7 @@ type ScannableContent struct {
 }
 
 func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (CourseSynchronization, error) {
-	course, err := m.GetCourse(ctx, courseID)
+	course, err := m.integration.GetCourse(ctx, courseID)
 	if err != nil {
 		return CourseSynchronization{}, err
 	}
@@ -140,42 +138,5 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 		Course:          course,
 		ChangedContents: changedContent,
 		Files:           files,
-	}, nil
-}
-
-func (m *Module) CreateCourse(ctx context.Context, title string, tenantID int64, externalID string, externalData map[string]any) (int64, error) {
-	course, err := m.createCourseUseCase.Execute(ctx, application.CreateCourseCommand{
-		Title:        title,
-		TenantID:     tenantID,
-		ExternalID:   externalID,
-		ExternalData: externalData,
-	})
-	if err != nil {
-		return 0, err
-	}
-	return course.ID(), nil
-}
-
-type Course struct {
-	ID           int64
-	TenantID     int64
-	ExternalID   string
-	ExternalData map[string]any
-}
-
-func (m *Module) GetCourse(ctx context.Context, courseID int64) (Course, error) {
-	course, err := m.courseRepository.GetByID(ctx, courseID)
-	if err != nil {
-		return Course{}, err
-	}
-	if course == nil {
-		return Course{}, apperr.New(apperr.CodeInternal, "The requested course was not found.")
-	}
-
-	return Course{
-		ID:           course.ID(),
-		TenantID:     course.TenantID(),
-		ExternalID:   course.ExternalID(),
-		ExternalData: course.ExternalData(),
 	}, nil
 }

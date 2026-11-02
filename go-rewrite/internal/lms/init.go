@@ -20,6 +20,8 @@ import (
 type Module struct {
 	providerResolver         domain.LMSProviderResolver
 	providerConfigRepository domain.LMSProviderConfigRepository
+	courseRepository         domain.CourseRepository
+	createCourseUseCase      *application.CreateCourseUseCase
 	handler                  *internal.Handler
 }
 
@@ -40,6 +42,8 @@ func New(db *sql.DB, client *redis.Client, baseURL string, encryptionKeyB64 stri
 
 	credentialRepository := infrastructure.NewMySQLLMSCredentialRepository(db, payloadCipher)
 	providerConfigRepository := infrastructure.NewMySQLLMSProviderConfigRepository(db, payloadCipher)
+	courseRepository := infrastructure.NewMySQLCourseRepository(db)
+	createCourseUseCase := application.NewCreateCourseUseCase(courseRepository)
 	authAttemptRepository := infrastructure.NewRedisAuthAttemptRepository(client, authAttemptTTL, "auth_attempt:")
 
 	// LMS providers
@@ -55,6 +59,8 @@ func New(db *sql.DB, client *redis.Client, baseURL string, encryptionKeyB64 stri
 	return &Module{
 		providerResolver:         providerResolver,
 		providerConfigRepository: providerConfigRepository,
+		courseRepository:         courseRepository,
+		createCourseUseCase:      createCourseUseCase,
 		handler:                  handler,
 	}, nil
 }

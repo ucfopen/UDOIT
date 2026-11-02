@@ -68,7 +68,7 @@ type FileReferenceInput struct {
 }
 
 func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal, request AddFileReferencesRequest) error {
-	course, err := m.GetCourse(ctx, request.CourseID)
+	course, err := m.integration.GetCourse(ctx, request.CourseID)
 	if err != nil {
 		return err
 	}

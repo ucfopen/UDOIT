@@ -26,6 +26,7 @@ func New(
 	db *sql.DB,
 	redisClient *redis.Client,
 	lmsDataService application.AccessibilityDataService,
+	courseRetriever application.CourseRetriever,
 	fileUploader lms.FileUploader,
 	authenticator auth.Authenticator,
 ) *Module {
@@ -59,6 +60,7 @@ func New(
 	beginFileReplacementUseCase := application.NewBeginFileReplacementUseCase(
 		fileIssueRepository,
 		lmsDataService,
+		courseRetriever,
 		fileUploader,
 		fileUploadSessionRepository,
 		15*time.Minute,
@@ -66,6 +68,7 @@ func New(
 	completeFileReplacementUseCase := application.NewCompleteFileReplacementUseCase(
 		fileIssueRepository,
 		lmsDataService,
+		courseRetriever,
 		fileUploader,
 		fileUploadSessionRepository,
 	)
