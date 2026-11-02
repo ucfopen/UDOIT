@@ -3,12 +3,10 @@ package lmsdata
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"rewritetest/internal/lms"
 	"rewritetest/internal/lmsdata/internal/domain"
 
-	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -16,27 +14,7 @@ type FileReferenceResolver interface {
 	ResolveFileReferences(ctx context.Context, req lms.ResolveFileReferencesRequest) ([]lms.ResolvedFileReference, error)
 }
 
-type File struct {
-	ID           int64
-	CourseID     int64
-	FileName     string
-	FileType     string
-	UpdatedAt    time.Time
-	FileSize     int64
-	DownloadURL  string
-	ExternalID   string
-	ExternalData map[string]any
-}
-
-type FileSyncInput struct {
-	FileName     string
-	FileType     string
-	UpdatedAt    time.Time
-	FileSize     int64
-	DownloadURL  string
-	ExternalID   string
-	ExternalData map[string]any
-}
+type File = lms.File
 
 type FileReference struct {
 	ContentItemID int64
@@ -98,7 +76,7 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 		})
 	}
 
-	files, err := m.GetFilesByCourse(ctx, request.CourseID)
+	files, err := m.integration.GetFilesByCourse(ctx, request.CourseID)
 	if err != nil {
 		return err
 	}
@@ -158,83 +136,10 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 	return m.replaceFileReferences(ctx, request.ContentItemIDs, fileReferences)
 }
 
-func (m *Module) SyncFilesForCourse(ctx context.Context, courseID int64, files []FileSyncInput) error {
-	records := make([]domain.CourseFileSyncRecord, len(files))
-	for i, file := range files {
-		records[i] = domain.CourseFileSyncRecord{
-			FileName:     file.FileName,
-			FileType:     file.FileType,
-			UpdatedAt:    file.UpdatedAt.Format(time.RFC3339),
-			FileSize:     file.FileSize,
-			DownloadURL:  file.DownloadURL,
-			ExternalID:   file.ExternalID,
-			ExternalData: file.ExternalData,
-		}
-	}
-
-	return m.fileRepository.UpsertByCourse(ctx, courseID, records)
-}
-
-func (m *Module) GetFilesByCourse(ctx context.Context, courseID int64) ([]File, error) {
-	files, err := m.fileRepository.GetByCourseID(ctx, courseID)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]File, len(files))
-	for i, file := range files {
-		result[i] = File{
-			CourseID:     file.CourseID(),
-			ID:           file.ID(),
-			FileName:     file.FileName(),
-			FileType:     file.FileType(),
-			UpdatedAt:    file.UpdatedAt(),
-			FileSize:     file.FileSize(),
-			DownloadURL:  file.DownloadURL(),
-			ExternalID:   file.ExternalID(),
-			ExternalData: file.ExternalData(),
-		}
-	}
-
-	return result, nil
-}
-
 func (m *Module) GetFile(ctx context.Context, fileID int64) (File, error) {
-	file, err := m.fileRepository.GetFileByID(ctx, fileID)
-	if err != nil {
-		return File{}, err
-	}
-	if file == nil {
-		return File{}, apperr.New(apperr.CodeNotFound, "The requested file was not found.")
-	}
-
-	return toFile(file), nil
+	return m.integration.GetFile(ctx, fileID)
 }
 
 func (m *Module) UpdateFile(ctx context.Context, file File) error {
-	return m.fileRepository.UpdateFile(ctx, domain.RehydrateFile(
-		file.ID,
-		file.CourseID,
-		file.FileName,
-		file.FileType,
-		file.UpdatedAt,
-		file.FileSize,
-		file.DownloadURL,
-		file.ExternalID,
-		file.ExternalData,
-	))
-}
-
-func toFile(file *domain.File) File {
-	return File{
-		CourseID:     file.CourseID(),
-		ID:           file.ID(),
-		FileName:     file.FileName(),
-		FileType:     file.FileType(),
-		UpdatedAt:    file.UpdatedAt(),
-		FileSize:     file.FileSize(),
-		DownloadURL:  file.DownloadURL(),
-		ExternalID:   file.ExternalID(),
-		ExternalData: file.ExternalData(),
-	}
+	return m.integration.UpdateFile(ctx, file)
 }

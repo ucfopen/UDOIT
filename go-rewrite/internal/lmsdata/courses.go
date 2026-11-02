@@ -15,7 +15,7 @@ type CourseContentRetriever interface {
 type CourseSynchronization struct {
 	Course          lms.Course
 	ChangedContents []ScannableContent
-	Files           []File
+	Files           []lms.File
 }
 
 type ScannableContent struct {
@@ -113,9 +113,9 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 		}
 	}
 
-	filesToSync := make([]FileSyncInput, len(externalContent.Files))
+	filesToSync := make([]lms.FileSyncInput, len(externalContent.Files))
 	for i, file := range externalContent.Files {
-		filesToSync[i] = FileSyncInput{
+		filesToSync[i] = lms.FileSyncInput{
 			FileName:     file.FileName,
 			FileType:     file.FileType,
 			UpdatedAt:    file.UpdatedAt,
@@ -125,11 +125,11 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 			ExternalData: file.ExternalData,
 		}
 	}
-	if err := m.SyncFilesForCourse(ctx, courseID, filesToSync); err != nil {
+	if err := m.integration.SyncFilesForCourse(ctx, courseID, filesToSync); err != nil {
 		return CourseSynchronization{}, err
 	}
 
-	files, err := m.GetFilesByCourse(ctx, courseID)
+	files, err := m.integration.GetFilesByCourse(ctx, courseID)
 	if err != nil {
 		return CourseSynchronization{}, err
 	}

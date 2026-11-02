@@ -6,7 +6,6 @@ import (
 
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/lms"
-	"rewritetest/internal/lmsdata"
 	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 
@@ -18,8 +17,8 @@ type FileIssueReader interface {
 }
 
 type FileDataService interface {
-	GetFile(context.Context, int64) (lmsdata.File, error)
-	UpdateFile(context.Context, lmsdata.File) error
+	GetFile(context.Context, int64) (lms.File, error)
+	UpdateFile(context.Context, lms.File) error
 }
 
 type CourseRetriever interface {
@@ -145,24 +144,24 @@ func NewCompleteFileReplacementUseCase(
 	}
 }
 
-func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd CompleteFileReplacementCommand) (lmsdata.File, error) {
+func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd CompleteFileReplacementCommand) (lms.File, error) {
 	session, err := u.sessionRepo.GetByID(ctx, cmd.UploadSessionID)
 	if err != nil {
-		return lmsdata.File{}, err
+		return lms.File{}, err
 	}
 	if session == nil || session.UserID != cmd.Principal.AgentID || session.TenantID != cmd.Principal.TenantID || session.FileIssueID != cmd.FileIssueID {
-		return lmsdata.File{}, apperr.New(apperr.CodeNotFound, "Upload session not found")
+		return lms.File{}, apperr.New(apperr.CodeNotFound, "Upload session not found")
 	}
 	if err := u.sessionRepo.DeleteByID(ctx, cmd.UploadSessionID); err != nil {
-		return lmsdata.File{}, err
+		return lms.File{}, err
 	}
 
 	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
 	if err != nil {
-		return lmsdata.File{}, err
+		return lms.File{}, err
 	}
 	if file.ID != session.FileID {
-		return lmsdata.File{}, apperr.New(apperr.CodeNotFound, "Upload session not found")
+		return lms.File{}, apperr.New(apperr.CodeNotFound, "Upload session not found")
 	}
 
 	uploadedFile, err := u.fileUploader.CompleteFileUpload(ctx, lms.CompleteFileUploadRequest{
@@ -173,7 +172,7 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 		UploadResponse: cmd.UploadResponse,
 	})
 	if err != nil {
-		return lmsdata.File{}, err
+		return lms.File{}, err
 	}
 
 	// This does nothing but satisfy a previous type return requirement. The type
@@ -197,32 +196,32 @@ func loadFileContext(
 	courseRetriever CourseRetriever,
 	principal auth.Principal,
 	fileIssueID int64,
-) (lmsdata.File, lms.Course, error) {
+) (lms.File, lms.Course, error) {
 	issue, err := fileIssueReader.GetByID(ctx, fileIssueID)
 	if err != nil {
-		return lmsdata.File{}, lms.Course{}, err
+		return lms.File{}, lms.Course{}, err
 	}
 	if issue == nil {
-		return lmsdata.File{}, lms.Course{}, apperr.New(apperr.CodeNotFound, "File issue not found")
+		return lms.File{}, lms.Course{}, apperr.New(apperr.CodeNotFound, "File issue not found")
 	}
 
 	file, err := fileDataService.GetFile(ctx, issue.FileID())
 	if err != nil {
-		return lmsdata.File{}, lms.Course{}, err
+		return lms.File{}, lms.Course{}, err
 	}
 
 	course, err := courseRetriever.GetCourse(ctx, file.CourseID)
 	if err != nil {
-		return lmsdata.File{}, lms.Course{}, err
+		return lms.File{}, lms.Course{}, err
 	}
 	if course.TenantID != principal.TenantID {
-		return lmsdata.File{}, lms.Course{}, apperr.Forbidden("You do not have access to this file issue")
+		return lms.File{}, lms.Course{}, apperr.Forbidden("You do not have access to this file issue")
 	}
 
 	return file, course, nil
 }
 
-func toLMSFileInfo(file lmsdata.File) lms.FileInfo {
+func toLMSFileInfo(file lms.File) lms.FileInfo {
 	return lms.FileInfo{
 		ID:           file.ID,
 		FileName:     file.FileName,

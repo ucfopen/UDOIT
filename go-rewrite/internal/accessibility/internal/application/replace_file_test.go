@@ -7,7 +7,6 @@ import (
 
 	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/lms"
-	"rewritetest/internal/lmsdata"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -20,17 +19,17 @@ func (r replacementFileIssueReader) GetByID(context.Context, int64) (*domain.Fil
 }
 
 type replacementFileDataService struct {
-	file         lmsdata.File
+	file         lms.File
 	course       lms.Course
-	updatedFile  lmsdata.File
+	updatedFile  lms.File
 	updateCalled bool
 }
 
-func (s *replacementFileDataService) GetFile(context.Context, int64) (lmsdata.File, error) {
+func (s *replacementFileDataService) GetFile(context.Context, int64) (lms.File, error) {
 	return s.file, nil
 }
 
-func (s *replacementFileDataService) UpdateFile(_ context.Context, file lmsdata.File) error {
+func (s *replacementFileDataService) UpdateFile(_ context.Context, file lms.File) error {
 	s.updatedFile = file
 	s.updateCalled = true
 	return nil
@@ -86,12 +85,12 @@ func (r *replacementSessionRepository) DeleteByID(_ context.Context, id string) 
 	return nil
 }
 
-func replacementContext() (*domain.FileIssue, lmsdata.File, lms.Course, auth.Principal) {
+func replacementContext() (*domain.FileIssue, lms.File, lms.Course, auth.Principal) {
 	issue, err := domain.RehydrateFileIssue(9, 34, nil, nil, time.Now(), time.Now())
 	if err != nil {
 		panic(err)
 	}
-	file := lmsdata.File{
+	file := lms.File{
 		ID:           34,
 		CourseID:     12,
 		FileName:     "old.pdf",

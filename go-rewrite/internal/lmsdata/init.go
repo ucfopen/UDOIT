@@ -10,7 +10,6 @@ import (
 )
 
 type Module struct {
-	fileRepository          domain.FileRepository
 	fileReferenceRepository domain.FileReferenceRepository
 	contentHasher           domain.ContentHasher
 	integration             Integration
@@ -21,6 +20,14 @@ type Integration interface {
 	CourseContentRetriever
 	CourseRetriever
 	ContentItemRepository
+	FileDataRepository
+}
+
+type FileDataRepository interface {
+	SyncFilesForCourse(context.Context, int64, []lms.FileSyncInput) error
+	GetFilesByCourse(context.Context, int64) ([]lms.File, error)
+	GetFile(context.Context, int64) (lms.File, error)
+	UpdateFile(context.Context, lms.File) error
 }
 
 type ContentItemRepository interface {
@@ -33,12 +40,10 @@ type CourseRetriever interface {
 }
 
 func New(db *sql.DB, integration Integration) *Module {
-	fileRepository := infrastructure.NewMySQLFileRepository(db)
 	fileReferenceRepository := infrastructure.NewMySQLFileReferenceRepository(db)
 	contentHasher := infrastructure.NewBlake3ContentHasher()
 
 	return &Module{
-		fileRepository:          fileRepository,
 		fileReferenceRepository: fileReferenceRepository,
 		contentHasher:           contentHasher,
 		integration:             integration,

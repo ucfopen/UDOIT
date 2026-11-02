@@ -22,6 +22,7 @@ type Module struct {
 	providerConfigRepository domain.LMSProviderConfigRepository
 	courseRepository         domain.CourseRepository
 	contentItemRepository    domain.ContentItemRepository
+	fileRepository           domain.FileRepository
 	createCourseUseCase      *application.CreateCourseUseCase
 	handler                  *internal.Handler
 }
@@ -45,6 +46,7 @@ func New(db *sql.DB, client *redis.Client, baseURL string, encryptionKeyB64 stri
 	providerConfigRepository := infrastructure.NewMySQLLMSProviderConfigRepository(db, payloadCipher)
 	courseRepository := infrastructure.NewMySQLCourseRepository(db)
 	contentItemRepository := infrastructure.NewMySQLContentItemRepository(db)
+	fileRepository := infrastructure.NewMySQLFileRepository(db)
 	createCourseUseCase := application.NewCreateCourseUseCase(courseRepository)
 	authAttemptRepository := infrastructure.NewRedisAuthAttemptRepository(client, authAttemptTTL, "auth_attempt:")
 
@@ -63,6 +65,7 @@ func New(db *sql.DB, client *redis.Client, baseURL string, encryptionKeyB64 stri
 		providerConfigRepository: providerConfigRepository,
 		courseRepository:         courseRepository,
 		contentItemRepository:    contentItemRepository,
+		fileRepository:           fileRepository,
 		createCourseUseCase:      createCourseUseCase,
 		handler:                  handler,
 	}, nil
