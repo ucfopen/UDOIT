@@ -25,10 +25,10 @@ type Module struct {
 func New(
 	db *sql.DB,
 	redisClient *redis.Client,
-	lmsDataService application.LMSDataService,
-	lmsModule application.LMSFileReferenceService,
-	courseRetriever application.CourseRetriever,
+	lmsModule application.LMSDataService,
+	lmsFileReferences application.LMSFileReferenceService,
 	fileDataService application.FileDataService,
+	courseRetriever application.CourseRetriever,
 	fileUploader lms.FileUploader,
 	authenticator auth.Authenticator,
 ) *Module {
@@ -44,8 +44,8 @@ func New(
 	scanCourseUseCase := application.NewScanCourseUseCase(
 		htmlIssueRepository,
 		fileIssueRepository,
-		lmsDataService,
 		lmsModule,
+		lmsFileReferences,
 		contentScanner,
 		scanRepository,
 	)

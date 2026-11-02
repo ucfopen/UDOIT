@@ -15,7 +15,6 @@ import (
 	"rewritetest/internal/auth"
 	"rewritetest/internal/i18n"
 	"rewritetest/internal/lms"
-	"rewritetest/internal/lmsdata"
 	"rewritetest/internal/lti"
 	"rewritetest/internal/shared/http/middleware"
 	"rewritetest/internal/tenants"
@@ -66,10 +65,9 @@ func main() {
 		log.Fatal(err)
 	}
 	authModule := auth.New(client)
-	lmsDataModule := lmsdata.New(lmsModule)
 	i18nModule := i18n.New()
 	usersModule := users.New(db, i18nModule, authModule)
-	accessibilityModule := accessibility.New(db, client, lmsDataModule, lmsModule, lmsModule, lmsModule, lmsModule, authModule)
+	accessibilityModule := accessibility.New(db, client, lmsModule, lmsModule, lmsModule, lmsModule, lmsModule, authModule)
 	tenantsModule := tenants.New(db, lmsModule)
 	ltiModule := lti.New(client, db, usersModule, authModule, lmsModule, lmsModule, tenantsModule, lmsModule, os.Getenv("GO_BASE_URL"))
 
