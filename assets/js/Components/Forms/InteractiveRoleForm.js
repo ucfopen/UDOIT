@@ -16,11 +16,16 @@ export default function InteractiveRoleForm({
 }) {
   const FORM_OPTIONS = {
     MAKE_LINK: UFIXIT_OPTIONS.ADD_TEXT,
+    MAKE_DISCLOSURE: 'make-disclosure',
     REMOVE_ROLE: UFIXIT_OPTIONS.DELETE_ATTRIBUTE
   }
   const [href, setHref] = useState('')
 
   const getBaseElement = () => Html.toElement(activeIssue.initialHtml || activeIssue.sourceHtml)
+  const getSummary = (detailsElement) => Array.from(detailsElement?.childNodes || [])
+    .find((node) => node.nodeType === 1 && node.tagName === 'SUMMARY')
+  const isDisclosure = (element) => element?.tagName === 'DETAILS' && Boolean(getSummary(element))
+  const canMakeDisclosure = activeIssue && isDisclosure(getBaseElement())
 
   useEffect(() => {
     if (!activeIssue) return
@@ -29,15 +34,23 @@ export default function InteractiveRoleForm({
     const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
     const fixedElement = fixed ? Html.toElement(activeIssue.newHtml) : null
     const isLink = fixedElement?.tagName === 'A' && fixedElement.hasAttribute('href')
+    const isFixedDisclosure = isDisclosure(fixedElement)
 
     setHref((isLink ? fixedElement : element)?.getAttribute('href') || '')
-    setActiveOption(isLink ? FORM_OPTIONS.MAKE_LINK : fixed ? FORM_OPTIONS.REMOVE_ROLE : '')
+    setActiveOption(isLink
+      ? FORM_OPTIONS.MAKE_LINK
+      : isFixedDisclosure
+        ? FORM_OPTIONS.MAKE_DISCLOSURE
+        : fixed
+          ? FORM_OPTIONS.REMOVE_ROLE
+          : '')
     setFormErrors([])
   }, [activeIssue])
 
   const getErrors = (option, hrefValue = href) => {
     const errors = {
       [FORM_OPTIONS.MAKE_LINK]: [],
+      [FORM_OPTIONS.MAKE_DISCLOSURE]: [],
       [FORM_OPTIONS.REMOVE_ROLE]: []
     }
 
@@ -73,15 +86,69 @@ export default function InteractiveRoleForm({
     return link
   }
 
+  const copySafeAttributes = (source, target) => {
+    Array.from(source.attributes).forEach((attribute) => {
+      if (!['role', 'tabindex', 'aria-expanded', 'aria-controls'].includes(attribute.name)) {
+        target.setAttribute(attribute.name, attribute.value)
+      }
+    })
+  }
+
+  const createDisclosure = (detailsElement) => {
+    const disclosure = document.createElement('details')
+    const childNodes = Array.from(detailsElement.childNodes)
+    const originalSummary = getSummary(detailsElement)
+    const summary = document.createElement('summary')
+
+    copySafeAttributes(detailsElement, disclosure)
+    copySafeAttributes(originalSummary, summary)
+
+    while (originalSummary.firstChild) {
+      summary.appendChild(originalSummary.firstChild)
+    }
+
+    disclosure.appendChild(summary)
+    childNodes
+      .filter((node) => node !== originalSummary)
+      .forEach((node) => disclosure.appendChild(node))
+
+    return disclosure
+  }
+
+  const createPlainContent = (detailsElement) => {
+    const content = document.createElement('div')
+    const childNodes = Array.from(detailsElement.childNodes)
+    const originalSummary = getSummary(detailsElement)
+
+    copySafeAttributes(detailsElement, content)
+
+    while (originalSummary.firstChild) {
+      content.appendChild(originalSummary.firstChild)
+    }
+
+    childNodes
+      .filter((node) => node !== originalSummary)
+      .forEach((node) => content.appendChild(node))
+
+    return content
+  }
+
   const updateHtml = (option, hrefValue = href) => {
     const issue = activeIssue
 
     const element = getBaseElement()
     if (option === FORM_OPTIONS.MAKE_LINK) {
       issue.newHtml = Html.toString(createLink(element, hrefValue))
+    } else if (option === FORM_OPTIONS.MAKE_DISCLOSURE) {
+      issue.newHtml = Html.toString(createDisclosure(element))
     } else if (option === FORM_OPTIONS.REMOVE_ROLE) {
-      element.removeAttribute('role')
-      issue.newHtml = Html.toString(element)
+      if (isDisclosure(element)) {
+        issue.newHtml = Html.toString(createPlainContent(element))
+      } else {
+        element.removeAttribute('role')
+        element.removeAttribute('tabindex')
+        issue.newHtml = Html.toString(element)
+      }
     }
 
     handleActiveIssue(issue, option)
@@ -108,36 +175,54 @@ export default function InteractiveRoleForm({
 
   return (
     <>
-      <div className="instructions">{t('form.interactive_role.label.question')}</div>
-
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MAKE_LINK ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={handleOptionChange}
-          option={FORM_OPTIONS.MAKE_LINK}
-          labelId="make-link-label"
-          labelText={t('form.interactive_role.label.make_link')}
-        />
-        {activeOption === FORM_OPTIONS.MAKE_LINK && (
-          <>
-            <input
-              id="interactiveRoleHref"
-              aria-labelledby="make-link-label"
-              className="w-100"
-              type="text"
-              value={href}
-              onChange={handleHrefChange}
-              placeholder="https://example.com"
-              disabled={isDisabled}
-            />
-            <OptionFeedback
-              t={t}
-              feedbackArray={formErrors[FORM_OPTIONS.MAKE_LINK]}
-            />
-          </>
-        )}
+      <div className="instructions">
+        {t(canMakeDisclosure
+          ? 'form.interactive_role.label.question_disclosure'
+          : 'form.interactive_role.label.question')}
       </div>
+
+      {!canMakeDisclosure && (
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MAKE_LINK ? 'selected' : ''}`}>
+          <RadioSelector
+            activeOption={activeOption}
+            isDisabled={isDisabled}
+            setActiveOption={handleOptionChange}
+            option={FORM_OPTIONS.MAKE_LINK}
+            labelId="make-link-label"
+            labelText={t('form.interactive_role.label.make_link')}
+          />
+          {activeOption === FORM_OPTIONS.MAKE_LINK && (
+            <>
+              <input
+                id="interactiveRoleHref"
+                aria-labelledby="make-link-label"
+                className="w-100"
+                type="text"
+                value={href}
+                onChange={handleHrefChange}
+                placeholder="https://example.com"
+                disabled={isDisabled}
+              />
+              <OptionFeedback
+                t={t}
+                feedbackArray={formErrors[FORM_OPTIONS.MAKE_LINK]}
+              />
+            </>
+          )}
+        </div>
+      )}
+
+      {canMakeDisclosure && (
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MAKE_DISCLOSURE ? 'selected' : ''}`}>
+          <RadioSelector
+            activeOption={activeOption}
+            isDisabled={isDisabled}
+            setActiveOption={handleOptionChange}
+            option={FORM_OPTIONS.MAKE_DISCLOSURE}
+            labelText={t('form.interactive_role.label.make_expandable_section')}
+          />
+        </div>
+      )}
 
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.REMOVE_ROLE ? 'selected' : ''}`}>
         <RadioSelector
