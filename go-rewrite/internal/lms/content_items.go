@@ -7,6 +7,21 @@ import (
 	"rewritetest/internal/lms/internal/domain"
 )
 
+type CourseSynchronization struct {
+	Course          Course
+	ChangedContents []ScannableContent
+	Files           []File
+}
+
+type ScannableContent struct {
+	ID           int64
+	CourseID     int64
+	ExternalID   string
+	ExternalData map[string]any
+	ContentHash  string
+	HTML         string
+}
+
 // ContentItem is the persisted representation of a course content item.
 type ContentItem struct {
 	ID               int64

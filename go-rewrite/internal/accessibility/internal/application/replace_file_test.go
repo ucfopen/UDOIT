@@ -19,20 +19,12 @@ func (r replacementFileIssueReader) GetByID(context.Context, int64) (*domain.Fil
 }
 
 type replacementFileDataService struct {
-	file         lms.File
-	course       lms.Course
-	updatedFile  lms.File
-	updateCalled bool
+	file   lms.File
+	course lms.Course
 }
 
 func (s *replacementFileDataService) GetFile(context.Context, int64) (lms.File, error) {
 	return s.file, nil
-}
-
-func (s *replacementFileDataService) UpdateFile(_ context.Context, file lms.File) error {
-	s.updatedFile = file
-	s.updateCalled = true
-	return nil
 }
 
 func (s *replacementFileDataService) GetCourse(context.Context, int64) (lms.Course, error) {
@@ -215,14 +207,11 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 		t.Fatalf("Execute returned error: %v", err)
 	}
 
-	if !uploader.completeCalled || !dataService.updateCalled {
-		t.Fatalf("expected completion and persistence, completed=%v updated=%v", uploader.completeCalled, dataService.updateCalled)
+	if !uploader.completeCalled {
+		t.Fatalf("expected completion upload, completed=%v", uploader.completeCalled)
 	}
 	if got.ExternalID != "file:55" || got.FileName != "new.pdf" || !got.UpdatedAt.Equal(updatedAt) {
 		t.Fatalf("unexpected returned file: %+v", got)
-	}
-	if dataService.updatedFile.ExternalID != "file:55" || dataService.updatedFile.FileSize != 200 {
-		t.Fatalf("unexpected persisted file: %+v", dataService.updatedFile)
 	}
 }
 

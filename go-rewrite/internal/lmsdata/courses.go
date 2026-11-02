@@ -12,30 +12,15 @@ type CourseContentRetriever interface {
 	GetCourseContent(ctx context.Context, req lms.GetCourseContentRequest) (lms.ExternalCourseContent, error)
 }
 
-type CourseSynchronization struct {
-	Course          lms.Course
-	ChangedContents []ScannableContent
-	Files           []lms.File
-}
-
-type ScannableContent struct {
-	ID           int64
-	CourseID     int64
-	ExternalID   string
-	ExternalData map[string]any
-	ContentHash  string
-	HTML         string
-}
-
-func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (CourseSynchronization, error) {
+func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (lms.CourseSynchronization, error) {
 	course, err := m.integration.GetCourse(ctx, courseID)
 	if err != nil {
-		return CourseSynchronization{}, err
+		return lms.CourseSynchronization{}, err
 	}
 
-	currentContentItems, err := m.GetContentItemsByCourse(ctx, courseID)
+	currentContentItems, err := m.integration.GetContentItemsByCourse(ctx, courseID)
 	if err != nil {
-		return CourseSynchronization{}, err
+		return lms.CourseSynchronization{}, err
 	}
 
 	lmsContentItems := make([]lms.ExistingContentItem, len(currentContentItems))
@@ -55,27 +40,27 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 		UserID:             principal.AgentID,
 	})
 	if err != nil {
-		return CourseSynchronization{}, err
+		return lms.CourseSynchronization{}, err
 	}
 
-	currentByExternalID := make(map[string]ContentItem, len(currentContentItems))
+	currentByExternalID := make(map[string]lms.ContentItem, len(currentContentItems))
 	for _, item := range currentContentItems {
 		currentByExternalID[item.ExternalID] = item
 	}
 
-	changedContent := make([]ScannableContent, 0, len(externalContent.ContentItems))
-	contentToPersist := make([]ContentItem, 0, len(externalContent.ContentItems))
+	changedContent := make([]lms.ScannableContent, 0, len(externalContent.ContentItems))
+	contentToPersist := make([]lms.ContentItem, 0, len(externalContent.ContentItems))
 	for _, item := range externalContent.ContentItems {
 		hash, err := m.contentHasher.HashContent(item.HTML)
 		if err != nil {
-			return CourseSynchronization{}, err
+			return lms.CourseSynchronization{}, err
 		}
 		current, exists := currentByExternalID[item.ExternalID]
 		contentChangedAt := current.ContentChangedAt
 		if !exists || current.ContentHash != hash {
 			contentChangedAt = time.Now()
 		}
-		content := ContentItem{
+		content := lms.ContentItem{
 			ID:               current.ID,
 			CourseID:         courseID,
 			ExternalID:       item.ExternalID,
@@ -87,7 +72,7 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 		if !contentChangedAt.After(changedSince) {
 			continue
 		}
-		changedContent = append(changedContent, ScannableContent{
+		changedContent = append(changedContent, lms.ScannableContent{
 			ID:           current.ID,
 			CourseID:     courseID,
 			ExternalID:   item.ExternalID,
@@ -98,9 +83,9 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 	}
 
 	if len(contentToPersist) > 0 {
-		persistedContent, err := m.CreateManyContentItems(ctx, contentToPersist)
+		persistedContent, err := m.integration.CreateManyContentItems(ctx, contentToPersist)
 		if err != nil {
-			return CourseSynchronization{}, err
+			return lms.CourseSynchronization{}, err
 		}
 		idMap := make(map[string]int64, len(persistedContent))
 		for _, item := range persistedContent {
@@ -126,15 +111,15 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 		}
 	}
 	if err := m.integration.SyncFilesForCourse(ctx, courseID, filesToSync); err != nil {
-		return CourseSynchronization{}, err
+		return lms.CourseSynchronization{}, err
 	}
 
 	files, err := m.integration.GetFilesByCourse(ctx, courseID)
 	if err != nil {
-		return CourseSynchronization{}, err
+		return lms.CourseSynchronization{}, err
 	}
 
-	return CourseSynchronization{
+	return lms.CourseSynchronization{
 		Course:          course,
 		ChangedContents: changedContent,
 		Files:           files,

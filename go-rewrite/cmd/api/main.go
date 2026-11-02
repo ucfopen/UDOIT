@@ -66,10 +66,10 @@ func main() {
 		log.Fatal(err)
 	}
 	authModule := auth.New(client)
-	lmsDataModule := lmsdata.New(db, lmsModule)
+	lmsDataModule := lmsdata.New(lmsModule)
 	i18nModule := i18n.New()
 	usersModule := users.New(db, i18nModule, authModule)
-	accessibilityModule := accessibility.New(db, client, lmsDataModule, lmsModule, lmsModule, authModule)
+	accessibilityModule := accessibility.New(db, client, lmsDataModule, lmsModule, lmsModule, lmsModule, lmsModule, authModule)
 	tenantsModule := tenants.New(db, lmsModule)
 	ltiModule := lti.New(client, db, usersModule, authModule, lmsModule, lmsModule, tenantsModule, lmsModule, os.Getenv("GO_BASE_URL"))
 

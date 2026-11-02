@@ -5,20 +5,24 @@ import (
 	"time"
 
 	"rewritetest/internal/accessibility/internal/domain"
-	"rewritetest/internal/lmsdata"
+	"rewritetest/internal/lms"
 	"rewritetest/internal/shared/apperr"
 	"rewritetest/internal/shared/auth"
 )
 
 type LMSDataService interface {
-	SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (lmsdata.CourseSynchronization, error)
-	AddFileReferences(ctx context.Context, principal auth.Principal, request lmsdata.AddFileReferencesRequest) error
+	SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (lms.CourseSynchronization, error)
+}
+
+type LMSFileReferenceService interface {
+	AddFileReferences(ctx context.Context, principal auth.Principal, request lms.AddFileReferencesRequest) error
 }
 
 type ScanCourseUseCase struct {
 	htmlIssueRepository domain.HTMLIssueRepository
 	fileIssueRepository domain.FileIssueRepository
 	lmsDataService      LMSDataService
+	lmsFileReferences   LMSFileReferenceService
 	scanner             domain.Scanner
 	scanRepository      domain.CourseScanRepository
 }
@@ -27,6 +31,7 @@ func NewScanCourseUseCase(
 	htmlIssueRepository domain.HTMLIssueRepository,
 	fileIssueRepository domain.FileIssueRepository,
 	lmsDataService LMSDataService,
+	lmsFileReferences LMSFileReferenceService,
 	scanner domain.Scanner,
 	scanRepository domain.CourseScanRepository,
 ) *ScanCourseUseCase {
@@ -34,6 +39,7 @@ func NewScanCourseUseCase(
 		htmlIssueRepository: htmlIssueRepository,
 		fileIssueRepository: fileIssueRepository,
 		lmsDataService:      lmsDataService,
+		lmsFileReferences:   lmsFileReferences,
 		scanner:             scanner,
 		scanRepository:      scanRepository,
 	}
@@ -85,9 +91,9 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		return err
 	}
 
-	references := make([]lmsdata.FileReferenceInput, len(scanResult.References))
+	references := make([]lms.FileReferenceInput, len(scanResult.References))
 	for i, reference := range scanResult.References {
-		references[i] = lmsdata.FileReferenceInput{
+		references[i] = lms.FileReferenceInput{
 			ContentItemID: reference.ContentItemID,
 			Kind:          reference.Kind,
 			TagName:       reference.TagName,
@@ -96,7 +102,7 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 			XPath:         reference.XPath,
 		}
 	}
-	if err := u.lmsDataService.AddFileReferences(ctx, principal, lmsdata.AddFileReferencesRequest{
+	if err := u.lmsFileReferences.AddFileReferences(ctx, principal, lms.AddFileReferencesRequest{
 		CourseID:       courseID,
 		ContentItemIDs: contentItemIDs,
 		References:     references,

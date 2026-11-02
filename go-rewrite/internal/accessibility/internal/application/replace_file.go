@@ -18,16 +18,10 @@ type FileIssueReader interface {
 
 type FileDataService interface {
 	GetFile(context.Context, int64) (lms.File, error)
-	UpdateFile(context.Context, lms.File) error
 }
 
 type CourseRetriever interface {
 	GetCourse(context.Context, int64) (lms.Course, error)
-}
-
-type AccessibilityDataService interface {
-	LMSDataService
-	FileDataService
 }
 
 type FileUploader interface {

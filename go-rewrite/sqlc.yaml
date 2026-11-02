@@ -55,6 +55,7 @@ sql:
         package: "tenantssqlc"
         out: "internal/tenants/internal/infrastructure/sqlc"
         sql_package: "database/sql"
+
   - engine: "mysql"
     schema:
       - "db/migrations/*.up.sql"
@@ -64,15 +65,4 @@ sql:
       go:
         package: "accessibilitysqlc"
         out: "internal/accessibility/internal/infrastructure/sqlc"
-        sql_package: "database/sql"
-
-  - engine: "mysql"
-    schema:
-      - "db/migrations/*.up.sql"
-    queries:
-      - "internal/lmsdata/internal/infrastructure/queries/file_reference.sql"
-    gen:
-      go:
-        package: "lmsdatasqlc"
-        out: "internal/lmsdata/internal/infrastructure/sqlc"
         sql_package: "database/sql"
