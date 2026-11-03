@@ -151,11 +151,9 @@ export default function HeadingEmptyForm({
         />
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
           <>
-            <div className="instructions mb-2">{t('form.heading_empty.label.text')}</div>
+          <label>
+            <div className="">{t('form.heading_empty.label.text')}</div>
             <input
-              aria-labelledby="add-text-label"
-              name="linkTextInput"
-              id="linkTextInput"
               className="w-100"
               type="text"
               value={textInputValue}
@@ -163,6 +161,7 @@ export default function HeadingEmptyForm({
               tabIndex="0"
               disabled={isDisabled}
             />
+          </label>
             <OptionFeedback
               t={t}
               feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
