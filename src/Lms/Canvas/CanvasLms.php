@@ -1125,7 +1125,11 @@ class CanvasLms implements LmsInterface
             // Accounts
             'url:GET|/api/v1/accounts',
             'url:GET|/api/v1/accounts/:id',
+            'url:GET|/api/v1/accounts/:account_id/courses',
             'url:GET|/api/v1/accounts/:account_id/sub_accounts',
+
+            // Announcements
+            'url:GET|/api/v1/announcements',
 
             // Assignments
             'url:GET|/api/v1/courses/:course_id/assignments',
@@ -1135,8 +1139,9 @@ class CanvasLms implements LmsInterface
             // Courses
             'url:GET|/api/v1/courses/:id',
             'url:PUT|/api/v1/courses/:id',
+            'url:GET|/api/v1/courses/:course_id/users',
             'url:POST|/api/v1/courses/:course_id/files',
-            'url:GET|/api/v1/accounts/:account_id/courses',
+
             // Discussion Topics
             'url:GET|/api/v1/courses/:course_id/discussion_topics',
             'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
@@ -1144,10 +1149,17 @@ class CanvasLms implements LmsInterface
 
             // Enrollment Terms
             'url:GET|/api/v1/accounts/:account_id/terms',
+            
+            // Enrollments
+            'url:GET|/api/v1/courses/:course_id/enrollments',
 
             // Files
             'url:GET|/api/v1/courses/:course_id/files',
             'url:GET|/api/v1/courses/:course_id/files/:id',
+
+            // Media Objects
+            'url:GET|/api/v1/media_objects/:media_object_id/media_tracks',
+            'url:PUT|/api/v1/media_objects/:media_object_id/media_tracks',
 
             // Modules
             'url:GET|/api/v1/courses/:course_id/modules',
@@ -1174,9 +1186,6 @@ class CanvasLms implements LmsInterface
 
             // Users
             'url:GET|/api/v1/users/:id',
-
-            'url:GET|/api/v1/courses/:course_id/enrollments',
-            'url:GET|/api/v1/courses/:course_id/users',
         ];
 
         return implode(' ', $scopes);

@@ -34,57 +34,99 @@ UDOIT requires an API developer key since all course data is gathered through th
 ### Scopes
 We strongly recommend you enforce scopes with your API key. The following scopes must be enabled for UDOIT to work.
 
-* accounts
+* Accounts
   * url:GET|/api/v1/accounts
   * url:GET|/api/v1/accounts/:id
+  * url:GET|/api/v1/accounts/:account_id/courses
   * url:GET|/api/v1/accounts/:account_id/sub_accounts
-* announcements_api
+* Announcements
   * url:GET|/api/v1/announcements
-* assignments_api
+* Assignments
   * url:GET|/api/v1/courses/:course_id/assignments
   * url:GET|/api/v1/courses/:course_id/assignments/:id
   * url:PUT|/api/v1/courses/:course_id/assignments/:id
-* context_module_items_api
-  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
-  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
-  * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
-* context_modules_api
+* Courses
+  * url:PUT|/api/v1/courses/:id
+  * url:GET|/api/v1/courses/:id
+  * url:GET|/api/v1/courses/:course_id/users
+  * url:POST|/api/v1/courses/:course_id/files
+* Discussion Topics
+  * url:GET|/api/v1/courses/:course_id/discussion_topics
+  * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+  * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* Enrollment Terms
+  * url:GET|/api/v1/accounts/:account_id/terms
+* Enrollments
+  * url:GET|/api/v1/courses/:course_id/enrollments
+* Files
+  * url:GET|/api/v1/courses/:course_id/files
+  * url:GET|/api/v1/courses/:course_id/files/:id
+* Media Objects
+  * url:GET|/api/v1/media_objects/:media_object_id/media_tracks
+  * url:PUT|/api/v1/media_objects/:media_object_id/media_tracks
+* Modules
   * url:GET|/api/v1/courses/:course_id/modules
   * url:GET|/api/v1/courses/:course_id/modules/:id
   * url:PUT|/api/v1/courses/:course_id/modules/:id
-* courses
-  * url:PUT|/api/v1/courses/:id
-  * url:GET|/api/v1/courses/:id
-  * url:POST|/api/v1/courses/:course_id/files
-  * url:GET|/api/v1/courses/:course_id/users
-* discussion_topics
-  * url:GET|/api/v1/courses/:course_id/discussion_topics
-  * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
-* discussion_topics_api
-  * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
-* files
-  * url:GET|/api/v1/courses/:course_id/files
-  * url:GET|/api/v1/courses/:course_id/files/:id
-* quizzes/quiz_questions
-  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
-  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-  * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-* quizzes/quizzes_api
-  * url:GET|/api/v1/courses/:course_id/quizzes
-  * url:GET|/api/v1/courses/:course_id/quizzes/:id
-  * url:PUT|/api/v1/courses/:course_id/quizzes/:id
-* terms_api
-  * url:GET|/api/v1/accounts/:account_id/terms
-* users
-  * url:GET|/api/v1/users/:id
-* wiki_pages_api
+  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
+  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
+  * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
+* Pages
   * url:GET|/api/v1/courses/:course_id/pages
   * url:GET|/api/v1/courses/:course_id/pages/:url_or_id
   * url:PUT|/api/v1/courses/:course_id/pages/:url_or_id
- 
-* enrollments_api
-  * url:GET|/api/v1/courses/:course_id/enrollments
-  *   
+* Quiz Questions  
+  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
+  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+  * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+* Quizzes
+  * url:GET|/api/v1/courses/:course_id/quizzes
+  * url:GET|/api/v1/courses/:course_id/quizzes/:id
+  * url:PUT|/api/v1/courses/:course_id/quizzes/:id
+* Users
+  * url:GET|/api/v1/users/:id
+
+Instead of clicking on each one manually (Method: Manual Entry), Canvas also provides the option to "Paste Scopes" under "Method". Simply copy the list of scopes below and paste it into the area provided.
+
+```
+url:GET|/api/v1/accounts
+url:GET|/api/v1/accounts/:id
+url:GET|/api/v1/accounts/:account_id/courses
+url:GET|/api/v1/accounts/:account_id/sub_accounts
+url:GET|/api/v1/announcements
+url:GET|/api/v1/courses/:course_id/assignments
+url:GET|/api/v1/courses/:course_id/assignments/:id
+url:PUT|/api/v1/courses/:course_id/assignments/:id
+url:PUT|/api/v1/courses/:id
+url:GET|/api/v1/courses/:id
+url:GET|/api/v1/courses/:course_id/users
+url:POST|/api/v1/courses/:course_id/files
+url:GET|/api/v1/courses/:course_id/discussion_topics
+url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+url:GET|/api/v1/accounts/:account_id/terms
+url:GET|/api/v1/courses/:course_id/enrollments
+url:GET|/api/v1/courses/:course_id/files
+url:GET|/api/v1/courses/:course_id/files/:id
+url:GET|/api/v1/media_objects/:media_object_id/media_tracks
+url:PUT|/api/v1/media_objects/:media_object_id/media_tracks
+url:GET|/api/v1/courses/:course_id/modules
+url:GET|/api/v1/courses/:course_id/modules/:id
+url:PUT|/api/v1/courses/:course_id/modules/:id
+url:GET|/api/v1/courses/:course_id/modules/:module_id/items
+url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
+url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
+url:GET|/api/v1/courses/:course_id/pages
+url:GET|/api/v1/courses/:course_id/pages/:url_or_id
+url:PUT|/api/v1/courses/:course_id/pages/:url_or_id
+url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
+url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+url:GET|/api/v1/courses/:course_id/quizzes
+url:GET|/api/v1/courses/:course_id/quizzes/:id
+url:PUT|/api/v1/courses/:course_id/quizzes/:id
+url:GET|/api/v1/users/:id
+```
 
 ## Create an LTI Developer Key
 UDOIT uses LTI 1.3 to integrate with the LMS.
