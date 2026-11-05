@@ -146,7 +146,6 @@ class CanvasApi {
             }
 
             curl_multi_remove_handle($multi, $ch);
-            curl_close($ch);
         }
 
         curl_multi_close($multi);
@@ -329,7 +328,6 @@ class CanvasApi {
             $responses[] = $response;
             
             curl_multi_remove_handle($multi, $ch);
-            curl_close($ch);
         }
 
         curl_multi_close($multi);
@@ -391,7 +389,6 @@ class CanvasApi {
             $responses[] = $response;
             
             curl_multi_remove_handle($multi, $ch);
-            curl_close($ch);
         }
 
         return $responses;
@@ -449,7 +446,6 @@ class CanvasApi {
             $responses[] = $response;
             
             curl_multi_remove_handle($multi, $ch);
-            curl_close($ch);
         }
         return $responses;
     }
