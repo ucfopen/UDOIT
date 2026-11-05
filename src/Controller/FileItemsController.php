@@ -238,10 +238,8 @@ class FileItemsController extends ApiController
             
             if ($result === false) {
                 $error = curl_error($ch);
-                curl_close($ch);
                 $output->writeln("cURL error: " . curl_error($ch));
             }
-            curl_close($ch);
         }, 200, $headers);
 
         return $response;
