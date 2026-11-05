@@ -20,6 +20,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasLms implements LmsInterface
 {
+    private array $contentItemList = [];
+
     /** @var ContentItemRepository $contentItemRepo */
     private $contentItemRepo;
 
@@ -52,7 +54,6 @@ class CanvasLms implements LmsInterface
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
-        $this->contentItemList = [];
     }
 
     public function getId()
