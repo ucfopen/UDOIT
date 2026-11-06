@@ -11,6 +11,18 @@ services:
       MYSQL_PASSWORD: udoit
     ports:
       - "3306:3306"
+  db-new:
+    container_name: udoit3-db-new
+    image: mysql:latest
+    volumes:
+      - dbdatanew:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: udoit3
+      MYSQL_USER: udoit
+      MYSQL_PASSWORD: udoit
+    ports:
+      - "3307:3306"
   # Uncomment this block and comment the next db block
   # to use Postgres instead of MySQL
   # db:
@@ -31,6 +43,7 @@ services:
       volumes:
         - .:/var/www/html
         - ./build/nginx/local.conf:/etc/nginx/conf.d/default.conf
+        - ./go-rewrite:/go-rewrite
       links:
           - php
       env_file:
@@ -66,6 +79,41 @@ services:
         - ./:/app
       env_file:
         - .env
+  go-app:
+    container_name: udoit3-go
+    image: golang:1.26-alpine
+    working_dir: /app
+    volumes:
+      - ./go-rewrite:/app
+      - ./translations:/app/translations
+    ports:
+      - "8080:8080"
+    environment:
+      - CGO_ENABLED=0
+    command: sh -c "go mod download && go run ./cmd/api"
+    depends_on:
+      - db-new
+      - redis
+    env_file:
+      - .env
+  register-tenant:
+    container_name: udoit3-register-tenant
+    image: golang:1.26-alpine
+    working_dir: /app
+    volumes:
+      - ./go-rewrite:/app
+    command: sh -c "go mod download && go run ./cmd/register-tenant -config ./config/register-tenant.secret.yaml"
+    depends_on:
+      - db-new
+    env_file:
+      - .env
+    profiles:
+      - manual
+  redis:
+    container_name: udoit3-redis
+    image: "redis:7-alpine"
+    ports:
+      - "6379:6379"
   yarn:
       container_name: udoit3-yarn
       build:
@@ -87,7 +135,24 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
+  migrate:
+    image: migrate/migrate:v4.17.1
+    container_name: udoit3-migrate
+    volumes:
+      - ./go-rewrite/db/migrations:/migrations
+    command:
+      [
+        "-path", "/migrations",
+        "-database", "mysql://root:root@tcp(db-new:3306)/udoit3",
+        "up"
+      ]
+    depends_on:
+      - db-new
+    networks:
+      - default
+  
 
 volumes:
   web:
   dbdata:
+  dbdatanew:
