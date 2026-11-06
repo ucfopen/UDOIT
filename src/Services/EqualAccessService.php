@@ -32,8 +32,7 @@ class EqualAccessService {
             text_quoted_correctly
         ";
 
-        $skipRules = !empty($_ENV['EQUALACCESS_EXCLUDED_RULES']) ? $_ENV['EQUALACCESS_EXCLUDED_RULES'] : $backupRules;
-        $skipRules = explode(",", $skipRules);
+        $skipRules = explode(",", $backupRules);
         foreach ($skipRules as &$rule) {
             $rule = trim($rule);
         };

@@ -36,25 +36,12 @@ class ScannerService {
             return null;
         }
 
-        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $report = null;
         $response = new ApiResponse();
-
-        try {
-            if ($scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda' || $scanner == 'equalaccess') {
-                $equalAccess = new EqualAccessService();
-                $localService = new LocalApiAccessibilityService();
-                $json = $localService->scanContentItem($contentItem);
-                $report = $equalAccess->generateReport($json);
-            }
-            else {
-                // Unknown scanner set in environment, should return error...
-                throw new \Exception("Unknown scanner type!");
-            }
-        }
-        catch (\Throwable $e) {
-            $response->addMessage($e->getMessage(), 'error');
-        }
+        $equalAccess = new EqualAccessService();
+        $localService = new LocalApiAccessibilityService();
+        $json = $localService->scanContentItem($contentItem);
+        $report = $equalAccess->generateReport($json);
 
         return $report;
     }
