@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/record"
 )
 
 type CourseSynchronization struct {
@@ -32,42 +32,38 @@ type ContentItem struct {
 	CourseID         int64
 }
 
-func (m *Module) GetContentItemsByCourse(ctx context.Context, courseID int64) ([]ContentItem, error) {
-	contentItems, err := m.contentItemRepository.GetByCourseID(ctx, courseID)
+func (s *Service) contentByCourse(ctx context.Context, courseID int64) ([]ContentItem, error) {
+	contentItems, err := s.store.ContentByCourse(ctx, courseID)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]ContentItem, len(contentItems))
 	for i, item := range contentItems {
-		result[i] = contentItemFromDomain(item)
+		result[i] = contentItemFromRecord(item)
 	}
 	return result, nil
 }
 
 // CreateManyContentItems upserts content items and returns their persisted values.
-func (m *Module) CreateManyContentItems(ctx context.Context, contentItems []ContentItem) ([]ContentItem, error) {
-	domainContentItems := make([]*domain.ContentItem, len(contentItems))
+func (s *Service) upsertContentItems(ctx context.Context, contentItems []ContentItem) ([]ContentItem, error) {
+	storedContentItems := make([]record.Content, len(contentItems))
 	for i, item := range contentItems {
-		domainContentItems[i] = domain.NewContentItem(item.CourseID, item.ContentHash, item.ExternalID, item.ExternalData, item.ContentChangedAt)
+		storedContentItems[i] = record.Content{ID: item.ID, CourseID: item.CourseID, ContentHash: item.ContentHash, ContentChangedAt: item.ContentChangedAt, ExternalID: item.ExternalID, ExternalData: item.ExternalData}
 	}
-	persisted, err := m.contentItemRepository.CreateMany(ctx, domainContentItems)
+	persisted, err := s.store.UpsertContent(ctx, storedContentItems)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]ContentItem, len(persisted))
 	for i, item := range persisted {
-		result[i] = contentItemFromDomain(item)
+		result[i] = contentItemFromRecord(item)
 	}
 	return result, nil
 }
 
-func contentItemFromDomain(item *domain.ContentItem) ContentItem {
+func contentItemFromRecord(item record.Content) ContentItem {
 	return ContentItem{
-		ID:               item.ID(),
-		ExternalID:       item.ExternalID(),
-		ExternalData:     item.ExternalData(),
-		ContentHash:      item.ContentHash(),
-		ContentChangedAt: item.ContentChangedAt(),
-		CourseID:         item.CourseID(),
+		ID: item.ID, ExternalID: item.ExternalID, ExternalData: item.ExternalData,
+		ContentHash: item.ContentHash, ContentChangedAt: item.ContentChangedAt, CourseID: item.CourseID,
 	}
 }

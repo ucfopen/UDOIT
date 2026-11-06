@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/record"
 	"rewritetest/internal/shared/apperr"
 )
 
@@ -32,52 +32,52 @@ type FileSyncInput struct {
 	ExternalData map[string]any
 }
 
-func (m *Module) SyncFilesForCourse(ctx context.Context, courseID int64, files []FileSyncInput) error {
-	records := make([]domain.CourseFileSyncRecord, len(files))
+func (m *Service) SyncFilesForCourse(ctx context.Context, courseID int64, files []FileSyncInput) error {
+	records := make([]record.FileSync, len(files))
 	for i, file := range files {
-		records[i] = domain.CourseFileSyncRecord{
+		records[i] = record.FileSync{
 			FileName: file.FileName, FileType: file.FileType,
-			UpdatedAt: file.UpdatedAt.Format(time.RFC3339), FileSize: file.FileSize,
+			UpdatedAt: file.UpdatedAt, FileSize: file.FileSize,
 			DownloadURL: file.DownloadURL, ExternalID: file.ExternalID, ExternalData: file.ExternalData,
 		}
 	}
-	return m.fileRepository.UpsertByCourse(ctx, courseID, records)
+	return m.store.SyncFiles(ctx, courseID, records)
 }
 
-func (m *Module) GetFilesByCourse(ctx context.Context, courseID int64) ([]File, error) {
-	files, err := m.fileRepository.GetByCourseID(ctx, courseID)
+func (m *Service) GetFilesByCourse(ctx context.Context, courseID int64) ([]File, error) {
+	files, err := m.store.FilesByCourse(ctx, courseID)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]File, len(files))
 	for i, file := range files {
-		result[i] = fileFromDomain(file)
+		result[i] = fileFromRecord(file)
 	}
 	return result, nil
 }
 
-func (m *Module) GetFile(ctx context.Context, fileID int64) (File, error) {
-	file, err := m.fileRepository.GetFileByID(ctx, fileID)
+func (m *Service) GetFile(ctx context.Context, fileID int64) (File, error) {
+	file, found, err := m.store.FileByID(ctx, fileID)
 	if err != nil {
 		return File{}, err
 	}
-	if file == nil {
+	if !found {
 		return File{}, apperr.New(apperr.CodeNotFound, "The requested file was not found.")
 	}
-	return fileFromDomain(file), nil
+	return fileFromRecord(file), nil
 }
 
-func (m *Module) UpdateFile(ctx context.Context, file File) error {
-	return m.fileRepository.UpdateFile(ctx, domain.RehydrateFile(
-		file.ID, file.CourseID, file.FileName, file.FileType, file.UpdatedAt,
-		file.FileSize, file.DownloadURL, file.ExternalID, file.ExternalData,
-	))
+func (m *Service) UpdateFile(ctx context.Context, file File) error {
+	return m.store.UpdateFile(ctx, record.File{
+		ID: file.ID, CourseID: file.CourseID, FileName: file.FileName, FileType: file.FileType, UpdatedAt: file.UpdatedAt,
+		FileSize: file.FileSize, DownloadURL: file.DownloadURL, ExternalID: file.ExternalID, ExternalData: file.ExternalData,
+	})
 }
 
-func fileFromDomain(file *domain.File) File {
+func fileFromRecord(file record.File) File {
 	return File{
-		ID: file.ID(), CourseID: file.CourseID(), FileName: file.FileName(), FileType: file.FileType(),
-		UpdatedAt: file.UpdatedAt(), FileSize: file.FileSize(), DownloadURL: file.DownloadURL(),
-		ExternalID: file.ExternalID(), ExternalData: file.ExternalData(),
+		ID: file.ID, CourseID: file.CourseID, FileName: file.FileName, FileType: file.FileType,
+		UpdatedAt: file.UpdatedAt, FileSize: file.FileSize, DownloadURL: file.DownloadURL,
+		ExternalID: file.ExternalID, ExternalData: file.ExternalData,
 	}
 }

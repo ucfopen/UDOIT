@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/provider"
 )
 
 type ResolveFileReferencesRequest struct {
@@ -12,6 +12,13 @@ type ResolveFileReferencesRequest struct {
 	References     []ExternalContentReference
 	PersistedFiles []ExternalFile
 	TenantID       int64
+	UserID         int64
+}
+
+type CourseInfo struct {
+	ID           int64
+	ExternalID   string
+	ExternalData map[string]any
 }
 
 type ExternalContentReference struct {
@@ -38,15 +45,15 @@ type ResolvedFileReference struct {
 	FileExternalID    string
 }
 
-func (m *Module) ResolveFileReferences(ctx context.Context, req ResolveFileReferencesRequest) ([]ResolvedFileReference, error) {
-	lmsProvider, err := m.providerResolver.GetByTenant(ctx, req.TenantID)
+func (m *Service) ResolveFileReferences(ctx context.Context, req ResolveFileReferencesRequest) ([]ResolvedFileReference, error) {
+	lmsProvider, err := m.providerForTenant(ctx, req.TenantID)
 	if err != nil {
 		return nil, err
 	}
 
-	references := make([]domain.ContentReference, len(req.References))
+	references := make([]provider.Reference, len(req.References))
 	for i, reference := range req.References {
-		references[i] = domain.ContentReference{
+		references[i] = provider.Reference{
 			ContentExternalID: reference.ContentExternalID,
 			Kind:              reference.Kind,
 			TagName:           reference.TagName,
@@ -56,9 +63,9 @@ func (m *Module) ResolveFileReferences(ctx context.Context, req ResolveFileRefer
 		}
 	}
 
-	files := make([]domain.CourseFile, len(req.PersistedFiles))
+	files := make([]provider.File, len(req.PersistedFiles))
 	for i, file := range req.PersistedFiles {
-		files[i] = domain.CourseFile{
+		files[i] = provider.File{
 			FileName:     file.FileName,
 			FileType:     file.FileType,
 			UpdatedAt:    file.UpdatedAt,
@@ -69,11 +76,7 @@ func (m *Module) ResolveFileReferences(ctx context.Context, req ResolveFileRefer
 		}
 	}
 
-	resolved, err := lmsProvider.ResolveFileReferences(ctx, domain.LMSCourse{
-		ID:           req.Course.ID,
-		ExternalID:   req.Course.ExternalID,
-		ExternalData: req.Course.ExternalData,
-	}, references, files)
+	resolved, err := lmsProvider.ResolveFileReferences(ctx, provider.Course{ID: req.Course.ID, ExternalID: req.Course.ExternalID, ExternalData: req.Course.ExternalData}, references, files)
 	if err != nil {
 		return nil, err
 	}

@@ -16,11 +16,11 @@ sql:
     schema:
       - "db/migrations/*.up.sql"
     queries:
-      - "internal/lms/internal/infrastructure/queries/*.sql"
+      - "internal/lms/internal/storage/mysql/queries/*.sql"
     gen:
       go:
         package: "lmssqlc"
-        out: "internal/lms/internal/infrastructure/sqlc"
+        out: "internal/lms/internal/storage/mysql/sqlc"
         sql_package: "database/sql"
 
   - engine: "mysql"

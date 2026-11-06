@@ -2,8 +2,9 @@ package lms
 
 import (
 	"context"
+	"time"
 
-	"rewritetest/internal/lms/internal/application"
+	"rewritetest/internal/lms/internal/record"
 	"rewritetest/internal/shared/apperr"
 )
 
@@ -15,25 +16,23 @@ type Course struct {
 	ExternalData map[string]any
 }
 
-func (m *Module) CreateCourse(ctx context.Context, title string, tenantID int64, externalID string, externalData map[string]any) (int64, error) {
-	course, err := m.createCourseUseCase.Execute(ctx, application.CreateCourseCommand{
-		Title: title, TenantID: tenantID, ExternalID: externalID, ExternalData: externalData,
-	})
+func (m *Service) CreateCourse(ctx context.Context, title string, tenantID int64, externalID string, externalData map[string]any) (int64, error) {
+	course, err := m.store.CreateCourse(ctx, record.Course{Title: title, TenantID: tenantID, ExternalID: externalID, ExternalData: externalData, IsActive: true, IsDirty: true, UpdatedAt: time.Now()})
 	if err != nil {
 		return 0, err
 	}
-	return course.ID(), nil
+	return course.ID, nil
 }
 
-func (m *Module) GetCourse(ctx context.Context, courseID int64) (Course, error) {
-	course, err := m.courseRepository.GetByID(ctx, courseID)
+func (m *Service) GetCourse(ctx context.Context, courseID int64) (Course, error) {
+	course, found, err := m.store.CourseByID(ctx, courseID)
 	if err != nil {
 		return Course{}, err
 	}
-	if course == nil {
+	if !found {
 		return Course{}, apperr.New(apperr.CodeInternal, "The requested course was not found.")
 	}
 	return Course{
-		ID: course.ID(), TenantID: course.TenantID(), ExternalID: course.ExternalID(), ExternalData: course.ExternalData(),
+		ID: course.ID, TenantID: course.TenantID, ExternalID: course.ExternalID, ExternalData: course.ExternalData,
 	}, nil
 }

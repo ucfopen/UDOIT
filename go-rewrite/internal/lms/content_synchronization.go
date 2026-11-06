@@ -10,12 +10,12 @@ import (
 	"lukechampine.com/blake3"
 )
 
-func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (CourseSynchronization, error) {
+func (m *Service) SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (CourseSynchronization, error) {
 	course, err := m.GetCourse(ctx, courseID)
 	if err != nil {
 		return CourseSynchronization{}, err
 	}
-	currentContentItems, err := m.GetContentItemsByCourse(ctx, courseID)
+	currentContentItems, err := m.contentByCourse(ctx, courseID)
 	if err != nil {
 		return CourseSynchronization{}, err
 	}
@@ -52,7 +52,7 @@ func (m *Module) SynchronizeCourse(ctx context.Context, principal auth.Principal
 		})
 	}
 	if len(contentToPersist) > 0 {
-		persistedContent, err := m.CreateManyContentItems(ctx, contentToPersist)
+		persistedContent, err := m.upsertContentItems(ctx, contentToPersist)
 		if err != nil {
 			return CourseSynchronization{}, err
 		}

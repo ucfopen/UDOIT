@@ -3,7 +3,7 @@ package lms
 import (
 	"context"
 
-	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/provider"
 )
 
 type GetCourseContentRequest struct {
@@ -32,51 +32,26 @@ type ExternalContentItem struct {
 	HTML         string
 }
 
-func (m *Module) GetCourseContent(ctx context.Context, req GetCourseContentRequest) (ExternalCourseContent, error) {
-	lmsProvider, err := m.providerResolver.GetByTenant(ctx, req.TenantID)
+func (m *Service) GetCourseContent(ctx context.Context, req GetCourseContentRequest) (ExternalCourseContent, error) {
+	lmsProvider, err := m.providerForTenant(ctx, req.TenantID)
 	if err != nil {
 		return ExternalCourseContent{}, err
 	}
-
-	lmsContent := make([]domain.LMSContent, len(req.CurrentContent))
+	providerContent := make([]provider.ContentItem, len(req.CurrentContent))
 	for i, item := range req.CurrentContent {
-		lmsContent[i] = domain.LMSContent{
-			ID:           item.ID,
-			ExternalID:   item.ExternalID,
-			ExternalData: item.ExternalData,
-		}
+		providerContent[i] = provider.ContentItem{ID: item.ID, ExternalID: item.ExternalID, ExternalData: item.ExternalData}
 	}
-
-	syncData, err := lmsProvider.GetContent(ctx, domain.LMSCourse{
-		ID:           req.CourseID,
-		ExternalID:   req.ExternalCourseID,
-		ExternalData: req.ExternalCourseData,
-	}, lmsContent, req.UserID)
+	snapshot, err := lmsProvider.GetContent(ctx, req.UserID, provider.Course{ID: req.CourseID, ExternalID: req.ExternalCourseID, ExternalData: req.ExternalCourseData}, providerContent)
 	if err != nil {
 		return ExternalCourseContent{}, err
 	}
-
-	contentItems := make([]ExternalContentItem, len(syncData.ContentItems))
-	for i, item := range syncData.ContentItems {
-		contentItems[i] = ExternalContentItem{
-			ExternalID:   item.ExternalID,
-			ExternalData: item.ExternalData,
-			HTML:         item.HTML,
-		}
+	contentItems := make([]ExternalContentItem, len(snapshot.ContentItems))
+	for i, item := range snapshot.ContentItems {
+		contentItems[i] = ExternalContentItem{ExternalID: item.ExternalID, ExternalData: item.ExternalData, HTML: item.HTML}
 	}
-
-	files := make([]ExternalFile, len(syncData.Files))
-	for i, file := range syncData.Files {
-		files[i] = ExternalFile{
-			FileName:     file.FileName,
-			FileType:     file.FileType,
-			UpdatedAt:    file.UpdatedAt,
-			FileSize:     file.FileSize,
-			DownloadURL:  file.DownloadURL,
-			ExternalID:   file.ExternalID,
-			ExternalData: file.ExternalData,
-		}
+	files := make([]ExternalFile, len(snapshot.Files))
+	for i, file := range snapshot.Files {
+		files[i] = ExternalFile{FileName: file.FileName, FileType: file.FileType, UpdatedAt: file.UpdatedAt, FileSize: file.FileSize, DownloadURL: file.DownloadURL, ExternalID: file.ExternalID, ExternalData: file.ExternalData}
 	}
-
 	return ExternalCourseContent{ContentItems: contentItems, Files: files}, nil
 }

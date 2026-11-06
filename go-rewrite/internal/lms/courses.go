@@ -2,26 +2,20 @@ package lms
 
 import (
 	"context"
+	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	"rewritetest/internal/lms/internal/record"
+	"rewritetest/internal/shared/apperr"
 )
 
-type CourseInfo struct {
-	ID           int64
-	ExternalID   string
-	ExternalData map[string]any
-}
-
-func (m *Module) GetCourseInfoFromLTILaunch(ctx context.Context, tenantID int64, claims jwt.MapClaims) (string, map[string]any, error) {
-	lmsProvider, err := m.providerResolver.GetByTenant(ctx, tenantID)
+func (s *Service) createCourse(ctx context.Context, title string, tenantID int64, externalID string, externalData map[string]any) (record.Course, error) {
+	course := record.Course{Title: title, TenantID: tenantID, IsActive: true, IsDirty: true, ExternalID: externalID, ExternalData: externalData, UpdatedAt: time.Now()}
+	persistedCourse, err := s.store.CreateCourse(ctx, course)
 	if err != nil {
-		return "", nil, err
+		return record.Course{}, err
 	}
-
-	externalID, externalData, err := lmsProvider.GetCourseInfoFromLTILaunch(ctx, claims)
-	if err != nil {
-		return "", nil, err
+	if persistedCourse.ID == 0 {
+		return record.Course{}, apperr.Internal("Course store returned no persisted course")
 	}
-
-	return externalID, externalData, nil
+	return persistedCourse, nil
 }

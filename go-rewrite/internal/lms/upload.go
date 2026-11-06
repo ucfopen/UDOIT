@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/provider"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -69,20 +69,13 @@ type FileUploader interface {
 	CompleteFileUpload(context.Context, CompleteFileUploadRequest) (UploadedFile, error)
 }
 
-func (m *Module) BeginFileUpload(ctx context.Context, req BeginFileUploadRequest) (FileUploadInstruction, error) {
-	provider, err := m.providerResolver.GetByTenant(ctx, req.Principal.TenantID)
+func (m *Service) BeginFileUpload(ctx context.Context, req BeginFileUploadRequest) (FileUploadInstruction, error) {
+	providerAdapter, err := m.providerForTenant(ctx, req.Principal.TenantID)
 	if err != nil {
 		return FileUploadInstruction{}, err
 	}
-
-	target, err := provider.BeginFileUpload(
-		ctx,
-		req.Principal,
-		toProviderCourse(req.Course),
-		toProviderFile(req.File),
-		req.NewFileName,
-		req.NewFileSize,
-	)
+	userID := req.Principal.AgentID
+	target, err := providerAdapter.BeginFileUpload(ctx, userID, provider.Course{ID: req.Course.ID, ExternalID: req.Course.ExternalID, ExternalData: req.Course.ExternalData}, provider.File{FileName: req.File.FileName, FileType: req.File.FileType, UpdatedAt: req.File.UpdatedAt, FileSize: req.File.FileSize, DownloadURL: req.File.DownloadURL, ExternalID: req.File.ExternalID, ExternalData: req.File.ExternalData}, req.NewFileName, req.NewFileSize)
 	if err != nil {
 		return FileUploadInstruction{}, err
 	}
@@ -96,20 +89,13 @@ func (m *Module) BeginFileUpload(ctx context.Context, req BeginFileUploadRequest
 	}, nil
 }
 
-func (m *Module) CompleteFileUpload(ctx context.Context, req CompleteFileUploadRequest) (UploadedFile, error) {
-	provider, err := m.providerResolver.GetByTenant(ctx, req.Principal.TenantID)
+func (m *Service) CompleteFileUpload(ctx context.Context, req CompleteFileUploadRequest) (UploadedFile, error) {
+	providerAdapter, err := m.providerForTenant(ctx, req.Principal.TenantID)
 	if err != nil {
 		return UploadedFile{}, err
 	}
 
-	file, err := provider.CompleteFileUpload(
-		ctx,
-		req.Principal,
-		toProviderCourse(req.Course),
-		toProviderFile(req.File),
-		req.NewFileName,
-		req.UploadResponse,
-	)
+	file, err := providerAdapter.CompleteFileUpload(ctx, req.Principal.AgentID, provider.Course{ID: req.Course.ID, ExternalID: req.Course.ExternalID, ExternalData: req.Course.ExternalData}, provider.File{FileName: req.File.FileName, FileType: req.File.FileType, UpdatedAt: req.File.UpdatedAt, FileSize: req.File.FileSize, DownloadURL: req.File.DownloadURL, ExternalID: req.File.ExternalID, ExternalData: req.File.ExternalData}, req.NewFileName, req.UploadResponse)
 	if err != nil {
 		return UploadedFile{}, err
 	}
@@ -123,24 +109,4 @@ func (m *Module) CompleteFileUpload(ctx context.Context, req CompleteFileUploadR
 		ExternalID:   file.ExternalID,
 		ExternalData: file.ExternalData,
 	}, nil
-}
-
-func toProviderCourse(course CourseInfo) domain.LMSCourse {
-	return domain.LMSCourse{
-		ID:           course.ID,
-		ExternalID:   course.ExternalID,
-		ExternalData: course.ExternalData,
-	}
-}
-
-func toProviderFile(file FileInfo) domain.CourseFile {
-	return domain.CourseFile{
-		FileName:     file.FileName,
-		FileType:     file.FileType,
-		UpdatedAt:    file.UpdatedAt,
-		FileSize:     file.FileSize,
-		DownloadURL:  file.DownloadURL,
-		ExternalID:   file.ExternalID,
-		ExternalData: file.ExternalData,
-	}
 }

@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"rewritetest/internal/lms/internal/domain"
+	"rewritetest/internal/lms/internal/provider"
+	"rewritetest/internal/lms/internal/record"
 	"rewritetest/internal/shared/auth"
 )
 
@@ -23,12 +24,12 @@ type FileReferenceInput struct {
 	XPath         string
 }
 
-func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal, request AddFileReferencesRequest) error {
+func (m *Service) AddFileReferences(ctx context.Context, principal auth.Principal, request AddFileReferencesRequest) error {
 	course, err := m.GetCourse(ctx, request.CourseID)
 	if err != nil {
 		return err
 	}
-	contentItems, err := m.GetContentItemsByCourse(ctx, request.CourseID)
+	contentItems, err := m.contentByCourse(ctx, request.CourseID)
 	if err != nil {
 		return err
 	}
@@ -36,13 +37,13 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 	for _, item := range contentItems {
 		contentExternalIDs[item.ID] = item.ExternalID
 	}
-	externalReferences := make([]ExternalContentReference, 0, len(request.References))
+	externalReferences := make([]provider.Reference, 0, len(request.References))
 	for _, reference := range request.References {
 		externalID, ok := contentExternalIDs[reference.ContentItemID]
 		if !ok || externalID == "" {
 			continue
 		}
-		externalReferences = append(externalReferences, ExternalContentReference{
+		externalReferences = append(externalReferences, provider.Reference{
 			ContentExternalID: externalID, Kind: reference.Kind, TagName: reference.TagName,
 			Attribute: reference.Attribute, Value: reference.Value, XPath: reference.XPath,
 		})
@@ -51,18 +52,20 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 	if err != nil {
 		return err
 	}
-	externalFiles := make([]ExternalFile, len(files))
+	externalFiles := make([]provider.File, len(files))
 	for i, file := range files {
-		externalFiles[i] = ExternalFile{
+		externalFiles[i] = provider.File{
 			FileName: file.FileName, FileType: file.FileType, UpdatedAt: file.UpdatedAt,
 			FileSize: file.FileSize, DownloadURL: file.DownloadURL, ExternalID: file.ExternalID,
 			ExternalData: file.ExternalData,
 		}
 	}
-	resolved, err := m.ResolveFileReferences(ctx, ResolveFileReferencesRequest{
-		Course:     CourseInfo{ID: course.ID, ExternalID: course.ExternalID, ExternalData: course.ExternalData},
-		References: externalReferences, PersistedFiles: externalFiles, TenantID: principal.TenantID,
-	})
+	providerAdapter, err := m.providerForTenant(ctx, principal.TenantID)
+	if err != nil {
+		return err
+	}
+	providerCourse := provider.Course{ID: course.ID, ExternalID: course.ExternalID, ExternalData: course.ExternalData}
+	resolved, err := providerAdapter.ResolveFileReferences(ctx, providerCourse, externalReferences, externalFiles)
 	if err != nil {
 		return err
 	}
@@ -74,7 +77,7 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 	for _, file := range files {
 		fileIDsByExternalID[file.ExternalID] = file.ID
 	}
-	fileReferences := make([]*domain.FileReference, 0, len(resolved))
+	fileReferences := make([]record.FileReference, 0, len(resolved))
 	seen := make(map[string]struct{}, len(resolved))
 	for _, reference := range resolved {
 		contentID, contentOK := contentIDsByExternalID[reference.ContentExternalID]
@@ -87,7 +90,7 @@ func (m *Module) AddFileReferences(ctx context.Context, principal auth.Principal
 			continue
 		}
 		seen[key] = struct{}{}
-		fileReferences = append(fileReferences, domain.NewFileReference(contentID, fileID))
+		fileReferences = append(fileReferences, record.FileReference{ContentItemID: contentID, FileID: fileID})
 	}
-	return m.fileReferenceRepository.ReplaceForContentItems(ctx, request.ContentItemIDs, fileReferences)
+	return m.store.ReplaceFileReferences(ctx, request.ContentItemIDs, fileReferences)
 }
