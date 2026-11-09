@@ -374,7 +374,7 @@ export default function App(initialData) {
 
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = '../udoit3/build/static/tinymce/tinymce.min.js';
+    script.src = '../udoit/build/static/tinymce/tinymce.min.js';
     script.async = true;
     document.body.appendChild(script);
     addSettingsClasses();

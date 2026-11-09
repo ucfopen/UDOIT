@@ -146,7 +146,7 @@ class LtiController extends AbstractController
             "extensions" => [
                 [
                     "domain" => $baseDomain,
-                    "tool_id" => "cidilabs_udoit3",
+                    "tool_id" => "ucfopen_udoit",
                     "platform" => $platform,
                     "settings" => [
                         "text" => $appName,
@@ -174,7 +174,7 @@ class LtiController extends AbstractController
                 ],
             ],
             "public_jwk" => [],
-            "description" => "User settings for UDOIT 3.x",
+            "description" => "User settings for UDOIT 4.x",
             "public_jwk_url" => "https://canvas.instructure.com/api/lti/security/jwks",
             "target_link_uri" => "{$baseUrl}/lti/authorize/check",
             "oidc_initiation_url" => "{$baseUrl}/lti/authorize",
