@@ -57,7 +57,8 @@ func (p *Canvas) BeginFileUpload(ctx context.Context, userID int64, course provi
 }
 
 type canvasFileDetails struct {
-	FolderID any `json:"folder_id"`
+	FolderID    any    `json:"folder_id"`
+	DisplayName string `json:"display_name"`
 }
 type canvasUploadTarget struct {
 	UploadURL    string         `json:"upload_url"`
@@ -73,17 +74,9 @@ func (p *Canvas) asCanvasCourseFile(file provider.File) (canvasFile, error) {
 }
 
 func (p *Canvas) getFileFolderID(ctx context.Context, userID int64, courseID, fileID string) (string, error) {
-	response, err := p.doAuthenticatedRequest(ctx, userID, CanvasRequest{Path: "/api/v1/courses/" + courseID + "/files/" + fileID, Method: http.MethodGet})
+	file, err := p.getCanvasFileDetails(ctx, userID, courseID, fileID)
 	if err != nil {
 		return "", err
-	}
-	defer response.Body.Close()
-	if response.StatusCode != http.StatusOK {
-		return "", apperr.Internal(fmt.Sprintf("Failed to get Canvas file: unexpected status code: %d", response.StatusCode))
-	}
-	var file canvasFileDetails
-	if err := json.NewDecoder(response.Body).Decode(&file); err != nil {
-		return "", apperr.Internal("Failed to decode Canvas file", apperr.WithCause(err))
 	}
 	folderID, ok := stringifyCanvasID(file.FolderID)
 	if !ok || folderID == "" {
@@ -92,18 +85,38 @@ func (p *Canvas) getFileFolderID(ctx context.Context, userID int64, courseID, fi
 	return folderID, nil
 }
 
+func (p *Canvas) getCanvasFileDetails(ctx context.Context, userID int64, courseID, fileID string) (canvasFileDetails, error) {
+	response, err := p.doAuthenticatedRequest(ctx, userID, CanvasRequest{Path: "/api/v1/courses/" + courseID + "/files/" + fileID, Method: http.MethodGet})
+	if err != nil {
+		return canvasFileDetails{}, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return canvasFileDetails{}, apperr.Internal(fmt.Sprintf("Failed to get Canvas file: unexpected status code: %d", response.StatusCode))
+	}
+
+	var file canvasFileDetails
+	if err := json.NewDecoder(response.Body).Decode(&file); err != nil {
+		return canvasFileDetails{}, apperr.Internal("Failed to decode Canvas file", apperr.WithCause(err))
+	}
+	
+	return file, nil
+}
+
 func (p *Canvas) CompleteFileUpload(ctx context.Context, userID int64, course provider.Course, file provider.File, newFileName string, uploadResponse map[string]any) (provider.UploadedFile, error) {
 	canvasCourse, err := p.asCanvasCourse(course)
 	if err != nil {
 		return provider.UploadedFile{}, err
 	}
-	if _, err := p.asCanvasCourseFile(file); err != nil {
+	oldCanvasFile, err := p.asCanvasCourseFile(file)
+	if err != nil {
 		return provider.UploadedFile{}, err
 	}
 	uploadedFileID, ok := stringifyCanvasID(uploadResponse["id"])
 	if !ok || uploadedFileID == "" {
 		return provider.UploadedFile{}, apperr.Validation("Canvas upload response is missing a valid file ID")
 	}
+
 	response, err := p.doAuthenticatedRequest(ctx, userID, CanvasRequest{Path: "/api/v1/courses/" + canvasCourse.courseID + "/files/" + uploadedFileID, Method: http.MethodGet})
 	if err != nil {
 		return provider.UploadedFile{}, err
@@ -132,7 +145,20 @@ func (p *Canvas) CompleteFileUpload(ctx context.Context, userID int64, course pr
 	if updatedAt.IsZero() {
 		return provider.UploadedFile{}, apperr.Internal("Uploaded Canvas file has an invalid updated timestamp")
 	}
-	return provider.UploadedFile{FileName: uploaded.DisplayName, FileType: uploaded.MimeClass, UpdatedAt: updatedAt, FileSize: uploaded.Size, DownloadURL: uploaded.URL, ExternalID: "file:" + strconv.FormatInt(uploaded.ID, 10), ExternalData: map[string]any{"file_id": uploaded.ID}}, nil
+	oldCanvasFileDetails, err := p.getCanvasFileDetails(ctx, userID, canvasCourse.courseID, oldCanvasFile.fileID)
+	if err != nil {
+		return provider.UploadedFile{}, fmt.Errorf("get original Canvas file name: %w", err)
+	}
+	oldFileName := oldCanvasFileDetails.DisplayName
+	if oldFileName == "" {
+		oldFileName = file.FileName
+	}
+	newCanvasFileID := strconv.FormatInt(uploaded.ID, 10)
+	if err := p.replaceCourseFileReferences(ctx, userID, canvasCourse.courseID, oldCanvasFile.fileID, newCanvasFileID, oldFileName, uploaded.DisplayName); err != nil {
+		return provider.UploadedFile{}, err
+	}
+
+	return provider.UploadedFile{FileName: uploaded.DisplayName, FileType: uploaded.MimeClass, UpdatedAt: updatedAt, FileSize: uploaded.Size, DownloadURL: uploaded.URL, ExternalID: "file:" + newCanvasFileID, ExternalData: map[string]any{"file_id": uploaded.ID}}, nil
 }
 
 // DeleteFile removes a file from Canvas.

@@ -363,7 +363,27 @@ type QuizResponse struct {
 type QuizQuestionResponse struct {
 	ID           int64  `json:"id"`
 	QuestionText string `json:"question_text"`
+	QuizID       int64  `json:"quiz_id"`
 	UpdatedAt    string
+}
+
+type CanvasModuleResponse struct {
+	ID    int64                      `json:"id"`
+	Items []CanvasModuleItemResponse `json:"items"`
+}
+
+type CanvasModuleItemResponse struct {
+	ID                    int64  `json:"id"`
+	ModuleID              int64  `json:"module_id"`
+	Position              int64  `json:"position"`
+	Title                 string `json:"title"`
+	Indent                int64  `json:"indent"`
+	Type                  string `json:"type"`
+	ContentID             int64  `json:"content_id"`
+	CompletionRequirement *struct {
+		Type     string `json:"type"`
+		MinScore int64  `json:"min_score,omitempty"`
+	} `json:"completion_requirement"`
 }
 
 func (p *Canvas) getPages(ctx context.Context, userID int64, canvasCourseID string) ([]PageResponse, error) {

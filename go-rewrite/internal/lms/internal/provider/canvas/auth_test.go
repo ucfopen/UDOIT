@@ -19,14 +19,17 @@ type authTestRepositories struct {
 func (r *authTestRepositories) ActiveCredential(context.Context, int64) (record.LMSCredential, bool, error) {
 	return r.credential, r.credential.UserID != 0, nil
 }
+
 func (r *authTestRepositories) SaveCredential(_ context.Context, value record.LMSCredential) error {
 	r.credential = value
 	return nil
 }
+
 func (r *authTestRepositories) Save(_ context.Context, value record.AuthAttempt) error {
 	r.attempt = value
 	return nil
 }
+
 func (r *authTestRepositories) Get(context.Context, string) (record.AuthAttempt, bool, error) {
 	return r.attempt, r.attempt.State != "", nil
 }

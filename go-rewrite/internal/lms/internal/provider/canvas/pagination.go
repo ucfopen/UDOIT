@@ -94,6 +94,26 @@ func fetchOne[T any](p *Canvas, ctx context.Context, userID int64, path string) 
 	return result, nil
 }
 
+func fetchOneJSON[T any](p *Canvas, ctx context.Context, userID int64, path string) (T, int, error) {
+	var result T
+	response, err := p.doAuthenticatedRequest(ctx, userID, CanvasRequest{Path: path, Method: http.MethodGet})
+	if err != nil {
+		return result, 0, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return result, response.StatusCode, apperr.Internal("Unexpected status code: " + response.Status)
+	}
+	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+		return result, response.StatusCode, apperr.Internal("Failed to decode response body", apperr.WithCause(err))
+	}
+	return result, response.StatusCode, nil
+}
+
+func fetchPaginatedJSON[T any](p *Canvas, ctx context.Context, userID int64, path string) ([]T, error) {
+	return fetchPaginated[T](p, ctx, userID, path, nil)
+}
+
 // Pagination in Canvas works through a "Link" header.
 // https://developerdocs.instructure.com/services/canvas/basics/file.pagination
 func (p *Canvas) getNextPageLink(resp *http.Response) string {

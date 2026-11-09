@@ -208,7 +208,11 @@ func (p *Canvas) doAuthenticatedRequest(ctx context.Context, userID int64, req C
 		parsed.RawQuery = query.Encode()
 		requestURL = parsed.String()
 	}
-	return p.doAuthenticatedHTTP(ctx, userID, req.Method, requestURL, map[string][]string{"Accept": {"application/json"}}, body)
+	headers := map[string][]string{"Accept": {"application/json"}}
+	if req.Body != nil {
+		headers["Content-Type"] = []string{"application/json"}
+	}
+	return p.doAuthenticatedHTTP(ctx, userID, req.Method, requestURL, headers, body)
 }
 
 func (p *Canvas) doAuthenticatedHTTP(ctx context.Context, userID int64, method, requestURL string, headers map[string][]string, body []byte) (*http.Response, error) {

@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -36,6 +37,7 @@ type replacementFileUploader struct {
 	completeRequest lms.CompleteFileUploadRequest
 	beginResult     lms.FileUploadInstruction
 	completeResult  lms.UploadedFile
+	completeErr     error
 	beginCalled     bool
 	completeCalled  bool
 }
@@ -49,7 +51,7 @@ func (u *replacementFileUploader) BeginFileUpload(_ context.Context, request lms
 func (u *replacementFileUploader) CompleteFileUpload(_ context.Context, request lms.CompleteFileUploadRequest) (lms.UploadedFile, error) {
 	u.completeRequest = request
 	u.completeCalled = true
-	return u.completeResult, nil
+	return u.completeResult, u.completeErr
 }
 
 type replacementSessionRepository struct {
@@ -212,6 +214,32 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 	}
 	if got.ExternalID != "file:55" || got.FileName != "new.pdf" || !got.UpdatedAt.Equal(updatedAt) {
 		t.Fatalf("unexpected returned file: %+v", got)
+	}
+	if _, exists := sessions.sessions["session-1"]; exists {
+		t.Fatal("upload session should be removed after successful completion")
+	}
+}
+
+func TestCompleteFileReplacementKeepsSessionWhenProviderReplacementFails(t *testing.T) {
+	issue, file, course, principal := replacementContext()
+	uploader := &replacementFileUploader{completeErr: errors.New("Canvas reference update failed")}
+	sessions := &replacementSessionRepository{sessions: map[string]domain.FileUploadSession{
+		"session-1": {
+			ID: "session-1", UserID: principal.AgentID, TenantID: principal.TenantID,
+			FileIssueID: issue.ID(), FileID: file.ID, NewFileName: "new.pdf",
+		},
+	}}
+	dataService := &replacementFileDataService{file: file, course: course}
+	useCase := NewCompleteFileReplacementUseCase(replacementFileIssueReader{issue: issue}, dataService, dataService, uploader, sessions)
+
+	_, err := useCase.Execute(context.Background(), CompleteFileReplacementCommand{
+		Principal: principal, FileIssueID: issue.ID(), UploadSessionID: "session-1", UploadResponse: map[string]any{"id": 55},
+	})
+	if err == nil {
+		t.Fatal("expected provider error")
+	}
+	if _, exists := sessions.sessions["session-1"]; !exists {
+		t.Fatal("upload session should remain available for retry")
 	}
 }
 

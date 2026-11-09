@@ -146,10 +146,6 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 	if session == nil || session.UserID != cmd.Principal.AgentID || session.TenantID != cmd.Principal.TenantID || session.FileIssueID != cmd.FileIssueID {
 		return lms.File{}, apperr.New(apperr.CodeNotFound, "Upload session not found")
 	}
-	if err := u.sessionRepo.DeleteByID(ctx, cmd.UploadSessionID); err != nil {
-		return lms.File{}, err
-	}
-
 	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
 	if err != nil {
 		return lms.File{}, err
@@ -166,6 +162,9 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 		UploadResponse: cmd.UploadResponse,
 	})
 	if err != nil {
+		return lms.File{}, err
+	}
+	if err := u.sessionRepo.DeleteByID(ctx, cmd.UploadSessionID); err != nil {
 		return lms.File{}, err
 	}
 
