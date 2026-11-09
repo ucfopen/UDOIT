@@ -10,33 +10,36 @@ import (
 
 // File is a persisted LMS file record.
 type File struct {
-	ID           int64
-	CourseID     int64
-	FileName     string
-	FileType     string
-	UpdatedAt    time.Time
-	FileSize     int64
-	DownloadURL  string
-	ExternalID   string
-	ExternalData map[string]any
+	ID            int64
+	CourseID      int64
+	IsReplacement bool
+	FileName      string
+	FileType      string
+	UpdatedAt     time.Time
+	FileSize      int64
+	DownloadURL   string
+	ExternalID    string
+	ExternalData  map[string]any
 }
 
 // FileSyncInput describes provider file data to persist for a course.
 type FileSyncInput struct {
-	FileName     string
-	FileType     string
-	UpdatedAt    time.Time
-	FileSize     int64
-	DownloadURL  string
-	ExternalID   string
-	ExternalData map[string]any
+	IsReplacement bool
+	FileName      string
+	FileType      string
+	UpdatedAt     time.Time
+	FileSize      int64
+	DownloadURL   string
+	ExternalID    string
+	ExternalData  map[string]any
 }
 
 func (m *Service) SyncFilesForCourse(ctx context.Context, courseID int64, files []FileSyncInput) error {
 	records := make([]record.FileSync, len(files))
 	for i, file := range files {
 		records[i] = record.FileSync{
-			FileName: file.FileName, FileType: file.FileType,
+			IsReplacement: file.IsReplacement,
+			FileName:      file.FileName, FileType: file.FileType,
 			UpdatedAt: file.UpdatedAt, FileSize: file.FileSize,
 			DownloadURL: file.DownloadURL, ExternalID: file.ExternalID, ExternalData: file.ExternalData,
 		}
@@ -67,16 +70,46 @@ func (m *Service) GetFile(ctx context.Context, fileID int64) (File, error) {
 	return fileFromRecord(file), nil
 }
 
+func (m *Service) CreateReplacementFile(ctx context.Context, courseID int64, uploaded UploadedFile) (File, error) {
+	if uploaded.ExternalID == "" {
+		return File{}, apperr.Internal("Replacement upload has no external file ID")
+	}
+	findReplacementFile := func() (File, bool, error) {
+		files, err := m.store.FilesByCourse(ctx, courseID)
+		if err != nil {
+			return File{}, false, err
+		}
+		for _, existing := range files {
+			if existing.ExternalID == uploaded.ExternalID {
+				return fileFromRecord(existing), true, nil
+			}
+		}
+		return File{}, false, nil
+	}
+	if err := m.store.SyncFiles(ctx, courseID, []record.FileSync{{
+		IsReplacement: true,
+		FileName:      uploaded.FileName, FileType: uploaded.FileType, UpdatedAt: uploaded.UpdatedAt,
+		FileSize: uploaded.FileSize, DownloadURL: uploaded.DownloadURL,
+		ExternalID: uploaded.ExternalID, ExternalData: uploaded.ExternalData,
+	}}); err != nil {
+		return File{}, err
+	}
+	if replacement, found, err := findReplacementFile(); err != nil || found {
+		return replacement, err
+	}
+	return File{}, apperr.Internal("Replacement file was not returned after persistence")
+}
+
 func (m *Service) UpdateFile(ctx context.Context, file File) error {
 	return m.store.UpdateFile(ctx, record.File{
-		ID: file.ID, CourseID: file.CourseID, FileName: file.FileName, FileType: file.FileType, UpdatedAt: file.UpdatedAt,
+		ID: file.ID, CourseID: file.CourseID, IsReplacement: file.IsReplacement, FileName: file.FileName, FileType: file.FileType, UpdatedAt: file.UpdatedAt,
 		FileSize: file.FileSize, DownloadURL: file.DownloadURL, ExternalID: file.ExternalID, ExternalData: file.ExternalData,
 	})
 }
 
 func fileFromRecord(file record.File) File {
 	return File{
-		ID: file.ID, CourseID: file.CourseID, FileName: file.FileName, FileType: file.FileType,
+		ID: file.ID, CourseID: file.CourseID, IsReplacement: file.IsReplacement, FileName: file.FileName, FileType: file.FileType,
 		UpdatedAt: file.UpdatedAt, FileSize: file.FileSize, DownloadURL: file.DownloadURL,
 		ExternalID: file.ExternalID, ExternalData: file.ExternalData,
 	}

@@ -14,10 +14,12 @@ import (
 
 type FileIssueReader interface {
 	GetByID(context.Context, int64) (*domain.FileIssue, error)
+	DeleteByFileID(context.Context, int64) error
 }
 
 type FileDataService interface {
 	GetFile(context.Context, int64) (lms.File, error)
+	CreateReplacementFile(context.Context, int64, lms.UploadedFile) (lms.File, error)
 }
 
 type CourseRetriever interface {
@@ -164,22 +166,17 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 	if err != nil {
 		return lms.File{}, err
 	}
+	newFile, err := u.fileDataService.CreateReplacementFile(ctx, course.ID, uploadedFile)
+	if err != nil {
+		return lms.File{}, err
+	}
+	if err := u.fileIssueReader.DeleteByFileID(ctx, newFile.ID); err != nil {
+		return lms.File{}, err
+	}
 	if err := u.sessionRepo.DeleteByID(ctx, cmd.UploadSessionID); err != nil {
 		return lms.File{}, err
 	}
-
-	// This does nothing but satisfy a previous type return requirement. The type
-	// that will be returned will be updated in the future.
-	updatedFile := file
-	updatedFile.FileName = uploadedFile.FileName
-	updatedFile.FileType = uploadedFile.FileType
-	updatedFile.UpdatedAt = uploadedFile.UpdatedAt
-	updatedFile.FileSize = uploadedFile.FileSize
-	updatedFile.DownloadURL = uploadedFile.DownloadURL
-	updatedFile.ExternalID = uploadedFile.ExternalID
-	updatedFile.ExternalData = uploadedFile.ExternalData
-
-	return updatedFile, nil
+	return newFile, nil
 }
 
 func loadFileContext(

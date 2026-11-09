@@ -99,7 +99,6 @@ func (m *Service) CompleteFileUpload(ctx context.Context, req CompleteFileUpload
 	if err != nil {
 		return UploadedFile{}, err
 	}
-
 	return UploadedFile{
 		FileName:     file.FileName,
 		FileType:     file.FileType,

@@ -22,38 +22,61 @@ func (q *Queries) DeleteFile(ctx context.Context, id uint64) error {
 }
 
 const getFileByID = `-- name: GetFileByID :one
-SELECT id, course_id, file_name, file_type, updated_at_lms, file_size, download_url, external_data, external_id
+SELECT id, course_id, is_replacement, file_name, file_type, updated_at_lms, file_size, download_url, external_data, external_id
 FROM file_item
 WHERE id = ?
 LIMIT 1
 `
 
 type GetFileByIDRow struct {
-	ID           uint64
-	CourseID     uint64
-	FileName     sql.NullString
-	FileType     sql.NullString
-	UpdatedAtLms sql.NullTime
-	FileSize     sql.NullInt64
-	DownloadUrl  sql.NullString
-	ExternalData json.RawMessage
-	ExternalID   string
+	ID            uint64
+	CourseID      uint64
+	IsReplacement bool
+	FileName      sql.NullString
+	FileType      sql.NullString
+	UpdatedAtLms  sql.NullTime
+	FileSize      sql.NullInt64
+	DownloadUrl   sql.NullString
+	ExternalData  json.RawMessage
+	ExternalID    string
 }
 
 func (q *Queries) GetFileByID(ctx context.Context, id uint64) (GetFileByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getFileByID, id)
 	var i GetFileByIDRow
-	err := row.Scan(&i.ID, &i.CourseID, &i.FileName, &i.FileType, &i.UpdatedAtLms, &i.FileSize, &i.DownloadUrl, &i.ExternalData, &i.ExternalID)
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.IsReplacement,
+		&i.FileName,
+		&i.FileType,
+		&i.UpdatedAtLms,
+		&i.FileSize,
+		&i.DownloadUrl,
+		&i.ExternalData,
+		&i.ExternalID,
+	)
 	return i, err
 }
 
 const getFilesByCourseID = `-- name: GetFilesByCourseID :many
-SELECT id, course_id, file_name, file_type, updated_at_lms, file_size, download_url, external_data, external_id
+SELECT id, course_id, is_replacement, file_name, file_type, updated_at_lms, file_size, download_url, external_data, external_id
 FROM file_item
 WHERE course_id = ?
 `
 
-type GetFilesByCourseIDRow = GetFileByIDRow
+type GetFilesByCourseIDRow struct {
+	ID            uint64
+	CourseID      uint64
+	IsReplacement bool
+	FileName      sql.NullString
+	FileType      sql.NullString
+	UpdatedAtLms  sql.NullTime
+	FileSize      sql.NullInt64
+	DownloadUrl   sql.NullString
+	ExternalData  json.RawMessage
+	ExternalID    string
+}
 
 func (q *Queries) GetFilesByCourseID(ctx context.Context, courseID uint64) ([]GetFilesByCourseIDRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFilesByCourseID, courseID)
@@ -64,7 +87,18 @@ func (q *Queries) GetFilesByCourseID(ctx context.Context, courseID uint64) ([]Ge
 	var items []GetFilesByCourseIDRow
 	for rows.Next() {
 		var i GetFilesByCourseIDRow
-		if err := rows.Scan(&i.ID, &i.CourseID, &i.FileName, &i.FileType, &i.UpdatedAtLms, &i.FileSize, &i.DownloadUrl, &i.ExternalData, &i.ExternalID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CourseID,
+			&i.IsReplacement,
+			&i.FileName,
+			&i.FileType,
+			&i.UpdatedAtLms,
+			&i.FileSize,
+			&i.DownloadUrl,
+			&i.ExternalData,
+			&i.ExternalID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -80,30 +114,56 @@ func (q *Queries) GetFilesByCourseID(ctx context.Context, courseID uint64) ([]Ge
 
 const updateFile = `-- name: UpdateFile :exec
 UPDATE file_item
-SET course_id = ?, file_name = ?, file_type = ?, updated_at_lms = ?, file_size = ?, download_url = ?, external_data = ?, external_id = ?
+SET
+  course_id = ?,
+  is_replacement = ?,
+  file_name = ?,
+  file_type = ?,
+  updated_at_lms = ?,
+  file_size = ?,
+  download_url = ?,
+  external_data = ?,
+  external_id = ?
 WHERE id = ?
 `
 
 type UpdateFileParams struct {
-	CourseID     uint64
-	FileName     sql.NullString
-	FileType     sql.NullString
-	UpdatedAtLms sql.NullTime
-	FileSize     sql.NullInt64
-	DownloadUrl  sql.NullString
-	ExternalData json.RawMessage
-	ExternalID   string
-	ID           uint64
+	CourseID      uint64
+	IsReplacement bool
+	FileName      sql.NullString
+	FileType      sql.NullString
+	UpdatedAtLms  sql.NullTime
+	FileSize      sql.NullInt64
+	DownloadUrl   sql.NullString
+	ExternalData  json.RawMessage
+	ExternalID    string
+	ID            uint64
 }
 
 func (q *Queries) UpdateFile(ctx context.Context, arg UpdateFileParams) error {
-	_, err := q.db.ExecContext(ctx, updateFile, arg.CourseID, arg.FileName, arg.FileType, arg.UpdatedAtLms, arg.FileSize, arg.DownloadUrl, arg.ExternalData, arg.ExternalID, arg.ID)
+	_, err := q.db.ExecContext(ctx, updateFile,
+		arg.CourseID,
+		arg.IsReplacement,
+		arg.FileName,
+		arg.FileType,
+		arg.UpdatedAtLms,
+		arg.FileSize,
+		arg.DownloadUrl,
+		arg.ExternalData,
+		arg.ExternalID,
+		arg.ID,
+	)
 	return err
 }
 
 const upsertFileByCourseExternalID = `-- name: UpsertFileByCourseExternalID :exec
-INSERT INTO file_item (course_id, file_name, file_type, updated_at_lms, file_size, download_url, external_data, external_id)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO file_item (
+  course_id, is_replacement, file_name, file_type, updated_at_lms, file_size, download_url, external_data, external_id
+)
+VALUES (
+  ?, ?, ?, ?, ?,
+  ?, ?, ?, ?
+)
 ON DUPLICATE KEY UPDATE
   file_name = VALUES(file_name),
   file_type = VALUES(file_type),
@@ -111,21 +171,33 @@ ON DUPLICATE KEY UPDATE
   file_size = VALUES(file_size),
   download_url = VALUES(download_url),
   external_data = VALUES(external_data),
-  external_id = VALUES(external_id)
+  external_id = VALUES(external_id),
+  is_replacement = GREATEST(file_item.is_replacement, VALUES(is_replacement))
 `
 
 type UpsertFileByCourseExternalIDParams struct {
-	CourseID     uint64
-	FileName     sql.NullString
-	FileType     sql.NullString
-	UpdatedAtLms sql.NullTime
-	FileSize     sql.NullInt64
-	DownloadUrl  sql.NullString
-	ExternalData json.RawMessage
-	ExternalID   string
+	CourseID      uint64
+	IsReplacement bool
+	FileName      sql.NullString
+	FileType      sql.NullString
+	UpdatedAtLms  sql.NullTime
+	FileSize      sql.NullInt64
+	DownloadUrl   sql.NullString
+	ExternalData  json.RawMessage
+	ExternalID    string
 }
 
 func (q *Queries) UpsertFileByCourseExternalID(ctx context.Context, arg UpsertFileByCourseExternalIDParams) error {
-	_, err := q.db.ExecContext(ctx, upsertFileByCourseExternalID, arg.CourseID, arg.FileName, arg.FileType, arg.UpdatedAtLms, arg.FileSize, arg.DownloadUrl, arg.ExternalData, arg.ExternalID)
+	_, err := q.db.ExecContext(ctx, upsertFileByCourseExternalID,
+		arg.CourseID,
+		arg.IsReplacement,
+		arg.FileName,
+		arg.FileType,
+		arg.UpdatedAtLms,
+		arg.FileSize,
+		arg.DownloadUrl,
+		arg.ExternalData,
+		arg.ExternalID,
+	)
 	return err
 }

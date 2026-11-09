@@ -68,7 +68,7 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 	for i, file := range scanData.Files {
 		fileIDs[i] = file.ID
 	}
-	if err := u.fileIssueRepository.ReplaceForCourse(ctx, courseID, fileIDs); err != nil {
+	if err := u.fileIssueRepository.SyncForCourse(ctx, courseID, fileIDs); err != nil {
 		return err
 	}
 

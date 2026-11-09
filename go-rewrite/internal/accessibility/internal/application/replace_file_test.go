@@ -12,16 +12,23 @@ import (
 )
 
 type replacementFileIssueReader struct {
-	issue *domain.FileIssue
+	issue          *domain.FileIssue
+	deletedFileIDs []int64
 }
 
-func (r replacementFileIssueReader) GetByID(context.Context, int64) (*domain.FileIssue, error) {
+func (r *replacementFileIssueReader) GetByID(context.Context, int64) (*domain.FileIssue, error) {
 	return r.issue, nil
 }
 
+func (r *replacementFileIssueReader) DeleteByFileID(_ context.Context, fileID int64) error {
+	r.deletedFileIDs = append(r.deletedFileIDs, fileID)
+	return nil
+}
+
 type replacementFileDataService struct {
-	file   lms.File
-	course lms.Course
+	file    lms.File
+	course  lms.Course
+	created []lms.File
 }
 
 func (s *replacementFileDataService) GetFile(context.Context, int64) (lms.File, error) {
@@ -30,6 +37,16 @@ func (s *replacementFileDataService) GetFile(context.Context, int64) (lms.File, 
 
 func (s *replacementFileDataService) GetCourse(context.Context, int64) (lms.Course, error) {
 	return s.course, nil
+}
+
+func (s *replacementFileDataService) CreateReplacementFile(_ context.Context, courseID int64, uploaded lms.UploadedFile) (lms.File, error) {
+	created := lms.File{
+		ID: int64(100 + len(s.created)), CourseID: courseID, IsReplacement: true, FileName: uploaded.FileName,
+		FileType: uploaded.FileType, UpdatedAt: uploaded.UpdatedAt, FileSize: uploaded.FileSize,
+		DownloadURL: uploaded.DownloadURL, ExternalID: uploaded.ExternalID, ExternalData: uploaded.ExternalData,
+	}
+	s.created = append(s.created, created)
+	return created, nil
 }
 
 type replacementFileUploader struct {
@@ -113,7 +130,7 @@ func TestBeginFileReplacementUsesIssueContext(t *testing.T) {
 	sessions := &replacementSessionRepository{}
 
 	useCase := NewBeginFileReplacementUseCase(
-		replacementFileIssueReader{issue: issue},
+		&replacementFileIssueReader{issue: issue},
 		&replacementFileDataService{file: file, course: course},
 		&replacementFileDataService{file: file, course: course},
 		uploader,
@@ -148,7 +165,7 @@ func TestBeginFileReplacementRejectsWrongTenantBeforeUpload(t *testing.T) {
 	sessions := &replacementSessionRepository{}
 
 	useCase := NewBeginFileReplacementUseCase(
-		replacementFileIssueReader{issue: issue},
+		&replacementFileIssueReader{issue: issue},
 		&replacementFileDataService{file: file, course: course},
 		&replacementFileDataService{file: file, course: course},
 		uploader,
@@ -169,7 +186,7 @@ func TestBeginFileReplacementRejectsWrongTenantBeforeUpload(t *testing.T) {
 	}
 }
 
-func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
+func TestCompleteFileReplacementCreatesSeparateResolvedFile(t *testing.T) {
 	issue, file, course, principal := replacementContext()
 	updatedAt := time.Date(2026, time.October, 24, 12, 0, 0, 0, time.UTC)
 	uploader := &replacementFileUploader{
@@ -184,6 +201,7 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 		},
 	}
 	dataService := &replacementFileDataService{file: file, course: course}
+	issueReader := &replacementFileIssueReader{issue: issue}
 	sessions := &replacementSessionRepository{sessions: map[string]domain.FileUploadSession{
 		"session-1": {
 			ID: "session-1", UserID: principal.AgentID, TenantID: principal.TenantID,
@@ -192,7 +210,7 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 	}}
 
 	useCase := NewCompleteFileReplacementUseCase(
-		replacementFileIssueReader{issue: issue},
+		issueReader,
 		dataService,
 		dataService,
 		uploader,
@@ -212,8 +230,20 @@ func TestCompleteFileReplacementPersistsUploadedMetadata(t *testing.T) {
 	if !uploader.completeCalled {
 		t.Fatalf("expected completion upload, completed=%v", uploader.completeCalled)
 	}
-	if got.ExternalID != "file:55" || got.FileName != "new.pdf" || !got.UpdatedAt.Equal(updatedAt) {
+	if got.ID == file.ID || got.ExternalID != "file:55" || got.FileName != "new.pdf" || !got.UpdatedAt.Equal(updatedAt) || !got.IsReplacement {
 		t.Fatalf("unexpected returned file: %+v", got)
+	}
+	if got.ID != 100 || len(dataService.created) != 1 || dataService.created[0].ID == file.ID {
+		t.Fatalf("replacement should be a separate persisted file record: old=%+v created=%+v result=%+v", file, dataService.created, got)
+	}
+	if len(issueReader.deletedFileIDs) != 1 || issueReader.deletedFileIDs[0] != got.ID {
+		t.Fatalf("replacement file issue should be removed: deleted=%v replacement=%d", issueReader.deletedFileIDs, got.ID)
+	}
+	if issue.IsReviewed() {
+		t.Fatal("original file issue should remain unresolved")
+	}
+	if file.ID != 34 || file.ExternalID != "file:34" {
+		t.Fatalf("original file record was modified: %+v", file)
 	}
 	if _, exists := sessions.sessions["session-1"]; exists {
 		t.Fatal("upload session should be removed after successful completion")
@@ -230,7 +260,7 @@ func TestCompleteFileReplacementKeepsSessionWhenProviderReplacementFails(t *test
 		},
 	}}
 	dataService := &replacementFileDataService{file: file, course: course}
-	useCase := NewCompleteFileReplacementUseCase(replacementFileIssueReader{issue: issue}, dataService, dataService, uploader, sessions)
+	useCase := NewCompleteFileReplacementUseCase(&replacementFileIssueReader{issue: issue}, dataService, dataService, uploader, sessions)
 
 	_, err := useCase.Execute(context.Background(), CompleteFileReplacementCommand{
 		Principal: principal, FileIssueID: issue.ID(), UploadSessionID: "session-1", UploadResponse: map[string]any{"id": 55},

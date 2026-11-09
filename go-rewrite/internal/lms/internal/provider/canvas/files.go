@@ -29,7 +29,7 @@ func (p *Canvas) BeginFileUpload(ctx context.Context, userID int64, course provi
 	}
 	response, err := p.doAuthenticatedRequest(ctx, userID, CanvasRequest{
 		Path:   fmt.Sprintf("/api/v1/courses/%s/files", canvasCourse.courseID),
-		Query:  url.Values{"name": {newFileName}, "size": {strconv.FormatInt(newFileSize, 10)}, "parent_folder_id": {folderID}},
+		Query:  url.Values{"name": {newFileName}, "size": {strconv.FormatInt(newFileSize, 10)}, "parent_folder_id": {folderID}, "on_duplicate": {"rename"}},
 		Method: http.MethodPost,
 	})
 	if err != nil {
@@ -99,7 +99,7 @@ func (p *Canvas) getCanvasFileDetails(ctx context.Context, userID int64, courseI
 	if err := json.NewDecoder(response.Body).Decode(&file); err != nil {
 		return canvasFileDetails{}, apperr.Internal("Failed to decode Canvas file", apperr.WithCause(err))
 	}
-	
+
 	return file, nil
 }
 

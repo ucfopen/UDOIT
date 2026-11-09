@@ -12,6 +12,7 @@ type Store interface {
 	ContentByCourse(context.Context, int64) ([]record.Content, error)
 	UpsertContent(context.Context, []record.Content) ([]record.Content, error)
 	FileByID(context.Context, int64) (record.File, bool, error)
+	CreateFile(context.Context, record.File) (record.File, error)
 	FilesByCourse(context.Context, int64) ([]record.File, error)
 	UpdateFile(context.Context, record.File) error
 	SyncFiles(context.Context, int64, []record.FileSync) error

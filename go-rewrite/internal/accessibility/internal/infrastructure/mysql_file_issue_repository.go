@@ -10,29 +10,56 @@ import (
 )
 
 type MySQLFileIssueRepository struct {
+	db      *sql.DB
 	queries *accessibilitysqlc.Queries
 }
 
 func NewMySQLFileIssueRepository(db *sql.DB) *MySQLFileIssueRepository {
 	return &MySQLFileIssueRepository{
+		db:      db,
 		queries: accessibilitysqlc.New(db),
 	}
 }
 
-func (r *MySQLFileIssueRepository) ReplaceForCourse(ctx context.Context, courseID int64, fileIDs []int64) error {
-	err := r.queries.DeleteFileIssuesByCourseID(ctx, uint64(courseID))
+func (r *MySQLFileIssueRepository) SyncForCourse(ctx context.Context, courseID int64, fileIDs []int64) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	queries := r.queries.WithTx(tx)
+	existingFileIDs, err := queries.GetFileIssueFileIDsByCourseID(ctx, uint64(courseID))
 	if err != nil {
 		return err
 	}
 
+	currentFileIDs := make(map[int64]struct{}, len(fileIDs))
 	for _, fileID := range fileIDs {
-		err = r.queries.CreateFileIssue(ctx, uint64(fileID))
-		if err != nil {
+		currentFileIDs[fileID] = struct{}{}
+		if err := queries.UpsertFileIssueForCourseFile(ctx, accessibilitysqlc.UpsertFileIssueForCourseFileParams{
+			FileID:   uint64(fileID),
+			CourseID: uint64(courseID),
+		}); err != nil {
 			return err
 		}
 	}
+	for _, fileID := range existingFileIDs {
+		if _, stillInCourse := currentFileIDs[int64(fileID)]; stillInCourse {
+			continue
+		}
+		if err := queries.DeleteFileIssueByFileID(ctx, fileID); err != nil {
+			return err
+		}
+	}
+	if err := queries.DeleteReplacementFileIssuesByCourseID(ctx, uint64(courseID)); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
 
-	return nil
+func (r *MySQLFileIssueRepository) DeleteByFileID(ctx context.Context, fileID int64) error {
+	return r.queries.DeleteFileIssueByFileID(ctx, uint64(fileID))
 }
 
 func (r *MySQLFileIssueRepository) GetByID(ctx context.Context, ID int64) (*domain.FileIssue, error) {

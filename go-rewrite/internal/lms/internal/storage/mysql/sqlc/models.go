@@ -21,20 +21,6 @@ type ContentItem struct {
 	ContentChangedAt time.Time
 }
 
-type FileItem struct {
-	ID           uint64
-	CourseID     uint64
-	FileName     sql.NullString
-	FileType     sql.NullString
-	UpdatedAtLms sql.NullTime
-	FileSize     sql.NullInt64
-	DownloadUrl  sql.NullString
-	ExternalData json.RawMessage
-	ExternalID   string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-}
-
 type Course struct {
 	ID           uint64
 	Title        string
@@ -45,6 +31,60 @@ type Course struct {
 	ExternalData json.RawMessage
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+}
+
+type CourseScan struct {
+	ID          uint64
+	CourseID    uint64
+	ScannedBy   uint64
+	StartedAt   time.Time
+	CompletedAt sql.NullTime
+}
+
+type FileIssue struct {
+	ID         uint64
+	FileID     uint64
+	ReviewerID sql.NullInt64
+	ReviewedOn sql.NullTime
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+type FileItem struct {
+	ID            uint64
+	CourseID      uint64
+	FileName      sql.NullString
+	FileType      sql.NullString
+	UpdatedAtLms  sql.NullTime
+	FileSize      sql.NullInt64
+	DownloadUrl   sql.NullString
+	ExternalData  json.RawMessage
+	ExternalID    string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	IsReplacement bool
+}
+
+type FileReference struct {
+	ID            uint64
+	ContentItemID uint64
+	FileID        uint64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type HtmlIssue struct {
+	ID            uint64
+	ContentItemID uint64
+	ScanRule      string
+	ContentXpath  string
+	Status        string
+	Severity      string
+	FixedBy       sql.NullInt64
+	FixedAt       sql.NullTime
+	Details       json.RawMessage
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type LmsProviderConfig struct {
@@ -66,4 +106,70 @@ type LmsUserCredential struct {
 	UpdatedAt                 time.Time
 	EncryptedCredential       []byte
 	CredentialEncryptionKeyID string
+}
+
+type LtiCourseLink struct {
+	TenantID  uint64
+	ContextID string
+	CourseID  uint64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type LtiUserLink struct {
+	Sub       string
+	Issuer    string
+	UserID    uint64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Registration struct {
+	ID                   uint64
+	Issuer               string
+	ClientID             string
+	TenantID             uint64
+	LoginAuthEndpoint    string
+	JwkEndpoint          string
+	ServiceAuthEndpoint  string
+	ServiceLoginEndpoint string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+type Report struct {
+	ID              uint64
+	CourseID        uint64
+	ErrorCount      uint32
+	SuggestionCount uint32
+	FileCount       uint32
+	ScannedBy       uint64
+	ContentFixed    uint64
+	ContentResolved uint64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
+type Tenant struct {
+	ID        uint64
+	LmsKey    string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type User struct {
+	ID          uint64
+	Username    string
+	Name        string
+	Preferences json.RawMessage
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type UserSession struct {
+	Uuid      string
+	Data      json.RawMessage
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	ExpiresAt sql.NullTime
 }

@@ -1,0 +1,2 @@
+ALTER TABLE file_item
+ADD COLUMN is_replacement TINYINT(1) NOT NULL DEFAULT 0;

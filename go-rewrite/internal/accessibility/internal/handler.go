@@ -70,15 +70,16 @@ type fileUploadInstructionResponse struct {
 }
 
 type fileResponse struct {
-	ID           int64          `json:"id"`
-	CourseID     int64          `json:"courseId"`
-	FileName     string         `json:"fileName"`
-	FileType     string         `json:"fileType"`
-	UpdatedAt    string         `json:"updatedAt"`
-	FileSize     int64          `json:"fileSize"`
-	DownloadURL  string         `json:"downloadUrl"`
-	ExternalID   string         `json:"externalId"`
-	ExternalData map[string]any `json:"externalData"`
+	ID            int64          `json:"id"`
+	CourseID      int64          `json:"courseId"`
+	IsReplacement bool           `json:"isReplacement"`
+	FileName      string         `json:"fileName"`
+	FileType      string         `json:"fileType"`
+	UpdatedAt     string         `json:"updatedAt"`
+	FileSize      int64          `json:"fileSize"`
+	DownloadURL   string         `json:"downloadUrl"`
+	ExternalID    string         `json:"externalId"`
+	ExternalData  map[string]any `json:"externalData"`
 }
 
 func (h *Handler) handleBeginFileReplacement(c *gin.Context) {
@@ -156,15 +157,16 @@ func (h *Handler) handleCompleteFileReplacement(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]any{"file": fileResponse{
-		ID:           file.ID,
-		CourseID:     file.CourseID,
-		FileName:     file.FileName,
-		FileType:     file.FileType,
-		UpdatedAt:    file.UpdatedAt.Format(time.RFC3339),
-		FileSize:     file.FileSize,
-		DownloadURL:  file.DownloadURL,
-		ExternalID:   file.ExternalID,
-		ExternalData: file.ExternalData,
+		ID:            file.ID,
+		CourseID:      file.CourseID,
+		IsReplacement: file.IsReplacement,
+		FileName:      file.FileName,
+		FileType:      file.FileType,
+		UpdatedAt:     file.UpdatedAt.Format(time.RFC3339),
+		FileSize:      file.FileSize,
+		DownloadURL:   file.DownloadURL,
+		ExternalID:    file.ExternalID,
+		ExternalData:  file.ExternalData,
 	}})
 }
 

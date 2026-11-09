@@ -53,7 +53,7 @@ func TestBeginFileUploadNegotiatesCanvasUploadTarget(t *testing.T) {
 	if len(requests) != 2 || requests[0].path != "/api/v1/courses/42/files/34" || requests[1].method != http.MethodPost || requests[1].path != "/api/v1/courses/42/files" {
 		t.Fatalf("unexpected Canvas calls: %+v", requests)
 	}
-	if requests[1].query.Get("name") != "new.pdf" || requests[1].query.Get("size") != "4096" || requests[1].query.Get("parent_folder_id") != "8" {
+	if requests[1].query.Get("name") != "new.pdf" || requests[1].query.Get("size") != "4096" || requests[1].query.Get("parent_folder_id") != "8" || requests[1].query.Get("on_duplicate") != "rename" {
 		t.Fatalf("unexpected negotiation query: %v", requests[1].query)
 	}
 }
