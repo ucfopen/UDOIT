@@ -45,23 +45,23 @@ func NewScanCourseUseCase(
 	}
 }
 
-func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principal, courseID int64) error {
+func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principal, courseID int64) ([]*domain.HTMLIssue, error) {
 	lastCompletedAt, err := u.scanRepository.LastCompletedAt(ctx, courseID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	scan := domain.NewCourseScan(courseID, principal.AgentID, time.Now())
 	scan, err = u.scanRepository.Start(ctx, scan)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if scan == nil {
-		return apperr.Internal("Course scan repository returned no persisted scan")
+		return nil, apperr.Internal("Course scan repository returned no persisted scan")
 	}
 
 	scanData, err := u.lmsDataService.SynchronizeCourse(ctx, principal, courseID, lastCompletedAt)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	fileIDs := make([]int64, len(scanData.Files))
@@ -69,7 +69,7 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		fileIDs[i] = file.ID
 	}
 	if err := u.fileIssueRepository.SyncForCourse(ctx, courseID, fileIDs); err != nil {
-		return err
+		return nil, err
 	}
 
 	scanItems := make([]domain.ScanItem, len(scanData.ChangedContents))
@@ -84,11 +84,11 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 
 	scanResult, err := u.scanner.ScanContent(ctx, scanItems)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := u.htmlIssueRepository.DeleteByContentItemIDs(ctx, contentItemIDs); err != nil {
-		return err
+		return nil, err
 	}
 
 	references := make([]lms.FileReferenceInput, len(scanResult.References))
@@ -107,7 +107,7 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 		ContentItemIDs: contentItemIDs,
 		References:     references,
 	}); err != nil {
-		return err
+		return nil, err
 	}
 
 	newIssues := make([]*domain.HTMLIssue, 0, len(scanResult.Issues))
@@ -123,8 +123,18 @@ func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principa
 	}
 
 	if _, err := u.htmlIssueRepository.CreateMany(ctx, newIssues); err != nil {
-		return err
+		return nil, err
+	}
+	issues, err := u.htmlIssueRepository.GetByCourseID(ctx, courseID)
+	if err != nil {
+		return nil, err
 	}
 	scan.Complete(time.Now())
-	return u.scanRepository.Complete(ctx, scan)
+	if err := u.scanRepository.Complete(ctx, scan); err != nil {
+		return nil, err
+	}
+	if issues == nil {
+		issues = []*domain.HTMLIssue{}
+	}
+	return issues, nil
 }

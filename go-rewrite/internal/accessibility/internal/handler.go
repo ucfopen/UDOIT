@@ -1,12 +1,14 @@
 package internal
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"rewritetest/internal/accessibility/internal/application"
+	"rewritetest/internal/accessibility/internal/domain"
 	"rewritetest/internal/auth"
 	"rewritetest/internal/shared/apperr"
 	sharedAuth "rewritetest/internal/shared/auth"
@@ -15,8 +17,12 @@ import (
 )
 
 type Handler struct {
-	scanCourseUseCase              *application.ScanCourseUseCase
-	createReportUseCase            *application.CreateReportUseCase
+	scanCourseUseCase interface {
+		Execute(context.Context, sharedAuth.Principal, int64) ([]*domain.HTMLIssue, error)
+	}
+	createReportUseCase interface {
+		Execute(context.Context, application.CreateReportCommand) error
+	}
 	markHtmlAsReviewedUseCase      *application.MarkHtmlAsReviewedUseCase
 	fixHTMLIssueUseCase            *application.FixHTMLIssueUseCase
 	markFileAsReviewedUseCase      *application.MarkFileAsReviewedUseCase
@@ -25,8 +31,12 @@ type Handler struct {
 }
 
 func NewHandler(
-	scanCourseUseCase *application.ScanCourseUseCase,
-	createReportUseCase *application.CreateReportUseCase,
+	scanCourseUseCase interface {
+		Execute(context.Context, sharedAuth.Principal, int64) ([]*domain.HTMLIssue, error)
+	},
+	createReportUseCase interface {
+		Execute(context.Context, application.CreateReportCommand) error
+	},
 	markHtmlAsReviewedUseCase *application.MarkHtmlAsReviewedUseCase,
 	fixHTMLIssueUseCase *application.FixHTMLIssueUseCase,
 	markFileAsReviewedUseCase *application.MarkFileAsReviewedUseCase,
@@ -115,6 +125,18 @@ type fileResponse struct {
 	DownloadURL   string         `json:"downloadUrl"`
 	ExternalID    string         `json:"externalId"`
 	ExternalData  map[string]any `json:"externalData"`
+}
+
+type htmlIssueResponse struct {
+	ID            int64          `json:"id"`
+	ContentItemID int64          `json:"contentItemId"`
+	ScanRuleID    string         `json:"scanRuleId"`
+	ContentXPath  string         `json:"contentXPath"`
+	Status        string         `json:"status"`
+	Severity      string         `json:"severity"`
+	Details       map[string]any `json:"details"`
+	FixedBy       int64          `json:"fixedBy,omitempty"`
+	FixedAt       string         `json:"fixedAt,omitempty"`
 }
 
 func (h *Handler) handleBeginFileReplacement(c *gin.Context) {
@@ -236,7 +258,7 @@ func (h *Handler) handleScanCourse(c *gin.Context) {
 		return
 	}
 
-	err = h.scanCourseUseCase.Execute(c.Request.Context(), principal, courseID)
+	issues, err := h.scanCourseUseCase.Execute(c.Request.Context(), principal, courseID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -251,7 +273,19 @@ func (h *Handler) handleScanCourse(c *gin.Context) {
 		return
 	}
 
-	c.Status(200)
+	responseIssues := make([]htmlIssueResponse, 0, len(issues))
+	for _, issue := range issues {
+		responseIssue := htmlIssueResponse{
+			ID: issue.ID(), ContentItemID: issue.ContentItemID(), ScanRuleID: issue.ScanRule().String(),
+			ContentXPath: issue.ContentXPath(), Status: issue.Status().String(), Severity: issue.Severity().String(),
+			Details: issue.Details(), FixedBy: issue.FixedBy(),
+		}
+		if !issue.FixedAt().IsZero() {
+			responseIssue.FixedAt = issue.FixedAt().Format(time.RFC3339)
+		}
+		responseIssues = append(responseIssues, responseIssue)
+	}
+	c.JSON(http.StatusOK, map[string]any{"issues": responseIssues})
 }
 
 func (h *Handler) handleMarkHTMLIssueAsReviewed(c *gin.Context) {
