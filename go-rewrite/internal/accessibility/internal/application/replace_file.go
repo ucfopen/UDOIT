@@ -15,6 +15,7 @@ import (
 type FileIssueReader interface {
 	GetByID(context.Context, int64) (*domain.FileIssue, error)
 	DeleteByFileID(context.Context, int64) error
+	Update(context.Context, *domain.FileIssue) error
 }
 
 type FileDataService interface {
@@ -71,7 +72,7 @@ func NewBeginFileReplacementUseCase(
 }
 
 func (u *BeginFileReplacementUseCase) Execute(ctx context.Context, cmd BeginFileReplacementCommand) (BeginFileReplacementResult, error) {
-	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
+	file, course, _, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
 	if err != nil {
 		return BeginFileReplacementResult{}, err
 	}
@@ -148,7 +149,7 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 	if session == nil || session.UserID != cmd.Principal.AgentID || session.TenantID != cmd.Principal.TenantID || session.FileIssueID != cmd.FileIssueID {
 		return lms.File{}, apperr.New(apperr.CodeNotFound, "Upload session not found")
 	}
-	file, course, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
+	file, course, issue, err := loadFileContext(ctx, u.fileIssueReader, u.fileDataService, u.courseRetriever, cmd.Principal, cmd.FileIssueID)
 	if err != nil {
 		return lms.File{}, err
 	}
@@ -170,9 +171,12 @@ func (u *CompleteFileReplacementUseCase) Execute(ctx context.Context, cmd Comple
 	if err != nil {
 		return lms.File{}, err
 	}
-	if err := u.fileIssueReader.DeleteByFileID(ctx, newFile.ID); err != nil {
+	
+	issue.Review(session.UserID, time.Now())
+	if err := u.fileIssueReader.Update(ctx, issue); err != nil {
 		return lms.File{}, err
 	}
+
 	if err := u.sessionRepo.DeleteByID(ctx, cmd.UploadSessionID); err != nil {
 		return lms.File{}, err
 	}
@@ -186,29 +190,28 @@ func loadFileContext(
 	courseRetriever CourseRetriever,
 	principal auth.Principal,
 	fileIssueID int64,
-) (lms.File, lms.Course, error) {
+) (lms.File, lms.Course, *domain.FileIssue, error) {
 	issue, err := fileIssueReader.GetByID(ctx, fileIssueID)
 	if err != nil {
-		return lms.File{}, lms.Course{}, err
+		return lms.File{}, lms.Course{}, nil, err
 	}
 	if issue == nil {
-		return lms.File{}, lms.Course{}, apperr.New(apperr.CodeNotFound, "File issue not found")
+		return lms.File{}, lms.Course{}, nil, apperr.New(apperr.CodeNotFound, "File issue not found")
 	}
 
 	file, err := fileDataService.GetFile(ctx, issue.FileID())
 	if err != nil {
-		return lms.File{}, lms.Course{}, err
+		return lms.File{}, lms.Course{}, nil, err
 	}
 
 	course, err := courseRetriever.GetCourse(ctx, file.CourseID)
 	if err != nil {
-		return lms.File{}, lms.Course{}, err
+		return lms.File{}, lms.Course{}, nil, err
 	}
 	if course.TenantID != principal.TenantID {
-		return lms.File{}, lms.Course{}, apperr.Forbidden("You do not have access to this file issue")
+		return lms.File{}, lms.Course{}, nil, apperr.New(apperr.CodeNotFound, "Course not found")
 	}
-
-	return file, course, nil
+	return file, course, issue, nil
 }
 
 func toLMSFileInfo(file lms.File) lms.FileInfo {
