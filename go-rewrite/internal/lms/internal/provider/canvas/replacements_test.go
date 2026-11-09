@@ -10,11 +10,12 @@ import (
 	"testing"
 
 	"rewritetest/internal/lms/internal/record"
+	"rewritetest/internal/lms/internal/storage"
 )
 
 func newReplacementTestCanvas(t *testing.T, server *httptest.Server) *Canvas {
 	t.Helper()
-	repositories := &authTestRepositories{credential: record.LMSCredential{
+	repositories := &storage.MockRepositories{Credential: record.LMSCredential{
 		UserID: 17,
 		LMSKey: "canvas",
 		Payload: map[string]any{

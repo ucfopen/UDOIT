@@ -8,34 +8,11 @@ import (
 	"testing"
 
 	"rewritetest/internal/lms/internal/record"
+	"rewritetest/internal/lms/internal/storage"
 )
 
-type authTestRepositories struct {
-	credential record.LMSCredential
-	attempt    record.AuthAttempt
-	status     int
-}
-
-func (r *authTestRepositories) ActiveCredential(context.Context, int64) (record.LMSCredential, bool, error) {
-	return r.credential, r.credential.UserID != 0, nil
-}
-
-func (r *authTestRepositories) SaveCredential(_ context.Context, value record.LMSCredential) error {
-	r.credential = value
-	return nil
-}
-
-func (r *authTestRepositories) Save(_ context.Context, value record.AuthAttempt) error {
-	r.attempt = value
-	return nil
-}
-
-func (r *authTestRepositories) Get(context.Context, string) (record.AuthAttempt, bool, error) {
-	return r.attempt, r.attempt.State != "", nil
-}
-
 func TestBeginAuthenticationPersistsAttempt(t *testing.T) {
-	repositories := &authTestRepositories{}
+	repositories := &storage.MockRepositories{}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { http.Error(w, "unauthorized", http.StatusUnauthorized) }))
 	defer server.Close()
 	p, err := New(map[string]any{"base_url": server.URL, "client_id": "client", "client_secret": "secret"}, "https://app.example/callback", repositories, repositories)
@@ -50,8 +27,8 @@ func TestBeginAuthenticationPersistsAttempt(t *testing.T) {
 	if challenge.Kind != "redirect" || challenge.RedirectURL == "" {
 		t.Fatalf("unexpected authentication challenge: %+v", challenge)
 	}
-	if repositories.attempt.UserID != 17 || repositories.attempt.TenantID != 9 || repositories.attempt.State == "" || repositories.attempt.TargetLinkURI != "https://app.example/launch" {
-		t.Fatalf("unexpected persisted auth attempt: %+v", repositories.attempt)
+	if repositories.Attempt.UserID != 17 || repositories.Attempt.TenantID != 9 || repositories.Attempt.State == "" || repositories.Attempt.TargetLinkURI != "https://app.example/launch" {
+		t.Fatalf("unexpected persisted auth attempt: %+v", repositories.Attempt)
 	}
 }
 
@@ -63,7 +40,7 @@ func TestCompleteAuthenticationPersistsCredential(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"access_token": "access", "refresh_token": "refresh", "expires_in": 3600})
 	}))
 	defer server.Close()
-	repositories := &authTestRepositories{}
+	repositories := &storage.MockRepositories{}
 	p, err := New(map[string]any{"base_url": server.URL, "client_id": "client", "client_secret": "secret"}, "https://app.example/callback", repositories, repositories)
 	if err != nil {
 		t.Fatal(err)
@@ -73,8 +50,8 @@ func TestCompleteAuthenticationPersistsCredential(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CompleteAuthentication returned error: %v", err)
 	}
-	if target != "https://app.example/launch" || repositories.credential.Payload["api_token"] != "access" || repositories.credential.Payload["refresh_token"] != "refresh" || repositories.credential.ExpiresAt == nil {
-		t.Fatalf("unexpected completion result: target=%q credential=%+v", target, repositories.credential)
+	if target != "https://app.example/launch" || repositories.Credential.Payload["api_token"] != "access" || repositories.Credential.Payload["refresh_token"] != "refresh" || repositories.Credential.ExpiresAt == nil {
+		t.Fatalf("unexpected completion result: target=%q credential=%+v", target, repositories.Credential)
 	}
 }
 
@@ -101,7 +78,7 @@ func TestAuthenticatedRequestRefreshesPersistsAndRetries(t *testing.T) {
 		}
 	}))
 	defer server.Close()
-	repositories := &authTestRepositories{credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "old-access", "refresh_token": "old-refresh"}}}
+	repositories := &storage.MockRepositories{Credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "old-access", "refresh_token": "old-refresh"}}}
 	p, err := New(map[string]any{"base_url": server.URL, "client_id": "client", "client_secret": "secret"}, "", repositories, repositories)
 	if err != nil {
 		t.Fatal(err)
@@ -115,7 +92,7 @@ func TestAuthenticatedRequestRefreshesPersistsAndRetries(t *testing.T) {
 	if resp.StatusCode != http.StatusOK || requests != 2 || refreshes != 1 {
 		t.Fatalf("expected successful retry after one refresh; status=%d requests=%d refreshes=%d", resp.StatusCode, requests, refreshes)
 	}
-	if repositories.credential.Payload["api_token"] != "new-access" || repositories.credential.Payload["refresh_token"] != "new-refresh" {
-		t.Fatalf("refreshed credential was not persisted: %+v", repositories.credential)
+	if repositories.Credential.Payload["api_token"] != "new-access" || repositories.Credential.Payload["refresh_token"] != "new-refresh" {
+		t.Fatalf("refreshed credential was not persisted: %+v", repositories.Credential)
 	}
 }

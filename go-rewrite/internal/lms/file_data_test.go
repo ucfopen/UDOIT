@@ -1,64 +1,30 @@
-package lms
+package lms_test
 
 import (
 	"context"
 	"testing"
 
-	"rewritetest/internal/lms/internal/record"
+	"rewritetest/internal/lms"
+	"rewritetest/internal/lms/internal/provider"
+	"rewritetest/internal/lms/internal/storage"
 )
 
-type replacementFileStore struct {
-	Store
-	files  []record.File
-	nextID int64
-}
-
-func (s *replacementFileStore) SyncFiles(_ context.Context, courseID int64, files []record.FileSync) error {
-	for _, input := range files {
-		found := false
-		for i := range s.files {
-			if s.files[i].CourseID != courseID || s.files[i].ExternalID != input.ExternalID {
-				continue
-			}
-			s.files[i].FileName = input.FileName
-			s.files[i].FileType = input.FileType
-			s.files[i].UpdatedAt = input.UpdatedAt
-			s.files[i].FileSize = input.FileSize
-			s.files[i].DownloadURL = input.DownloadURL
-			s.files[i].ExternalData = input.ExternalData
-			s.files[i].IsReplacement = s.files[i].IsReplacement || input.IsReplacement
-			found = true
-			break
-		}
-		if found {
-			continue
-		}
-		s.nextID++
-		s.files = append(s.files, record.File{
-			ID: s.nextID, CourseID: courseID, IsReplacement: input.IsReplacement,
-			FileName: input.FileName, FileType: input.FileType, UpdatedAt: input.UpdatedAt,
-			FileSize: input.FileSize, DownloadURL: input.DownloadURL,
-			ExternalID: input.ExternalID, ExternalData: input.ExternalData,
-		})
-	}
-	return nil
-}
-
-func (s *replacementFileStore) FilesByCourse(_ context.Context, courseID int64) ([]record.File, error) {
-	var files []record.File
-	for _, file := range s.files {
-		if file.CourseID == courseID {
-			files = append(files, file)
-		}
-	}
-	return files, nil
-}
-
 func TestCreateReplacementFileRetainsReplacementMarkerAcrossSync(t *testing.T) {
-	store := &replacementFileStore{}
-	service := &Service{store: store}
+	store := storage.NewMapMockStore()
+	service, err := lms.NewService(lms.Config{
+		Store:        store,
+		AuthAttempts: &storage.MockRepositories{},
+		ProviderFactories: map[string]provider.Factory{
+			"test": func(map[string]any, string, provider.CredentialRepository, provider.AuthAttemptRepository) (provider.Provider, error) {
+				return nil, nil
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("NewService returned error: %v", err)
+	}
 
-	replacement, err := service.CreateReplacementFile(context.Background(), 12, UploadedFile{
+	replacement, err := service.CreateReplacementFile(context.Background(), 12, lms.UploadedFile{
 		FileName: "accessible.pdf", ExternalID: "file:55",
 	})
 	if err != nil {
@@ -68,7 +34,7 @@ func TestCreateReplacementFileRetainsReplacementMarkerAcrossSync(t *testing.T) {
 		t.Fatalf("replacement marker was not set: %+v", replacement)
 	}
 
-	if err := service.SyncFilesForCourse(context.Background(), 12, []FileSyncInput{{
+	if err = service.SyncFilesForCourse(context.Background(), 12, []lms.FileSyncInput{{
 		FileName: "accessible.pdf", ExternalID: "file:55",
 	}}); err != nil {
 		t.Fatalf("SyncFilesForCourse returned error: %v", err)

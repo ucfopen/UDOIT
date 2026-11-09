@@ -11,6 +11,7 @@ import (
 
 	"rewritetest/internal/lms/internal/provider"
 	"rewritetest/internal/lms/internal/record"
+	"rewritetest/internal/lms/internal/storage"
 )
 
 func TestBeginFileUploadNegotiatesCanvasUploadTarget(t *testing.T) {
@@ -32,7 +33,7 @@ func TestBeginFileUploadNegotiatesCanvasUploadTarget(t *testing.T) {
 	}))
 	defer server.Close()
 	config := map[string]any{"base_url": server.URL, "client_id": "id", "client_secret": "secret"}
-	repositories := &authTestRepositories{credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "access", "refresh_token": "refresh"}}}
+	repositories := &storage.MockRepositories{Credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "access", "refresh_token": "refresh"}}}
 	p, err := New(config, "", repositories, repositories)
 	if err != nil {
 		t.Fatal(err)
@@ -81,7 +82,7 @@ func TestCompleteFileUploadMapsCanvasMetadata(t *testing.T) {
 	}))
 	defer server.Close()
 	config := map[string]any{"base_url": server.URL, "client_id": "id", "client_secret": "secret"}
-	repositories := &authTestRepositories{credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "access", "refresh_token": "refresh"}}}
+	repositories := &storage.MockRepositories{Credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "access", "refresh_token": "refresh"}}}
 	p, err := New(config, "", repositories, repositories)
 	if err != nil {
 		t.Fatal(err)
@@ -188,7 +189,7 @@ func TestCompleteFileUploadReplacesRichTextAndModuleFileReferences(t *testing.T)
 		}
 	}))
 	defer server.Close()
-	repositories := &authTestRepositories{credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "access", "refresh_token": "refresh"}}}
+	repositories := &storage.MockRepositories{Credential: record.LMSCredential{UserID: 17, LMSKey: "canvas", Payload: map[string]any{"api_token": "access", "refresh_token": "refresh"}}}
 	p, err := New(map[string]any{"base_url": server.URL, "client_id": "id", "client_secret": "secret"}, "", repositories, repositories)
 	if err != nil {
 		t.Fatal(err)

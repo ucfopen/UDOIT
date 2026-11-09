@@ -18,7 +18,6 @@ func (m *mockKeyManager) WrapKey(ctx context.Context, keyID string, plaintextDEK
 	if m.wrapFn == nil {
 		return nil, errors.New("wrapFn is not configured")
 	}
-
 	return m.wrapFn(ctx, keyID, plaintextDEK)
 }
 
@@ -26,7 +25,6 @@ func (m *mockKeyManager) UnwrapKey(ctx context.Context, keyID string, encryptedD
 	if m.unwrapFn == nil {
 		return nil, errors.New("unwrapFn is not configured")
 	}
-
 	return m.unwrapFn(ctx, keyID, encryptedDEK)
 }
 
