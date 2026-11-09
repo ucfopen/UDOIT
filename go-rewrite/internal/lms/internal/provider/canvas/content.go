@@ -289,6 +289,56 @@ func (p *Canvas) UpdateContentHTML(ctx context.Context, userID int64, course pro
 	return p.updateCanvasResource(ctx, userID, path, body)
 }
 
+func (p *Canvas) GetContentHTML(ctx context.Context, userID int64, course provider.Course, content provider.ContentItem) (string, error) {
+	canvasCourse, err := p.asCanvasCourse(course)
+	if err != nil {
+		return "", err
+	}
+	canvasItem, err := p.asCanvasContent(content)
+	if err != nil {
+		return "", err
+	}
+	switch canvasItem.contentType {
+	case canvasContentTypePage:
+		page, err := fetchOne[PageResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"/pages/page_id:"+canvasItem.contentID+"?include[]=body")
+		return page.Body, err
+	case canvasContentTypeAssignment:
+		assignment, err := fetchOne[AssignmentResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"/assignments/"+canvasItem.contentID)
+		return assignment.Description, err
+	case canvasContentTypeAnnouncement, canvasContentTypeDiscussionTopic:
+		topic, err := fetchOne[DiscussionTopicResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"/discussion_topics/"+canvasItem.contentID)
+		return topic.Message, err
+	case canvasContentTypeQuiz:
+		quiz, err := fetchOne[QuizResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"/quizzes/"+canvasItem.contentID)
+		return quiz.Description, err
+	case canvasContentTypeQuizQuestion:
+		quizID, ok := stringifyCanvasID(content.ExternalData["quiz_id"])
+		if !ok || quizID == "" {
+			return "", apperr.Internal("Missing or invalid quiz ID in quiz-question mapping data")
+		}
+		question, err := fetchOne[QuizQuestionResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"/quizzes/"+quizID+"/questions/"+canvasItem.contentID)
+		return question.QuestionText, err
+	case canvasContentTypeSyllabus:
+		course, err := fetchOne[SyllabusResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"?include[]=syllabus_body")
+		return course.SyllabusBody, err
+	case canvasContentTypeFile:
+		fileID, ok := stringifyCanvasID(content.ExternalData["content_id"])
+		if !ok || fileID == "" {
+			return "", apperr.Internal("Missing or invalid file ID in HTML file mapping data")
+		}
+		file, err := fetchOne[CanvasFileResponse](p, ctx, userID, "/api/v1/courses/"+canvasCourse.courseID+"/files/"+fileID)
+		if err != nil {
+			return "", err
+		}
+		if file.MimeClass != "html" {
+			return "", apperr.Validation("Content item is not an HTML file")
+		}
+		return p.getFileHTML(ctx, userID, file.URL)
+	default:
+		return "", apperr.Validation("Unsupported Canvas content type for HTML retrieval")
+	}
+}
+
 type canvasContent struct {
 	contentID   string
 	contentType canvasContentType

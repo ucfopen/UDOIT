@@ -25,6 +25,7 @@ type Handler struct {
 	}
 	markHtmlAsReviewedUseCase      *application.MarkHtmlAsReviewedUseCase
 	fixHTMLIssueUseCase            *application.FixHTMLIssueUseCase
+	getHTMLIssueContentUseCase     *application.GetHTMLIssueContentUseCase
 	markFileAsReviewedUseCase      *application.MarkFileAsReviewedUseCase
 	beginFileReplacementUseCase    *application.BeginFileReplacementUseCase
 	completeFileReplacementUseCase *application.CompleteFileReplacementUseCase
@@ -39,6 +40,7 @@ func NewHandler(
 	},
 	markHtmlAsReviewedUseCase *application.MarkHtmlAsReviewedUseCase,
 	fixHTMLIssueUseCase *application.FixHTMLIssueUseCase,
+	getHTMLIssueContentUseCase *application.GetHTMLIssueContentUseCase,
 	markFileAsReviewedUseCase *application.MarkFileAsReviewedUseCase,
 	beginFileReplacementUseCase *application.BeginFileReplacementUseCase,
 	completeFileReplacementUseCase *application.CompleteFileReplacementUseCase,
@@ -48,6 +50,7 @@ func NewHandler(
 		createReportUseCase:            createReportUseCase,
 		markHtmlAsReviewedUseCase:      markHtmlAsReviewedUseCase,
 		fixHTMLIssueUseCase:            fixHTMLIssueUseCase,
+		getHTMLIssueContentUseCase:     getHTMLIssueContentUseCase,
 		markFileAsReviewedUseCase:      markFileAsReviewedUseCase,
 		beginFileReplacementUseCase:    beginFileReplacementUseCase,
 		completeFileReplacementUseCase: completeFileReplacementUseCase,
@@ -59,9 +62,32 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator auth.Authent
 	rg.POST("/scan/courses/:courseId", h.handleScanCourse)
 	rg.PATCH("/mark-reviewed/issues/:id", h.handleMarkHTMLIssueAsReviewed)
 	rg.POST("/issues/:id/html", h.handleFixHTMLIssue)
+	rg.GET("/issues/:id/html", h.handleGetHTMLIssueContent)
 	rg.PATCH("/mark-file-reviewed/issues/:id", h.handleMarkFileIssueAsReviewed)
 	rg.POST("/file-issues/:id/upload", h.handleBeginFileReplacement)
 	rg.POST("/file-issues/:id/upload/complete", h.handleCompleteFileReplacement)
+}
+
+func (h *Handler) handleGetHTMLIssueContent(c *gin.Context) {
+	principal, ok := sharedAuth.GetPrincipal(c)
+	if !ok {
+		c.Error(apperr.Unauthorized())
+		return
+	}
+	issueID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || issueID <= 0 {
+		c.Error(apperr.Validation("Issue ID must be a valid integer"))
+		return
+	}
+	html, err := h.getHTMLIssueContentUseCase.Execute(c.Request.Context(), application.GetHTMLIssueContentCommand{
+		Principal: principal,
+		IssueID:   issueID,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, map[string]string{"html": html})
 }
 
 type fixHTMLIssueRequest struct {

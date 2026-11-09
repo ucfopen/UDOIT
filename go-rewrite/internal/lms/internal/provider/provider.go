@@ -23,6 +23,7 @@ type Provider interface {
 	ValidateConfiguration(map[string]any) error
 	CourseFromLaunch(jwt.MapClaims) (Course, error)
 	GetContent(context.Context, int64, Course, []ContentItem) (ContentSnapshot, error)
+	GetContentHTML(context.Context, int64, Course, ContentItem) (string, error)
 	UpdateContentHTML(context.Context, int64, Course, ContentItem, string) error
 	ResolveFileReferences(context.Context, Course, []Reference, []File) ([]ResolvedReference, error)
 	BeginFileUpload(context.Context, int64, Course, File, string, int64) (UploadTarget, error)

@@ -34,6 +34,12 @@ func (f htmlUpdaterFunc) UpdateContentHTML(ctx context.Context, principal auth.P
 	return f(ctx, principal, contentItemID, html)
 }
 
+type htmlRetrieverFunc func(context.Context, auth.Principal, int64) (string, error)
+
+func (f htmlRetrieverFunc) GetContentHTML(ctx context.Context, principal auth.Principal, contentItemID int64) (string, error) {
+	return f(ctx, principal, contentItemID)
+}
+
 type scanCourseUseCaseFunc func(context.Context, auth.Principal, int64) ([]*domain.HTMLIssue, error)
 
 func (f scanCourseUseCaseFunc) Execute(ctx context.Context, principal auth.Principal, courseID int64) ([]*domain.HTMLIssue, error) {
@@ -60,7 +66,7 @@ func TestFixHTMLIssueRouteSendsHTMLAndReviewsIssue(t *testing.T) {
 		gotHTML = html
 		return nil
 	}))
-	handler := NewHandler(nil, nil, nil, fixUseCase, nil, nil, nil)
+	handler := NewHandler(nil, nil, nil, fixUseCase, nil, nil, nil, nil)
 	router := gin.New()
 	router.Use(middleware.ErrorHandler())
 	handler.RegisterRoutes(router.Group("/accessibility"), principalAuthenticator{principal: principal})
@@ -101,7 +107,7 @@ func TestScanCourseRouteReturnsAllIssuesAsJSON(t *testing.T) {
 		reportCommand = command
 		return nil
 	})
-	handler := NewHandler(scanUseCase, reportUseCase, nil, nil, nil, nil, nil)
+	handler := NewHandler(scanUseCase, reportUseCase, nil, nil, nil, nil, nil, nil)
 	router := gin.New()
 	router.Use(middleware.ErrorHandler())
 	handler.RegisterRoutes(router.Group("/accessibility"), principalAuthenticator{principal: principal})
@@ -129,5 +135,45 @@ func TestScanCourseRouteReturnsAllIssuesAsJSON(t *testing.T) {
 	}
 	if reportCommand.UserID != principal.AgentID || reportCommand.CourseID != 42 {
 		t.Fatalf("unexpected report command: %+v", reportCommand)
+	}
+}
+
+func TestGetHTMLIssueContentRouteReturnsCurrentHTML(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	issue := domain.RehydrateHTMLIssue(5, 12, "image_alt", "/html/body/img", domain.IssueStatusActive, domain.IssueSeverityError, 0, time.Time{}, nil, time.Now(), time.Now())
+	principal := auth.Principal{AgentID: 17, TenantID: 7}
+	repo := &infrastructure.MockHTMLIssueRepository{
+		GetByIDFunc: func(_ context.Context, id int64) (*domain.HTMLIssue, error) {
+			if id != issue.ID() {
+				t.Fatalf("unexpected issue ID: %d", id)
+			}
+			return issue, nil
+		},
+	}
+	getUseCase := application.NewGetHTMLIssueContentUseCase(repo, htmlRetrieverFunc(func(_ context.Context, gotPrincipal auth.Principal, contentItemID int64) (string, error) {
+		if gotPrincipal != principal || contentItemID != issue.ContentItemID() {
+			t.Fatalf("unexpected LMS retrieval: principal=%+v contentItemID=%d", gotPrincipal, contentItemID)
+		}
+		return `<main><img src="image.png"></main>`, nil
+	}))
+	handler := NewHandler(nil, nil, nil, nil, getUseCase, nil, nil, nil)
+	router := gin.New()
+	router.Use(middleware.ErrorHandler())
+	handler.RegisterRoutes(router.Group("/accessibility"), principalAuthenticator{principal: principal})
+
+	request := httptest.NewRequest(http.MethodGet, "/accessibility/issues/5/html", nil)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("unexpected status %d: %s", response.Code, response.Body.String())
+	}
+	var body struct {
+		HTML string `json:"html"`
+	}
+	if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if body.HTML != `<main><img src="image.png"></main>` {
+		t.Fatalf("unexpected HTML response %q", body.HTML)
 	}
 }

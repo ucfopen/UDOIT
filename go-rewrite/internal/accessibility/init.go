@@ -31,6 +31,7 @@ func New(
 	courseRetriever application.CourseRetriever,
 	fileUploader lms.FileUploader,
 	htmlContentUpdater application.HTMLContentUpdater,
+	htmlContentRetriever application.HTMLContentRetriever,
 	authenticator auth.Authenticator,
 ) *Module {
 	httpClient := &http.Client{}
@@ -58,6 +59,7 @@ func New(
 		htmlIssueRepository,
 	)
 	fixHTMLIssueUseCase := application.NewFixHTMLIssueUseCase(htmlIssueRepository, htmlContentUpdater)
+	getHTMLIssueContentUseCase := application.NewGetHTMLIssueContentUseCase(htmlIssueRepository, htmlContentRetriever)
 
 	markFileAsReviewedUseCase := application.NewFileissueReviewedUseCase(
 		fileIssueRepository,
@@ -83,6 +85,7 @@ func New(
 		createReportUseCase,
 		markHtmlAsReviewedUseCase,
 		fixHTMLIssueUseCase,
+		getHTMLIssueContentUseCase,
 		markFileAsReviewedUseCase,
 		beginFileReplacementUseCase,
 		completeFileReplacementUseCase,
