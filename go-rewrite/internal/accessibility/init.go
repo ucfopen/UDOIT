@@ -30,6 +30,7 @@ func New(
 	fileDataService application.FileDataService,
 	courseRetriever application.CourseRetriever,
 	fileUploader lms.FileUploader,
+	htmlContentUpdater application.HTMLContentUpdater,
 	authenticator auth.Authenticator,
 ) *Module {
 	httpClient := &http.Client{}
@@ -56,6 +57,7 @@ func New(
 	markHtmlAsReviewedUseCase := application.NewHtmlIssueReviewedUseCase(
 		htmlIssueRepository,
 	)
+	fixHTMLIssueUseCase := application.NewFixHTMLIssueUseCase(htmlIssueRepository, htmlContentUpdater)
 
 	markFileAsReviewedUseCase := application.NewFileissueReviewedUseCase(
 		fileIssueRepository,
@@ -80,6 +82,7 @@ func New(
 		scanCourseUseCase,
 		createReportUseCase,
 		markHtmlAsReviewedUseCase,
+		fixHTMLIssueUseCase,
 		markFileAsReviewedUseCase,
 		beginFileReplacementUseCase,
 		completeFileReplacementUseCase,

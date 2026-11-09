@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"rewritetest/internal/lms/internal/provider"
+	"rewritetest/internal/shared/apperr"
+	"rewritetest/internal/shared/auth"
 )
 
 type GetCourseContentRequest struct {
@@ -54,4 +56,32 @@ func (m *Service) GetCourseContent(ctx context.Context, req GetCourseContentRequ
 		files[i] = ExternalFile{FileName: file.FileName, FileType: file.FileType, UpdatedAt: file.UpdatedAt, FileSize: file.FileSize, DownloadURL: file.DownloadURL, ExternalID: file.ExternalID, ExternalData: file.ExternalData}
 	}
 	return ExternalCourseContent{ContentItems: contentItems, Files: files}, nil
+}
+
+func (m *Service) UpdateContentHTML(ctx context.Context, principal auth.Principal, contentItemID int64, html string) error {
+	content, found, err := m.store.ContentByID(ctx, contentItemID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return apperr.New(apperr.CodeNotFound, "Content item not found")
+	}
+
+	course, found, err := m.store.CourseByID(ctx, content.CourseID)
+	if err != nil {
+		return err
+	}
+	if !found || course.TenantID != principal.TenantID {
+		return apperr.New(apperr.CodeNotFound, "Content item not found")
+	}
+
+	lmsProvider, err := m.providerForTenant(ctx, principal.TenantID)
+	if err != nil {
+		return err
+	}
+	return lmsProvider.UpdateContentHTML(ctx, principal.AgentID,
+		provider.Course{ID: course.ID, ExternalID: course.ExternalID, ExternalData: course.ExternalData},
+		provider.ContentItem{ID: content.ID, ExternalID: content.ExternalID, ExternalData: content.ExternalData},
+		html,
+	)
 }

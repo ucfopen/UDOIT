@@ -18,6 +18,7 @@ type Handler struct {
 	scanCourseUseCase              *application.ScanCourseUseCase
 	createReportUseCase            *application.CreateReportUseCase
 	markHtmlAsReviewedUseCase      *application.MarkHtmlAsReviewedUseCase
+	fixHTMLIssueUseCase            *application.FixHTMLIssueUseCase
 	markFileAsReviewedUseCase      *application.MarkFileAsReviewedUseCase
 	beginFileReplacementUseCase    *application.BeginFileReplacementUseCase
 	completeFileReplacementUseCase *application.CompleteFileReplacementUseCase
@@ -27,6 +28,7 @@ func NewHandler(
 	scanCourseUseCase *application.ScanCourseUseCase,
 	createReportUseCase *application.CreateReportUseCase,
 	markHtmlAsReviewedUseCase *application.MarkHtmlAsReviewedUseCase,
+	fixHTMLIssueUseCase *application.FixHTMLIssueUseCase,
 	markFileAsReviewedUseCase *application.MarkFileAsReviewedUseCase,
 	beginFileReplacementUseCase *application.BeginFileReplacementUseCase,
 	completeFileReplacementUseCase *application.CompleteFileReplacementUseCase,
@@ -35,6 +37,7 @@ func NewHandler(
 		scanCourseUseCase:              scanCourseUseCase,
 		createReportUseCase:            createReportUseCase,
 		markHtmlAsReviewedUseCase:      markHtmlAsReviewedUseCase,
+		fixHTMLIssueUseCase:            fixHTMLIssueUseCase,
 		markFileAsReviewedUseCase:      markFileAsReviewedUseCase,
 		beginFileReplacementUseCase:    beginFileReplacementUseCase,
 		completeFileReplacementUseCase: completeFileReplacementUseCase,
@@ -45,9 +48,41 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authenticator auth.Authent
 	rg.Use(authenticator.WithAuth())
 	rg.POST("/scan/courses/:courseId", h.handleScanCourse)
 	rg.PATCH("/mark-reviewed/issues/:id", h.handleMarkHTMLIssueAsReviewed)
+	rg.POST("/issues/:id/html", h.handleFixHTMLIssue)
 	rg.PATCH("/mark-file-reviewed/issues/:id", h.handleMarkFileIssueAsReviewed)
 	rg.POST("/file-issues/:id/upload", h.handleBeginFileReplacement)
 	rg.POST("/file-issues/:id/upload/complete", h.handleCompleteFileReplacement)
+}
+
+type fixHTMLIssueRequest struct {
+	HTML *string `json:"html"`
+}
+
+func (h *Handler) handleFixHTMLIssue(c *gin.Context) {
+	principal, ok := sharedAuth.GetPrincipal(c)
+	if !ok {
+		c.Error(apperr.Unauthorized())
+		return
+	}
+	issueID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || issueID <= 0 {
+		c.Error(apperr.Validation("Issue ID must be a valid integer"))
+		return
+	}
+	var request fixHTMLIssueRequest
+	if err := c.ShouldBindJSON(&request); err != nil || request.HTML == nil {
+		c.Error(apperr.Validation("HTML is required"))
+		return
+	}
+	if err := h.fixHTMLIssueUseCase.Execute(c.Request.Context(), application.FixHTMLIssueCommand{
+		Principal: principal,
+		IssueID:   issueID,
+		HTML:      *request.HTML,
+	}); err != nil {
+		c.Error(err)
+		return
+	}
+	c.Status(http.StatusOK)
 }
 
 type beginFileReplacementRequest struct {

@@ -2,11 +2,30 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 
 	"rewritetest/internal/lms/internal/record"
 	lmssqlc "rewritetest/internal/lms/internal/storage/mysql/sqlc"
 )
+
+func (r *Store) ContentByID(ctx context.Context, contentID int64) (record.Content, bool, error) {
+	row, err := r.queries.GetContentItemMappingByID(ctx, uint64(contentID))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return record.Content{}, false, nil
+		}
+		return record.Content{}, false, err
+	}
+	var externalData map[string]any
+	if err := json.Unmarshal(row.ExternalData, &externalData); err != nil {
+		return record.Content{}, false, err
+	}
+	return record.Content{
+		ID: int64(row.ID), CourseID: int64(row.CourseID), ContentHash: row.ContentHash,
+		ExternalID: row.ExternalID, ExternalData: externalData, CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt,
+	}, true, nil
+}
 
 func (r *Store) ContentByCourse(ctx context.Context, courseID int64) ([]record.Content, error) {
 	rows, err := r.queries.GetContentItemsByCourseID(ctx, uint64(courseID))

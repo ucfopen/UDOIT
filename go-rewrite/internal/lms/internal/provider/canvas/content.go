@@ -249,6 +249,46 @@ func (p *Canvas) GetContent(
 	}, nil
 }
 
+func (p *Canvas) UpdateContentHTML(ctx context.Context, userID int64, course provider.Course, content provider.ContentItem, html string) error {
+	canvasCourse, err := p.asCanvasCourse(course)
+	if err != nil {
+		return err
+	}
+	canvasItem, err := p.asCanvasContent(content)
+	if err != nil {
+		return err
+	}
+	var path string
+	var body map[string]any
+	switch canvasItem.contentType {
+	case canvasContentTypePage:
+		path = "/api/v1/courses/" + canvasCourse.courseID + "/pages/page_id:" + canvasItem.contentID
+		body = map[string]any{"wiki_page": map[string]any{"body": html}}
+	case canvasContentTypeAssignment:
+		path = "/api/v1/courses/" + canvasCourse.courseID + "/assignments/" + canvasItem.contentID
+		body = map[string]any{"assignment": map[string]any{"description": html}}
+	case canvasContentTypeAnnouncement, canvasContentTypeDiscussionTopic:
+		path = "/api/v1/courses/" + canvasCourse.courseID + "/discussion_topics/" + canvasItem.contentID
+		body = map[string]any{"message": html}
+	case canvasContentTypeQuiz:
+		path = "/api/v1/courses/" + canvasCourse.courseID + "/quizzes/" + canvasItem.contentID
+		body = map[string]any{"quiz": map[string]any{"description": html}}
+	case canvasContentTypeQuizQuestion:
+		quizID, ok := stringifyCanvasID(content.ExternalData["quiz_id"])
+		if !ok || quizID == "" {
+			return apperr.Internal("Missing or invalid quiz ID in quiz-question mapping data")
+		}
+		path = "/api/v1/courses/" + canvasCourse.courseID + "/quizzes/" + quizID + "/questions/" + canvasItem.contentID
+		body = map[string]any{"question": map[string]any{"question_text": html}}
+	case canvasContentTypeSyllabus:
+		path = "/api/v1/courses/" + canvasCourse.courseID
+		body = map[string]any{"course": map[string]any{"syllabus_body": html}}
+	default:
+		return apperr.Validation("HTML file content cannot be updated through the Canvas content API")
+	}
+	return p.updateCanvasResource(ctx, userID, path, body)
+}
+
 type canvasContent struct {
 	contentID   string
 	contentType canvasContentType

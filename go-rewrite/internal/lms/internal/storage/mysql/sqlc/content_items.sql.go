@@ -83,6 +83,37 @@ func (q *Queries) GetContentItemByID(ctx context.Context, id uint64) (GetContent
 	return i, err
 }
 
+const getContentItemMappingByID = `-- name: GetContentItemMappingByID :one
+SELECT id, course_id, content_hash, external_id, external_data, created_at, updated_at
+FROM content_item
+WHERE id = ?
+`
+
+type GetContentItemMappingByIDRow struct {
+	ID           uint64
+	CourseID     uint64
+	ContentHash  string
+	ExternalID   string
+	ExternalData json.RawMessage
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+func (q *Queries) GetContentItemMappingByID(ctx context.Context, id uint64) (GetContentItemMappingByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getContentItemMappingByID, id)
+	var i GetContentItemMappingByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.ContentHash,
+		&i.ExternalID,
+		&i.ExternalData,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getContentItemsByCourseID = `-- name: GetContentItemsByCourseID :many
 SELECT id, course_id, content_hash, content_changed_at, external_id, external_data, created_at, updated_at
 FROM content_item

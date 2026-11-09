@@ -9,6 +9,7 @@ import (
 type MockStore struct {
 	CreateCourseFunc              func(ctx context.Context, course record.Course) (record.Course, error)
 	CourseByIDFunc                func(ctx context.Context, id int64) (record.Course, bool, error)
+	ContentByIDFunc               func(ctx context.Context, id int64) (record.Content, bool, error)
 	ContentByCourseFunc           func(ctx context.Context, courseID int64) ([]record.Content, error)
 	UpsertContentFunc             func(ctx context.Context, content []record.Content) ([]record.Content, error)
 	FileByIDFunc                  func(ctx context.Context, fileID int64) (record.File, bool, error)
@@ -34,6 +35,18 @@ func (m *MockStore) CourseByID(ctx context.Context, id int64) (record.Course, bo
 		return m.CourseByIDFunc(ctx, id)
 	}
 	panic("CourseByIDFunc not implemented")
+}
+func (m *MockStore) ProviderConfiguration(ctx context.Context, tenantID int64) (record.ProviderConfiguration, bool, error) {
+	if m.ProviderConfigurationFunc != nil {
+		return m.ProviderConfigurationFunc(ctx, tenantID)
+	}
+	panic("ProviderConfigurationFunc not implemented")
+}
+func (m *MockStore) ContentByID(ctx context.Context, id int64) (record.Content, bool, error) {
+	if m.ContentByIDFunc != nil {
+		return m.ContentByIDFunc(ctx, id)
+	}
+	panic("ContentByIDFunc not implemented")
 }
 func (m *MockStore) ContentByCourse(ctx context.Context, courseID int64) ([]record.Content, error) {
 	if m.ContentByCourseFunc != nil {
@@ -95,12 +108,6 @@ func (m *MockStore) SaveCredential(ctx context.Context, credential record.LMSCre
 	}
 	panic("SaveCredentialFunc not implemented")
 }
-func (m *MockStore) ProviderConfiguration(ctx context.Context, tenantID int64) (record.ProviderConfiguration, bool, error) {
-	if m.ProviderConfigurationFunc != nil {
-		return m.ProviderConfigurationFunc(ctx, tenantID)
-	}
-	panic("ProviderConfigurationFunc not implemented")
-}
 func (m *MockStore) SaveProviderConfiguration(ctx context.Context, configuration record.ProviderConfiguration) error {
 	if m.SaveProviderConfigurationFunc != nil {
 		return m.SaveProviderConfigurationFunc(ctx, configuration)
@@ -110,8 +117,29 @@ func (m *MockStore) SaveProviderConfiguration(ctx context.Context, configuration
 
 func NewMapMockStore() *MockStore {
 	files := make(map[int64]record.File)
+	contentByID := make(map[int64]record.Content)
+	courses := make(map[int64]record.Course)
+	providerConfigurations := make(map[int64]record.ProviderConfiguration)
 	var nextID int64
+	var nextContentID int64
+	var nextCourseID int64
 	return &MockStore{
+		ContentByIDFunc: func(_ context.Context, id int64) (record.Content, bool, error) {
+			content, ok := contentByID[id]
+			return content, ok, nil
+		},
+		UpsertContentFunc: func(_ context.Context, contents []record.Content) ([]record.Content, error) {
+			persisted := make([]record.Content, len(contents))
+			for i, content := range contents {
+				if content.ID == 0 {
+					nextContentID++
+					content.ID = nextContentID
+				}
+				contentByID[content.ID] = content
+				persisted[i] = content
+			}
+			return persisted, nil
+		},
 		SyncFilesFunc: func(_ context.Context, courseID int64, inputs []record.FileSync) error {
 			for _, input := range inputs {
 				key := int64(0)
@@ -143,6 +171,26 @@ func NewMapMockStore() *MockStore {
 				}
 			}
 			return result, nil
+		},
+		CourseByIDFunc: func(_ context.Context, id int64) (record.Course, bool, error) {
+			course, ok := courses[id]
+			return course, ok, nil
+		},
+		ProviderConfigurationFunc: func(_ context.Context, tenantID int64) (record.ProviderConfiguration, bool, error) {
+			configuration, ok := providerConfigurations[tenantID]
+			return configuration, ok, nil
+		},
+		SaveProviderConfigurationFunc: func(_ context.Context, configuration record.ProviderConfiguration) error {
+			providerConfigurations[configuration.TenantID] = configuration
+			return nil
+		},
+		CreateCourseFunc: func(_ context.Context, course record.Course) (record.Course, error) {
+			if course.ID == 0 {
+				nextCourseID++
+				course.ID = nextCourseID
+			}
+			courses[course.ID] = course
+			return course, nil
 		},
 	}
 }

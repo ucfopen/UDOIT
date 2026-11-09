@@ -9,6 +9,7 @@ import (
 type Store interface {
 	CreateCourse(context.Context, record.Course) (record.Course, error)
 	CourseByID(context.Context, int64) (record.Course, bool, error)
+	ContentByID(context.Context, int64) (record.Content, bool, error)
 	ContentByCourse(context.Context, int64) ([]record.Content, error)
 	UpsertContent(context.Context, []record.Content) ([]record.Content, error)
 	FileByID(context.Context, int64) (record.File, bool, error)

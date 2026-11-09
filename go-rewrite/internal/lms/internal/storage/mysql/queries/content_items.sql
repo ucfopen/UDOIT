@@ -3,6 +3,11 @@ SELECT id, course_id, content_hash, content_changed_at, external_id, external_da
 FROM content_item
 WHERE id = sqlc.arg(id);
 
+-- name: GetContentItemMappingByID :one
+SELECT id, course_id, content_hash, external_id, external_data, created_at, updated_at
+FROM content_item
+WHERE id = sqlc.arg(id);
+
 -- name: GetContentItemsByCourseID :many
 SELECT id, course_id, content_hash, content_changed_at, external_id, external_data, created_at, updated_at
 FROM content_item
