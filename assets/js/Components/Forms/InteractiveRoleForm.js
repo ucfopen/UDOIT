@@ -31,7 +31,7 @@ export default function InteractiveRoleForm({
     if (!activeIssue) return
 
     const element = getBaseElement()
-    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status > 0
     const fixedElement = fixed ? Html.toElement(activeIssue.newHtml) : null
     const isLink = fixedElement?.tagName === 'A' && fixedElement.hasAttribute('href')
     const isFixedDisclosure = isDisclosure(fixedElement)
@@ -66,6 +66,14 @@ export default function InteractiveRoleForm({
 
   const createLink = (element, hrefValue) => {
     const link = document.createElement('a')
+
+    if (element.tagName === 'IMG') {
+      element.removeAttribute('role')
+      element.removeAttribute('tabindex')
+      link.setAttribute('href', hrefValue.trim())
+      link.appendChild(element)
+      return link
+    }
 
     Array.from(element.attributes).forEach((attribute) => {
       if (!['href', 'role', 'tabindex'].includes(attribute.name)) {
@@ -144,6 +152,17 @@ export default function InteractiveRoleForm({
     } else if (option === FORM_OPTIONS.REMOVE_ROLE) {
       if (isDisclosure(element)) {
         issue.newHtml = Html.toString(createPlainContent(element))
+      } else if (element.tagName === 'A' && element.hasAttribute('href')) {
+        const content = document.createElement('span')
+        Array.from(element.attributes).forEach((attribute) => {
+          if (!['href', 'target', 'rel', 'download', 'hreflang', 'type', 'ping', 'referrerpolicy', 'role', 'tabindex'].includes(attribute.name)) {
+            content.setAttribute(attribute.name, attribute.value)
+          }
+        })
+        while (element.firstChild) {
+          content.appendChild(element.firstChild)
+        }
+        issue.newHtml = Html.toString(content)
       } else {
         element.removeAttribute('role')
         element.removeAttribute('tabindex')
