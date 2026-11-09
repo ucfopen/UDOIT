@@ -489,13 +489,14 @@
     appearance: none;
     background-color: transparent;
     margin: 0;
+    --radio-button-border: clamp(2px, 0.15em, 3px);
 
     /* Draw a circle for the border */
     font: inherit;
     color: var(--text-color);
-    width: 1.15em;
-    height: 1.15em;
-    border: 0.15em solid var(--text-color);
+    width: calc(1em + var(--radio-button-border));
+    height: calc(1em + var(--radio-button-border));
+    border: var(--radio-button-border) solid var(--text-color);
     border-radius: 50%;
     margin-right: calc(.75 * var(--spacer));
     transition: 120ms border-width ease-in-out;
@@ -1040,9 +1041,9 @@
   main {
     height: calc(100vh - 3.5em);
     min-height: 20em;
-    width: stretch;
+    width: 100%;
     max-width: var(--content-max-width);
-    box-sizing: content-box;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
