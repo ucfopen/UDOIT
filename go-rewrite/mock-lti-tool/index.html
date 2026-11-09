@@ -52,6 +52,25 @@
         </div>
       </section>
 
+      <section class="card" id="html-issue-panel" hidden>
+        <div class="card-title-row">
+          <h2>Fix HTML Issue</h2>
+          <span class="chip" id="html-issue-position">0 of 0</span>
+        </div>
+        <p class="muted" id="html-issue-summary">Scan a course to load issues.</p>
+        <div class="inline-row">
+          <button type="button" class="ghost" id="previous-html-issue">Previous</button>
+          <button type="button" class="ghost" id="next-html-issue">Next</button>
+          <button type="button" class="ghost" id="reload-issue-html">Reload HTML</button>
+          <span class="status" id="html-issue-status" aria-live="polite"></span>
+        </div>
+        <label class="html-editor-label" for="issue-html-editor">Current page HTML (editable)</label>
+        <textarea id="issue-html-editor" rows="18" spellcheck="false" placeholder="Select an issue to load its HTML"></textarea>
+        <div class="inline-row">
+          <button type="button" id="save-issue-html">Save HTML</button>
+        </div>
+      </section>
+
       <section class="card">
         <h2>Mark HTML issue as reviewed</h2>
         <p class="muted">Test to mark non-file issue as reviewed</p>

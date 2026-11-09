@@ -130,6 +130,25 @@ button {
   font: inherit;
 }
 
+textarea {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #afc0ba;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfdfc;
+  color: var(--ink);
+  font: 0.88rem/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+  resize: vertical;
+}
+
+.html-editor-label {
+  display: block;
+  margin-top: 16px;
+  font-weight: 600;
+  color: #2f4a43;
+}
+
 input,
 select {
   border: 1px solid #afc0ba;
@@ -155,6 +174,12 @@ button.ghost {
 
 button:hover {
   filter: brightness(1.03);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
 }
 
 .form-grid {

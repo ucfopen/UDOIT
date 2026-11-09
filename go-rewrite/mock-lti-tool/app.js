@@ -15,6 +15,15 @@ const saveDefaultsBtn = document.getElementById("save-defaults");
 const replayBtn = document.getElementById("replay");
 const fileIDInput = document.getElementById("file-id");
 const courseIDInput = document.getElementById("course-id-input");
+const htmlIssuePanel = document.getElementById("html-issue-panel");
+const htmlIssuePosition = document.getElementById("html-issue-position");
+const htmlIssueSummary = document.getElementById("html-issue-summary");
+const htmlIssueStatus = document.getElementById("html-issue-status");
+const htmlEditor = document.getElementById("issue-html-editor");
+const previousHtmlIssueBtn = document.getElementById("previous-html-issue");
+const nextHtmlIssueBtn = document.getElementById("next-html-issue");
+const reloadIssueHtmlBtn = document.getElementById("reload-issue-html");
+const saveIssueHtmlBtn = document.getElementById("save-issue-html");
 
 const markIssueBtn = document.getElementById("mark-issue");
 const issueIDInput = document.getElementById("issue-id-input");
@@ -31,6 +40,9 @@ const storedDefaults = loadDefaults();
 applyDefaults(storedDefaults);
 
 let lastRequestConfig = null;
+let htmlIssues = [];
+let selectedHtmlIssueIndex = -1;
+let issueHTMLRequestID = 0;
 let uploadState = {
   sessionID: "",
   instruction: null,
@@ -109,14 +121,70 @@ deleteFileBtn.addEventListener("click", async () => {
   });
 });
 scanCourseBtn.addEventListener("click", async () => {
-  console.log("scanning course")
+  const courseID = Number(courseIDInput.value || 1);
+  issueHTMLRequestID++;
+  htmlIssues = [];
+  selectedHtmlIssueIndex = -1;
+  htmlEditor.value = "";
+  htmlIssuePanel.hidden = false;
+  renderHTMLIssueSelection();
+  setIssuePanelStatus("Scanning course...");
+  try {
+    const response = await requestJSON(`/go/accessibility/scan/courses/${courseID}`, { method: "POST" });
+    renderPayload(response.payload);
+    if (!response.ok) throw new Error(response.payload?.error?.message || `Scan failed (${response.status})`);
+    htmlIssues = Array.isArray(response.payload?.issues) ? response.payload.issues : [];
+    htmlIssuePanel.hidden = false;
+    if (htmlIssues.length === 0) {
+      selectedHtmlIssueIndex = -1;
+      renderHTMLIssueSelection();
+      setIssuePanelStatus("Scan complete. No HTML issues found.");
+      return;
+    }
+    selectedHtmlIssueIndex = 0;
+    renderHTMLIssueSelection();
+    await loadSelectedIssueHTML();
+  } catch (error) {
+    setIssuePanelStatus(error instanceof Error ? error.message : String(error), true);
+  }
+});
 
-  await runRequest({
-    label: "Scan course",
-    method: "POST",
-    path: `/go/accessibility/scan/courses/${courseIDInput.value || 1}`,
-  });
-  console.log("scanned the course")
+previousHtmlIssueBtn.addEventListener("click", async () => {
+  if (selectedHtmlIssueIndex <= 0) return;
+  selectedHtmlIssueIndex--;
+  htmlEditor.value = "";
+  renderHTMLIssueSelection();
+  await loadSelectedIssueHTML();
+});
+
+nextHtmlIssueBtn.addEventListener("click", async () => {
+  if (selectedHtmlIssueIndex >= htmlIssues.length - 1) return;
+  selectedHtmlIssueIndex++;
+  htmlEditor.value = "";
+  renderHTMLIssueSelection();
+  await loadSelectedIssueHTML();
+});
+
+reloadIssueHtmlBtn.addEventListener("click", loadSelectedIssueHTML);
+
+saveIssueHtmlBtn.addEventListener("click", async () => {
+  const issue = selectedHTMLIssue();
+  if (!issue) return;
+  setIssuePanelStatus("Saving HTML...");
+  try {
+    const response = await requestJSON(`/go/accessibility/issues/${issue.id}/html`, {
+      method: "POST",
+      body: { html: htmlEditor.value },
+    });
+    renderPayload(response.payload);
+    if (!response.ok) throw new Error(response.payload?.error?.message || `Save failed (${response.status})`);
+    issue.status = "marked_as_reviewed";
+    issue.fixedAt = new Date().toISOString();
+    setIssuePanelStatus("HTML saved and issue marked as reviewed.");
+    renderHTMLIssueSelection();
+  } catch (error) {
+    setIssuePanelStatus(error instanceof Error ? error.message : String(error), true);
+  }
 });
 
 markIssueBtn.addEventListener("click", async () => {
@@ -319,6 +387,66 @@ async function runRequest(config) {
   } catch (error) {
     renderError(`Request failed: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+function selectedHTMLIssue() {
+  if (selectedHtmlIssueIndex < 0 || selectedHtmlIssueIndex >= htmlIssues.length) return null;
+  return htmlIssues[selectedHtmlIssueIndex];
+}
+
+function renderHTMLIssueSelection() {
+  const issue = selectedHTMLIssue();
+  const count = htmlIssues.length;
+  htmlIssuePosition.textContent = count ? `${selectedHtmlIssueIndex + 1} of ${count}` : "0 of 0";
+  previousHtmlIssueBtn.disabled = selectedHtmlIssueIndex <= 0;
+  nextHtmlIssueBtn.disabled = selectedHtmlIssueIndex < 0 || selectedHtmlIssueIndex >= count - 1;
+  reloadIssueHtmlBtn.disabled = !issue;
+  saveIssueHtmlBtn.disabled = !issue;
+  if (!issue) {
+    htmlIssueSummary.textContent = count ? "No issue selected." : "No HTML issues found in the last scan.";
+    htmlEditor.value = "";
+    return;
+  }
+  const status = issue.status || "unknown status";
+  htmlIssueSummary.textContent = `Issue ${issue.id} · ${issue.scanRuleId} · ${issue.severity} · ${status} · content item ${issue.contentItemId} · ${issue.contentXPath}`;
+}
+
+async function loadSelectedIssueHTML() {
+  const issue = selectedHTMLIssue();
+  if (!issue) return;
+  const requestID = ++issueHTMLRequestID;
+  setIssuePanelStatus("Loading current HTML...");
+  reloadIssueHtmlBtn.disabled = true;
+  try {
+    const response = await requestJSON(`/go/accessibility/issues/${issue.id}/html`, { method: "GET" });
+    if (requestID !== issueHTMLRequestID) return;
+    renderPayload(response.payload);
+    if (!response.ok) throw new Error(response.payload?.error?.message || `Load failed (${response.status})`);
+    htmlEditor.value = typeof response.payload?.html === "string" ? response.payload.html : "";
+    setIssuePanelStatus("Current HTML loaded. Edit it and save when ready.");
+  } catch (error) {
+    if (requestID === issueHTMLRequestID) {
+      setIssuePanelStatus(error instanceof Error ? error.message : String(error), true);
+    }
+  } finally {
+    if (requestID === issueHTMLRequestID) reloadIssueHtmlBtn.disabled = !selectedHTMLIssue();
+  }
+}
+
+function setIssuePanelStatus(message, isError = false) {
+  htmlIssueStatus.textContent = message;
+  htmlIssueStatus.classList.toggle("error", isError);
+}
+
+async function requestJSON(path, { method = "GET", body } = {}) {
+  const init = {
+    method,
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  };
+  if (body !== undefined) init.body = JSON.stringify(body);
+  const response = await fetch(path, init);
+  return { ok: response.ok, status: response.status, payload: await readJSON(response) };
 }
 
 function addDetail(label, value) {
