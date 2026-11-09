@@ -213,6 +213,9 @@ func TestCompleteFileReplacementCreatesSeparateResolvedFile(t *testing.T) {
 	if reviewerID, err := updatedIssue.ReviewerID(); err != nil || reviewerID != principal.AgentID {
 		t.Fatalf("unexpected reviewer recorded on original issue: id=%d err=%v", reviewerID, err)
 	}
+	if reviewedOn, err := updatedIssue.ReviewedOn(); err != nil || reviewedOn.IsZero() {
+		t.Fatalf("replacement review timestamp was not recorded: reviewedOn=%v err=%v", reviewedOn, err)
+	}
 	if file.ID != 34 || file.ExternalID != "file:34" {
 		t.Fatalf("original file record was modified: %+v", file)
 	}
