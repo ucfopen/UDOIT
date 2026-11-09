@@ -1,0 +1,140 @@
+package application
+
+import (
+	"context"
+	"time"
+
+	"rewritetest/internal/accessibility/internal/domain"
+	"rewritetest/internal/lms"
+	"rewritetest/internal/shared/apperr"
+	"rewritetest/internal/shared/auth"
+)
+
+type LMSDataService interface {
+	SynchronizeCourse(ctx context.Context, principal auth.Principal, courseID int64, changedSince time.Time) (lms.CourseSynchronization, error)
+}
+
+type LMSFileReferenceService interface {
+	AddFileReferences(ctx context.Context, principal auth.Principal, request lms.AddFileReferencesRequest) error
+}
+
+type ScanCourseUseCase struct {
+	htmlIssueRepository domain.HTMLIssueRepository
+	fileIssueRepository domain.FileIssueRepository
+	lmsDataService      LMSDataService
+	lmsFileReferences   LMSFileReferenceService
+	scanner             domain.Scanner
+	scanRepository      domain.CourseScanRepository
+}
+
+func NewScanCourseUseCase(
+	htmlIssueRepository domain.HTMLIssueRepository,
+	fileIssueRepository domain.FileIssueRepository,
+	lmsDataService LMSDataService,
+	lmsFileReferences LMSFileReferenceService,
+	scanner domain.Scanner,
+	scanRepository domain.CourseScanRepository,
+) *ScanCourseUseCase {
+	return &ScanCourseUseCase{
+		htmlIssueRepository: htmlIssueRepository,
+		fileIssueRepository: fileIssueRepository,
+		lmsDataService:      lmsDataService,
+		lmsFileReferences:   lmsFileReferences,
+		scanner:             scanner,
+		scanRepository:      scanRepository,
+	}
+}
+
+func (u *ScanCourseUseCase) Execute(ctx context.Context, principal auth.Principal, courseID int64) ([]*domain.HTMLIssue, error) {
+	lastCompletedAt, err := u.scanRepository.LastCompletedAt(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+	scan := domain.NewCourseScan(courseID, principal.AgentID, time.Now())
+	scan, err = u.scanRepository.Start(ctx, scan)
+	if err != nil {
+		return nil, err
+	}
+	if scan == nil {
+		return nil, apperr.Internal("Course scan repository returned no persisted scan")
+	}
+
+	scanData, err := u.lmsDataService.SynchronizeCourse(ctx, principal, courseID, lastCompletedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	fileIDs := make([]int64, len(scanData.Files))
+	for i, file := range scanData.Files {
+		fileIDs[i] = file.ID
+	}
+	if err := u.fileIssueRepository.SyncForCourse(ctx, courseID, fileIDs); err != nil {
+		return nil, err
+	}
+
+	scanItems := make([]domain.ScanItem, len(scanData.ChangedContents))
+	contentItemIDs := make([]int64, len(scanData.ChangedContents))
+	for i, content := range scanData.ChangedContents {
+		scanItems[i] = domain.ScanItem{
+			ContentItemID: content.ID,
+			HTML:          content.HTML,
+		}
+		contentItemIDs[i] = content.ID
+	}
+
+	scanResult, err := u.scanner.ScanContent(ctx, scanItems)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := u.htmlIssueRepository.DeleteByContentItemIDs(ctx, contentItemIDs); err != nil {
+		return nil, err
+	}
+
+	references := make([]lms.FileReferenceInput, len(scanResult.References))
+	for i, reference := range scanResult.References {
+		references[i] = lms.FileReferenceInput{
+			ContentItemID: reference.ContentItemID,
+			Kind:          reference.Kind,
+			TagName:       reference.TagName,
+			Attribute:     reference.Attribute,
+			Value:         reference.Value,
+			XPath:         reference.XPath,
+		}
+	}
+	if err := u.lmsFileReferences.AddFileReferences(ctx, principal, lms.AddFileReferencesRequest{
+		CourseID:       courseID,
+		ContentItemIDs: contentItemIDs,
+		References:     references,
+	}); err != nil {
+		return nil, err
+	}
+
+	newIssues := make([]*domain.HTMLIssue, 0, len(scanResult.Issues))
+	for _, result := range scanResult.Issues {
+		newIssues = append(newIssues, domain.NewHTMLIssue(
+			result.ContentItemID,
+			result.ScanRule,
+			result.ContentXPath,
+			domain.IssueStatusActive,
+			result.Severity,
+			result.Details,
+		))
+	}
+
+	if _, err := u.htmlIssueRepository.CreateMany(ctx, newIssues); err != nil {
+		return nil, err
+	}
+	issues, err := u.htmlIssueRepository.GetByCourseID(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+	scan.Complete(time.Now())
+	if err := u.scanRepository.Complete(ctx, scan); err != nil {
+		return nil, err
+	}
+	if issues == nil {
+		issues = []*domain.HTMLIssue{}
+	}
+	return issues, nil
+}
