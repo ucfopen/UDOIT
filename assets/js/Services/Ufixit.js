@@ -292,6 +292,10 @@ export const sharedRuleSummaries = {
 export const sharedRuleDescriptions = {
   a_target_warning: 'rule.desc.meta_refresh_delay',
   aria_activedescendant_tabindex_valid: 'form.keyboard_tabbable.learn_more',
+  aria_attribute_conflict: 'rule.desv.aria_attribute_allowed',
+  aria_attribute_exists: 'rule.desc.aria_attribute_allowed',
+  aria_attribute_required: 'rule.desc.aria_attribute_allowed',
+  aria_attribute_value_valid: 'rule.desc.aria_attribute_allowed',
   aria_banner_single: 'form.label.learn_more',
   aria_child_tabbable: 'form.keyboard_tabbable.learn_more',
   aria_contentinfo_single: 'form.label.learn_more',

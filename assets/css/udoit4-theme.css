@@ -902,6 +902,12 @@
       color: var(--pill-warning-text);
     }
 
+    &.feedback-success {
+      background-color: var(--pill-success-background);
+      border: 1px solid var(--pill-success-border);
+      color: var(--pill-success-text);
+    }
+
     .option-feedback-text {
       display: flex;
       flex-direction: row;
