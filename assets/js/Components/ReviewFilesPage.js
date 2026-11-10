@@ -491,6 +491,7 @@ export default function ReviewFilesPage({
       document.getElementById('btn-learn-more-back')?.focus()
     }
     else {
+      document.getElementById('decide-button')?.focus();
       document.getElementById('btn-learn-more-open')?.focus()
     }
   }, [showLearnMore]);
