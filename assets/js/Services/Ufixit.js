@@ -22,6 +22,7 @@ import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TabbableInvisibleForm from '../Components/Forms/TabbableInvisibleForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
+import InteractiveRoleForm from '../Components/Forms/InteractiveRoleForm'
 
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
@@ -45,6 +46,7 @@ export const formNames = {
   INVALID_ATTRIBUTE: 'invalid_attribute',
   INLINE_CSS: 'inline_css',
   KEYBOARD_TABBABLE: 'keyboard_tabbable',
+  INTERACTIVE_ROLE: 'interactive_role',
   LABEL: 'label',
   LABEL_UNIQUE: 'label_unique',
   LANGUAGE: 'language',
@@ -83,6 +85,7 @@ const formTypes = {
   [formNames.HEADING_STYLE]: HeadingStyleForm,
   [formNames.INLINE_CSS]: InlineCSSForm,
   [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
+  [formNames.INTERACTIVE_ROLE]: InteractiveRoleForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LANGUAGE]: LanguageForm,
@@ -213,7 +216,7 @@ const rulesToFormNameMap = {
 
   text_spacing_valid: formNames.INLINE_CSS,
 
-  widget_tabbable_exists: formNames.KEYBOARD_TABBABLE,
+  widget_tabbable_exists: formNames.INTERACTIVE_ROLE,
 
   aria_accessiblename_exists: formNames.LABEL,
   aria_application_labelled: formNames.LABEL,
@@ -352,6 +355,7 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.ARIA_HIDDEN:
       case formNames.FOCUS_VISIBLE:
       case formNames.KEYBOARD_TABBABLE:
+      case formNames.INTERACTIVE_ROLE:
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.ANCHOR_TEXT:
