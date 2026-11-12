@@ -362,7 +362,6 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.BLOCKQUOTE:
       case formNames.EMBEDDED_CONTENT_TITLE:
       case formNames.EMPHASIS:
-      case formNames.HEADING_EMPTY:
       case formNames.HEADING_STYLE:
       case formNames.INPUT_LABEL:
       case formNames.INLINE_CSS:
@@ -382,6 +381,7 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.INVALID_ATTRIBUTE:
       case formNames.MULTI_PART:
       case formNames.TABBABLE_INVISIBLE:
+      case formNames.HEADING_EMPTY:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.LANGUAGE:
