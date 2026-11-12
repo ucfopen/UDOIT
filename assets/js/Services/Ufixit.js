@@ -261,8 +261,6 @@ const rulesToFormNameMap = {
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 
-  text_sensory_misuse: formNames.SENSORY_MISUSE,
-
   element_tabbable_visible: formNames.TABBABLE_INVISIBLE,
 
   table_caption_empty: formNames.TABLE_CAPTION,
@@ -271,8 +269,6 @@ const rulesToFormNameMap = {
   table_headers_related: formNames.TABLE_HEADERS,
   table_layout_linearized: formNames.TABLE_HEADERS,
   table_structure_misuse: formNames.TABLE_HEADERS,
-
-  text_sensory_misuse: formNames.SENSORY_MISUSE
 }
 
 /* When a REVIEW_ONLY rule uses the same summary as another rule, add it here.
