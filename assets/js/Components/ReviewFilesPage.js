@@ -428,6 +428,7 @@ export default function ReviewFilesPage({
   useEffect(() => {
     if (activeIssue === null) {
       setTempActiveIssue(null);
+      setShowLearnMore(false);
       setWidgetState(WIDGET_STATE.LIST);
       return;
     }
@@ -461,6 +462,7 @@ export default function ReviewFilesPage({
       setVttActiveIndex(-1)
     }
 
+    setShowLearnMore(false);
     setTempActiveIssue(activeIssueClone);
   }, [activeIssue]);
 
