@@ -1,12 +1,12 @@
 services:
   db:
-    container_name: udoit3-db
+    container_name: udoit-db
     image: mysql:latest
     volumes:
       - dbdata:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: udoit3
+      MYSQL_DATABASE: udoit
       MYSQL_USER: udoit
       MYSQL_PASSWORD: udoit
     ports:
@@ -14,7 +14,7 @@ services:
   # Uncomment this block and comment the next db block
   # to use Postgres instead of MySQL
   # db:
-  #   container_name: udoit3-db
+  #   container_name: udoit-db
   #   image: postgres:alpine
   #   restart: always
   #   ports:
@@ -22,9 +22,9 @@ services:
   #   environment:
   #     POSTGRES_USER: udoit
   #     POSTGRES_PASSWORD: udoit
-  #     POSTGRES_DB: udoit3
+  #     POSTGRES_DB: udoit
   web:
-      container_name: udoit3-web
+      container_name: udoit-web
       image: nginx:latest
       ports:
         - "8000:80"
@@ -36,7 +36,7 @@ services:
       env_file:
         - .env
   php:
-      container_name: udoit3-php
+      container_name: udoit-php
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.php.pdo.mysql
@@ -48,7 +48,7 @@ services:
       env_file:
         - .env
   composer:
-      container_name: udoit3-composer
+      container_name: udoit-composer
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.composer
@@ -67,7 +67,7 @@ services:
       env_file:
         - .env
   yarn:
-      container_name: udoit3-yarn
+      container_name: udoit-yarn
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.yarn
@@ -81,7 +81,7 @@ services:
         yarn install &&
         yarn watch'
   ace:
-    container_name: udoit3-ace
+    container_name: udoit-ace
     image: ghcr.io/ucfopen/equal-access-server:main
     ports:
       - "3000:3000"

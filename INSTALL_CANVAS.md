@@ -6,7 +6,7 @@ Once UDOIT has been installed on a public web server the following steps must be
 * Install the application
 
 ## Docker Compose Base URL
-If you are setting up UDOIT for local development through `docker compose`, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `http://127.0.0.1:8000/udoit3`.
+If you are setting up UDOIT for local development through `docker compose`, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `http://127.0.0.1:8000/udoit`.
 
 
 ## Create an API Developer Key
