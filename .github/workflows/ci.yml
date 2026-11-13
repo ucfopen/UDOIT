@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - 'stable/*'
+      - main-clone
 
 env:
   REGISTRY: ghcr.io

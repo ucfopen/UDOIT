@@ -194,12 +194,6 @@ export default function InteractiveRoleForm({
 
   return (
     <>
-      <div className="instructions">
-        {t(canMakeDisclosure
-          ? 'form.interactive_role.label.question_disclosure'
-          : 'form.interactive_role.label.question')}
-      </div>
-
       {!canMakeDisclosure && (
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MAKE_LINK ? 'selected' : ''}`}>
           <RadioSelector
@@ -212,16 +206,17 @@ export default function InteractiveRoleForm({
           />
           {activeOption === FORM_OPTIONS.MAKE_LINK && (
             <>
-              <input
-                id="interactiveRoleHref"
-                aria-labelledby="make-link-label"
-                className="w-100"
-                type="text"
-                value={href}
-                onChange={handleHrefChange}
-                placeholder="https://example.com"
-                disabled={isDisabled}
-              />
+              <label>
+                <div>{t('form.interactive_role.label.destination')}</div>
+                <input
+                  className="w-100"
+                  type="text"
+                  value={href}
+                  onChange={handleHrefChange}
+                  placeholder={t('form.interactive_role.label.destination.placeholder')}
+                  disabled={isDisabled}
+                />
+              </label>
               <OptionFeedback
                 t={t}
                 feedbackArray={formErrors[FORM_OPTIONS.MAKE_LINK]}

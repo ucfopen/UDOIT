@@ -787,7 +787,7 @@
 
     &.dialog-full-screen {
       width: calc(100% - 2rem);
-      max-width: var(--content-max-width);
+      max-width: calc(var(--content-max-width) - 2rem);
       height: calc(100% - 2.5rem);
       max-height: calc(100% - 2.5rem);
       position: absolute;
@@ -900,6 +900,12 @@
       background-color: var(--pill-warning-background);
       border: 1px solid var(--pill-warning-border);
       color: var(--pill-warning-text);
+    }
+
+    &.feedback-success {
+      background-color: var(--pill-success-background);
+      border: 1px solid var(--pill-success-border);
+      color: var(--pill-success-text);
     }
 
     .option-feedback-text {

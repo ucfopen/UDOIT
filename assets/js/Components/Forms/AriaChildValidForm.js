@@ -344,6 +344,7 @@ export default function AriaChildValidForm({
                 className="mt-3"
                 id="aria-child-valid-textarea" 
                 readOnly
+                disabled
                 rows="6"
                 value={ (localHtml || '') }>
               </textarea>

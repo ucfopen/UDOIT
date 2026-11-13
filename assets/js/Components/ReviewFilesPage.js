@@ -428,6 +428,7 @@ export default function ReviewFilesPage({
   useEffect(() => {
     if (activeIssue === null) {
       setTempActiveIssue(null);
+      setShowLearnMore(false);
       setWidgetState(WIDGET_STATE.LIST);
       return;
     }
@@ -461,6 +462,7 @@ export default function ReviewFilesPage({
       setVttActiveIndex(-1)
     }
 
+    setShowLearnMore(false);
     setTempActiveIssue(activeIssueClone);
   }, [activeIssue]);
 
@@ -491,6 +493,7 @@ export default function ReviewFilesPage({
       document.getElementById('btn-learn-more-back')?.focus()
     }
     else {
+      document.getElementById('decide-button')?.focus();
       document.getElementById('btn-learn-more-open')?.focus()
     }
   }, [showLearnMore]);

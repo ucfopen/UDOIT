@@ -133,6 +133,10 @@ export default function TableCaptionForm({
           option={FORM_OPTIONS.DELETE_ELEMENT}
           labelText = {t('form.table_caption.label.remove_caption')}
         />
+
+        {activeOption === FORM_OPTIONS.DELETE_ELEMENT && (
+          <div className="subtext">{t('form.table_caption.label.remove_caption_desc')}</div>
+        )}
       </div>
     </>
   )

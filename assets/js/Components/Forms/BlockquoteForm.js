@@ -158,7 +158,7 @@ export default function BlockquoteForm({
         {activeOption === FORM_OPTIONS.ADD_CITATION && (
           <>
             <label>
-              <div className="instructions mb-2">{t('form.blockquote.label.text')}</div>
+              <div>{t('form.blockquote.label.text')}</div>
               <input
                 type="text"
                 tabIndex="0"

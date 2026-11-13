@@ -14,9 +14,9 @@ import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import InlineCSSForm from '../Components/Forms/InlineCSSForm'
 import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
 import LabelForm from '../Components/Forms/LabelForm'
+import LandmarkForm from '../Components/Forms/LandmarkForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import ListForm from '../Components/Forms/ListForm'
-import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TabbableInvisibleForm from '../Components/Forms/TabbableInvisibleForm'
@@ -48,10 +48,9 @@ export const formNames = {
   KEYBOARD_TABBABLE: 'keyboard_tabbable',
   INTERACTIVE_ROLE: 'interactive_role',
   LABEL: 'label',
-  LABEL_UNIQUE: 'label_unique',
+  LANDMARK: 'landmark',
   LANGUAGE: 'language',
   LIST: 'list',
-  MEDIA_CAPTIONS: 'media_captions',
   MULTI_PART: 'multi_part',
   SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
@@ -87,10 +86,9 @@ const formTypes = {
   [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.INTERACTIVE_ROLE]: InteractiveRoleForm,
   [formNames.LABEL]: LabelForm,
-  [formNames.LABEL_UNIQUE]: LabelForm,
+  [formNames.LANDMARK]: LandmarkForm,
   [formNames.LANGUAGE]: LanguageForm,
   [formNames.LIST]: ListForm,
-  [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABBABLE_INVISIBLE]: TabbableInvisibleForm,
@@ -109,7 +107,7 @@ export const FORM_CLASSIFICATIONS = {
     formNames.TABBABLE_INVISIBLE,
     formNames.EMBEDDED_CONTENT_TITLE,
     formNames.LABEL,
-    formNames.LABEL_UNIQUE,
+    formNames.LANDMARK,
     formNames.SELECT_VALID_ID
   ],
 
@@ -163,12 +161,6 @@ const rulesToFormNameMap = {
 
   a_text_purpose: formNames.ANCHOR_TEXT,
   area_alt_exists: formNames.ANCHOR_TEXT,
-  
-  // aria_attribute_allowed: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_conflict: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_exists: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_required: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_value_valid: formNames.ARIA_ATTRIBUTE,
 
   aria_child_valid: formNames.ARIA_CHILD_VALID,
 
@@ -188,7 +180,11 @@ const rulesToFormNameMap = {
   media_alt_exists: formNames.EMBEDDED_CONTENT_TITLE,
   object_text_exists: formNames.EMBEDDED_CONTENT_TITLE,
 
+  caption_track_exists: formNames.EMBEDDED_CONTENT_REVIEW,
   frame_src_valid: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_audio_transcribed: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_live_captioned: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_track_available: formNames.EMBEDDED_CONTENT_REVIEW,
 
   style_color_misuse: formNames.EMPHASIS,
 
@@ -199,47 +195,32 @@ const rulesToFormNameMap = {
   heading_markup_misuse: formNames.HEADING_STYLE,
   text_block_heading: formNames.HEADING_STYLE,
 
-  // input_label_after: formNames.INPUT_LABEL,
-  // input_label_before: formNames.INPUT_LABEL,
-  // input_label_exists: formNames.INPUT_LABEL,
-  // input_label_visible: formNames.INPUT_LABEL,
-  // label_content_exists: formNames.INPUT_LABEL,
-
-  // aria_attribute_redundant: formNames.INVALID_ATTRIBUTE,
-  // combobox_autocomplete_valid: formNames.INVALID_ATTRIBUTE,
-  // combobox_haspopup_valid: formNames.INVALID_ATTRIBUTE,
-  // dir_attribute_valid: formNames.INVALID_ATTRIBUTE,
-  // input_autocomplete_valid: formNames.INVALID_ATTRIBUTE,
-  // input_haspopup_conflict: formNames.INVALID_ATTRIBUTE,
-  // table_aria_descendants: formNames.INVALID_ATTRIBUTE,
-  // table_scope_valid: formNames.INVALID_ATTRIBUTE,
-
   text_spacing_valid: formNames.INLINE_CSS,
 
   widget_tabbable_exists: formNames.INTERACTIVE_ROLE,
 
   aria_accessiblename_exists: formNames.LABEL,
   aria_application_labelled: formNames.LABEL,
-  aria_complementary_labelled: formNames.LABEL,
-  aria_region_labelled: formNames.LABEL,
+  aria_application_label_unique: formNames.LABEL,
   aria_widget_labelled: formNames.LABEL,
   element_accesskey_labelled: formNames.LABEL,
   label_name_visible: formNames.LABEL,
 
-  aria_application_label_unique: formNames.LABEL_UNIQUE,
-  aria_article_label_unique: formNames.LABEL_UNIQUE,
-  aria_banner_label_unique: formNames.LABEL_UNIQUE,
-  aria_complementary_label_unique: formNames.LABEL_UNIQUE,
-  aria_contentinfo_label_unique: formNames.LABEL_UNIQUE,
-  aria_document_label_unique: formNames.LABEL_UNIQUE,
-  aria_form_label_unique: formNames.LABEL_UNIQUE,
-  aria_landmark_name_unique: formNames.LABEL_UNIQUE,
-  aria_main_label_unique: formNames.LABEL_UNIQUE,
-  aria_navigation_label_unique: formNames.LABEL_UNIQUE,
-  aria_region_label_unique: formNames.LABEL_UNIQUE,
-  aria_search_label_unique: formNames.LABEL_UNIQUE,
-  aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
-  form_label_unique: formNames.LABEL_UNIQUE,
+  aria_article_label_unique: formNames.LANDMARK,
+  aria_banner_label_unique: formNames.LANDMARK,
+  aria_complementary_label_unique: formNames.LANDMARK,
+  aria_complementary_labelled: formNames.LANDMARK,
+  aria_contentinfo_label_unique: formNames.LANDMARK,
+  aria_document_label_unique: formNames.LANDMARK,
+  aria_form_label_unique: formNames.LANDMARK,
+  aria_landmark_name_unique: formNames.LANDMARK,
+  aria_main_label_unique: formNames.LANDMARK,
+  aria_navigation_label_unique: formNames.LANDMARK,
+  aria_region_label_unique: formNames.LANDMARK,
+  aria_region_labelled: formNames.LANDMARK,
+  aria_search_label_unique: formNames.LANDMARK,
+  aria_toolbar_label_unique: formNames.LANDMARK,
+  form_label_unique: formNames.LANDMARK,
 
   element_lang_valid: formNames.LANGUAGE,
 
@@ -247,19 +228,8 @@ const rulesToFormNameMap = {
   list_markup_review: formNames.LIST,
   list_structure_proper: formNames.LIST,
 
-  caption_track_exists: formNames.MEDIA_CAPTIONS,
-  media_audio_transcribed: formNames.MEDIA_CAPTIONS,
-  media_live_captioned: formNames.MEDIA_CAPTIONS,
-  media_track_available: formNames.MEDIA_CAPTIONS,
-
   aria_id_unique: formNames.SELECT_VALID_ID,
   aria_complementary_label_visible: formNames.SELECT_VALID_ID,
-  // aria_main_label_visible: formNames.SELECT_VALID_ID,
-  // combobox_popup_reference: formNames.SELECT_VALID_ID,
-  // error_message_exists: formNames.SELECT_VALID_ID,
-  // label_ref_valid: formNames.SELECT_VALID_ID,
-
-  text_sensory_misuse: formNames.SENSORY_MISUSE,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 
@@ -271,8 +241,6 @@ const rulesToFormNameMap = {
   table_headers_related: formNames.TABLE_HEADERS,
   table_layout_linearized: formNames.TABLE_HEADERS,
   table_structure_misuse: formNames.TABLE_HEADERS,
-
-  text_sensory_misuse: formNames.SENSORY_MISUSE
 }
 
 /* When a REVIEW_ONLY rule uses the same summary as another rule, add it here.
@@ -295,9 +263,12 @@ export const sharedRuleSummaries = {
 export const sharedRuleDescriptions = {
   a_target_warning: 'rule.desc.meta_refresh_delay',
   aria_activedescendant_tabindex_valid: 'form.keyboard_tabbable.learn_more',
-  aria_banner_single: 'form.label.learn_more',
+  aria_attribute_conflict: 'rule.desv.aria_attribute_allowed',
+  aria_attribute_exists: 'rule.desc.aria_attribute_allowed',
+  aria_attribute_required: 'rule.desc.aria_attribute_allowed',
+  aria_attribute_value_valid: 'rule.desc.aria_attribute_allowed',
   aria_child_tabbable: 'form.keyboard_tabbable.learn_more',
-  aria_contentinfo_single: 'form.label.learn_more',
+  aria_contentinfo_single: 'rule.desc.aria_banner_single',
   blink_elem_deprecated: 'rule.desc.blink_css_review',
   combobox_active_descendant: 'rule.desc.aria_activedescendant_valid',
   combobox_design_valid: 'rule.desc.aria_activedescendant_valid',
@@ -356,18 +327,16 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.FOCUS_VISIBLE:
       case formNames.KEYBOARD_TABBABLE:
       case formNames.INTERACTIVE_ROLE:
+      case formNames.LANDMARK:
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.ANCHOR_TEXT:
       case formNames.BLOCKQUOTE:
       case formNames.EMBEDDED_CONTENT_TITLE:
       case formNames.EMPHASIS:
-      case formNames.HEADING_EMPTY:
       case formNames.HEADING_STYLE:
-      case formNames.INPUT_LABEL:
       case formNames.INLINE_CSS:
       case formNames.LABEL:
-      case formNames.LABEL_UNIQUE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.LANGUAGE:
@@ -382,13 +351,14 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.INVALID_ATTRIBUTE:
       case formNames.MULTI_PART:
       case formNames.TABBABLE_INVISIBLE:
+      case formNames.HEADING_EMPTY:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.LANGUAGE:
       case formNames.SENSORY_MISUSE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
-      case formNames.MEDIA_CAPTIONS:
+      case formNames.EMBEDDED_CONTENT_REVIEW:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]        
         break
       default:
