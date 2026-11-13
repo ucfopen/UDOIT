@@ -178,20 +178,6 @@
 
   .contrast-advanced-options {
     margin-block-start: .5rem;
-
-    summary {
-      color: var(--text-secondary-color);
-      cursor: pointer;
-      font-size: .85em;
-      font-weight: 600;
-      width: fit-content;
-
-      &:focus-visible {
-        outline: 2px solid var(--focus-color);
-        outline-offset: 4px;
-        border-radius: 2px;
-      }
-    }
   }
 
   .contrast-advanced-options-content {

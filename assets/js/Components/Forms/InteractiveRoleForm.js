@@ -209,13 +209,11 @@ export default function InteractiveRoleForm({
               <label>
                 <div>{t('form.interactive_role.label.destination')}</div>
                 <input
-                  id="interactiveRoleHref"
-                  aria-labelledby="make-link-label"
                   className="w-100"
                   type="text"
                   value={href}
                   onChange={handleHrefChange}
-                  placeholder="https://example.com"
+                  placeholder={t('form.interactive_role.label.destination.placeholder')}
                   disabled={isDisabled}
                 />
               </label>

@@ -14,6 +14,7 @@ import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import InlineCSSForm from '../Components/Forms/InlineCSSForm'
 import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
 import LabelForm from '../Components/Forms/LabelForm'
+import LandmarkForm from '../Components/Forms/LandmarkForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
@@ -48,7 +49,7 @@ export const formNames = {
   KEYBOARD_TABBABLE: 'keyboard_tabbable',
   INTERACTIVE_ROLE: 'interactive_role',
   LABEL: 'label',
-  LABEL_UNIQUE: 'label_unique',
+  LANDMARK: 'landmark',
   LANGUAGE: 'language',
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
@@ -87,7 +88,7 @@ const formTypes = {
   [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.INTERACTIVE_ROLE]: InteractiveRoleForm,
   [formNames.LABEL]: LabelForm,
-  [formNames.LABEL_UNIQUE]: LabelForm,
+  [formNames.LANDMARK]: LandmarkForm,
   [formNames.LANGUAGE]: LanguageForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
@@ -109,7 +110,7 @@ export const FORM_CLASSIFICATIONS = {
     formNames.TABBABLE_INVISIBLE,
     formNames.EMBEDDED_CONTENT_TITLE,
     formNames.LABEL,
-    formNames.LABEL_UNIQUE,
+    formNames.LANDMARK,
     formNames.SELECT_VALID_ID
   ],
 
@@ -220,26 +221,26 @@ const rulesToFormNameMap = {
 
   aria_accessiblename_exists: formNames.LABEL,
   aria_application_labelled: formNames.LABEL,
-  aria_complementary_labelled: formNames.LABEL,
-  aria_region_labelled: formNames.LABEL,
+  aria_application_label_unique: formNames.LABEL,
   aria_widget_labelled: formNames.LABEL,
   element_accesskey_labelled: formNames.LABEL,
   label_name_visible: formNames.LABEL,
 
-  aria_application_label_unique: formNames.LABEL_UNIQUE,
-  aria_article_label_unique: formNames.LABEL_UNIQUE,
-  aria_banner_label_unique: formNames.LABEL_UNIQUE,
-  aria_complementary_label_unique: formNames.LABEL_UNIQUE,
-  aria_contentinfo_label_unique: formNames.LABEL_UNIQUE,
-  aria_document_label_unique: formNames.LABEL_UNIQUE,
-  aria_form_label_unique: formNames.LABEL_UNIQUE,
-  aria_landmark_name_unique: formNames.LABEL_UNIQUE,
-  aria_main_label_unique: formNames.LABEL_UNIQUE,
-  aria_navigation_label_unique: formNames.LABEL_UNIQUE,
-  aria_region_label_unique: formNames.LABEL_UNIQUE,
-  aria_search_label_unique: formNames.LABEL_UNIQUE,
-  aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
-  form_label_unique: formNames.LABEL_UNIQUE,
+  aria_article_label_unique: formNames.LANDMARK,
+  aria_banner_label_unique: formNames.LANDMARK,
+  aria_complementary_label_unique: formNames.LANDMARK,
+  aria_complementary_labelled: formNames.LANDMARK,
+  aria_contentinfo_label_unique: formNames.LANDMARK,
+  aria_document_label_unique: formNames.LANDMARK,
+  aria_form_label_unique: formNames.LANDMARK,
+  aria_landmark_name_unique: formNames.LANDMARK,
+  aria_main_label_unique: formNames.LANDMARK,
+  aria_navigation_label_unique: formNames.LANDMARK,
+  aria_region_label_unique: formNames.LANDMARK,
+  aria_region_labelled: formNames.LANDMARK,
+  aria_search_label_unique: formNames.LANDMARK,
+  aria_toolbar_label_unique: formNames.LANDMARK,
+  form_label_unique: formNames.LANDMARK,
 
   element_lang_valid: formNames.LANGUAGE,
 
@@ -295,9 +296,8 @@ export const sharedRuleDescriptions = {
   aria_attribute_exists: 'rule.desc.aria_attribute_allowed',
   aria_attribute_required: 'rule.desc.aria_attribute_allowed',
   aria_attribute_value_valid: 'rule.desc.aria_attribute_allowed',
-  aria_banner_single: 'form.label.learn_more',
   aria_child_tabbable: 'form.keyboard_tabbable.learn_more',
-  aria_contentinfo_single: 'form.label.learn_more',
+  aria_contentinfo_single: 'rule.desc.aria_banner_single',
   blink_elem_deprecated: 'rule.desc.blink_css_review',
   combobox_active_descendant: 'rule.desc.aria_activedescendant_valid',
   combobox_design_valid: 'rule.desc.aria_activedescendant_valid',
@@ -356,6 +356,7 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.FOCUS_VISIBLE:
       case formNames.KEYBOARD_TABBABLE:
       case formNames.INTERACTIVE_ROLE:
+      case formNames.LANDMARK:
         disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.ANCHOR_TEXT:
@@ -363,10 +364,8 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.EMBEDDED_CONTENT_TITLE:
       case formNames.EMPHASIS:
       case formNames.HEADING_STYLE:
-      case formNames.INPUT_LABEL:
       case formNames.INLINE_CSS:
       case formNames.LABEL:
-      case formNames.LABEL_UNIQUE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.LANGUAGE:
