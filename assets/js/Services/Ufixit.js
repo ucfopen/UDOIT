@@ -17,7 +17,6 @@ import LabelForm from '../Components/Forms/LabelForm'
 import LandmarkForm from '../Components/Forms/LandmarkForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import ListForm from '../Components/Forms/ListForm'
-import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TabbableInvisibleForm from '../Components/Forms/TabbableInvisibleForm'
@@ -52,7 +51,6 @@ export const formNames = {
   LANDMARK: 'landmark',
   LANGUAGE: 'language',
   LIST: 'list',
-  MEDIA_CAPTIONS: 'media_captions',
   MULTI_PART: 'multi_part',
   SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
@@ -91,7 +89,6 @@ const formTypes = {
   [formNames.LANDMARK]: LandmarkForm,
   [formNames.LANGUAGE]: LanguageForm,
   [formNames.LIST]: ListForm,
-  [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABBABLE_INVISIBLE]: TabbableInvisibleForm,
@@ -164,12 +161,6 @@ const rulesToFormNameMap = {
 
   a_text_purpose: formNames.ANCHOR_TEXT,
   area_alt_exists: formNames.ANCHOR_TEXT,
-  
-  // aria_attribute_allowed: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_conflict: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_exists: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_required: formNames.ARIA_ATTRIBUTE,
-  // aria_attribute_value_valid: formNames.ARIA_ATTRIBUTE,
 
   aria_child_valid: formNames.ARIA_CHILD_VALID,
 
@@ -189,7 +180,11 @@ const rulesToFormNameMap = {
   media_alt_exists: formNames.EMBEDDED_CONTENT_TITLE,
   object_text_exists: formNames.EMBEDDED_CONTENT_TITLE,
 
+  caption_track_exists: formNames.EMBEDDED_CONTENT_REVIEW,
   frame_src_valid: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_audio_transcribed: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_live_captioned: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_track_available: formNames.EMBEDDED_CONTENT_REVIEW,
 
   style_color_misuse: formNames.EMPHASIS,
 
@@ -199,21 +194,6 @@ const rulesToFormNameMap = {
 
   heading_markup_misuse: formNames.HEADING_STYLE,
   text_block_heading: formNames.HEADING_STYLE,
-
-  // input_label_after: formNames.INPUT_LABEL,
-  // input_label_before: formNames.INPUT_LABEL,
-  // input_label_exists: formNames.INPUT_LABEL,
-  // input_label_visible: formNames.INPUT_LABEL,
-  // label_content_exists: formNames.INPUT_LABEL,
-
-  // aria_attribute_redundant: formNames.INVALID_ATTRIBUTE,
-  // combobox_autocomplete_valid: formNames.INVALID_ATTRIBUTE,
-  // combobox_haspopup_valid: formNames.INVALID_ATTRIBUTE,
-  // dir_attribute_valid: formNames.INVALID_ATTRIBUTE,
-  // input_autocomplete_valid: formNames.INVALID_ATTRIBUTE,
-  // input_haspopup_conflict: formNames.INVALID_ATTRIBUTE,
-  // table_aria_descendants: formNames.INVALID_ATTRIBUTE,
-  // table_scope_valid: formNames.INVALID_ATTRIBUTE,
 
   text_spacing_valid: formNames.INLINE_CSS,
 
@@ -248,17 +228,8 @@ const rulesToFormNameMap = {
   list_markup_review: formNames.LIST,
   list_structure_proper: formNames.LIST,
 
-  caption_track_exists: formNames.MEDIA_CAPTIONS,
-  media_audio_transcribed: formNames.MEDIA_CAPTIONS,
-  media_live_captioned: formNames.MEDIA_CAPTIONS,
-  media_track_available: formNames.MEDIA_CAPTIONS,
-
   aria_id_unique: formNames.SELECT_VALID_ID,
   aria_complementary_label_visible: formNames.SELECT_VALID_ID,
-  // aria_main_label_visible: formNames.SELECT_VALID_ID,
-  // combobox_popup_reference: formNames.SELECT_VALID_ID,
-  // error_message_exists: formNames.SELECT_VALID_ID,
-  // label_ref_valid: formNames.SELECT_VALID_ID,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 
@@ -387,7 +358,7 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.SENSORY_MISUSE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
-      case formNames.MEDIA_CAPTIONS:
+      case formNames.EMBEDDED_CONTENT_REVIEW:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]        
         break
       default:
