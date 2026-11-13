@@ -886,10 +886,10 @@
 
   "form.table_caption.title": "Tables Should Have Descriptive Captions",
   "form.table_caption.summary": "Tables that contain data should have a caption or title linked to the table to help users understand the content.",
-  "form.table_caption.learn_more": "<h3>Table Captions</h3><p>If a table contains data, it should have a caption or title. Just adding text above or below the table isn't enough; each <code>&lt;table&gt;</code> needs to have a <code>&lt;caption&gt;</code> inside it. Using a <code>&lt;caption&gt;</code> allows screen readers to navigate directly to the title and associate it with the correct table.</p><h3>Best Practices</h3><ul><li>Give every <code>&lt;table&gt;</code> a <code>&lt;caption&gt;</code> with a clear and descriptive title</li></ul><h3>For More Information</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/tables/data#caption'>Table Captions</a></p><p>W3.org: <a href='https://www.w3.org/WAI/tutorials/tables/caption-summary/'>Caption &amp; Summary</a></p>",
+  "form.table_caption.learn_more": "<h3>Table Captions</h3><p>If a table contains data, it should have a caption or title. Just adding text above or below the table isn't enough; each <code>&lt;table&gt;</code> needs to have a <code>&lt;caption&gt;</code> inside it. Using a <code>&lt;caption&gt;</code> allows screen readers to navigate directly to the title and associate it with the correct table.</p><h3>Best Practices</h3><ul><li>Give every data <code>&lt;table&gt;</code> a <code>&lt;caption&gt;</code> with a clear and descriptive title</li></ul><h3>For More Information</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/tables/data#caption'>Table Captions</a></p><p>W3.org: <a href='https://www.w3.org/WAI/tutorials/tables/caption-summary/'>Caption &amp; Summary</a></p>",
   "form.table_caption.label.text": "Add Descriptive Table Caption",
   "form.table_caption.label.remove_caption": "Delete Table Caption Instead",
-  "form.table_caption.label.remove_caption_desc": "Only use this option if the table does not contain data.",
+  "form.table_caption.label.remove_caption_desc": "Only use this option if the table is decorative and does not contain data.",
   "form.table_caption.msg.text_empty": "Table captions cannot be empty",
   "rule.desc.table_caption_empty": "",
 

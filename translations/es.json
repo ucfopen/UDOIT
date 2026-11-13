@@ -886,10 +886,10 @@
 
   "form.table_caption.title": "Las Tablas Deben Tener Subtítulos Descriptivos",
   "form.table_caption.summary": "Las tablas que contienen datos deben tener un subtítulo o título vinculado a la tabla para ayudar a los usuarios a comprender el contenido.",
-  "form.table_caption.learn_more": "<h3>Subtítulos de Tabla</h3><p> Si una tabla contiene datos, debe tener un subtítulo o título. Simplemente añadir texto encima o debajo de la tabla no es suficiente; cada <code>&lt;table&gt;</code> debe tener un <code>&lt;caption&gt;</code> dentro de ella. Usar <code>&lt;caption&gt;</code> permite a los lectores de pantalla navegar directamente al título y asociarlo con la tabla correspondiente.</p><h3>Mejores Prácticas</h3><ul><li>Añadir a cada <code>&lt;table&gt;</code> un <code>&lt;caption&gt;</code> con un título claro y descriptivo</li></ul><h3>Para Más Información</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/tables/data#caption'>Subtítulos de Tablas</a></p><p>W3.org: <a href='https://www.w3.org/WAI/tutorials/tables/caption-summary/'>Subtítulo &amp; Resumen</a></p>",
+  "form.table_caption.learn_more": "<h3>Subtítulos de Tabla</h3><p> Si una tabla contiene datos, debe tener un subtítulo o título. Simplemente añadir texto encima o debajo de la tabla no es suficiente; cada <code>&lt;table&gt;</code> debe tener un <code>&lt;caption&gt;</code> dentro de ella. Usar <code>&lt;caption&gt;</code> permite a los lectores de pantalla navegar directamente al título y asociarlo con la tabla correspondiente.</p><h3>Mejores Prácticas</h3><ul><li>Añadir a cada <code>&lt;table&gt;</code> con datos un <code>&lt;caption&gt;</code> con un título claro y descriptivo</li></ul><h3>Para Más Información</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/tables/data#caption'>Subtítulos de Tablas</a></p><p>W3.org: <a href='https://www.w3.org/WAI/tutorials/tables/caption-summary/'>Subtítulo &amp; Resumen</a></p>",
   "form.table_caption.label.text": "Añadir Subtítulo Descriptivo a la Tabla",
   "form.table_caption.label.remove_caption": "Eliminar Subtítulo de la Tabla",
-  "form.table_caption.label.remove_caption_desc": "Utiliza esta opción solo si la tabla no contiene datos.",
+  "form.table_caption.label.remove_caption_desc": "Utiliza esta opción solo si la tabla es de diseño y no contiene datos.",
   "form.table_caption.msg.text_empty": "Los subtítulos de tabla no pueden estar vacíos",
   "rule.desc.table_caption_empty": "",
 
