@@ -12,6 +12,7 @@ use App\Services\EqualAccessService;
 use App\Services\LmsApiService;
 use App\Services\ScannerService;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class LmsFetchService {
@@ -42,7 +43,8 @@ class LmsFetchService {
         EqualAccessService $equalAccess,
         ScannerService $scanner,
         ManagerRegistry $doctrine,
-        UtilityService $util
+        UtilityService $util,
+        #[Autowire('%app.version%')] private readonly string $version
     )
     {
         $this->lmsApi = $lmsApi;
@@ -209,7 +211,7 @@ class LmsFetchService {
           'scanRules' => $scanRules, 
           'scanCounts' => $scanCounts,
           'itemsScanned' => $itemsScannedCount,
-          'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : ''
+          'versionNumber' => $this->version
         ]));
 
         $this->doctrine->getManager()->flush();

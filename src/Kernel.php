@@ -41,6 +41,24 @@ class Kernel extends BaseKernel
         $loader->load($confDir.'/{packages}/'.$this->environment.'/*'.self::CONFIG_EXTS, 'glob');
         $loader->load($confDir.'/{services}'.self::CONFIG_EXTS, 'glob');
         $loader->load($confDir.'/{services}_'.$this->environment.self::CONFIG_EXTS, 'glob');
+
+        // The following code creates a container variable called app.version that is read from the package.json file.
+        $packagePath = $this->getProjectDir().'/package.json';
+        $container->addResource(new FileResource($packagePath));
+
+        $contents = file_get_contents($packagePath);
+        if ($contents === false) {
+            throw new \RuntimeException('Unable to read package.json.');
+        }
+
+        $package = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        $version = $package['version'] ?? null;
+
+        if (!is_string($version) || trim($version) === '') {
+            throw new \RuntimeException('Missing or invalid package.json version.');
+        }
+
+        $container->setParameter('app.version', $version);
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

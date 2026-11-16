@@ -7,6 +7,7 @@ use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 
@@ -21,7 +22,12 @@ class LmsUserService {
     /** @var UtilityService $util */
     protected $util;
 
-    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util)
+    public function __construct(
+        LmsApiService $lmsApi,
+        ManagerRegistry $doctrine,
+        UtilityService $util,
+        #[Autowire('%app.version%')] private readonly string $version
+    )
     {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
@@ -73,7 +79,7 @@ class LmsUserService {
     {
         $refreshToken = $user->getRefreshToken();
         $institution = $user->getInstitution();;
-        $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
+        $userAgent = 'UDOIT/' . $this->version;
 
         if (empty($refreshToken)) {
             return false;

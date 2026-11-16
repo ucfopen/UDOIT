@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Asset\Packages;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class DashboardController extends AbstractController
 {
@@ -32,10 +33,15 @@ class DashboardController extends AbstractController
 
     private Packages $packages;
 
-    public function __construct(ManagerRegistry $doctrine, Packages $packages)
+    public function __construct (
+        ManagerRegistry $doctrine,
+        Packages $packages,
+        #[Autowire('%app.version%')] private readonly string $version
+    )
     {
         $this->doctrine = $doctrine;
         $this->packages = $packages;
+
     }
 
     #[Route('/dashboard', name: 'dashboard')]
@@ -141,7 +147,7 @@ class DashboardController extends AbstractController
             'contentTypes' => $lms->getContentTypes(),
             'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
-            'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
+            'versionNumber' => $this->$version,
         ];
     }
 

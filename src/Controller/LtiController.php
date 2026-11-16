@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class LtiController extends AbstractController
 {
@@ -32,7 +33,11 @@ class LtiController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
+    public function __construct(
+        ManagerRegistry $doctrine,
+        SessionService $sessionService,
+        #[Autowire('%app.version%')] private readonly string $version
+    )
     {
         $this->doctrine = $doctrine;
         $this->sessionService = $sessionService;
@@ -281,7 +286,7 @@ class LtiController extends AbstractController
         $httpClient = HttpClient::create();
         /* URL will be different for other LMSes */
         $url = $this->lmsApi->getLms()->getKeysetUrl();
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $userAgent = 'UDOIT/' . $this->version;
         $response = $httpClient->request('GET', $url, [
             'headers' => [
                 'User-Agent' => $userAgent,

@@ -6,6 +6,7 @@ use App\Entity\Course;
 use App\Entity\User;
 use App\Services\UtilityService;
 use App\Constants\PreferenceConstants;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class InitialStateService
 {
@@ -15,6 +16,7 @@ class InitialStateService
 
     public function __construct(
         UtilityService $util,
+        #[Autowire('%app.version%')] private readonly string $version
     )
     {
         $this->util = $util;
@@ -52,7 +54,7 @@ class InitialStateService
             'apiUrl'           => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
             'course'           => $course,
             'institution'      => $institution,
-            'versionNumber'    => $_ENV['VERSION_NUMBER'] ?? '',
+            'versionNumber'    => $this->version,
             'user' => [
                 'id'       => $user->getId(),
                 'username' => $user->getUserIdentifier(),
