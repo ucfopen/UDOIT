@@ -183,6 +183,7 @@ const rulesToFormNameMap = {
   caption_track_exists: formNames.EMBEDDED_CONTENT_REVIEW,
   frame_src_valid: formNames.EMBEDDED_CONTENT_REVIEW,
   media_audio_transcribed: formNames.EMBEDDED_CONTENT_REVIEW,
+  media_keyboard_controllable: formNames.EMBEDDED_CONTENT_REVIEW,
   media_live_captioned: formNames.EMBEDDED_CONTENT_REVIEW,
   media_track_available: formNames.EMBEDDED_CONTENT_REVIEW,
 
@@ -405,7 +406,6 @@ export function disabilitiesFromRule(ruleId) {
       case 'frame_src_valid':
       case 'input_checkboxes_grouped':
       case 'input_fields_grouped':
-      case 'media_keyboard_controllable':
       case 'select_options_grouped':
       case 'skip_main_described':
       case 'skip_main_exists':
