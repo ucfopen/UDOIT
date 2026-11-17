@@ -12,13 +12,16 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest]
         php-versions: ['8.5']
-        node-version: [24.14.0]
+        node-version: ['26.13']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
+
+      - name: Install Corepack
+        run: npm install --global corepack@latest
 
       - name: Enable Corepack
         run: corepack enable
