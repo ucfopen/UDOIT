@@ -78,9 +78,6 @@
     "doctrine/sql-formatter": {
         "version": "1.1.0"
     },
-    "firebase/php-jwt": {
-        "version": "v5.2.0"
-    },
     "guzzlehttp/psr7": {
         "version": "1.6.1"
     },
@@ -170,9 +167,6 @@
     "psr/log": {
         "version": "1.1.2"
     },
-    "ralouphie/getallheaders": {
-        "version": "3.0.3"
-    },
     "sebastian/cli-parser": {
         "version": "1.0.1"
     },
@@ -254,9 +248,6 @@
             "bin/console",
             "config/bootstrap.php"
         ]
-    },
-    "symfony/css-selector": {
-        "version": "v5.0.5"
     },
     "symfony/debug-bundle": {
         "version": "4.1",
@@ -595,11 +586,8 @@
     "symfony/yaml": {
         "version": "v5.0.5"
     },
-    "theseer/tokenizer": {
-        "version": "1.2.0"
-    },
     "twig/extra-bundle": {
-        "version": "v3.0.3"
+        "version": "v3.29.0"
     },
     "twig/twig": {
         "version": "v3.0.3"
