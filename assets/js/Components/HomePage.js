@@ -237,7 +237,7 @@ export default function HomePage({
           <h2 className="mt-0 mb-4">Help & Feedback</h2>
           <div className="flex-row mb-3">
             <InfoIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />
-            <a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=408fe7021bb162102fc664a2604bcb3e&table=kb_knowledge&searchTerm=Udoit' target='_blank' rel='noopener noreferrer' className='align-self-center'>Learn About UDOIT</a>
+            <a href='https://ucfopen.github.io/udoit.info/' target='_blank' rel='noopener noreferrer' className='align-self-center'>Learn About UDOIT</a>
           </div>
           <div className="flex-row mb-3">
             <ContentAnnouncementIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />
