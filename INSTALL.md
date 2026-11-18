@@ -74,7 +74,7 @@ The following command applies migrations necessary to set up the database to sto
 
 Running this will give the following warning:
 
-> WARNING! You are about to execute a migration in database "udoit3" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]:
+> WARNING! You are about to execute a migration in database "udoit" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]:
 
 Type `yes` and proceed. The warning is expected and is a non issue.
 
@@ -141,7 +141,7 @@ While UDOIT is an LTI tool that only functions fully within an LMS, you can plug
 
 For example, if you are setting this up on your local computer via Docker, it may look like:
 
-    http://127.0.0.1:8000/udoit3/lti/config
+    http://127.0.0.1:8000/udoit/lti/config
 
 
 ## Connecting UDOIT to an LMS

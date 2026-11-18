@@ -787,7 +787,7 @@
 
     &.dialog-full-screen {
       width: calc(100% - 2rem);
-      max-width: var(--content-max-width);
+      max-width: calc(var(--content-max-width) - 2rem);
       height: calc(100% - 2.5rem);
       max-height: calc(100% - 2.5rem);
       position: absolute;
