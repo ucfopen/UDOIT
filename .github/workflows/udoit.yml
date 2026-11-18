@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check PHP syntax errors
-        uses: overtrue/phplint@3.0.3
+        uses: overtrue/phplint@9.8.2
 
       - name: Install Corepack
         run: npm install --global corepack@latest
