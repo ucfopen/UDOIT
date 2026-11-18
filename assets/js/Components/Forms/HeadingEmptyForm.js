@@ -105,24 +105,7 @@ export default function HeadingEmptyForm({
 
   return (
     <>
-      {/* OPTION 1: Delete Heading. ID: "DELETE_HEADING" */}
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_HEADING ? 'selected' : ''}`}>
-        <RadioSelector
-          activeOption={activeOption}
-          isDisabled={isDisabled}
-          setActiveOption={handleOptionChange}
-          option={FORM_OPTIONS.DELETE_HEADING}
-          labelText = {t('form.heading_empty.decision.delete')}
-        />
-        {activeOption === FORM_OPTIONS.DELETE_HEADING && (
-          <OptionFeedback
-            t={t}
-            feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]}
-          />
-        )}
-      </div>
-      
-      {/* OPTION 2: Replace with an empty paragraph. ID: "REPLACE_WITH_PARAGRAPH" */}
+      {/* OPTION 1: Replace with an empty paragraph. ID: "REPLACE_WITH_PARAGRAPH" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.REPLACE_WITH_PARAGRAPH ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -139,7 +122,7 @@ export default function HeadingEmptyForm({
         )}
       </div>
 
-      {/* OPTION 3: Add text. ID: "ADD_TEXT" */}
+      {/* OPTION 2: Add text. ID: "ADD_TEXT" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -167,6 +150,23 @@ export default function HeadingEmptyForm({
               feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]}
             />
           </>
+        )}
+      </div>
+
+      {/* OPTION 3: Delete Heading. ID: "DELETE_HEADING" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_HEADING ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={handleOptionChange}
+          option={FORM_OPTIONS.DELETE_HEADING}
+          labelText = {t('form.heading_empty.decision.delete')}
+        />
+        {activeOption === FORM_OPTIONS.DELETE_HEADING && (
+          <OptionFeedback
+            t={t}
+            feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]}
+          />
         )}
       </div>
     </>

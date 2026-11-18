@@ -23,8 +23,8 @@ RUN if [ "$ENVIRONMENT_TYPE" != "local" ] ;then  \
         && unzip awscliv2.zip \
         && ./aws/install\
     ;fi
-#Install node v14
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+#Install node v26
+RUN curl -fsSL https://deb.nodesource.com/setup_26.x | sudo -E bash - \
     && apt-get update && apt-get install -y nodejs
 # install yarn
 RUN npm install --global yarn

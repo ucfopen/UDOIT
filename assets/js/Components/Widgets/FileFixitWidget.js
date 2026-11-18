@@ -1,9 +1,8 @@
 import React from 'react'
-import BarrierInformation from './BarrierInformation'
 import StatusPill from './StatusPill'
 import FileForm from '../Forms/FileForm'
 import './UfixitWidget.css'
-
+import DecisionQuestion from './DecisionQuestion'
 
 export default function FileFixitWidget({
   t,
@@ -30,7 +29,7 @@ export default function FileFixitWidget({
       aria-hidden={showLearnMore ? "false" : "true"}
       style={{ display: showLearnMore ? "none" : "flex" }}>
 
-      <BarrierInformation
+      <DecisionQuestion
         t={t}
         tempActiveIssue={tempActiveIssue}
         handleLearnMoreClick={handleLearnMoreClick}

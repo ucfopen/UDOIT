@@ -1,24 +1,33 @@
 # Installing UDOIT
-UDOIT can be installed on your own existing servers with the following instructions. UDOIT is also available as a hosted and maintained product by [Cidi Labs](https://cidilabs.com). UDOIT is built using the [PHP Symfony Framework](https://symfony.com).
+
+UDOIT is and will always be open source and free to use. It can be installed on your own existing servers with the following instructions. UDOIT is also available as a hosted and maintained SaaS product by [Cidi Labs](https://cidilabs.com).
 
 ## System Requirements
+
 The system requirements depend on how you install UDOIT.
 
 ### Docker Method
+
 * Docker
 * Docker Compose
 * Cmake (This is available on most systems by default)
 
 ### Manual Installation Method
+
 * Apache or Nginx webserver
-* PHP 8.1, 8.2
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
-* Node v16 is supported; later versions may work
-* Yarn
+* PHP 8.5
+  * [Composer](https://getcomposer.org/) (Package manager)
+  * [Symfony](https://symfony.com) (Programming framework)
+* Node 26
+  * Yarn 4 (Package manager)
+  * React 19 (Programming framework)
 
 ## Download the Code
-### Option 1: Git (Strongly recommended)
+
+### Option 1: Git - **Strongly Recommended**
+
 This method is strongly recommend as it allows UDOIT to be updated through a simple command on the terminal: `git pull`. It also lets you roll back to previous versions if needed. Follow these steps:
 
 1. Install Git on your server (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
@@ -26,25 +35,38 @@ This method is strongly recommend as it allows UDOIT to be updated through a sim
 3. Inside the UDOIT directory, run `git clone git@github.com:ucfopen/UDOIT.git . ` (The . is important; It tells Git to download the files to the current directory.)
 
 ### Option 2: Zip File
+
 If you prefer not to use Git, you can download the zip file of the latest release from the [Releases Page](https://github.com/ucfopen/UDOIT/releases).  Unzip it in the directory in which UDOIT will reside.
 
-## .ENV Setup
+## Environment Configuration
+
 UDOIT stores configuration variables in a `.env` file. To create it:
 
 1. Inside the UDOIT directory, run the following command in shell:
-```
-cp .env.example .env
-```
-This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
+
+    ```
+    cp .env.example .env
+    ```
+
+    This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
 
 2. Open `.env` with a text editor (i.e. Notepad, VS Code, etc.) and make the necessary changes to the following variables:
-   - `APP_ENV`: If you are setting up a development environment, change this to `dev`. Otherwise, leave it as `prod`.
-   - `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
+    
+    **Required Configuration**
+   - `JWK_BASE_URL`: Set this to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.myschool.edu/"`)
+   - `APP_SECRET`: Enter any random 32-character string here, like from [random.org](https://www.random.org/strings/?num=10&len=32&digits=on&upperalpha=on&loweralpha=on&unique=on&format=html&rnd=new).
+
+    **Deployment-Based Configuration**
+   - `APP_ENV`: If you are setting up a development environment, change this to `dev`. Otherwise, leave it as `prod`.   
    - `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
-   - `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
-   	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
-   - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+   - `WEBPACK_PUBLIC_PATH`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
+   - `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
+  
+    **Institution Defaults**
    	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+   	- `DATE_FORMAT`: Can be any [valid PHP dateTime format](https://www.php.net/manual/en/datetime.format.php).
+   	- `BACKGROUND_COLOR`: The default background color of Canvas pages. If your institution uses a custom theme, make sure it matches here.
+   	- `TEXT_COLOR`: The default text color of Canvas pages. If your institution uses a custom theme, make sure it matches here.
 
 ## Installation
 
@@ -74,7 +96,7 @@ The following command applies migrations necessary to set up the database to sto
 
 Running this will give the following warning:
 
-> WARNING! You are about to execute a migration in database "udoit3" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]:
+> WARNING! You are about to execute a migration in database "udoit" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]:
 
 Type `yes` and proceed. The warning is expected and is a non issue.
 
@@ -141,7 +163,7 @@ While UDOIT is an LTI tool that only functions fully within an LMS, you can plug
 
 For example, if you are setting this up on your local computer via Docker, it may look like:
 
-    http://127.0.0.1:8000/udoit3/lti/config
+    http://127.0.0.1:8000/udoit/lti/config
 
 
 ## Connecting UDOIT to an LMS

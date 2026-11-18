@@ -7,6 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Account;
@@ -23,7 +24,10 @@ class AdminPanelRetrievalCommand extends Command
 {
     private const VALID_TABLES = ['accounts', 'terms', 'courses'];
 
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(
+        private EntityManagerInterface $em,
+        #[Autowire('%app.version%')] private readonly string $version
+    )
     {
         parent::__construct();
     }
@@ -71,7 +75,7 @@ class AdminPanelRetrievalCommand extends Command
         $institutionId = (int) getenv('ADMIN_PANEL_INSTITUTION_ID');
         $institution = $this->em->getRepository(Institution::class)->find($institutionId);
 
-        $canvas = new CanvasApi(getenv('ADMIN_RETRIEVAL_LMS_DOMAIN'), getenv('ADMIN_RETRIEVAL_API_TOKEN'));
+        $canvas = new CanvasApi(getenv('ADMIN_RETRIEVAL_LMS_DOMAIN'), getenv('ADMIN_RETRIEVAL_API_TOKEN'), $this->version);
 
         $accounts = $canvas->apiGet('accounts')->getContent();
         $rootAccount = null;

@@ -6,26 +6,24 @@
         "yarn": "4.x"
     },
     "devDependencies": {
-        "@babel/core": "^7.28.0",
-        "@babel/plugin-transform-class-properties": "^7.27.1",
-        "@babel/preset-env": "^7.28.0",
-        "@babel/preset-react": "^7.27.1",
+        "@babel/core": "^8.1.2",
+        "@babel/plugin-transform-class-properties": "^8.0.1",
+        "@babel/preset-env": "^8.0.7",
+        "@babel/preset-react": "^8.0.1",
         "@eslint/js": "^10.0.1",
-        "@symfony/webpack-encore": "5.1.0",
-        "@testing-library/dom": "^10.4.0",
-        "@testing-library/jest-dom": "^6.6.3",
-        "@testing-library/react": "^16.3.0",
-        "@testing-library/user-event": "^14.6.1",
-        "copy-webpack-plugin": "13.0.0",
-        "eslint": "^9.39.4",
-        "eslint-plugin-react": "^7.37.5",
-        "globals": "^17.4.0",
-        "jest": "^30.0.4",
-        "msw": "^2.10.4",
-        "prettier": "^3.8.1",
+        "@symfony/webpack-encore": "^7.2.1",
+        "@testing-library/dom": "^10.4.2",
+        "@testing-library/jest-dom": "^7.0.1",
+        "@testing-library/react": "^16.3.3",
+        "copy-webpack-plugin": "^14.0.0",
+        "eslint": "^10.15.0",
+        "globals": "^17.14.0",
+        "jest": "^30.5.2",
+        "msw": "^3.0.7",
+        "prettier": "^3.10.1",
         "regenerator-runtime": "^0.14.1",
-        "webpack-cli": "^5.1.4",
-        "webpack-notifier": "^1.15.0"
+        "webpack-cli": "^7.3.1",
+        "webpack-notifier": "^1.17.0"
     },
     "license": "GPL-3.0-only",
     "private": true,
@@ -44,16 +42,13 @@
         "pretty": "prettier --write"
     },
     "dependencies": {
-        "@wavesurfer/react": "^1.0.12",
-        "chart.js": "^4.5.0",
-        "chroma-js": "^3.1.2",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0",
-        "tinymce": "^7.9.1",
-        "wavesurfer.js": "^7.12.1",
-        "webpack": "^5.106.2"
-    },
-    "resolutions": {
-        "**/tar": "~6.1.11"
+        "@wavesurfer/react": "^1.0.14",
+        "chart.js": "^4.6.1",
+        "chroma-js": "^3.3.0",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "tinymce": "^8.10.2",
+        "wavesurfer.js": "^8.1.0",
+        "webpack": "^5.112.2"
     }
 }

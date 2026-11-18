@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class LtiController extends AbstractController
 {
@@ -32,7 +33,11 @@ class LtiController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
+    public function __construct(
+        ManagerRegistry $doctrine,
+        SessionService $sessionService,
+        #[Autowire('%app.version%')] private readonly string $version
+    )
     {
         $this->doctrine = $doctrine;
         $this->sessionService = $sessionService;
@@ -146,7 +151,7 @@ class LtiController extends AbstractController
             "extensions" => [
                 [
                     "domain" => $baseDomain,
-                    "tool_id" => "cidilabs_udoit3",
+                    "tool_id" => "ucfopen_udoit",
                     "platform" => $platform,
                     "settings" => [
                         "text" => $appName,
@@ -174,7 +179,7 @@ class LtiController extends AbstractController
                 ],
             ],
             "public_jwk" => [],
-            "description" => "User settings for UDOIT 3.x",
+            "description" => "User settings for UDOIT 4.x",
             "public_jwk_url" => "https://canvas.instructure.com/api/lti/security/jwks",
             "target_link_uri" => "{$baseUrl}/lti/authorize/check",
             "oidc_initiation_url" => "{$baseUrl}/lti/authorize",
@@ -281,7 +286,7 @@ class LtiController extends AbstractController
         $httpClient = HttpClient::create();
         /* URL will be different for other LMSes */
         $url = $this->lmsApi->getLms()->getKeysetUrl();
-        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $userAgent = 'UDOIT/' . $this->version;
         $response = $httpClient->request('GET', $url, [
             'headers' => [
                 'User-Agent' => $userAgent,

@@ -7,8 +7,6 @@ import MessageTray from "../Widgets/MessageTray";
 import AdminFilters from "../Admin/AdminFilters";
 import ProgressIcon from "../Icons/ProgressIcon";
 
-import { ISSUE_FILTER } from "../../Services/Settings";
-
 import "../../../css/udoit4-theme.css";
 import { api } from "../../Services/Api";
 

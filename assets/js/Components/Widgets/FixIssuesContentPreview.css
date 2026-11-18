@@ -295,7 +295,7 @@
   outline-offset: 1px;
 
   /* Errors without text won't have an outline unless they have a border to provide size */
-  &:not(table) {
+  &:not(table):not(blockquote) {
     border: 1px solid transparent;
   }
 }

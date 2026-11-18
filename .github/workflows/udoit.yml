@@ -12,13 +12,16 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest]
         php-versions: ['8.5']
-        node-version: [24.14.0]
+        node-version: ['26.13']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check PHP syntax errors
-        uses: overtrue/phplint@3.0.3
+        uses: overtrue/phplint@9.8.2
+
+      - name: Install Corepack
+        run: npm install --global corepack@latest
 
       - name: Enable Corepack
         run: corepack enable
@@ -28,7 +31,7 @@ jobs:
 
         # This step now handles yarn caching as well
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
@@ -41,7 +44,7 @@ jobs:
           coverage: xdebug #optional
 
       - name: Cache composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.composer/cache
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}

@@ -1,6 +1,7 @@
 import React from 'react'
 import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
+import FixedIcon from '../Icons/FixedIcon'
 
 export default function OptionFeedback ({
   t,
@@ -14,7 +15,7 @@ export default function OptionFeedback ({
           { feedbackArray.map((feedback, index) => 
             <div
               key={index}
-              className={`option-feedback ${feedback.type === 'error' ? 'feedback-error' : 'feedback-warning'}`}
+              className={`option-feedback ${feedback.type === 'error' ? 'feedback-error' : (feedback.type === 'success' ? 'feedback-success' : 'feedback-warning')}`}
               aria-label={t(feedback.type === 'error' ? 'fix.label.feedback_error' : 'fix.label.feedback_caution', {message: feedback.text})}
               role="presentation"
               >
@@ -24,6 +25,9 @@ export default function OptionFeedback ({
                 )}
                 {feedback.type === 'warning' && (
                   <SeverityPotentialIcon className="icon-md udoit-potential-highlight align-self-top pe-2" aria-hidden="true"/>
+                )}
+                {feedback.type === 'success' && (
+                  <FixedIcon className="icon-md udoit-success align-self-top pe-2" aria-hidden="true"/>
                 )}
                 <div aria-hidden="true">{feedback.text}</div>
               </div>

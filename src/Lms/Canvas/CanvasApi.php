@@ -16,9 +16,9 @@ class CanvasApi {
     protected $apiToken;
     protected $httpClient;
 
-    public function __construct($baseUrl, $apiToken)
+    public function __construct($baseUrl, $apiToken, $version)
     {
-        $this->userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $this->userAgent = 'UDOIT/' . $version;
         $this->httpClient = HttpClient::create([
             'headers' => [
                 "Authorization: Bearer " . $apiToken,

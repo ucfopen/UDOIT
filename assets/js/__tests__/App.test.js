@@ -3,7 +3,6 @@ import { renderComponent } from './utils'
 import App from '../Components/App'
 import * as settings from './fixtures/settings'
 import { noMessages } from './fixtures/messages'
-import { render, screen } from '@testing-library/react';
 
 it('renders the App component', async () => {
   const { getByText } = renderComponent(

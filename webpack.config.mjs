@@ -1,6 +1,6 @@
-var Encore = require('@symfony/webpack-encore')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-var path = require('path')
+// var Encore = require('@symfony/webpack-encore')
+import Encore from '@symfony/webpack-encore';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
 // It's useful when you use tools that rely on webpack.config.js file.
@@ -32,13 +32,12 @@ Encore.setOutputPath('public/build')
       auto: (resourcePath) => resourcePath.endsWith('.module.css')
     }
   })
-  // .enablePostCssLoader()
+
   .autoProvidejQuery()
 
   .enableReactPreset()
 
   .configureBabel(null, function (babelConfig) {
-    //This is needed.
 
     babelConfig.plugins = [
       'transform-object-rest-spread',
@@ -46,4 +45,4 @@ Encore.setOutputPath('public/build')
     ]
   })
 
-module.exports = Encore.getWebpackConfig()
+export default await Encore.getWebpackConfig();

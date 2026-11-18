@@ -20,6 +20,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class SyncController extends ApiController
 {
@@ -28,24 +29,27 @@ class SyncController extends ApiController
     /** @var UtilityService $util */
     protected $util;
 
+    private ManagerRegistry $doctrine;
+
+    public function __construct(
+        ManagerRegistry $doctrine,
+        #[Autowire('%app.version%')] private readonly string $version
+    )
+    {
+        $this->doctrine = $doctrine;
+    }
+
     private function isCurrentVersion(Course $course): bool
     {
         $previousReport = $course->getLatestReport();
         if ($previousReport) {
             $data = json_decode($previousReport->getData());
-            $currentVersionNumber = !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '';
+            $currentVersionNumber = $this->version;
             if (isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
                 return true;
             }
         }
         return false;
-    }
-
-    private ManagerRegistry $doctrine;
-
-    public function __construct(ManagerRegistry $doctrine)
-    {
-        $this->doctrine = $doctrine;
     }
 
     private function executeScan(Course $course, SessionService $sessionService, LmsFetchService $lmsFetch, bool $force)

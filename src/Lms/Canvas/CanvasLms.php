@@ -16,6 +16,7 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasLms implements LmsInterface
@@ -47,6 +48,7 @@ class CanvasLms implements LmsInterface
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
+        #[Autowire('%app.version%')] private readonly string $version
     ) {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -133,10 +135,7 @@ class CanvasLms implements LmsInterface
             return $api_status;
         } else {
             $url = 'users/self';
-            $apiDomain = $this->getApiDomain($user);
-            $apiToken = $this->getApiToken($user);
-
-            $canvasApi = new CanvasApi($apiDomain, $apiToken);
+            $canvasApi = $this->getCanvasApi($user);
             $response = $canvasApi->apiGet($url);
 
             $statusCode = $response->getStatusCode();
@@ -247,10 +246,7 @@ class CanvasLms implements LmsInterface
 
     public function listAccountCourses(User $actingUser, int|string $rootAccountId, array $subAccountIds, ?int $termId = null, int $perPage = 100): array
     {
-        $apiDomain = $this->getApiDomain($actingUser);
-        $apiToken  = $this->getApiToken($actingUser);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($actingUser);
 
         // Build base parameters
         $params = [
@@ -297,9 +293,7 @@ class CanvasLms implements LmsInterface
 
     public function getCourseTeachers(User $actingUser, int|string $lmsCourseId): array
     {
-        $apiDomain = $this->getApiDomain($actingUser);
-        $apiToken  = $this->getApiToken($actingUser);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         // Primary: Enrollments with user object included
         $url = "courses/{$lmsCourseId}/enrollments?type[]=TeacherEnrollment&state[]=active&include[]=user";
@@ -339,10 +333,7 @@ class CanvasLms implements LmsInterface
     public function updateCourseData(Course $course, User $user)
     {
         $url = "courses/{$course->getLmsCourseId()}?include[]=term";
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $response = $canvasApi->apiGet($url);
 
         if (!$response) {
@@ -371,10 +362,7 @@ class CanvasLms implements LmsInterface
         $this->contentItemList = [];
         $courseId = $course->getLmsCourseId();
         $urls = $this->getCourseContentUrls($courseId);
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $scanFails = 0;
 
         foreach ($urls as $contentType => $url) {
@@ -423,10 +411,7 @@ class CanvasLms implements LmsInterface
     {
         $sections = [];
         $lmsCourseId = $course->getLmsCourseId();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $urls = $this->getCourseContentUrls($lmsCourseId);
 
         $sectionUrl = $urls['module'];
@@ -452,7 +437,7 @@ class CanvasLms implements LmsInterface
                     }
                 } else {
                     $itemUrl = $sectionUrl . '/' . $content['id'] . '/items';
-                    $itemApi = new CanvasApi($apiDomain, $apiToken);
+                    $itemApi = $this->getCanvasApi($user);
                     $itemResponse = $itemApi->apiGet($itemUrl);
 
                     if ($itemResponse->getErrors()) {
@@ -512,10 +497,7 @@ class CanvasLms implements LmsInterface
 
     public function batchDeleteContent($paths) {
         $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         return $canvasApi->apiDeleteBatch($paths);
 
@@ -524,12 +506,10 @@ class CanvasLms implements LmsInterface
     public function updateContentItem(ContentItem $contentItem)
     {
         $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
         $url = $this->getContentTypeUrl($contentItem);
         $contentType = $contentItem->getContentType();
 
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         $response = $canvasApi->apiGet($url);
 
@@ -561,10 +541,8 @@ class CanvasLms implements LmsInterface
     public function postContentItem(ContentItem $contentItem)
     {
         $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
         $url = $this->getContentTypeUrl($contentItem);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $options = $this->createLmsPostOptions($contentItem);
 
         if ('file' === $contentItem->getContentType()) {
@@ -600,9 +578,7 @@ class CanvasLms implements LmsInterface
     {
         $output = new ConsoleOutput();
         $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         $paths = [];
         $options = [];
@@ -673,9 +649,7 @@ class CanvasLms implements LmsInterface
     {
         $output = new ConsoleOutput();
         $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $url = "courses/{$file->getCourse()->getLmsCourseId()}/files/{$file->getLmsFileId()}";
         $filepath = $this->util->getTempPath() . '/file.' . $file->getId();
         $options = [
@@ -693,9 +667,7 @@ class CanvasLms implements LmsInterface
     {
         $output = new ConsoleOutput();
         $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         $deleteUrl = 'files/' . $file->getLmsFileId();
         $deleteResponse = $canvasApi->apiDelete($deleteUrl);
@@ -711,9 +683,7 @@ class CanvasLms implements LmsInterface
     }
 
     public function getMediaTracks($mediaId, User $user) {
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         $url = "media_objects/{$mediaId}/media_tracks?include[]=content";
         $response = $canvasApi->apiGet($url);
@@ -725,9 +695,7 @@ class CanvasLms implements LmsInterface
     public function setMediaTracks($mediaId, $tracks, User $user) {
         $output = new ConsoleOutput();
         $output->writeln("Tracks: " . json_encode($tracks));
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
 
         $options = [
             'body' => json_encode($tracks),
@@ -788,10 +756,7 @@ class CanvasLms implements LmsInterface
 
         if (empty($terms)) {
             $url = "accounts/self/terms";
-            $apiDomain = $this->getApiDomain($user);
-            $apiToken = $this->getApiToken($user);
-
-            $canvasApi = new CanvasApi($apiDomain, $apiToken);
+            $canvasApi = $this->getCanvasApi($user);
             $response = $canvasApi->apiGet($url);
 
             if (!$response || !empty($response->getErrors())) {
@@ -835,10 +800,7 @@ class CanvasLms implements LmsInterface
     protected function getAccountInfo(User $user, $accountId)
     {
         $url = "accounts/{$accountId}";
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $response = $canvasApi->apiGet($url);
 
         if (!$response || !empty($response->getErrors())) {
@@ -854,10 +816,7 @@ class CanvasLms implements LmsInterface
     protected function getSubAccounts(User $user, $accountId)
     {
         $url = "accounts/{$accountId}/sub_accounts?recursive=true";
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $canvasApi = $this->getCanvasApi($user);
         $response = $canvasApi->apiGet($url);
 
         if (!$response || !empty($response->getErrors())) {
@@ -1199,13 +1158,16 @@ class CanvasLms implements LmsInterface
         return $institution->getLmsDomain();
     }
 
-    protected function getApiToken(User $user)
-    {
-        return $user->getApiKey();
-    }
-
     protected function sortSubAccounts($a, $b)
     {
         return ($a['id'] > $b['id']) ? 1 : -1;
+    }
+
+    protected function getCanvasApi(User $user) {
+        $apiDomain = $user->getInstitution()->getLmsDomain();
+        $apiToken = $user->getApiKey();
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken, $this->version);
+        return $canvasApi;
     }
 }

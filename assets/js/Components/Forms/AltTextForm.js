@@ -190,7 +190,7 @@ export default function AltTextForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.MARK_DECORATIVE}
-          labelText = {t('form.alt_text.decision.decorative')} /* {t('form.alt_text.label.mark_decorative')} */
+          labelText = {t('form.alt_text.decision.decorative')}
         />
       </div>
     </>

@@ -20,6 +20,8 @@ start:
 
 ## Bring down the containers
 down:
+	rm -rf ./var/cache/prod/
+	rm -rf ./var/cache/dev/
 	$(COMPOSE) down
 
 ## Rebuild the containers from the ground up

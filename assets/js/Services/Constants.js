@@ -225,3 +225,81 @@ export const WIDGET_ROLES = [
   "tree",
   "treegrid",
 ]
+
+// All widget roles https://www.w3.org/TR/wai-aria/#widget_roles
+  // + "application", which is from the aria_application_labelled scanRule.
+  // + "liveRegion", "widget", and "window" from https://github.com/IBMa/equal-access/blob/226a78392ea27e99e13638a9163e8e9b1c7a5304/accessibility-checker-engine/src/v4/rules/aria_widget_labelled.ts#L159
+export const WIDGET_ROLES_COMPLETE = [
+  "application",
+  "button",
+  "checkbox",
+  "combobox",
+  "dialog",
+  "grid",
+  "gridcell",
+  "link",
+  "listbox",
+  "liveregion",
+  "menu",
+  "menubar",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "progressbar",
+  "radio",
+  "radiogroup",
+  "scrollbar",
+  "searchbox",
+  "separator",
+  "slider",
+  "spinbutton",
+  "switch",
+  "tab",
+  "tablist",
+  "tabpanel",
+  "textbox",
+  "tree",
+  "treegrid",
+  "treeitem",
+  "widget",
+  "window",
+];
+
+export const WIDGET_TAGS = [
+  "a",
+  "area",
+  "button",
+  "datalist",
+  "dialog",
+  "hr",
+  "option",
+  "progress",
+  "select",
+  "textarea",
+]
+
+export const LANDMARK_ROLES = [
+  "application",
+  "article",
+  "banner",
+  "complementary",
+  "contentinfo",
+  "document",
+  "form",     // May break forms if there are any semi-functional ones created from roles.
+  "main",
+  "navigation",
+  "region",
+  "search",
+];
+
+export const LANDMARK_TAGS = [
+  "article",
+  "aside",
+  "footer",
+  "header",
+  "main",
+  "nav",
+  "search",
+  "section",
+];
