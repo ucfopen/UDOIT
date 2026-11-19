@@ -7,7 +7,7 @@ use App\Entity\Issue;
 use App\Services\HtmlService;
 use App\Services\LmsApiService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class TestController extends AbstractController
 {

@@ -57,7 +57,7 @@ class SessionAuthenticator extends AbstractAuthenticator
         return null;
     }
 
-    public function start(Request $request, AuthenticationException $exception = null)
+    public function start(Request $request, ?AuthenticationException $exception = null)
     {
         return new Response('authentication failed');
     }

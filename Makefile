@@ -14,6 +14,8 @@ migrate:
 
 # Down the containers
 down:
+	rm -rf ./var/cache/prod/
+	rm -rf ./var/cache/dev/
 	docker compose -f docker-compose.nginx.yml down
 
 # clear the Symfony cache

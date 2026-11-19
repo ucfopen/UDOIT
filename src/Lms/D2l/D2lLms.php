@@ -15,7 +15,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class D2lLms implements LmsInterface {
 

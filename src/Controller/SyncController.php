@@ -11,7 +11,7 @@ use App\Services\LmsFetchService;
 use App\Services\PhpAllyService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SyncController extends ApiController
 {
