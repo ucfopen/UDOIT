@@ -5,8 +5,11 @@ import DarkIcon from '../Icons/DarkIcon'
 import ErrorIcon from '../Icons/ErrorIcon'
 import LightIcon from '../Icons/LightIcon'
 import MagicIcon from '../Icons/MagicIcon'
+import UndoIcon from '../Icons/UndoIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import OptionFeedback from '../Widgets/OptionFeedback'
+import ContrastMeter from '../Widgets/ContrastMeter'
 import SliderSelect from '../Widgets/SliderSelect'
 import InfoPopover from '../Widgets/InfoPopover'
 import './ContrastForm.css'
@@ -101,7 +104,7 @@ export default function ContrastForm({
   const [contrastRatio, setContrastRatio] = useState(null)
   const [minRatio, setMinRatio] = useState(4.5)
   const [minAAARatio, setMinAAARatio] = useState(7)
-  const [ratioIsValid, setRatioIsValid] = useState(false)
+  const [status, setStatus] = useState([])
   const [showAllColors, setShowAllColors] = useState(false)
   const [contrastTarget, setContrastTarget] = useState('AA')
   const [autoAdjustFeedbackKey, setAutoAdjustFeedbackKey] = useState(null)
@@ -191,9 +194,16 @@ export default function ContrastForm({
       ratio = Math.min(...ratios)
     }
     setContrastRatio(ratio)
+    let tempStatus = []
+    if (ratio >= minAAARatio) {
+      tempStatus.push({ type: "success", text: t('form.contrast.label.ratio_excellent')})
+    } else if (ratio >= minRatio) {
+      tempStatus.push({ type: "warning", text: t('form.contrast.label.ratio_sufficient')})
+    } else {
+      tempStatus.push({ type: "error", text: t('form.contrast.label.ratio_insufficient')})
+    }
+    setStatus(tempStatus);
     const validRatio = ratio >= minRatio
-    
-    setRatioIsValid(validRatio)
     return validRatio
   }
 
@@ -488,6 +498,18 @@ export default function ContrastForm({
   return (
     <>
       <section className="contrast-adjustment">
+        <OptionFeedback
+          t={t}
+          feedbackArray={status}
+        />
+        {contrastRatio !== null && (
+          <ContrastMeter
+            t={t}
+            minAARatio={minRatio}
+            minAAARatio={minAAARatio}
+            contrastRatio={contrastRatio}
+          />
+        )}
         <div className="flex-row flex-wrap justify-content-between align-items-center gap-2">
           <div className="flex-row align-items-center gap-1">
             <div id="target-level">
@@ -512,31 +534,35 @@ export default function ContrastForm({
             isDisabled = {isDisabled}
           />
         </div>
-        <div className="contrast-adjustment-actions">
+        <div className="flex-row flex-wrap justify-content-between gap-2">
+          <div className="flex-row flex-wrap gap-2">
+            <button
+              className="btn-small btn-icon-left btn-secondary"
+              disabled={isDisabled}
+              onClick={() => handleAutoAdjust('background')}
+            >
+              <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
+              {t('form.contrast.label.auto_adjust_all')}
+            </button>
+            <button
+              className="btn-small btn-icon-left btn-secondary"
+              disabled={isDisabled}
+              onClick={() => handleAutoAdjust('text')}
+            >
+              <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
+              {t('form.contrast.label.auto_adjust_text')}
+            </button>
+          </div>
+          
           <button
             className="btn-small btn-icon-left btn-secondary"
-            disabled={isDisabled}
-            onClick={() => handleAutoAdjust('background')}
+            disabled={isDisabled || !hasColorChanges}
+            onClick={undoChanges}
           >
-            <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
-            {t('form.contrast.label.auto_adjust_all')}
-          </button>
-          <button
-            className="btn-small btn-icon-left btn-secondary"
-            disabled={isDisabled}
-            onClick={() => handleAutoAdjust('text')}
-          >
-            <MagicIcon className="icon-md" alt="" aria-hidden="true"/>
-            {t('form.contrast.label.auto_adjust_text')}
+            <UndoIcon className="icon-md" alt="" aria-hidden="true"/>
+            {t('fix.button.undo')}
           </button>
         </div>
-        <button
-          className="btn-small btn-link contrast-undo-button"
-          disabled={isDisabled || !hasColorChanges}
-          onClick={undoChanges}
-        >
-          {t('form.contrast.label.undo_changes')}
-        </button>
         {autoAdjustFeedbackKey && (
           <div className="instructions" role="status" aria-live="polite">
             {t(autoAdjustFeedbackKey)}
@@ -546,29 +572,6 @@ export default function ContrastForm({
 
       {advancedColorControls}
 
-      <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>
-          
-        <div className="flex-row align-items-center gap-1">
-            {ratioIsValid ? (
-              <CheckIcon className="icon-md color-success" />
-            ) : (
-              <ErrorIcon className="icon-md udoit-issue-highlight" />
-            )}
-          <div className="ratio-label">{t('form.contrast.label.ratio')}</div>
-        </div>
-        
-        <div className="ratio-value">{contrastRatio?.toFixed(2) + (currentBgColors.length > 1 ? '*' : '')}</div>
-        
-        <div className={`ratio-status ${ratioIsValid ? 'valid' : 'invalid'}`}>
-          {getContrastTargetMessage(contrastRatio || 0)}
-        </div>
-
-        {currentBgColors.length > 1 && (
-          <div className="gradient-note">
-            {t('form.contrast.ratio_note')}
-          </div>
-        )}
-      </div>
     </>
   )
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { formNameFromRule } from '../../Services/Ufixit'
 import InfoIcon from '../Icons/InfoIcon'
+import { ISSUE_FILTER } from '../../Services/Constants'
 
 export default function DecisionQuestion ({
   t,
@@ -35,6 +36,19 @@ export default function DecisionQuestion ({
 
   useEffect(() => {
     if(!tempActiveIssue) {
+      return
+    }
+  
+    if(tempActiveIssue.contentType === ISSUE_FILTER.FILE_OBJECT) {
+      const fileSummaryKey = `form.file.${tempActiveIssue.fileData?.fileType}.summary`
+      let fileSummary = t(fileSummaryKey)
+      if (fileSummary === fileSummaryKey) {
+        setFormSummary(t('form.file.summary'))
+      }
+      else {
+        setFormSummary(fileSummary)
+      }
+      setShowLearnMore(true)
       return
     }
 
