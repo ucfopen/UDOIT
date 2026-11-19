@@ -1,5 +1,10 @@
-FROM composer
+FROM php:8.2-cli
 
-RUN apk add gd-dev libpng-dev
-RUN docker-php-ext-install gd
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git unzip libpng-dev \
+    && docker-php-ext-install gd \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
 WORKDIR /app

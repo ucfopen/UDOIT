@@ -4,7 +4,7 @@
     "keywords": ["instructure", "canvas", "d2l", "brightspace", "education", "udoit", "ucf", "accessibility", "edtech", "canvas-lms", "instructure", "section-508"],
     "homepage": "https://github.com/ucfopen/UDOIT",
     "type": "project",
-    "version": "3.1.0",
+    "version": "3.6.0",
     "license": "GPL-3.0-only",
     "require": {
         "php": "^7.4.0 || ^8.1 || ^8.2",
