@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Heading } from '@instructure/ui-heading'
-import { Bar } from '@reactchartjs/react-chart.js'
+import { Bar } from 'react-chartjs-2'
 
 class IssuesReport extends React.Component {
   constructor(props) {

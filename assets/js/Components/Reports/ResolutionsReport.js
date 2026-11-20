@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Heading } from '@instructure/ui-heading'
-import { Line } from '@reactchartjs/react-chart.js'
+import { Line } from 'react-chartjs-2'
 
 class ResolutionsReport extends React.Component {
   constructor(props) {

@@ -52,7 +52,7 @@ services:
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.composer
-      command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader"
+      command: "composer install --no-interaction --no-progress --optimize-autoloader"
       volumes:
         - ./:/app
       env_file:
