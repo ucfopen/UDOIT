@@ -1,5 +1,10 @@
-FROM composer:2.11
+FROM composer:2.11 AS composer
 
-RUN apk add gd-dev libpng-dev
-RUN docker-php-ext-install gd
+FROM php:8.5-cli-alpine
+
+RUN apk add --no-cache git unzip gd-dev libpng-dev \
+    && docker-php-ext-install gd
+
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
 WORKDIR /app
